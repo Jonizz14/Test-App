@@ -1,0 +1,261 @@
+/* ==========================================================================
+   Card and Container Components
+   This file contains styles for cards, containers, and display components
+   ========================================================================== */
+
+/* Simple cards with different styles */
+.card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-alt {
+  background: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-elevated {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Card with special styling for login forms */
+.login-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-2xl);
+  box-shadow: var(--shadow-2xl);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 480px;
+}
+
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--blue-500), var(--blue-700));
+}
+
+/* Card sections */
+.card-header {
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.card-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.card-content {
+  margin-bottom: var(--spacing-lg);
+}
+
+.card-footer {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+/* Display cards for specific content types */
+.teacher-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  border: 1px solid var(--border-light);
+  background: var(--bg-primary);
+}
+
+.teacher-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.test-card {
+  height: 100%;
+  cursor: pointer;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.test-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.test-card.completed {
+  opacity: 0.8;
+  background-color: var(--blue-50);
+}
+
+/* Info cards */
+.info-card {
+  background: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+}
+
+.success-card {
+  background: var(--success-50);
+  border: 1px solid var(--success-500);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+}
+
+.warning-card {
+  background: var(--warning-50);
+  border: 1px solid var(--warning-500);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+}
+
+.error-card {
+  background: var(--error-50);
+  border: 1px solid var(--error-500);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+}
+
+/* Grid cards */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+  margin: var(--spacing-xl) 0;
+}
+
+.cards-grid-sm {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  margin: var(--spacing-lg) 0;
+}
+
+.cards-grid-lg {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: var(--spacing-xl);
+  margin: var(--spacing-2xl) 0;
+}
+
+/* Card list */
+.cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Card content layouts */
+.card-content-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.card-icon {
+  margin-right: var(--spacing-sm);
+  font-size: 1.75rem;
+  color: var(--blue-600);
+}
+
+.card-content-body {
+  flex: 1;
+}
+
+.card-content-footer {
+  margin-top: var(--spacing-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Responsive card adjustments */
+@media (max-width: 768px) {
+  .card {
+    padding: var(--spacing-md);
+  }
+
+  .card-elevated {
+    padding: var(--spacing-lg);
+  }
+
+  .login-card {
+    padding: var(--spacing-lg);
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cards-grid-sm {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: var(--spacing-sm);
+  }
+
+  .login-card {
+    padding: var(--spacing-md);
+  }
+
+  .cards-grid-sm {
+    grid-template-columns: 1fr;
+  }
+
+  .card-content-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .card-footer {
+    flex-direction: column;
+  }
+}

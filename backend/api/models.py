@@ -1,0 +1,215 @@
+from django.db import models
+from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
+
+class User(AbstractUser):
+    ROLE_CHOICES = [
+        ('admin', 'Admin'),
+        ('teacher', 'Teacher'),
+        ('student', 'Student'),
+    ]
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
+    name = models.CharField(max_length=100, blank=True)
+    display_id = models.CharField(max_length=50, blank=True, help_text="Human-readable ID like AHMEDOV_A_11_N")
+    registration_date = models.DateField(null=True, blank=True, help_text="Student registration date")
+    created_at = models.DateTimeField(default=timezone.now)
+    last_login = models.DateTimeField(null=True, blank=True)
+    
+    # Additional fields for students
+    class_group = models.CharField(max_length=10, blank=True, help_text="Class group like 5-01")
+    direction = models.CharField(max_length=20, blank=True, help_text="Student direction (natural/exact)")
+
+    # For teachers
+    subjects = models.JSONField(default=list, blank=True)  # Array of subject names
+    bio = models.TextField(blank=True)
+    total_tests_created = models.IntegerField(default=0)
+    average_student_score = models.FloatField(default=0.0)
+    is_curator = models.BooleanField(default=False, help_text="Is this teacher a class curator?")
+    curator_class = models.CharField(max_length=10, blank=True, null=True, help_text="Curator class like 5-01")
+
+    # For students
+    total_tests_taken = models.IntegerField(default=0)
+    average_score = models.FloatField(default=0.0)
+    completed_subjects = models.JSONField(default=list, blank=True)
+
+    def save(self, *args, **kwargs):
+        # Auto-generate display_id if not set and user is student/teacher
+        if not self.display_id and self.role in ['student', 'teacher']:
+            self.generate_display_id()
+        
+        # Auto-generate email if not set
+        if not self.email and self.username:
+            self.generate_email()
+        
+        # If username is not set but we have name, generate username from name
+        if not self.username and self.first_name and self.last_name:
+            # Create username from display_id for consistency
+            if self.display_id:
+                self.username = self.display_id
+            
+        super().save(*args, **kwargs)
+    
+    def generate_display_id(self):
+        """Generate a display ID for student/teacher based on name and role"""
+        if not self.name and not (self.first_name and self.last_name):
+            # Fallback to username if no name data
+            self.display_id = self.username
+            return
+        
+        # Use first_name and last_name if available, otherwise parse from name
+        if self.first_name and self.last_name:
+            first = self.first_name.upper()
+            last = self.last_name.upper()
+        else:
+            # Parse from name field
+            name_parts = self.name.upper().split() if self.name else []
+            first = name_parts[0] if name_parts else 'STUDENT'
+            last = name_parts[1] if len(name_parts) > 1 else 'X'
+        
+        # Generate random 3 digits
+        import random
+        random_digits = str(random.randint(100, 999))
+        
+        if self.role == 'student':
+            # For students: JAHONGIRT903@test
+            grade = getattr(self, 'class_group', '9') or '9'
+            direction = (getattr(self, 'direction', 'natural') or 'natural')[0].upper()
+            self.display_id = f"{last}{first[0]}T{grade}{direction}{random_digits}@test"
+        elif self.role == 'teacher':
+            # For teachers: MAFTUNASUSTOZ903@test
+            self.display_id = f"{last}{first}USTOZ{random_digits}@test"
+        else:
+            # For admin, use email as display_id
+            self.display_id = self.email
+    
+    def generate_email(self):
+        """Generate email address based on role and display_id"""
+        if self.role == 'admin':
+            self.email = 'admin@testplatform.com'
+        elif self.role == 'student':
+            # Generate student email
+            base_email = self.display_id.replace('@test', '').lower() + '@student.testplatform.com'
+            # Replace special characters for email
+            base_email = base_email.replace("'", '').replace('-', '').replace('_', '')
+            self.email = base_email
+        elif self.role == 'teacher':
+            # Generate teacher email
+            base_email = self.display_id.replace('@test', '').lower() + '@teacher.testplatform.com'
+            # Replace special characters for email
+            base_email = base_email.replace("'", '').replace('-', '').replace('_', '')
+            self.email = base_email
+    
+    def __str__(self):
+        return self.username
+
+class Test(models.Model):
+    DIFFICULTY_CHOICES = [
+        ('easy', 'Oson'),
+        ('medium', 'O\'rtacha'),
+        ('hard', 'Qiyin'),
+    ]
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tests')
+    subject = models.CharField(max_length=100)
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    total_questions = models.IntegerField(default=0)
+    time_limit = models.IntegerField(help_text="Time limit in minutes")
+    difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES, default='medium')
+    target_grades = models.JSONField(default=list, blank=True, help_text="List of grades this test is for, empty for all grades")
+    created_at = models.DateTimeField(default=timezone.now)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.title
+
+class Question(models.Model):
+    QUESTION_TYPES = [
+        ('multiple_choice', 'Multiple Choice'),
+        ('true_false', 'True/False'),
+        ('short_answer', 'Short Answer'),
+    ]
+    test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='questions')
+    question_text = models.TextField()
+    question_type = models.CharField(max_length=20, choices=QUESTION_TYPES)
+    options = models.JSONField(default=list, blank=True)  # For multiple choice
+    correct_answer = models.TextField()
+    explanation = models.TextField(blank=True)
+    points = models.IntegerField(default=1)
+    image = models.ImageField(upload_to='question_images/', blank=True, null=True)
+
+    def __str__(self):
+        return f"Question for {self.test.title}"
+
+class TestAttempt(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='attempts')
+    test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='attempts')
+    answers = models.JSONField(default=dict)  # question_id: answer
+    score = models.FloatField()  # Percentage 0-100
+    submitted_at = models.DateTimeField(default=timezone.now)
+    time_taken = models.IntegerField(help_text="Time taken in minutes")
+
+    def __str__(self):
+        return f"{self.student.username} - {self.test.title}"
+
+class TestSession(models.Model):
+    """Model to track server-side test sessions with persistent timer"""
+    session_id = models.CharField(max_length=100, unique=True, help_text="Unique session identifier")
+    test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='sessions')
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='test_sessions')
+    started_at = models.DateTimeField(help_text="When the test session started")
+    expires_at = models.DateTimeField(help_text="When the test session expires")
+    completed_at = models.DateTimeField(blank=True, null=True, help_text="When the test was completed")
+    answers = models.JSONField(default=dict, help_text="Student answers during the session")
+    is_completed = models.BooleanField(default=False, help_text="Whether the test session is completed")
+    is_expired = models.BooleanField(default=False, help_text="Whether the test session has expired")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['student', 'test']),
+            models.Index(fields=['session_id']),
+        ]
+
+    def __str__(self):
+        return f"Session {self.session_id} - {self.student.username} - {self.test.title}"
+
+    @property
+    def time_remaining(self):
+        """Calculate remaining time in seconds"""
+        if self.is_completed or self.is_expired:
+            return 0
+        
+        from django.utils import timezone
+        now = timezone.now()
+        if now >= self.expires_at:
+            return 0
+        
+        return int((self.expires_at - now).total_seconds())
+
+    @property
+    def is_active(self):
+        """Check if session is still active"""
+        return not self.is_completed and not self.is_expired and self.time_remaining > 0
+
+    def mark_expired(self):
+        """Mark session as expired"""
+        if not self.is_completed:
+            self.is_expired = True
+            self.save()
+
+    def complete(self):
+        """Mark session as completed"""
+        self.is_completed = True
+        from django.utils import timezone
+        self.completed_at = timezone.now()
+        self.save()
+
+class Feedback(models.Model):
+    attempt = models.OneToOneField(TestAttempt, on_delete=models.CASCADE, related_name='feedback')
+    student_feedback = models.JSONField(default=dict)
+    teacher_feedback = models.JSONField(default=dict)
+
+    def __str__(self):
+        return f"Feedback for {self.attempt}"

@@ -1,0 +1,164 @@
+/* Simple, clean styling with alternating blue colors */
+
+/* Full page layout */
+.app-container {
+  min-height: 100vh;
+  width: 100%;
+  background: var(--blue-50);
+}
+
+/* Alternating backgrounds */
+.section-odd {
+  background: white;
+}
+
+.section-even {
+  background: var(--blue-50);
+}
+
+/* Simple cards */
+.simple-card {
+  background: white;
+  border: 1px solid var(--blue-200);
+  padding: 16px;
+}
+
+.simple-card-alt {
+  background: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  padding: 16px;
+}
+
+/* Tables */
+.simple-table {
+  background: white;
+  border: 1px solid var(--blue-200);
+}
+
+.simple-table .MuiTableHead-root {
+  background: var(--blue-100);
+}
+
+.simple-table .MuiTableHead-root .MuiTableCell-head {
+  color: var(--blue-900);
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.simple-table .MuiTableRow-root:nth-of-type(even) {
+  background: var(--blue-50);
+}
+
+.simple-table .MuiTableRow-root:nth-of-type(odd) {
+  background: white;
+}
+
+/* Buttons */
+.btn-simple {
+  background: var(--blue-500);
+  color: white;
+  padding: 8px 16px;
+  font-weight: 500;
+  text-transform: none;
+}
+
+.btn-simple:hover {
+  background: var(--blue-600);
+}
+
+.btn-outline {
+  border: 1px solid var(--blue-400);
+  color: var(--blue-600);
+  padding: 8px 16px;
+  font-weight: 500;
+  text-transform: none;
+}
+
+.btn-outline:hover {
+  background: var(--blue-50);
+}
+
+/* Form inputs */
+.simple-input {
+  background: white;
+  border: 1px solid var(--blue-300);
+}
+
+.simple-input:focus {
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+/* Charts */
+.simple-chart {
+  background: white;
+  border: 1px solid var(--blue-200);
+  padding: 16px;
+}
+
+/* Navigation */
+.simple-nav {
+  background: var(--blue-600);
+  color: white;
+}
+
+.simple-nav .MuiListItemButton-root {
+  margin: 2px 4px;
+}
+
+.simple-nav .MuiListItemButton-root:hover {
+  background: var(--blue-700);
+}
+
+.simple-nav .MuiListItemIcon-root {
+  color: white;
+}
+
+/* Status chips */
+.status-chip {
+  background: var(--blue-100);
+  color: var(--blue-800);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 8px;
+  }
+
+  .simple-card,
+  .simple-card-alt {
+    padding: 12px;
+  }
+
+  .simple-chart {
+    padding: 12px;
+  }
+
+  .btn-simple,
+  .btn-outline {
+    padding: 6px 12px;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-container {
+    padding: 4px;
+  }
+
+  .simple-card,
+  .simple-card-alt {
+    padding: 8px;
+  }
+
+  .simple-table {
+    font-size: 0.75rem;
+  }
+
+  .simple-table .MuiTableCell-root {
+    padding: 8px 4px;
+  }
+}

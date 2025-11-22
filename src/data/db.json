@@ -1,0 +1,15 @@
+{
+  "users": [
+    {
+      "id": "admin-1",
+      "role": "admin",
+      "name": "Admin User",
+      "email": "admin@testplatform.com",
+      "password": "admin123",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "lastLogin": "2024-11-18T00:00:00Z"
+    }
+  ],
+  "tests": [],
+  "submissions": []
+}

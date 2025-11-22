@@ -1,0 +1,228 @@
+/* ==========================================================================
+   Layout Components
+   This file contains layout-related CSS classes for containers, grids, and positioning
+   ========================================================================== */
+
+/* Full page layouts */
+.page-container {
+  min-height: 100vh;
+  width: 100%;
+  background: var(--bg-secondary);
+}
+
+.page-content {
+  padding: var(--spacing-xl);
+  min-height: calc(100vh - 64px); /* Account for header height */
+}
+
+.page-header {
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--blue-700);
+  margin-bottom: var(--spacing-sm);
+}
+
+.page-subtitle {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+/* Content sections with alternating backgrounds */
+.section {
+  padding: var(--spacing-2xl) 0;
+}
+
+.section-odd {
+  background: var(--bg-primary);
+}
+
+.section-even {
+  background: var(--blue-50);
+}
+
+/* Grid system */
+.grid-container {
+  display: grid;
+  gap: var(--spacing-lg);
+  width: 100%;
+}
+
+.grid-1 { grid-template-columns: 1fr; }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-auto { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+
+/* Flexbox utilities */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.items-start {
+  align-items: flex-start;
+}
+
+.items-end {
+  align-items: flex-end;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-start {
+  justify-content: flex-start;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.gap-xs { gap: var(--spacing-xs); }
+.gap-sm { gap: var(--spacing-sm); }
+.gap-md { gap: var(--spacing-md); }
+.gap-lg { gap: var(--spacing-lg); }
+.gap-xl { gap: var(--spacing-xl); }
+
+/* Container utilities */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.container-sm {
+  max-width: 640px;
+}
+
+.container-md {
+  max-width: 768px;
+}
+
+.container-lg {
+  max-width: 1024px;
+}
+
+.container-xl {
+  max-width: 1280px;
+}
+
+/* Centered content */
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.center-vertical {
+  display: flex;
+  align-items: center;
+}
+
+.center-horizontal {
+  display: flex;
+  justify-content: center;
+}
+
+/* Sidebar layout */
+.sidebar-layout {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar-content {
+  background: var(--blue-800);
+  color: white;
+  padding: var(--spacing-lg);
+}
+
+.main-content {
+  background: var(--bg-primary);
+  padding: var(--spacing-xl);
+}
+
+/* Card layouts */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+  margin: var(--spacing-xl) 0;
+}
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Responsive layouts */
+@media (max-width: 768px) {
+  .sidebar-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar-content {
+    display: none;
+  }
+
+  .page-content {
+    padding: var(--spacing-md);
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-content {
+    padding: var(--spacing-sm);
+  }
+
+  .container {
+    padding: 0 var(--spacing-sm);
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+  }
+}
