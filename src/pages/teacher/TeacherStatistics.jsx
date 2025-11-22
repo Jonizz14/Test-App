@@ -217,14 +217,10 @@ const TeacherStatistics = () => {
 
   const StatCard = ({ title, value, color, subtitle }) => (
     <Card sx={{
-      backgroundColor: '#ffffff',
-      border: '1px solid #e2e8f0',
-      borderRadius: '12px',
-      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-      transition: 'all 0.3s ease',
-      '&:hover': {
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-      }
+      backgroundColor: '#FFFFFF',
+      border: '1px solid #E5E7EB',
+      borderRadius: '10px',
+      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
     }}>
       <CardContent sx={{ p: 4 }}>
         <Typography sx={{
@@ -232,18 +228,15 @@ const TeacherStatistics = () => {
           fontWeight: 600,
           textTransform: 'uppercase',
           letterSpacing: '0.5px',
-          color: '#64748b',
+          color: '#1F2937',
           mb: 1
         }}>
           {title}
         </Typography>
         <Typography sx={{
           fontSize: '2.5rem',
-          fontWeight: 700,
-          color: color === 'primary.main' ? '#2563eb' : 
-                 color === 'secondary.main' ? '#059669' :
-                 color === 'success.main' ? '#10b981' :
-                 color === 'warning.main' ? '#d97706' : '#1e293b',
+          fontWeight: 600,
+          color: '#0A1F44',
           lineHeight: 1.2,
           mb: 1
         }}>
@@ -252,8 +245,8 @@ const TeacherStatistics = () => {
         {subtitle && (
           <Typography sx={{
             fontSize: '0.875rem',
-            color: '#64748b',
-            fontWeight: 500
+            color: '#1F2937',
+            fontWeight: 400
           }}>
             {subtitle}
           </Typography>
@@ -283,26 +276,26 @@ const TeacherStatistics = () => {
   }
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       p: 4,
-      backgroundColor: '#ffffff'
+      backgroundColor: '#F4F6F9'
     }}>
-      <Box sx={{ 
+      <Box sx={{
         mb: 6,
         pb: 4,
-        borderBottom: '1px solid #e2e8f0'
+        borderBottom: '1px solid #D1D5DB'
       }}>
         <Typography sx={{
           fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
+          fontWeight: 600,
+          color: '#1F2937',
           mb: 2
         }}>
           O'qituvchi statistikasi
         </Typography>
-        <Typography sx={{ 
-          fontSize: '1.125rem', 
-          color: '#64748b',
+        <Typography sx={{
+          fontSize: '1.125rem',
+          color: '#1F2937',
           fontWeight: 400
         }}>
           Testlaringiz va o'quvchilaringizning batafsil statistikasi
@@ -357,15 +350,15 @@ const TeacherStatistics = () => {
         {/* Score Distribution Chart */}
         <Grid item xs={12} md={6}>
           <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            backgroundColor: '#FFFFFF',
+            border: '1px solid #E5E7EB',
+            borderRadius: '10px',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
             p: 3
           }}>
-            <Typography sx={{ 
-              fontWeight: 600, 
-              color: '#1e293b',
+            <Typography sx={{
+              fontWeight: 600,
+              color: '#1F2937',
               fontSize: '1.25rem',
               mb: 3
             }}>
@@ -378,10 +371,10 @@ const TeacherStatistics = () => {
         {/* Subject Performance Chart */}
         <Grid item xs={12} md={6}>
           <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            backgroundColor: '#FFFFFF',
+            border: '1px solid #E5E7EB',
+            borderRadius: '10px',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
             p: 3
           }}>
             <Typography sx={{ 

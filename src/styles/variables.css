@@ -5,32 +5,30 @@
 
 :root {
   /* Typography */
-  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  --font-weight-heading: 600;
+  --font-weight-text: 400;
 
   /* Text Colors */
-  color: #213547;
-  --text-primary: #1e293b;
+  color: #1F2937;
+  --text-primary: #1F2937;
   --text-secondary: #64748b;
   --text-muted: #94a3b8;
 
   /* Background Colors */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-muted: #f1f5f9;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F4F6F9;
+  --bg-muted: #F4F6F9;
 
-  /* Blue Color Palette - Primary Brand Colors */
-  --blue-50: #eff6ff;
-  --blue-100: #dbeafe;
-  --blue-200: #bfdbfe;
-  --blue-300: #93c5fd;
-  --blue-400: #60a5fa;
-  --blue-500: #3b82f6;
-  --blue-600: #2563eb;
-  --blue-700: #1d4ed8;
-  --blue-800: #1e40af;
-  --blue-900: #1e3a8a;
+  /* Primary Colors */
+  --primary: #0A1F44;
+  --secondary: #FFFFFF;
+  --light-blue: #102B60;
+  --selected-bg: #F0F4FF;
+  --border-light: #D1D5DB;
+  --border-card: #E5E7EB;
 
   /* Status Colors */
   --success-50: #ecfdf5;

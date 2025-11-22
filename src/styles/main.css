@@ -51,8 +51,8 @@
 /* Font weight utilities */
 .font-normal { font-weight: 400; }
 .font-medium { font-weight: 500; }
-.font-semibold { font-weight: 600; }
-.font-bold { font-weight: 700; }
+.font-semibold { font-weight: var(--font-weight-heading); }
+.font-bold { font-weight: var(--font-weight-heading); }
 
 /* Font size utilities */
 .text-xs { font-size: 0.75rem; }
@@ -192,7 +192,7 @@
 /* Login page specific styles */
 .login-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--bg-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -201,11 +201,8 @@
 
 .login-logo {
   font-size: 2rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--blue-700) 0%, var(--blue-500) 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-weight: var(--font-weight-heading);
+  color: var(--primary);
   margin-bottom: var(--spacing-sm);
 }
 
@@ -247,8 +244,8 @@
 }
 
 .sidebar {
-  background: var(--blue-800);
-  color: white;
+  background: var(--primary);
+  color: var(--secondary);
   padding: var(--spacing-lg);
 }
 
@@ -269,7 +266,7 @@
 
 .sidebar-item:hover,
 .sidebar-item.active {
-  background: var(--blue-700);
+  background: var(--light-blue);
 }
 
 .dashboard-main {
@@ -478,7 +475,7 @@
 }
 
 .switch.active {
-  background: var(--blue-500);
+  background: var(--primary);
 }
 
 .switch-handle {
@@ -511,9 +508,9 @@
   padding: var(--spacing-xs) var(--spacing-sm);
   font-size: 0.75rem;
   font-weight: 500;
-  background: var(--blue-100);
-  color: var(--blue-700);
-  border: 1px solid var(--blue-200);
+  background: var(--bg-secondary);
+  color: var(--primary);
+  border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   white-space: nowrap;
 }
