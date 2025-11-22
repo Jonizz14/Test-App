@@ -16,6 +16,7 @@ import {
   IconButton,
   useMediaQuery,
   useTheme,
+  Badge,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -23,8 +24,11 @@ import {
   People as PeopleIcon,
   Assessment as AssessmentIcon,
   ExitToApp as LogoutIcon,
+  Shield as ShieldIcon,
+  Notifications as NotificationsIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
+import apiService from '../data/apiService';
 
 // Import admin sub-pages (we'll create these)
 import AdminOverview from './admin/AdminOverview';
@@ -36,6 +40,7 @@ import StudentRatings from './admin/StudentRatings';
 
 const AdminDashboard = () => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [bannedStudents, setBannedStudents] = React.useState([]);
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -51,6 +56,22 @@ const AdminDashboard = () => {
     logout();
     navigate('/login');
   };
+
+  // Fetch banned students
+  React.useEffect(() => {
+    const fetchBannedStudents = async () => {
+      try {
+        const usersData = await apiService.getUsers();
+        const users = usersData.results || usersData;
+        const banned = users.filter(user => user.role === 'student' && user.is_banned);
+        setBannedStudents(banned);
+      } catch (error) {
+        console.error('Failed to fetch banned students:', error);
+      }
+    };
+
+    fetchBannedStudents();
+  }, []);
 
   const menuItems = [
     { text: 'Umumiy', icon: <DashboardIcon />, path: '/admin' },
@@ -162,9 +183,30 @@ const AdminDashboard = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Test Platform Admin
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+            <ShieldIcon sx={{ mr: 1, color: '#2563eb' }} />
+            <Typography variant="h6" noWrap component="div">
+              STIM Anti-Cheat System
+            </Typography>
+          </Box>
+          {bannedStudents.length > 0 && (
+            <IconButton
+              color="inherit"
+              onClick={() => navigate('/admin/students')}
+              sx={{
+                mr: 2,
+                color: '#dc2626',
+                '&:hover': {
+                  backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                }
+              }}
+              title={`${bannedStudents.length} ta bloklangan o'quvchi bor`}
+            >
+              <Badge badgeContent={bannedStudents.length} color="error">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+          )}
           <Typography variant="body1" sx={{ mr: 2 }}>
             Welcome, {currentUser?.name}
           </Typography>

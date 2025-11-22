@@ -40,10 +40,6 @@ const StudentResult = () => {
   const [lessonModalOpen, setLessonModalOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
-  useEffect(() => {
-    loadStudentResult();
-  }, [attemptId]);
-
   const loadStudentResult = async () => {
     try {
       // Load attempt data from API
@@ -108,6 +104,10 @@ const StudentResult = () => {
     }
   };
 
+  useEffect(() => {
+    loadStudentResult();
+  }, [attemptId]);
+
   const getScoreColor = (score) => {
     if (score >= 90) return 'success';
     if (score >= 70) return 'warning';
@@ -122,10 +122,6 @@ const StudentResult = () => {
     return 'Yomon';
   };
 
-  const getAnswerStatus = (questionId, studentAnswer, correctAnswer) => {
-    if (!studentAnswer) return 'Javob berilmagan';
-    return studentAnswer === correctAnswer ? 'To\'g\'ri' : 'Noto\'g\'ri';
-  };
 
   if (loading) {
     return (

@@ -35,6 +35,9 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useServerTest } from '../../context/ServerTestContext';
 import apiService from '../../data/apiService';
+import useAntiCheating from '../../hooks/useAntiCheating';
+import WarningModal from '../../components/WarningModal';
+import TestUnbanModal from '../../components/TestUnbanModal';
 
 const TakeTest = () => {
   const { currentUser } = useAuth();
@@ -72,6 +75,36 @@ const TakeTest = () => {
   const [urgentSubmitDialogOpen, setUrgentSubmitDialogOpen] = useState(false);
   const [sessionRecovering, setSessionRecovering] = useState(false);
   const [activeTestSessions, setActiveTestSessions] = useState({}); // Track active sessions for each test
+
+  // Anti-cheating hook - only active during test session
+  const [sessionId, setSessionId] = useState(null);
+  const {
+    showWarning,
+    warningMessage,
+    closeWarning,
+    showUnbanPrompt,
+    unbanCode,
+    setUnbanCode,
+    unbanError,
+    handleUnbanSubmit,
+    closeUnbanPrompt,
+    warningCount
+  } = useAntiCheating(
+    sessionStarted,
+    sessionId,
+    currentSession?.warning_count || 0,
+    currentSession?.unban_prompt_shown || false
+  );
+
+  // Update sessionId when currentSession changes
+  useEffect(() => {
+    if (currentSession?.session_id) {
+      setSessionId(currentSession.session_id);
+    } else if (!sessionStarted) {
+      setSessionId(null);
+    }
+  }, [currentSession, sessionStarted]);
+
 
   // Difficulty labels mapping
   const difficultyLabels = {
@@ -607,13 +640,16 @@ const TakeTest = () => {
           </Button>
         </Box>
 
-        <Paper sx={{
-          p: 4,
-          backgroundColor: '#ffffff',
-          border: '1px solid #e9ecef',
-          borderRadius: 3,
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-        }}>
+        <Paper
+          className="anti-screenshot"
+          sx={{
+            p: 4,
+            backgroundColor: '#ffffff',
+            border: '1px solid #e9ecef',
+            borderRadius: 3,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+          }}
+        >
           {/* Image displayed at the top - bigger */}
           {currentQuestion.image && (
             <Box sx={{ mb: 4, textAlign: 'center' }}>
@@ -884,6 +920,30 @@ const TakeTest = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
+        {/* Anti-cheating Warning Modal */}
+        <WarningModal
+          open={showWarning}
+          message={warningMessage}
+          onClose={closeWarning}
+        />
+
+        {/* Test Unban Prompt Modal */}
+        <TestUnbanModal
+          open={showUnbanPrompt}
+          onUnbanSuccess={() => {
+            closeUnbanPrompt();
+            // Reset warning count and continue test
+          }}
+          onUnbanFail={() => {
+            // User failed to enter code, they will be banned by backend
+            closeUnbanPrompt();
+          }}
+          unbanCode={unbanCode}
+          setUnbanCode={setUnbanCode}
+          unbanError={unbanError}
+          handleUnbanSubmit={handleUnbanSubmit}
+        />
       </Box>
     );
   }

@@ -53,15 +53,6 @@ const ServerTestDemo = () => {
   const [demoCompleted, setDemoCompleted] = useState(false);
   const [demoScore, setDemoScore] = useState(0);
 
-  useEffect(() => {
-    loadAvailableTests();
-  }, []);
-
-  useEffect(() => {
-    // Check for existing sessions on component mount
-    checkForExistingSessions();
-  }, []);
-
   const loadAvailableTests = async () => {
     try {
       const tests = await apiService.getTests({ is_active: true });
@@ -77,9 +68,9 @@ const ServerTestDemo = () => {
 
     try {
       // Check for any active sessions
-      const sessions = await apiService.getSessions({ 
-        student: currentUser.id, 
-        active_only: 'true' 
+      const sessions = await apiService.getSessions({
+        student: currentUser.id,
+        active_only: 'true'
       });
 
       if (sessions && sessions.length > 0) {
@@ -90,6 +81,15 @@ const ServerTestDemo = () => {
       console.error('Failed to check sessions:', error);
     }
   };
+
+  useEffect(() => {
+    loadAvailableTests();
+  }, [loadAvailableTests]);
+
+  useEffect(() => {
+    // Check for existing sessions on component mount
+    checkForExistingSessions();
+  }, [checkForExistingSessions]);
 
   const startDemoTest = async (test) => {
     try {

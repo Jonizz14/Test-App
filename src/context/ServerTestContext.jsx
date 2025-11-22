@@ -20,6 +20,51 @@ export const ServerTestProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [sessionStarted, setSessionStarted] = useState(false);
 
+  const submitTest = useCallback(async () => {
+    if (!currentSession) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await apiService.completeSession(currentSession.session_id);
+
+      // Clear session state
+      setCurrentSession(null);
+      setTimeRemaining(0);
+      setSessionStarted(false);
+      setIsLoading(false);
+
+      return result;
+    } catch (err) {
+      if (err.response?.status === 410) {
+        setError('Test session has expired');
+        setCurrentSession(null);
+        setSessionStarted(false);
+      } else {
+        setError(err.response?.data?.error || 'Failed to submit test');
+      }
+      setIsLoading(false);
+      throw err;
+    }
+  }, [currentSession]);
+
+  const handleSessionExpired = useCallback(async () => {
+    if (!currentSession) return;
+
+    try {
+      // Auto-submit the test when time expires
+      const result = await submitTest();
+      console.log('Test auto-submitted due to time expiry:', result);
+    } catch (err) {
+      console.error('Failed to auto-submit expired test:', err);
+      // Even if auto-submit fails, clear the session
+      setCurrentSession(null);
+      setTimeRemaining(0);
+      setSessionStarted(false);
+    }
+  }, [currentSession, submitTest]);
+
   // Timer effect
   useEffect(() => {
     let timer;
@@ -41,7 +86,7 @@ export const ServerTestProvider = ({ children }) => {
         clearTimeout(timer);
       }
     };
-  }, [currentSession, sessionStarted, timeRemaining]);
+  }, [currentSession, sessionStarted, timeRemaining, handleSessionExpired]);
 
   const startTestSession = useCallback(async (testId) => {
     setIsLoading(true);
@@ -104,51 +149,6 @@ export const ServerTestProvider = ({ children }) => {
       // Don't throw error for answer updates to avoid disrupting test flow
     }
   }, [currentSession]);
-
-  const submitTest = useCallback(async () => {
-    if (!currentSession) return;
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await apiService.completeSession(currentSession.session_id);
-
-      // Clear session state
-      setCurrentSession(null);
-      setTimeRemaining(0);
-      setSessionStarted(false);
-      setIsLoading(false);
-
-      return result;
-    } catch (err) {
-      if (err.response?.status === 410) {
-        setError('Test session has expired');
-        setCurrentSession(null);
-        setSessionStarted(false);
-      } else {
-        setError(err.response?.data?.error || 'Failed to submit test');
-      }
-      setIsLoading(false);
-      throw err;
-    }
-  }, [currentSession]);
-
-  const handleSessionExpired = useCallback(async () => {
-    if (!currentSession) return;
-
-    try {
-      // Auto-submit the test when time expires
-      const result = await submitTest();
-      console.log('Test auto-submitted due to time expiry:', result);
-    } catch (err) {
-      console.error('Failed to auto-submit expired test:', err);
-      // Even if auto-submit fails, clear the session
-      setCurrentSession(null);
-      setTimeRemaining(0);
-      setSessionStarted(false);
-    }
-  }, [currentSession, submitTest]);
 
   const checkActiveSession = useCallback(async (testId) => {
     if (!currentUser) return null;

@@ -22,8 +22,9 @@ import {
   MenuItem,
   Chip,
   IconButton,
+  Tooltip,
 } from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Add as AddIcon, Delete as DeleteIcon, Block as BlockIcon, CheckCircle as CheckCircleIcon } from '@mui/icons-material';
 import apiService from '../../data/apiService';
 
 const ManageStudents = () => {
@@ -41,36 +42,30 @@ const ManageStudents = () => {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
-  useEffect(() => {
-    loadStudents();
-  }, []);
-
-  const [tests, setTests] = useState([]);
-
   const loadStudents = async () => {
     try {
-      const [allUsers, allAttempts, allTests] = await Promise.all([
+      const [allUsers, allAttempts] = await Promise.all([
         apiService.getUsers(),
-        apiService.getAttempts(),
-        apiService.getTests()
+        apiService.getAttempts()
       ]);
       const allStudents = allUsers.filter(user => user.role === 'student');
       setStudents(allStudents);
       setAttempts(allAttempts.results || allAttempts);
-      setTests(allTests.results || allTests);
     } catch (error) {
       console.error('Failed to load students:', error);
     }
   };
 
-  const generateStudentId = (firstName, lastName, classGroup, direction) => {
+  useEffect(() => {
+    loadStudents();
+  }, []);
+
+  const generateStudentId = (firstName, lastName, classGroup, direction, randomDigits) => {
     // Create ID like: TO'XTAYEVJT9-03N478@test (LASTNAMEFIRSTINITIALTGRADE_DIRECTION_RANDOM@test)
     const lastNameUpper = lastName.toUpperCase().replace("'", '');
     const firstNameInitial = firstName.charAt(0).toUpperCase();
     const grade = classGroup.replace('-', '');
     const directionCode = direction === 'natural' ? 'N' : 'E';
-    const randomDigits = Math.floor(Math.random() * 900) + 100; // Random 3 digits
     return `${lastNameUpper}${firstNameInitial}T${grade}${directionCode}${randomDigits}@test`;
   };
 
@@ -108,11 +103,13 @@ const ManageStudents = () => {
 
     try {
       // Generate display ID and valid credentials
+      const randomDigits = Math.floor(Math.random() * 900) + 100; // Random 3 digits
       const displayId = generateStudentId(
         formData.firstName,
         formData.lastName,
         formData.classGroup,
-        formData.direction
+        formData.direction,
+        randomDigits
       );
       const username = generateStudentUsername(
         formData.firstName,
@@ -186,13 +183,34 @@ const ManageStudents = () => {
     setDeleteDialogOpen(true);
   };
 
+  const handleBanStudent = async (studentId) => {
+    try {
+      await apiService.banUser(studentId, 'Admin tomonidan bloklandi');
+      // Reload students
+      await loadStudents();
+      setSuccess('O\'quvchi muvaffaqiyatli bloklandi!');
+    } catch (error) {
+      console.error('Failed to ban student:', error);
+      setError('O\'quvchini bloklashda xatolik yuz berdi');
+    }
+  };
+
+  const handleUnbanStudent = async (studentId) => {
+    try {
+      await apiService.unbanUser(studentId);
+      // Reload students
+      await loadStudents();
+      setSuccess('O\'quvchi muvaffaqiyatli blokdan chiqarildi!');
+    } catch (error) {
+      console.error('Failed to unban student:', error);
+      setError('O\'quvchini blokdan chiqarishda xatolik yuz berdi');
+    }
+  };
+
   const getDirectionLabel = (direction) => {
     return direction === 'natural' ? 'Tabiiy fanlar' : 'Aniq fanlar';
   };
 
-  const getDirectionColor = (direction) => {
-    return direction === 'natural' ? 'success' : 'primary';
-  };
 
   const getStudentAttemptCount = (studentId) => {
     return attempts.filter(attempt => attempt.student === studentId).length;
@@ -276,6 +294,8 @@ const ManageStudents = () => {
               <TableCell>Yo'nalish</TableCell>
               <TableCell>Test urinishlari</TableCell>
               <TableCell>O'rtacha ball</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Unban kodi</TableCell>
               <TableCell>Harakatlar</TableCell>
             </TableRow>
           </TableHead>
@@ -347,7 +367,7 @@ const ManageStudents = () => {
                   </Typography>
                 </TableCell>
                 <TableCell>
-                  <Typography sx={{ 
+                  <Typography sx={{
                     fontWeight: 700,
                     color: '#059669',
                     fontSize: '1.125rem'
@@ -356,18 +376,92 @@ const ManageStudents = () => {
                   </Typography>
                 </TableCell>
                 <TableCell>
-                  <IconButton
+                  <Chip
+                    label={student.is_banned ? 'Bloklangan' : 'Faol'}
                     size="small"
-                    onClick={() => handleDeleteClick(student)}
                     sx={{
-                      color: '#dc2626',
-                      '&:hover': {
-                        backgroundColor: '#fef2f2',
-                      }
+                      backgroundColor: student.is_banned ? '#fef2f2' : '#ecfdf5',
+                      color: student.is_banned ? '#dc2626' : '#059669',
+                      fontWeight: 600,
+                      borderRadius: '6px',
+                      fontSize: '0.75rem'
                     }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
+                  />
+                </TableCell>
+                <TableCell>
+                  {student.is_banned && student.unban_code ? (
+                    <Tooltip title="Bu kod o'quvchi uchun unikal">
+                      <Typography sx={{
+                        fontFamily: 'monospace',
+                        fontWeight: 700,
+                        fontSize: '0.875rem',
+                        backgroundColor: '#fef2f2',
+                        color: '#dc2626',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        display: 'inline-block',
+                        letterSpacing: '1px'
+                      }}>
+                        {student.unban_code}
+                      </Typography>
+                    </Tooltip>
+                  ) : (
+                    <Typography sx={{
+                      fontSize: '0.75rem',
+                      color: '#94a3b8'
+                    }}>
+                      -
+                    </Typography>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    {student.is_banned ? (
+                      <Tooltip title="Blokdan chiqarish">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleUnbanStudent(student.id)}
+                          sx={{
+                            color: '#059669',
+                            '&:hover': {
+                              backgroundColor: '#ecfdf5',
+                            }
+                          }}
+                        >
+                          <CheckCircleIcon />
+                        </IconButton>
+                      </Tooltip>
+                    ) : (
+                      <Tooltip title="Bloklash">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleBanStudent(student.id)}
+                          sx={{
+                            color: '#dc2626',
+                            '&:hover': {
+                              backgroundColor: '#fef2f2',
+                            }
+                          }}
+                        >
+                          <BlockIcon />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    <Tooltip title="O'chirish">
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDeleteClick(student)}
+                        sx={{
+                          color: '#dc2626',
+                          '&:hover': {
+                            backgroundColor: '#fef2f2',
+                          }
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                 </TableCell>
               </TableRow>
             ))}
@@ -466,7 +560,7 @@ const ManageStudents = () => {
 
           {formData.firstName && formData.lastName && formData.classGroup && formData.direction && (
             <Alert severity="info" sx={{ mt: 2 }}>
-              <strong>Generatsiya qilingan ID:</strong> {generateStudentId(formData.firstName, formData.lastName, formData.classGroup, formData.direction)}
+              <strong>Generatsiya qilingan ID:</strong> {generateStudentId(formData.firstName, formData.lastName, formData.classGroup, formData.direction, 123)}
               <br />
               <strong>Parol:</strong> Yuqoridagi ID (ID parol sifatida ishlatiladi)
             </Alert>

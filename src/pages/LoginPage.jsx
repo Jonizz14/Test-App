@@ -19,6 +19,7 @@ import {
   Login as LoginIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
+import UnbanModal from '../components/UnbanModal';
 
 // LoginPage Component - Handles user authentication
 const LoginPage = () => {
@@ -31,12 +32,12 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
 
   // Authentication context and navigation hook
-  const { login, logout, currentUser, isAuthenticated } = useAuth();
+  const { login, logout, currentUser, isAuthenticated, isBanned } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect authenticated users to their appropriate dashboard
+  // Redirect authenticated users to their appropriate dashboard (but not if banned)
   useEffect(() => {
-    if (isAuthenticated && currentUser) {
+    if (isAuthenticated && currentUser && !isBanned) {
       if (currentUser.role === 'admin') {
         navigate('/admin', { replace: true });
       } else if (currentUser.role === 'teacher') {
@@ -45,7 +46,7 @@ const LoginPage = () => {
         navigate('/student', { replace: true });
       }
     }
-  }, [isAuthenticated, currentUser, navigate]);
+  }, [isAuthenticated, currentUser, isBanned, navigate]);
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -266,6 +267,12 @@ const LoginPage = () => {
           </Grid>
         </Box>
       </Container>
+
+      {/* Unban Modal for Banned Users */}
+      <UnbanModal
+        open={isBanned}
+        onClose={() => {}} // Modal cannot be closed manually
+      />
     </Box>
   );
 };

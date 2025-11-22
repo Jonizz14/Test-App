@@ -149,11 +149,13 @@ const TeacherRoute = ({ children }) => (
   <ProtectedRoute allowedRoles={['teacher']}>{children}</ProtectedRoute>
 );
 
-const StudentRoute = ({ children }) => (
-  <ProtectedRoute allowedRoles={['student']}>
-    {children}
-  </ProtectedRoute>
-);
+const StudentRoute = ({ children }) => {
+  return (
+    <ProtectedRoute allowedRoles={['student']}>
+      {children}
+    </ProtectedRoute>
+  );
+};
 
 // Error Boundary Component - Catches and handles React errors gracefully
 // Provides user-friendly error messages and recovery options

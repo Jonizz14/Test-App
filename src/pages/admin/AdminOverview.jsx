@@ -29,7 +29,8 @@ const AdminOverview = () => {
     totalTests: 0,
     totalAttempts: 0,
     activeTests: 0,
-    recentActivity: []
+    recentActivity: [],
+    bannedUsers: []
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -48,6 +49,7 @@ const AdminOverview = () => {
         ]);
 
         const users = usersData.results || usersData;
+        const bannedUsers = users.filter(user => user.is_banned);
         const tests = testsData.results || testsData;
         const attempts = attemptsData.results || attemptsData;
 
@@ -96,7 +98,8 @@ const AdminOverview = () => {
           averageScore,
           highestScore,
           lowestScore,
-          recentActivity
+          recentActivity,
+          bannedUsers
         });
 
       } catch (error) {
@@ -445,6 +448,78 @@ const AdminOverview = () => {
           </Paper>
         </Grid>
       </Grid>
+
+      {/* Banned Users Section */}
+      {stats.bannedUsers.length > 0 && (
+        <Box sx={{ mt: 4 }}>
+          <Paper sx={{
+            p: 4,
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          }}>
+            <Typography
+              sx={{
+                fontSize: '1.25rem',
+                fontWeight: 700,
+                color: '#1e293b',
+                mb: 3
+              }}
+            >
+              🚫 Bloklangan o'quvchilar
+            </Typography>
+            <List sx={{ p: 0 }}>
+              {stats.bannedUsers.map((user, index) => (
+                <React.Fragment key={user.id}>
+                  <ListItem sx={{
+                    px: 0,
+                    py: 2,
+                    backgroundColor: '#fef2f2',
+                    borderRadius: '8px',
+                    mb: 1
+                  }}>
+                    <ListItemText
+                      primary={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                          <Typography sx={{
+                            fontSize: '0.875rem',
+                            fontWeight: 600,
+                            color: '#dc2626'
+                          }}>
+                            {user.name || user.username}
+                          </Typography>
+                          <Typography sx={{
+                            fontSize: '0.75rem',
+                            color: '#6b7280',
+                            backgroundColor: '#fee2e2',
+                            px: 2,
+                            py: 0.5,
+                            borderRadius: '4px',
+                            fontFamily: 'monospace',
+                            fontWeight: 'bold'
+                          }}>
+                            Kod: {user.unban_code}
+                          </Typography>
+                        </Box>
+                      }
+                      secondary={
+                        <Typography sx={{
+                          fontSize: '0.75rem',
+                          color: '#6b7280'
+                        }}>
+                          Bloklash sababi: {user.ban_reason} • Bloklangan: {user.ban_date ? new Date(user.ban_date).toLocaleDateString('uz-UZ') : 'Noma\'lum'}
+                        </Typography>
+                      }
+                    />
+                  </ListItem>
+                  {index < stats.bannedUsers.length - 1 && <Divider sx={{ my: 1 }} />}
+                </React.Fragment>
+              ))}
+            </List>
+          </Paper>
+        </Box>
+      )}
     </Box>
   );
 };

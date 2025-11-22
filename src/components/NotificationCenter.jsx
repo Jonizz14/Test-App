@@ -24,10 +24,6 @@ const NotificationCenter = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
 
-  useEffect(() => {
-    loadNotifications();
-  }, [currentUser]);
-
   const loadNotifications = () => {
     if (currentUser) {
       const allNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
@@ -36,6 +32,10 @@ const NotificationCenter = () => {
       setUnreadCount(userNotifications.filter(n => !n.isRead).length);
     }
   };
+
+  useEffect(() => {
+    loadNotifications();
+  }, [currentUser, loadNotifications]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);

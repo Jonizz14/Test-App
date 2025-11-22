@@ -272,6 +272,33 @@ class ApiService {
   async autoExpireSessions() {
     return this.post('/sessions/auto_expire_sessions/', {});
   }
+
+  // Warning methods
+  async logWarning(data) {
+    return this.post('/warnings/log_warning/', data);
+  }
+
+  async getWarnings(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    return this.get(`/warnings/${queryString ? `?${queryString}` : ''}`);
+  }
+
+  // Ban management methods
+  async banUser(userId, reason) {
+    return this.post(`/users/${userId}/ban_user/`, { reason });
+  }
+
+  async unbanUser(userId) {
+    return this.post(`/users/${userId}/unban_user/`);
+  }
+
+  async unbanWithCode(code) {
+    return this.post('/users/unban_with_code/', { code });
+  }
+
+  async banCurrentUser(reason) {
+    return this.post('/users/ban_current_user/', { reason });
+  }
 }
 
 const apiService = new ApiService();

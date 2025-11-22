@@ -26,9 +26,11 @@ import {
   Person as PersonIcon,
   School as SchoolIcon,
   ExitToApp as LogoutIcon,
+  Shield as ShieldIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import NotificationCenter from '../components/NotificationCenter';
+import UnbanModal from '../components/UnbanModal';
 
 // Import student sub-pages (we'll create these)
 import StudentOverview from './student/StudentOverview';
@@ -44,7 +46,7 @@ import TeacherDetails from './student/TeacherDetails';
 const StudentDashboard = () => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(true);
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, isBanned } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -173,9 +175,12 @@ const StudentDashboard = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Test Platform - O'quvchi
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+            <ShieldIcon sx={{ mr: 1, color: '#2563eb' }} />
+            <Typography variant="h6" noWrap component="div">
+              STIM Anti-Cheat System
+            </Typography>
+          </Box>
           <Typography variant="body1" sx={{ mr: 2 }}>
             Salom, {currentUser?.name}
           </Typography>
@@ -253,6 +258,12 @@ const StudentDashboard = () => {
           </Container>
         </Box>
       </Box>
+
+      {/* Unban Modal for Banned Students */}
+      <UnbanModal
+        open={isBanned}
+        onClose={() => {}} // Modal cannot be closed manually
+      />
     </Box>
   );
 };

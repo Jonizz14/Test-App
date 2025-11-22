@@ -74,10 +74,10 @@ const SendLessonModal = ({ open, onClose, student, testResult, teacherInfo }) =>
         id: `lesson-${Date.now()}`,
         studentId: student.id,
         teacherId: teacherInfo?.id || 'current-teacher-id',
-        teacherName: teacherInfo?.fullName || teacherInfo?.name || 'O\'qituvchi',
+        teacherName: teacherInfo?.fullName || teacherInfo?.name || "O'qituvchi",
         type: 'lesson_reminder',
-        title: 'Qo\'shimcha dars belgilandi',
-        message: `${teacherInfo?.fullName || teacherInfo?.name || 'O\'qituvchi'} sizni ${formData.lessonDate} kuni ${formData.lessonTime}da "${formData.topic}" mavzusida qo\'shimcha darsga taklif qiladi.\n\nFan: ${formData.subject}\nQiyinlik: ${formData.difficulty === 'easy' ? 'Oson' : formData.difficulty === 'medium' ? 'O\'rtacha' : 'Qiyin'}\nDavomiyligi: ${formData.estimatedTime} daqiqa\nHona: ${formData.room}\nTafsilot: ${formData.description}`,
+        title: "Qo'shimcha dars belgilandi",
+        message: `${teacherInfo?.fullName || teacherInfo?.name || "O'qituvchi"} sizni ${formData.lessonDate} kuni ${formData.lessonTime}da "${formData.topic}" mavzusida qo'shimcha darsga taklif qiladi.\n\nFan: ${formData.subject}\nQiyinlik: ${formData.difficulty === 'easy' ? 'Oson' : formData.difficulty === 'medium' ? "O'rtacha" : 'Qiyin'}\nDavomiyligi: ${formData.estimatedTime} daqiqa\nHona: ${formData.room}\nTafsilot: ${formData.description}`,
         testId: testResult?.id,
         testTitle: testResult?.test?.title,
         subject: formData.subject,
@@ -121,17 +121,6 @@ const SendLessonModal = ({ open, onClose, student, testResult, teacherInfo }) =>
     }
   };
 
-  const difficultyColors = {
-    easy: 'success',
-    medium: 'warning',
-    hard: 'error'
-  };
-
-  const difficultyLabels = {
-    easy: 'Oson',
-    medium: 'O\'rtacha',
-    hard: 'Qiyin'
-  };
 
   return (
     <Dialog

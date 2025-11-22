@@ -529,3 +529,49 @@
 /* Min-height utilities */
 .min-h-screen { min-height: 100vh; }
 .min-h-40 { min-height: 40px; }
+
+/* ==========================================================================
+   Anti-Screenshot Protection
+   CSS classes to make screenshots less effective during testing
+   ========================================================================== */
+
+.anti-screenshot {
+  /* Prevent text selection */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+
+  /* Prevent dragging */
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -ms-user-drag: none;
+
+  /* Prevent touch callouts on iOS */
+  -webkit-touch-callout: none;
+
+  /* Add subtle background pattern to detect screenshots */
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(0,0,0,0.03) 1px, transparent 1px),
+    radial-gradient(circle at 75% 75%, rgba(0,0,0,0.03) 1px, transparent 1px);
+  background-size: 15px 15px;
+
+  /* Add watermark-like overlay */
+  position: relative;
+}
+
+
+.anti-screenshot::after {
+  content: "Screenshot detected - Test may be invalidated";
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 12px;
+  color: rgba(255, 0, 0, 0.7);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 5px 10px;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 1000;
+}

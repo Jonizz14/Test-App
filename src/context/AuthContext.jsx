@@ -41,13 +41,15 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const user = await apiService.login(email, password);
+
+
       setCurrentUser(user);
       localStorage.setItem('currentUser', JSON.stringify(user));
       console.log('Login successful for user:', user.name);
       return user;
     } catch (error) {
       console.error('Login failed:', error);
-      throw new Error('Noto\'g\'ri email yoki parol');
+      throw error;
     }
   };
 
@@ -100,6 +102,30 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const unbanWithCode = async (code) => {
+    try {
+      const updatedUser = await apiService.unbanWithCode(code);
+      setCurrentUser(updatedUser);
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      return updatedUser;
+    } catch (error) {
+      console.error('Unban failed:', error);
+      throw error;
+    }
+  };
+
+  const banCurrentUser = async (reason) => {
+    try {
+      const updatedUser = await apiService.banCurrentUser(reason);
+      setCurrentUser(updatedUser);
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      return updatedUser;
+    } catch (error) {
+      console.error('Ban failed:', error);
+      throw error;
+    }
+  };
+
   const value = {
     currentUser,
     isLoading,
@@ -107,10 +133,13 @@ export const AuthProvider = ({ children }) => {
     logout,
     register,
     updateProfile,
+    unbanWithCode,
+    banCurrentUser,
     isAuthenticated: !!currentUser,
     isAdmin: currentUser?.role === 'admin',
     isTeacher: currentUser?.role === 'teacher',
-    isStudent: currentUser?.role === 'student'
+    isStudent: currentUser?.role === 'student',
+    isBanned: currentUser?.is_banned || false
   };
 
   return (

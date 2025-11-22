@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, WarningLog
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -11,7 +11,8 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'display_id', 'email', 'password', 'role', 'name', 'first_name', 'last_name',
                  'created_at', 'last_login', 'class_group', 'direction', 'registration_date',
                  'subjects', 'bio', 'total_tests_created', 'average_student_score', 'is_curator', 'curator_class',
-                 'total_tests_taken', 'average_score', 'completed_subjects']
+                 'total_tests_taken', 'average_score', 'completed_subjects',
+                 'is_banned', 'ban_reason', 'ban_date', 'unban_code']
         read_only_fields = ['id', 'created_at', 'last_login', 'display_id']
 
     def create(self, validated_data):
@@ -114,8 +115,19 @@ class TestSessionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TestSession
-        fields = ['id', 'session_id', 'test', 'test_title', 'student', 'student_name', 
-                  'started_at', 'expires_at', 'completed_at', 'answers', 'is_completed', 
-                  'is_expired', 'time_remaining', 'is_active', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'session_id', 'started_at', 'created_at', 'updated_at', 
+        fields = ['id', 'session_id', 'test', 'test_title', 'student', 'student_name',
+                  'started_at', 'expires_at', 'completed_at', 'answers', 'is_completed',
+                  'is_expired', 'time_remaining', 'is_active', 'warning_count', 'unban_prompt_shown',
+                  'is_banned_in_session', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'session_id', 'started_at', 'created_at', 'updated_at',
                            'test_title', 'student_name', 'time_remaining', 'is_active']
+
+class WarningLogSerializer(serializers.ModelSerializer):
+    student_name = serializers.CharField(source='student.username', read_only=True)
+    session_id = serializers.CharField(source='session.session_id', read_only=True)
+
+    class Meta:
+        model = WarningLog
+        fields = ['id', 'session', 'session_id', 'student', 'student_name', 'warning_type',
+                  'warning_message', 'created_at']
+        read_only_fields = ['id', 'created_at', 'student_name', 'session_id']

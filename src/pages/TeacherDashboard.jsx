@@ -25,6 +25,7 @@ import {
   BarChart as BarChartIcon,
   ExitToApp as LogoutIcon,
   School as SchoolIcon,
+  Shield as ShieldIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import NotificationCenter from '../components/NotificationCenter';
@@ -165,9 +166,12 @@ const TeacherDashboard = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Test Platform - O'qituvchi
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+            <ShieldIcon sx={{ mr: 1, color: '#2563eb' }} />
+            <Typography variant="h6" noWrap component="div">
+              STIM Anti-Cheat System
+            </Typography>
+          </Box>
           <Typography variant="body1" sx={{ mr: 2 }}>
             Salom, {currentUser?.name}
           </Typography>

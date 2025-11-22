@@ -46,11 +46,6 @@ const ManageTeachers = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  useEffect(() => {
-    loadTeachers();
-    loadTests();
-  }, []);
-
   const loadTeachers = async () => {
     try {
       // Load teachers from API
@@ -71,11 +66,15 @@ const ManageTeachers = () => {
     }
   };
 
-  const generateTeacherId = (firstName, lastName) => {
+  useEffect(() => {
+    loadTeachers();
+    loadTests();
+  }, []);
+
+  const generateTeacherId = (firstName, lastName, randomDigits) => {
     // Create ID like: SAIDOVAMAFTUNAUSTOZ903@test (LASTNAMEFIRSTNAMECUSTOZRANDOM@test)
     const lastNameUpper = lastName.toUpperCase().replace("'", '');
     const firstNameUpper = firstName.toUpperCase().replace("'", '');
-    const randomDigits = Math.floor(Math.random() * 900) + 100; // Random 3 digits
     return `${lastNameUpper}${firstNameUpper}USTOZ${randomDigits}@test`;
   };
 
@@ -112,7 +111,8 @@ const ManageTeachers = () => {
 
     try {
       // Generate display ID and valid credentials
-      const displayId = generateTeacherId(formData.firstName, formData.lastName);
+      const randomDigits = Math.floor(Math.random() * 900) + 100; // Random 3 digits
+      const displayId = generateTeacherId(formData.firstName, formData.lastName, randomDigits);
       const username = generateTeacherUsername(formData.firstName, formData.lastName);
       const email = generateTeacherEmail(formData.firstName, formData.lastName);
 
@@ -303,7 +303,7 @@ const ManageTeachers = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {teachers.map((teacher, index) => (
+            {teachers.map((teacher) => (
               <TableRow key={teacher.id} sx={{
                 '&:hover': {
                   backgroundColor: '#f8fafc',
