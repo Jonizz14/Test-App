@@ -24,8 +24,9 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  InputAdornment,
 } from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon, Search as SearchIcon } from '@mui/icons-material';
 import apiService from '../../data/apiService';
 
 const ManageTeachers = () => {
@@ -45,6 +46,7 @@ const ManageTeachers = () => {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const loadTeachers = async () => {
     try {
@@ -229,6 +231,18 @@ const ManageTeachers = () => {
     setEditDialogOpen(true);
   };
 
+  // Filter teachers based on search term
+  const filteredTeachers = teachers.filter(teacher => {
+    if (!searchTerm) return true;
+
+    const searchLower = searchTerm.toLowerCase();
+    const name = teacher.name || '';
+    const displayId = teacher.display_id || teacher.username || '';
+
+    return name.toLowerCase().includes(searchLower) ||
+           displayId.toLowerCase().includes(searchLower);
+  });
+
   return (
     <Box sx={{ 
       py: 4,
@@ -275,6 +289,42 @@ const ManageTeachers = () => {
         </Alert>
       )}
 
+      {/* Search Input */}
+      <Box sx={{ mb: 4 }}>
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder="O'qituvchi nomini yoki ID sini qidirish..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ color: '#64748b' }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '8px',
+              backgroundColor: '#ffffff',
+              borderColor: '#e2e8f0',
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#2563eb'
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#2563eb'
+              }
+            }
+          }}
+        />
+        {searchTerm && (
+          <Typography sx={{ mt: 1, color: '#64748b', fontSize: '0.875rem' }}>
+            {filteredTeachers.length} ta o'qituvchi topildi
+          </Typography>
+        )}
+      </Box>
+
       <TableContainer component={Paper} sx={{
         backgroundColor: '#ffffff',
         border: '1px solid #e2e8f0',
@@ -303,7 +353,7 @@ const ManageTeachers = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {teachers.map((teacher) => (
+            {filteredTeachers.map((teacher) => (
               <TableRow key={teacher.id} sx={{
                 '&:hover': {
                   backgroundColor: '#f8fafc',

@@ -160,19 +160,21 @@ class TestViewSet(viewsets.ModelViewSet):
 
         # Filter tests for students based on their class_group
         if self.request.user.role == 'student':
-            # For students, show tests that are available to all classes or match their grade
+            # For students, only show tests that are specifically assigned to their class
             class_group = self.request.user.class_group
             if class_group:
-                # Show tests with empty target_grades (all classes) or specific class
+                # Extract grade from class_group (e.g., "9-01" -> "9")
+                student_grade = class_group.split('-')[0] if '-' in class_group else class_group
+
+                # Only show tests where the student's grade is in target_grades
                 from django.db.models import Q
-                main_grade = class_group.split('-')[0] if '-' in class_group else class_group
-                
-                # For now, show all active tests to students to ensure newly created tests are visible
-                # TODO: Implement proper JSON field filtering when we upgrade to PostgreSQL
-                queryset = queryset.filter(is_active=True)
+                queryset = queryset.filter(
+                    Q(target_grades__contains=[student_grade]) |  # Grade in target_grades list
+                    Q(target_grades__contains=student_grade)     # Grade as string in target_grades
+                ).filter(is_active=True)
             else:
-                # If no class_group, show only tests available to all classes
-                queryset = queryset.filter(target_grades=[])
+                # If no class_group, don't show any tests
+                queryset = queryset.none()
         return queryset
 
     def perform_update(self, serializer):
@@ -363,36 +365,42 @@ class TestSessionViewSet(viewsets.ModelViewSet):
     def complete_session(self, request):
         """Complete a test session and create attempt record"""
         session_id = request.data.get('session_id')
-        
+
         if not session_id:
             return Response({'error': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             session = TestSession.objects.get(session_id=session_id, student=request.user)
-            
+
             if session.is_completed:
                 return Response({'error': 'Test already completed'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            if session.is_expired or session.time_remaining <= 0:
+
+            # Check if session has expired
+            is_expired = session.is_expired or session.time_remaining <= 0
+            if is_expired and not session.is_expired:
                 session.mark_expired()
-                return Response({'error': 'Test session has expired'}, status=status.HTTP_410_GONE)
-            
-            # Calculate score
+
+            # Calculate score based on saved answers
             questions = session.test.questions.all()
             correct_answers = 0
             total_questions = questions.count()
-            
+
             for question in questions:
                 user_answer = session.answers.get(str(question.id), '')
                 if user_answer and user_answer.lower().strip() == question.correct_answer.lower().strip():
                     correct_answers += 1
-            
+
             score = (correct_answers / total_questions * 100) if total_questions > 0 else 0
-            
+
             # Calculate time taken
             from django.utils import timezone
-            time_taken = int((timezone.now() - session.started_at).total_seconds() / 60)
-            
+            if is_expired:
+                # For expired sessions, use the full time limit
+                time_taken = session.test.time_limit
+            else:
+                # For manually completed sessions, calculate actual time taken
+                time_taken = int((timezone.now() - session.started_at).total_seconds() / 60)
+
             # Create attempt record
             attempt = TestAttempt.objects.create(
                 student=session.student,
@@ -401,17 +409,22 @@ class TestSessionViewSet(viewsets.ModelViewSet):
                 score=score,
                 time_taken=time_taken
             )
-            
+
             # Mark session as completed
             session.complete()
-            
+
+            message = 'Test completed successfully'
+            if is_expired:
+                message = 'Test auto-completed due to time expiry'
+
             return Response({
                 'success': True,
                 'score': score,
                 'attempt_id': attempt.id,
-                'message': 'Test completed successfully'
+                'message': message,
+                'expired': is_expired
             })
-            
+
         except TestSession.DoesNotExist:
             return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Badge,
@@ -24,14 +24,14 @@ const NotificationCenter = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const loadNotifications = () => {
+  const loadNotifications = useCallback(() => {
     if (currentUser) {
       const allNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
       const userNotifications = allNotifications.filter(n => n.studentId === currentUser.id);
       setNotifications(userNotifications);
       setUnreadCount(userNotifications.filter(n => !n.isRead).length);
     }
-  };
+  }, [currentUser]);
 
   useEffect(() => {
     loadNotifications();

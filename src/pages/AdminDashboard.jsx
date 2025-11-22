@@ -38,9 +38,13 @@ import ManageTests from './admin/ManageTests';
 import TestStatistics from './admin/TestStatistics';
 import StudentRatings from './admin/StudentRatings';
 
+// Import components
+import BannedStudentsModal from '../components/BannedStudentsModal';
+
 const AdminDashboard = () => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [bannedStudents, setBannedStudents] = React.useState([]);
+  const [modalOpen, setModalOpen] = React.useState(false);
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -72,6 +76,20 @@ const AdminDashboard = () => {
 
     fetchBannedStudents();
   }, []);
+
+  // Handle unbanning a student
+  const handleUnbanStudent = async (studentId) => {
+    try {
+      await apiService.unbanUser(studentId);
+      // Refresh banned students list
+      const usersData = await apiService.getUsers();
+      const users = usersData.results || usersData;
+      const banned = users.filter(user => user.role === 'student' && user.is_banned);
+      setBannedStudents(banned);
+    } catch (error) {
+      console.error('Failed to unban student:', error);
+    }
+  };
 
   const menuItems = [
     { text: 'Umumiy', icon: <DashboardIcon />, path: '/admin' },
@@ -192,7 +210,7 @@ const AdminDashboard = () => {
           {bannedStudents.length > 0 && (
             <IconButton
               color="inherit"
-              onClick={() => navigate('/admin/students')}
+              onClick={() => setModalOpen(true)}
               sx={{
                 mr: 2,
                 color: '#dc2626',
@@ -280,6 +298,14 @@ const AdminDashboard = () => {
           </Container>
         </Box>
       </Box>
+
+      {/* Banned Students Modal */}
+      <BannedStudentsModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        bannedStudents={bannedStudents}
+        onUnbanStudent={handleUnbanStudent}
+      />
     </Box>
   );
 };

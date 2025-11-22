@@ -23,16 +23,19 @@ import {
   Chip,
   IconButton,
   Tooltip,
+  InputAdornment,
 } from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon, Block as BlockIcon, CheckCircle as CheckCircleIcon } from '@mui/icons-material';
+import { Add as AddIcon, Delete as DeleteIcon, Block as BlockIcon, CheckCircle as CheckCircleIcon, Edit as EditIcon, Search as SearchIcon } from '@mui/icons-material';
 import apiService from '../../data/apiService';
 
 const ManageStudents = () => {
   const [students, setStudents] = useState([]);
   const [attempts, setAttempts] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState(null);
+  const [studentToEdit, setStudentToEdit] = useState(null);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -42,6 +45,8 @@ const ManageStudents = () => {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+
   const loadStudents = async () => {
     try {
       const [allUsers, allAttempts] = await Promise.all([
@@ -183,6 +188,60 @@ const ManageStudents = () => {
     setDeleteDialogOpen(true);
   };
 
+  const handleEditClick = (student) => {
+    setStudentToEdit(student);
+    setFormData({
+      firstName: student.name ? student.name.split(' ')[0] : '',
+      lastName: student.name ? student.name.split(' ').slice(1).join(' ') : '',
+      classGroup: student.class_group || '',
+      direction: student.direction || 'natural',
+      registrationDate: student.registration_date ? new Date(student.registration_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (!formData.firstName || !formData.lastName || !formData.classGroup || !formData.direction) {
+      setError('Barcha maydonlarni to\'ldiring');
+      return;
+    }
+
+    try {
+      const updatedData = {
+        name: `${formData.firstName} ${formData.lastName}`,
+        class_group: formData.classGroup,
+        direction: formData.direction,
+        registration_date: formData.registrationDate,
+      };
+
+      const updatedStudent = await apiService.put(`/users/${studentToEdit.id}/`, updatedData);
+
+      // Update local state
+      setStudents(students.map(student =>
+        student.id === studentToEdit.id ? updatedStudent : student
+      ));
+
+      setSuccess(`O'quvchi ma'lumotlari muvaffaqiyatli yangilandi!`);
+      setEditDialogOpen(false);
+      setStudentToEdit(null);
+      setFormData({
+        firstName: '',
+        lastName: '',
+        classGroup: '',
+        direction: 'natural',
+        registrationDate: new Date().toISOString().split('T')[0],
+      });
+
+    } catch (err) {
+      console.error('Failed to update student:', err);
+      setError('Xatolik yuz berdi: ' + (err.message || 'Noma\'lum xatolik'));
+    }
+  };
+
   const handleBanStudent = async (studentId) => {
     try {
       await apiService.banUser(studentId, 'Admin tomonidan bloklandi');
@@ -223,6 +282,18 @@ const ManageStudents = () => {
     const averageScore = studentAttempts.reduce((sum, attempt) => sum + (attempt.score || 0), 0) / studentAttempts.length;
     return Math.round(averageScore);
   };
+
+  // Filter students based on search term
+  const filteredStudents = students.filter(student => {
+    if (!searchTerm) return true;
+
+    const searchLower = searchTerm.toLowerCase();
+    const name = student.name || '';
+    const displayId = student.display_id || student.username || '';
+
+    return name.toLowerCase().includes(searchLower) ||
+           displayId.toLowerCase().includes(searchLower);
+  });
 
   return (
     <Box sx={{ 
@@ -270,6 +341,42 @@ const ManageStudents = () => {
         </Alert>
       )}
 
+      {/* Search Input */}
+      <Box sx={{ mb: 4 }}>
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder="O'quvchi nomini yoki ID sini qidirish..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ color: '#64748b' }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '8px',
+              backgroundColor: '#ffffff',
+              borderColor: '#e2e8f0',
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#2563eb'
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#2563eb'
+              }
+            }
+          }}
+        />
+        {searchTerm && (
+          <Typography sx={{ mt: 1, color: '#64748b', fontSize: '0.875rem' }}>
+            {filteredStudents.length} ta o'quvchi topildi
+          </Typography>
+        )}
+      </Box>
+
       <TableContainer component={Paper} sx={{
         backgroundColor: '#ffffff',
         border: '1px solid #e2e8f0',
@@ -300,7 +407,7 @@ const ManageStudents = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {students.map((student) => (
+            {filteredStudents.map((student) => (
               <TableRow key={student.id} sx={{
                 '&:hover': {
                   backgroundColor: '#f8fafc',
@@ -416,6 +523,20 @@ const ManageStudents = () => {
                 </TableCell>
                 <TableCell>
                   <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Tooltip title="Tahrirlash">
+                      <IconButton
+                        size="small"
+                        onClick={() => handleEditClick(student)}
+                        sx={{
+                          color: '#059669',
+                          '&:hover': {
+                            backgroundColor: '#ecfdf5',
+                          }
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
                     {student.is_banned ? (
                       <Tooltip title="Blokdan chiqarish">
                         <IconButton
@@ -468,6 +589,17 @@ const ManageStudents = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {filteredStudents.length === 0 && students.length > 0 && (
+        <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
+          <Typography variant="h6" color="textSecondary">
+            Qidiruv natijasi bo'yicha o'quvchi topilmadi
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            Qidiruv so'zini o'zgartirib ko'ring
+          </Typography>
+        </Paper>
+      )}
 
       {students.length === 0 && (
         <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
@@ -570,6 +702,93 @@ const ManageStudents = () => {
           <Button onClick={() => setDialogOpen(false)}>Bekor qilish</Button>
           <Button onClick={handleSubmit} variant="contained">
             O'quvchi qo'shish
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Student Dialog */}
+      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          O'quvchi ma'lumotlarini tahrirlash
+        </DialogTitle>
+        <DialogContent>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Ism"
+            name="firstName"
+            fullWidth
+            variant="outlined"
+            value={formData.firstName}
+            onChange={handleChange}
+            sx={{ mb: 2 }}
+          />
+
+          <TextField
+            margin="dense"
+            label="Familiya"
+            name="lastName"
+            fullWidth
+            variant="outlined"
+            value={formData.lastName}
+            onChange={handleChange}
+            sx={{ mb: 2 }}
+          />
+
+          <FormControl fullWidth margin="dense" sx={{ mb: 2 }}>
+            <InputLabel>Sinf</InputLabel>
+            <Select
+              name="classGroup"
+              value={formData.classGroup}
+              label="Sinf"
+              onChange={handleChange}
+            >
+              {[5,6,7,8,9,10,11].flatMap(grade =>
+                [1,2,3,4].map(num => {
+                  const classGroup = `${grade}-${String(num).padStart(2,'0')}`;
+                  return <MenuItem key={classGroup} value={classGroup}>{classGroup}</MenuItem>;
+                })
+              )}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth margin="dense" sx={{ mb: 2 }}>
+            <InputLabel>Yo'nalish</InputLabel>
+            <Select
+              name="direction"
+              value={formData.direction}
+              label="Yo'nalish"
+              onChange={handleChange}
+            >
+              <MenuItem value="natural">Tabiiy fanlar</MenuItem>
+              <MenuItem value="exact">Aniq fanlar</MenuItem>
+            </Select>
+          </FormControl>
+
+          <TextField
+            margin="dense"
+            label="Ro'yxatdan o'tgan sana"
+            name="registrationDate"
+            type="date"
+            fullWidth
+            variant="outlined"
+            value={formData.registrationDate}
+            onChange={handleChange}
+            sx={{ mb: 2 }}
+            InputLabelProps={{ shrink: true }}
+          />
+
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditDialogOpen(false)}>Bekor qilish</Button>
+          <Button onClick={handleEditSubmit} variant="contained">
+            Saqlash
           </Button>
         </DialogActions>
       </Dialog>
