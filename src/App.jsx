@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 // Import the new CSS system
 import './styles/main.css';
@@ -16,82 +18,89 @@ import AdminDashboard from './pages/AdminDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
 import StudentDashboard from './pages/StudentDashboard';
 import NotFoundPage from './pages/NotFoundPage';
+import Questions from './pages/admin/Questions';
 
 // Theme configuration
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#3b82f6', // Blue-500
-      light: '#60a5fa', // Blue-400
-      dark: '#2563eb', // Blue-600
+      main: '#0A1F44', // Dark blue from Tailwind
+      light: '#102B60',
+      dark: '#071A35',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#1d4ed8', // Blue-700
-      light: '#3b82f6', // Blue-500
-      dark: '#1e40af', // Blue-800
-      contrastText: '#ffffff',
+      main: '#FFFFFF',
+      light: '#F8FAFC',
+      dark: '#E2E8F0',
+      contrastText: '#0A1F44',
     },
     success: {
-      main: '#059669',
-      light: '#34d399',
-      dark: '#047857',
+      main: '#22c55e',
+      light: '#4ade80',
+      dark: '#16a34a',
     },
     warning: {
-      main: '#d97706',
+      main: '#f59e0b',
       light: '#fbbf24',
-      dark: '#b45309',
+      dark: '#d97706',
     },
     error: {
-      main: '#dc2626',
+      main: '#ef4444',
       light: '#f87171',
-      dark: '#b91c1c',
+      dark: '#dc2626',
     },
     background: {
-      default: '#ffffff',
-      paper: '#ffffff',
+      default: '#F8FAFC',
+      paper: '#FFFFFF',
     },
     text: {
-      primary: '#1e293b',
-      secondary: '#64748b',
+      primary: '#1F2937',
+      secondary: '#64748B',
     },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
     button: {
       textTransform: 'none',
     },
   },
   shape: {
-    borderRadius: 0, // Minimal border radius
+    borderRadius: 12, // Consistent rounded corners
   },
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 0,
+          borderRadius: 12,
           textTransform: 'none',
+          fontWeight: 500,
+          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+          '&:hover': {
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+          },
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 0,
+          borderRadius: 16,
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
         },
       },
     },
     MuiPaper: {
       styleOverrides: {
         root: {
-          borderRadius: 0,
+          borderRadius: 16,
         },
       },
     },
     MuiChip: {
       styleOverrides: {
         root: {
-          borderRadius: 0,
+          borderRadius: 8,
         },
       },
     },
@@ -99,7 +108,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            borderRadius: 0,
+            borderRadius: 12,
           },
         },
       },
@@ -114,7 +123,7 @@ const theme = createTheme({
     MuiTableContainer: {
       styleOverrides: {
         root: {
-          borderRadius: 0,
+          borderRadius: 12,
         },
       },
     },
@@ -244,6 +253,15 @@ const TestPage = () => {
 // Main App component - Entry point of the application
 // Provides routing, authentication, theming, and error handling
 function App() {
+  useEffect(() => {
+    AOS.init({
+      duration: 800,
+      easing: 'ease-out-cubic',
+      once: true,
+      offset: 50,
+    });
+  }, []);
+
   return (
     <ErrorBoundary>
       <ThemeProvider theme={theme}>
@@ -263,6 +281,7 @@ function App() {
 
                 {/* Public routes - Accessible without authentication */}
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/user/password/questions" element={<Questions />} />
 
                 {/* Protected routes - Require authentication and specific roles */}
                 <Route

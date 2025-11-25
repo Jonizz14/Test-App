@@ -146,6 +146,13 @@ class TestViewSet(viewsets.ModelViewSet):
     serializer_class = TestSerializer
     permission_classes = [IsAuthenticated]
 
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    def public_list(self, request):
+        """Public endpoint to get all tests (for questions page)"""
+        queryset = Test.objects.filter(is_active=True)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
     def perform_create(self, serializer):
         serializer.save(teacher=self.request.user)
 
@@ -169,8 +176,8 @@ class TestViewSet(viewsets.ModelViewSet):
                 # Only show tests where the student's grade is in target_grades
                 from django.db.models import Q
                 queryset = queryset.filter(
-                    Q(target_grades__contains=[student_grade]) |  # Grade in target_grades list
-                    Q(target_grades__contains=student_grade)     # Grade as string in target_grades
+                    Q(target_grades__icontains=student_grade) |  # Grade in target_grades string
+                    Q(target_grades='')     # Empty means all grades
                 ).filter(is_active=True)
             else:
                 # If no class_group, don't show any tests
@@ -202,6 +209,16 @@ class QuestionViewSet(viewsets.ModelViewSet):
         if test_id:
             queryset = queryset.filter(test_id=test_id)
         return queryset
+
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    def public_list(self, request):
+        """Public endpoint to get all questions (for questions page)"""
+        queryset = Question.objects.all()
+        test_id = request.query_params.get('test', None)
+        if test_id:
+            queryset = queryset.filter(test_id=test_id)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 class TestAttemptViewSet(viewsets.ModelViewSet):
     queryset = TestAttempt.objects.all()

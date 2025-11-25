@@ -104,10 +104,8 @@ const TestDetails = () => {
       return; // Don't start test if already taken
     }
 
-    setTestStarted(true);
-    setTimeLeft(test.time_limit * 60); // Convert minutes to seconds
-    setCurrentQuestionIndex(0);
-    setAnswers({});
+    // Redirect to preview page instead of starting test directly
+    navigate(`/student/test-preview/${testId}`);
   };
 
   const formatTime = (seconds) => {
@@ -240,19 +238,21 @@ const TestDetails = () => {
 
   if (testCompleted) {
     return (
-      <Box sx={{ 
+      <Box sx={{
         py: 4,
         backgroundColor: '#ffffff'
       }}>
         {/* Header */}
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
           mb: 6,
           pb: 4,
           borderBottom: '1px solid #e2e8f0'
-        }}>
+        }}
+        data-aos="fade-down"
+        >
           <Typography sx={{
             fontSize: '2.5rem',
             fontWeight: 700,
@@ -262,16 +262,17 @@ const TestDetails = () => {
           </Typography>
         </Box>
 
-        <Paper sx={{
-          p: 4,
-          textAlign: 'center',
-          background: score >= 70
-            ? 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)'
-            : 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
-          border: score >= 70 ? '1px solid #22c55e' : '1px solid #dc2626',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-        }}>
+        <div data-aos="zoom-in" data-aos-delay="300">
+          <Paper sx={{
+            p: 4,
+            textAlign: 'center',
+            background: score >= 70
+              ? 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)'
+              : 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+            border: score >= 70 ? '1px solid #22c55e' : '1px solid #dc2626',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          }}>
           <CheckCircleIcon sx={{ fontSize: 64, color: score >= 70 ? 'success.main' : 'error.main', mb: 2 }} />
           
           <Typography variant="h3" sx={{
@@ -307,6 +308,7 @@ const TestDetails = () => {
             </Button>
           </Box>
         </Paper>
+        </div>
       </Box>
     );
   }
@@ -314,21 +316,23 @@ const TestDetails = () => {
   const currentQuestion = questions[currentQuestionIndex];
 
   return (
-    <Box sx={{ 
-      pl: { xs: 0, md: 35 }, 
+    <Box sx={{
+      pl: { xs: 0, md: 35 },
       pr: 4,
       py: 4,
       backgroundColor: '#ffffff'
     }}>
       {/* Header */}
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}>
+      }}
+      data-aos="fade-down"
+      >
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -341,15 +345,16 @@ const TestDetails = () => {
       <Grid container spacing={4}>
         {/* Left Side - Test Details */}
         <Grid item xs={12} md={5}>
-          <Card sx={{ 
-            height: 'fit-content',
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            position: 'sticky',
-            top: 20,
-          }}>
+          <div data-aos="fade-right" data-aos-delay="200">
+            <Card sx={{
+              height: 'fit-content',
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              position: 'sticky',
+              top: 20,
+            }}>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
                 📋 Test ma'lumotlari
@@ -449,18 +454,20 @@ const TestDetails = () => {
               )}
             </CardContent>
           </Card>
+          </div>
         </Grid>
 
         {/* Right Side - Test Taking */}
         <Grid item xs={12} md={7}>
           {testStarted && currentQuestion ? (
-            <Paper sx={{
-              p: 4,
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            }}>
+            <div data-aos="fade-left" data-aos-delay="300">
+              <Paper sx={{
+                p: 4,
+                backgroundColor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              }}>
               <Typography
                 variant="h6"
                 gutterBottom
@@ -578,23 +585,26 @@ const TestDetails = () => {
                 )}
               </Box>
             </Paper>
+            </div>
           ) : (
-            <Paper sx={{
-              p: 6,
-              textAlign: 'center',
-              backgroundColor: '#f8f9fa',
-              border: '1px solid #e9ecef',
-              borderRadius: 3,
-            }}>
-              <AssessmentIcon sx={{ fontSize: 64, color: 'primary.main', mb: 2 }} />
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
-                Testni boshlashga tayyormisiz?
-              </Typography>
-              <Typography variant="body1" color="textSecondary" sx={{ mb: 3 }}>
-                "Testni boshlash" tugmasini bosib testni boshlang.
-                Test vaqt davomida davom etadi va natijalaringiz saqlanadi.
-              </Typography>
-            </Paper>
+            <div data-aos="fade-left" data-aos-delay="400">
+              <Paper sx={{
+                p: 6,
+                textAlign: 'center',
+                backgroundColor: '#f8f9fa',
+                border: '1px solid #e9ecef',
+                borderRadius: 3,
+              }}>
+                <AssessmentIcon sx={{ fontSize: 64, color: 'primary.main', mb: 2 }} />
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
+                  Testni boshlashga tayyormisiz?
+                </Typography>
+                <Typography variant="body1" color="textSecondary" sx={{ mb: 3 }}>
+                  "Testni boshlash" tugmasini bosib testni boshlang.
+                  Test vaqt davomida davom etadi va natijalaringiz saqlanadi.
+                </Typography>
+              </Paper>
+            </div>
           )}
         </Grid>
       </Grid>

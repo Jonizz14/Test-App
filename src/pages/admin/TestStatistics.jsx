@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Typography,
   Box,
@@ -12,10 +12,27 @@ import {
   MenuItem,
   Stack,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Avatar,
+  IconButton,
 } from '@mui/material';
 import {
   Assessment as AssessmentIcon,
   People as PeopleIcon,
+  Visibility as VisibilityIcon,
+  Close as CloseIcon,
+  Warning as WarningIcon,
+  Block as BlockIcon,
+  School as SchoolIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
@@ -32,24 +49,35 @@ const TestStatistics = () => {
   const [subGrades, setSubGrades] = useState({});
   const [scoreOrder, setScoreOrder] = useState('');
   const [attemptOrder, setAttemptOrder] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [selectedTest, setSelectedTest] = useState(null);
+  const [studentDetails, setStudentDetails] = useState([]);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   useEffect(() => {
     const loadTests = async () => {
       try {
-        const allTests = await apiService.getTests();
+        const allTestsData = await apiService.getTests();
+        // Handle both array and object with results property
+        const allTests = allTestsData.results || allTestsData;
         setTests(allTests);
+
         const uniqueTeachers = [...new Set(allTests.map(test => test.teacher_name).filter(Boolean))];
         setTeachers(uniqueTeachers);
         const uniqueSubjects = [...new Set(allTests.map(test => test.subject).filter(Boolean))];
         setSubjects(uniqueSubjects);
+
         const subGradesMap = {};
         allTests.forEach(test => {
-          test.target_grades.forEach(grade => {
-            if (grade.includes('-')) {
-              const [main, sub] = grade.split('-');
-              if (!subGradesMap[main]) subGradesMap[main] = new Set();
-              subGradesMap[main].add(sub);
-            }
-          });
+          if (test.target_grades && Array.isArray(test.target_grades)) {
+            test.target_grades.forEach(grade => {
+              if (grade && grade.includes('-')) {
+                const [main, sub] = grade.split('-');
+                if (!subGradesMap[main]) subGradesMap[main] = new Set();
+                subGradesMap[main].add(sub);
+              }
+            });
+          }
         });
         const subGradesObj = {};
         Object.keys(subGradesMap).forEach(main => {
@@ -58,41 +86,129 @@ const TestStatistics = () => {
         setSubGrades(subGradesObj);
       } catch (error) {
         console.error('Failed to load tests:', error);
+      } finally {
+        setLoading(false);
       }
     };
     loadTests();
   }, []);
 
-  const filteredTests = tests.filter(test => {
-    if (selectedTeacher && test.teacher_name !== selectedTeacher) return false;
-    if (selectedSubject && test.subject !== selectedSubject) return false;
-    if (selectedGrade) {
-      if (selectedSubGrade) {
-        if (!test.target_grades.includes(`${selectedGrade}-${selectedSubGrade}`)) return false;
-      } else {
-        if (!test.target_grades.some(grade => grade === selectedGrade || grade.startsWith(`${selectedGrade}-`))) return false;
-      }
-    }
-    return true;
-  });
+  // Calculate filtered and sorted tests
+  const filteredTests = useMemo(() => {
+    const testsArray = Array.isArray(tests) ? tests : [];
+    return testsArray.filter(test => {
+      // Skip filtering if no filters are selected
+      if (!selectedTeacher && !selectedSubject && !selectedGrade) return true;
 
-  const sortedTests = [...filteredTests].sort((a, b) => {
-    if (scoreOrder) {
-      return scoreOrder === 'asc' ? a.average_score - b.average_score : b.average_score - a.average_score;
+      // Teacher filter
+      if (selectedTeacher && test.teacher_name !== selectedTeacher) return false;
+
+      // Subject filter
+      if (selectedSubject && test.subject !== selectedSubject) return false;
+
+      // Grade filter
+      if (selectedGrade) {
+        const targetGrades = test.target_grades || [];
+        if (selectedSubGrade) {
+          if (!targetGrades.includes(`${selectedGrade}-${selectedSubGrade}`)) return false;
+        } else {
+          if (!targetGrades.some(grade => grade === selectedGrade || grade.startsWith(`${selectedGrade}-`))) return false;
+        }
+      }
+
+      return true;
+    });
+  }, [tests, selectedTeacher, selectedSubject, selectedGrade, selectedSubGrade]);
+
+  const sortedTests = useMemo(() => {
+    return [...filteredTests].sort((a, b) => {
+      if (scoreOrder) {
+        const aScore = a.average_score || 0;
+        const bScore = b.average_score || 0;
+        return scoreOrder === 'asc' ? aScore - bScore : bScore - aScore;
+      }
+      if (attemptOrder) {
+        const aAttempts = a.attempt_count || 0;
+        const bAttempts = b.attempt_count || 0;
+        return attemptOrder === 'asc' ? aAttempts - bAttempts : bAttempts - aAttempts;
+      }
+      // Default: no sorting, keep original order
+      return 0;
+    });
+  }, [filteredTests, scoreOrder, attemptOrder]);
+
+  const handleViewDetails = async (test) => {
+    setSelectedTest(test);
+    setDetailsOpen(true);
+    setDetailsLoading(true);
+
+    try {
+      // Get test attempts with student details
+      const attempts = await apiService.getAttempts({ test: test.id });
+
+      // Get warning logs for ban calculations
+      const warnings = await apiService.getWarnings();
+
+      // Process student data
+      const studentData = attempts.map(attempt => {
+        // Calculate bans based on warnings (every 3 warnings = 1 ban)
+        const studentWarnings = warnings.filter(w => w.student === attempt.student).length;
+        const banCount = Math.floor(studentWarnings / 3);
+
+        return {
+          id: attempt.student,
+          name: attempt.student_name,
+          score: attempt.score,
+          submittedAt: attempt.submitted_at,
+          timeTaken: attempt.time_taken,
+          warningCount: studentWarnings,
+          banCount: banCount,
+          // Mock data for additional lessons (you may need to implement this based on your backend)
+          hasExtraLessons: Math.random() > 0.7, // Placeholder - replace with actual data
+        };
+      });
+
+      setStudentDetails(studentData);
+    } catch (error) {
+      console.error('Failed to load student details:', error);
+      setStudentDetails([]);
+    } finally {
+      setDetailsLoading(false);
     }
-    if (attemptOrder) {
-      return attemptOrder === 'asc' ? a.attempt_count - b.attempt_count : b.attempt_count - a.attempt_count;
-    }
-    // Default sort by created_at desc
-    return new Date(b.created_at) - new Date(a.created_at);
-  });
+  };
+
+  const handleCloseDetails = () => {
+    setDetailsOpen(false);
+    setSelectedTest(null);
+    setStudentDetails([]);
+  };
+
+  // Debug logging (remove in production)
+  // console.log('Total tests:', Array.isArray(tests) ? tests.length : 'Not an array');
+  // console.log('Filtered tests:', filteredTests.length);
+  // console.log('Sorted tests:', sortedTests.length);
+
+  if (loading) {
+    return (
+      <Box sx={{
+        py: 4,
+        backgroundColor: '#ffffff',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '400px'
+      }}>
+        <Typography>Yuklanmoqda...</Typography>
+      </Box>
+    );
+  }
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       py: 4,
       backgroundColor: '#ffffff'
     }}>
-      <Box sx={{ 
+      <Box sx={{
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
@@ -105,25 +221,25 @@ const TestStatistics = () => {
         }}>
           Testlar statistikasi
         </Typography>
-        <Typography sx={{ 
-          fontSize: '1.125rem', 
+        <Typography sx={{
+          fontSize: '1.125rem',
           color: '#64748b',
-          fontWeight: 400 
+          fontWeight: 400
         }}>
           Barcha testlarning batafsil statistikasi va natijalari
         </Typography>
       </Box>
 
-      <Box sx={{ 
-        mb: 4, 
+      <Box sx={{
+        mb: 4,
         p: 4,
         backgroundColor: '#f8fafc',
         border: '1px solid #e2e8f0',
         borderRadius: '12px',
-        display: 'flex', 
-        flexWrap: 'wrap', 
-        gap: 3, 
-        alignItems: 'center' 
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 3,
+        alignItems: 'center'
       }}>
         <FormControl size="small" sx={{ 
           minWidth: 150,
@@ -243,20 +359,20 @@ const TestStatistics = () => {
 
 
       <Grid container spacing={3}>
-        {sortedTests.map((test) => (
+        {sortedTests.map((test, index) => (
           <Grid item xs={12} key={test.id}>
-            <Card 
-              sx={{ 
-                backgroundColor: '#ffffff',
-                border: '1px solid #e2e8f0',
-                borderRadius: '12px',
-                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-                transition: 'none',
-                '&:hover': {
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                },
-              }}
-            >
+            <Card
+                sx={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                  transition: 'none',
+                  '&:hover': {
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                  },
+                }}
+              >
               <CardContent sx={{ p: 4 }}>
                 <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={3}>
                   <Box flex={1}>
@@ -368,13 +484,13 @@ const TestStatistics = () => {
                             p: 2,
                             textAlign: 'center'
                           }}>
-                            <Typography sx={{ 
-                              fontSize: '1.5rem', 
-                              fontWeight: 700, 
+                            <Typography sx={{
+                              fontSize: '1.5rem',
+                              fontWeight: 700,
                               color: '#2563eb',
                               mb: 0.5
                             }}>
-                              {test.attempt_count}
+                              {test.attempt_count || 0}
                             </Typography>
                             <Typography sx={{ 
                               fontSize: '0.75rem', 
@@ -393,13 +509,13 @@ const TestStatistics = () => {
                             p: 2,
                             textAlign: 'center'
                           }}>
-                            <Typography sx={{ 
-                              fontSize: '1.5rem', 
-                              fontWeight: 700, 
+                            <Typography sx={{
+                              fontSize: '1.5rem',
+                              fontWeight: 700,
                               color: '#059669',
                               mb: 0.5
                             }}>
-                              {test.average_score.toFixed(1)}%
+                              {(test.average_score || 0).toFixed(1)}%
                             </Typography>
                             <Typography sx={{ 
                               fontSize: '0.75rem', 
@@ -423,59 +539,103 @@ const TestStatistics = () => {
                         Maqsadli sinflar:
                       </Typography>
                       <Box display="flex" flexWrap="wrap" gap={1}>
-                        {test.target_grades?.length > 0 ? (
-                          [...test.target_grades].sort((a, b) => parseInt(a.split('-')[0]) - parseInt(b.split('-')[0])).map((grade, index) => (
-                            <Chip 
-                              key={index} 
-                              label={`${grade}-sinf`} 
-                              size="small" 
+                        {(() => {
+                          // Parse target_grades properly
+                          let grades = [];
+                          if (Array.isArray(test.target_grades)) {
+                            grades = test.target_grades;
+                          } else if (typeof test.target_grades === 'string') {
+                            // Handle string that might be JSON array or comma-separated
+                            try {
+                              const parsed = JSON.parse(test.target_grades);
+                              if (Array.isArray(parsed)) {
+                                grades = parsed;
+                              } else {
+                                grades = test.target_grades.split(',').map(g => g.trim()).filter(g => g);
+                              }
+                            } catch {
+                              // Not JSON, treat as comma-separated
+                              grades = test.target_grades.split(',').map(g => g.trim()).filter(g => g);
+                            }
+                          }
+
+                          // Remove any brackets or quotes from grade names
+                          grades = grades.map(grade => grade.replace(/[\[\]"'`]/g, '').trim());
+
+                          return grades.length > 0 ? (
+                            grades.sort((a, b) => parseInt(a.split('-')[0]) - parseInt(b.split('-')[0])).map((grade, index) => (
+                              <Chip
+                                key={index}
+                                label={`${grade}-sinf`}
+                                size="small"
+                                sx={{
+                                  backgroundColor: '#eff6ff',
+                                  color: '#2563eb',
+                                  fontWeight: 600
+                                }}
+                              />
+                            ))
+                          ) : (
+                            <Chip
+                              label="Barcha sinflar uchun"
+                              size="small"
                               sx={{
-                                backgroundColor: '#eff6ff',
-                                color: '#2563eb',
+                                backgroundColor: '#ecfdf5',
+                                color: '#059669',
                                 fontWeight: 600
                               }}
                             />
-                          ))
-                        ) : (
-                          <Chip 
-                            label="Barcha sinflar uchun" 
-                            size="small" 
-                            sx={{
-                              backgroundColor: '#ecfdf5',
-                              color: '#059669',
-                              fontWeight: 600
-                            }}
-                          />
-                        )}
+                          );
+                        })()}
                       </Box>
                     </Box>
                   </Grid>
                   
                   <Grid item xs={12} md={4}>
                     <Box>
-                      <Typography sx={{ 
-                        fontSize: '0.875rem', 
-                        fontWeight: 600, 
-                        color: '#64748b',
-                        mb: 2
-                      }}>
-                        Qo'shimcha ma'lumotlar:
-                      </Typography>
-                      <Box sx={{ 
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                        <Typography sx={{
+                          fontSize: '0.875rem',
+                          fontWeight: 600,
+                          color: '#64748b'
+                        }}>
+                          Qo'shimcha ma'lumotlar:
+                        </Typography>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          startIcon={<VisibilityIcon />}
+                          onClick={() => handleViewDetails(test)}
+                          sx={{
+                            fontSize: '0.75rem',
+                            py: 0.5,
+                            px: 2,
+                            borderColor: '#059669',
+                            color: '#059669',
+                            '&:hover': {
+                              borderColor: '#047857',
+                              backgroundColor: '#ecfdf5',
+                            }
+                          }}
+                        >
+                          Batafsil
+                        </Button>
+                      </Box>
+                      <Box sx={{
                         backgroundColor: '#f8fafc',
                         border: '1px solid #e2e8f0',
                         borderRadius: '8px',
                         p: 2
                       }}>
-                        <Typography sx={{ 
-                          fontSize: '0.75rem', 
-                          fontWeight: 600, 
+                        <Typography sx={{
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
                           color: '#64748b',
                           mb: 1
                         }}>
                           Yaratilgan sana:
                         </Typography>
-                        <Typography sx={{ 
+                        <Typography sx={{
                           fontSize: '0.875rem',
                           color: '#1e293b',
                           fontWeight: 600,
@@ -483,18 +643,18 @@ const TestStatistics = () => {
                         }}>
                           {new Date(test.created_at).toLocaleString('uz-UZ')}
                         </Typography>
-                        
+
                         {test.updated_at && test.updated_at !== test.created_at && (
                           <>
-                            <Typography sx={{ 
-                              fontSize: '0.75rem', 
-                              fontWeight: 600, 
+                            <Typography sx={{
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
                               color: '#64748b',
                               mb: 1
                             }}>
                               Oxirgi yangilanish:
                             </Typography>
-                            <Typography sx={{ 
+                            <Typography sx={{
                               fontSize: '0.875rem',
                               color: '#1e293b',
                               fontWeight: 600
@@ -513,7 +673,7 @@ const TestStatistics = () => {
         ))}
       </Grid>
 
-      {tests.length === 0 && (
+      {!loading && tests.length === 0 && (
         <Box sx={{ textAlign: 'center', mt: 4 }}>
           <Typography variant="h6" color="textSecondary">
             Testlar topilmadi
@@ -521,6 +681,177 @@ const TestStatistics = () => {
         </Box>
       )}
 
+      {/* Detailed Student View Modal */}
+      <Dialog
+        open={detailsOpen}
+        onClose={handleCloseDetails}
+        maxWidth="lg"
+        fullWidth
+        sx={{
+          '& .MuiDialog-paper': {
+            borderRadius: '12px',
+            maxHeight: '90vh',
+          }
+        }}
+      >
+        <DialogTitle sx={{
+          background: 'linear-gradient(135deg, #f8fafc 0%, #f8fafc 100%)',
+          borderBottom: '1px solid #e2e8f0',
+          py: 3,
+          px: 4
+        }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box>
+              <Typography variant="h5" sx={{
+                fontWeight: 700,
+                color: '#1e293b',
+                mb: 1
+              }}>
+                {selectedTest?.title} - Batafsil natijalar
+              </Typography>
+              <Typography sx={{
+                color: '#64748b',
+                fontSize: '0.95rem'
+              }}>
+                Test topshirgan barcha o'quvchilar ro'yxati
+              </Typography>
+            </Box>
+            <IconButton
+              onClick={handleCloseDetails}
+              sx={{
+                color: '#64748b',
+                '&:hover': {
+                  backgroundColor: '#f1f5f9',
+                }
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+
+        <DialogContent sx={{ p: 0 }}>
+          {detailsLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
+              <Typography>Yuklanmoqda...</Typography>
+            </Box>
+          ) : (
+            <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: '#f8fafc' }}>
+                    <TableCell sx={{ fontWeight: 600, color: '#374151', py: 2 }}>O'quvchi</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#374151', py: 2 }}>Ball</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#374151', py: 2 }}>Topshirgan sana</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#374151', py: 2 }}>Sarflangan vaqt</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#374151', py: 2 }}>Qo'shimcha dars</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#374151', py: 2 }}>Ogohlantirishlar</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#374151', py: 2 }}>Banlar soni</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {studentDetails.map((student) => (
+                    <TableRow
+                      key={student.id}
+                      sx={{
+                        '&:hover': {
+                          backgroundColor: '#f8fafc',
+                        }
+                      }}
+                    >
+                      <TableCell sx={{ py: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                          <Avatar sx={{
+                            width: 32,
+                            height: 32,
+                            bgcolor: '#059669',
+                            fontSize: '0.875rem',
+                            fontWeight: 600
+                          }}>
+                            {student.name.charAt(0).toUpperCase()}
+                          </Avatar>
+                          <Typography sx={{
+                            fontWeight: 500,
+                            color: '#1e293b'
+                          }}>
+                            {student.name}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell sx={{ py: 2 }}>
+                        <Chip
+                          label={`${student.score.toFixed(1)}%`}
+                          size="small"
+                          sx={{
+                            backgroundColor: student.score >= 70 ? '#ecfdf5' : student.score >= 50 ? '#fef3c7' : '#fef2f2',
+                            color: student.score >= 70 ? '#059669' : student.score >= 50 ? '#d97706' : '#dc2626',
+                            fontWeight: 600,
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ py: 2, color: '#64748b' }}>
+                        {new Date(student.submittedAt).toLocaleString('uz-UZ')}
+                      </TableCell>
+                      <TableCell sx={{ py: 2, color: '#64748b' }}>
+                        {Math.floor(student.timeTaken / 60)}:{(student.timeTaken % 60).toString().padStart(2, '0')}
+                      </TableCell>
+                      <TableCell sx={{ py: 2 }}>
+                        {student.hasExtraLessons ? (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <SchoolIcon sx={{ color: '#059669', fontSize: '1.2rem' }} />
+                            <Typography sx={{ color: '#059669', fontWeight: 500, fontSize: '0.875rem' }}>
+                              Oldi
+                            </Typography>
+                          </Box>
+                        ) : (
+                          <Typography sx={{ color: '#64748b', fontSize: '0.875rem' }}>
+                            Olmadi
+                          </Typography>
+                        )}
+                      </TableCell>
+                      <TableCell sx={{ py: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <WarningIcon sx={{
+                            color: student.warningCount > 0 ? '#d97706' : '#64748b',
+                            fontSize: '1.2rem'
+                          }} />
+                          <Typography sx={{
+                            color: student.warningCount > 0 ? '#d97706' : '#64748b',
+                            fontWeight: 500
+                          }}>
+                            {student.warningCount}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell sx={{ py: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <BlockIcon sx={{
+                            color: student.banCount > 0 ? '#dc2626' : '#64748b',
+                            fontSize: '1.2rem'
+                          }} />
+                          <Typography sx={{
+                            color: student.banCount > 0 ? '#dc2626' : '#64748b',
+                            fontWeight: 500
+                          }}>
+                            {student.banCount}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {studentDetails.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={7} sx={{ textAlign: 'center', py: 6, color: '#64748b' }}>
+                        Bu testni hali hech kim topshirmagan
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </DialogContent>
+      </Dialog>
 
     </Box>
   );

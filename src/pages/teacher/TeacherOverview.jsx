@@ -214,15 +214,15 @@ const TeacherOverview = () => {
   }
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       p: 4,
       backgroundColor: '#ffffff'
     }}>
-      <Box sx={{ 
+      <Box sx={{
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}>
+      }} data-aos="fade-down">
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -231,8 +231,8 @@ const TeacherOverview = () => {
         }}>
           O'qituvchi paneli
         </Typography>
-        <Typography sx={{ 
-          fontSize: '1.125rem', 
+        <Typography sx={{
+          fontSize: '1.125rem',
           color: '#64748b',
           fontWeight: 400,
           mb: 3
@@ -254,66 +254,80 @@ const TeacherOverview = () => {
               backgroundColor: '#1d4ed8',
             }
           }}
+          data-aos="zoom-in"
+          data-aos-delay="200"
         >
           Yangi test yaratish
         </Button>
       </Box>
 
       {/* Main Statistics Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid container spacing={3} sx={{ mb: 4 }} data-aos="fade-up">
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Jami yaratilgan testlar"
-            value={totalTests}
-            icon={<AssessmentIcon />}
-            color="primary.main"
-            subtitle={`${activeTests} ta faol`}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Faol testlar"
-            value={activeTests}
-            icon={<QuizIcon />}
-            color="success.main"
-            subtitle={`${totalTests - activeTests} ta nofaol`}
-          />
+          <div data-aos="zoom-in" data-aos-delay="100">
+            <StatCard
+              title="Jami yaratilgan testlar"
+              value={totalTests}
+              icon={<AssessmentIcon />}
+              color="primary.main"
+              subtitle={`${activeTests} ta faol`}
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Jami urinishlar"
-            value={totalAttempts}
-            icon={<PeopleIcon />}
-            color="secondary.main"
-            subtitle={`${uniqueStudents} ta o'quvchi`}
-          />
+          <div data-aos="zoom-in" data-aos-delay="200">
+            <StatCard
+              title="Faol testlar"
+              value={activeTests}
+              icon={<QuizIcon />}
+              color="success.main"
+              subtitle={`${totalTests - activeTests} ta nofaol`}
+            />
+          </div>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <div data-aos="zoom-in" data-aos-delay="300">
+            <StatCard
+              title="Jami urinishlar"
+              value={totalAttempts}
+              icon={<PeopleIcon />}
+              color="secondary.main"
+              subtitle={`${uniqueStudents} ta o'quvchi`}
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <StatCard
-            title="O'rtacha ball"
-            value={`${averageScore}%`}
-            icon={<TrendingUpIcon />}
-            color="info.main"
-            subtitle="O'quvchilar natijasi"
-          />
+          <div data-aos="zoom-in" data-aos-delay="400">
+            <StatCard
+              title="O'rtacha ball"
+              value={`${averageScore}%`}
+              icon={<TrendingUpIcon />}
+              color="info.main"
+              subtitle="O'quvchilar natijasi"
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <StatCard
-            title="Eng yuqori ball"
-            value={`${highestScore}%`}
-            icon={<TrendingUpIcon />}
-            color="success.main"
-            subtitle="O'quvchilar natijasi"
-          />
+          <div data-aos="zoom-in" data-aos-delay="500">
+            <StatCard
+              title="Eng yuqori ball"
+              value={`${highestScore}%`}
+              icon={<TrendingUpIcon />}
+              color="success.main"
+              subtitle="O'quvchilar natijasi"
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <StatCard
-            title="Eng past ball"
-            value={`${lowestScore}%`}
-            icon={<TrendingUpIcon />}
-            color="warning.main"
-            subtitle="O'quvchilar natijasi"
-          />
+          <div data-aos="zoom-in" data-aos-delay="600">
+            <StatCard
+              title="Eng past ball"
+              value={`${lowestScore}%`}
+              icon={<TrendingUpIcon />}
+              color="warning.main"
+              subtitle="O'quvchilar natijasi"
+            />
+          </div>
         </Grid>
       </Grid>
 
@@ -327,10 +341,10 @@ const TeacherOverview = () => {
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
             height: '400px',
             overflow: 'auto'
-          }}>
+          }} data-aos="fade-right">
             <CardContent sx={{ p: 4 }}>
-              <Typography sx={{ 
-                fontWeight: 600, 
+              <Typography sx={{
+                fontWeight: 600,
                 color: '#1e293b',
                 fontSize: '1.25rem',
                 mb: 3
@@ -395,10 +409,10 @@ const TeacherOverview = () => {
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
             height: '400px',
             overflow: 'auto'
-          }}>
+          }} data-aos="fade-left">
             <CardContent sx={{ p: 4 }}>
-              <Typography sx={{ 
-                fontWeight: 600, 
+              <Typography sx={{
+                fontWeight: 600,
                 color: '#1e293b',
                 fontSize: '1.25rem',
                 mb: 3
@@ -472,10 +486,10 @@ const TeacherOverview = () => {
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-          }}>
+          }} data-aos="fade-up">
             <CardContent sx={{ p: 4 }}>
-              <Typography sx={{ 
-                fontWeight: 600, 
+              <Typography sx={{
+                fontWeight: 600,
                 color: '#1e293b',
                 fontSize: '1.25rem',
                 mb: 3

@@ -34,6 +34,7 @@ const StudentStatistics = () => {
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [warningCount, setWarningCount] = useState(0);
 
   useEffect(() => {
     loadStatistics();
@@ -44,21 +45,25 @@ const StudentStatistics = () => {
       setLoading(true);
       setError('');
 
-      // Load student's attempts and all tests from API
-      const [attemptsResponse, testsResponse] = await Promise.all([
+      // Load student's attempts, all tests, and warnings from API
+      const [attemptsResponse, testsResponse, warningsResponse] = await Promise.all([
         apiService.getAttempts({ student: currentUser.id }),
-        apiService.getTests()
+        apiService.getTests(),
+        apiService.getWarnings({ student: currentUser.id })
       ]);
 
       const studentAttempts = attemptsResponse.results || attemptsResponse;
       const allTests = testsResponse.results || testsResponse;
+      const warnings = warningsResponse.results || warningsResponse;
 
       setMyAttempts(studentAttempts);
       setTests(allTests);
+      setWarningCount(Array.isArray(warnings) ? warnings.length : 0);
 
       console.log('Student statistics loaded:', {
         attempts: studentAttempts.length,
-        tests: allTests.length
+        tests: allTests.length,
+        warnings: Array.isArray(warnings) ? warnings.length : 0
       });
     } catch (err) {
       console.error('Failed to load student statistics:', err);
@@ -262,19 +267,21 @@ const StudentStatistics = () => {
   }
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       py: 4,
       backgroundColor: '#ffffff'
     }}>
       {/* Header */}
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}>
+      }}
+      data-aos="fade-down"
+      >
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -284,166 +291,206 @@ const StudentStatistics = () => {
         </Typography>
       </Box>
 
+      {/* Warning Count Alert - Only show if 3 or more warnings */}
+      {warningCount >= 3 && (
+        <div data-aos="fade-up" data-aos-delay="300">
+          <Alert
+            severity="warning"
+            sx={{
+              mb: 4,
+              backgroundColor: '#fef3c7',
+              border: '1px solid #f59e0b',
+              color: '#92400e',
+              '& .MuiAlert-icon': {
+                color: '#f59e0b'
+              }
+            }}
+          >
+            <Typography sx={{ fontWeight: 600, mb: 1 }}>
+              ⚠️ Ogohlantirishlar: {warningCount} ta
+            </Typography>
+            <Typography variant="body2">
+              Siz test qoidalariga {warningCount} marta rioya qilmadingiz. Iltimos, test qoidalariga rioya qiling, aks holda profilingiz bloklanishi mumkin.
+            </Typography>
+          </Alert>
+        </div>
+      )}
+
       {/* Main Statistics Cards */}
       <Grid container spacing={4} sx={{ mb: 6 }}>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Topshirilgan testlar"
-            value={totalTests}
-            subtitle="jami"
-          />
+          <div data-aos="fade-up" data-aos-delay="100">
+            <StatCard
+              title="Topshirilgan testlar"
+              value={totalTests}
+              subtitle="jami"
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="O'rtacha ball"
-            value={`${averageScore}%`}
-            subtitle="barcha testlar"
-          />
+          <div data-aos="fade-up" data-aos-delay="200">
+            <StatCard
+              title="O'rtacha ball"
+              value={`${averageScore}%`}
+              subtitle="barcha testlar"
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Eng yuqori ball"
-            value={`${highestScore}%`}
-            subtitle="eng yaxshi"
-          />
+          <div data-aos="fade-up" data-aos-delay="300">
+            <StatCard
+              title="Eng yuqori ball"
+              value={`${highestScore}%`}
+              subtitle="eng yaxshi"
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Eng past ball"
-            value={`${lowestScore}%`}
-            subtitle="eng past"
-          />
+          <div data-aos="fade-up" data-aos-delay="400">
+            <StatCard
+              title="Eng past ball"
+              value={`${lowestScore}%`}
+              subtitle="eng past"
+            />
+          </div>
         </Grid>
       </Grid>
 
       <Grid container spacing={4}>
         {/* Score Distribution Chart */}
         <Grid item xs={12} md={6}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-          }}>
-            <CardContent sx={{ p: 4 }}>
-              <Typography sx={{ 
-                fontWeight: 600, 
-                color: '#1e293b',
-                fontSize: '1.25rem',
-                mb: 3
-              }}>
-                Ballar taqsimoti
-              </Typography>
-              <Bar
-                data={scoreDistributionData}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: {
-                      position: 'top',
+          <div data-aos="fade-right">
+            <Card sx={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+            }}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography sx={{
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  fontSize: '1.25rem',
+                  mb: 3
+                }}>
+                  Ballar taqsimoti
+                </Typography>
+                <Bar
+                  data={scoreDistributionData}
+                  options={{
+                    responsive: true,
+                    plugins: {
+                      legend: {
+                        position: 'top',
+                      },
                     },
-                  },
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      ticks: {
-                        stepSize: 1
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        ticks: {
+                          stepSize: 1
+                        }
                       }
                     }
-                  }
-                }}
-              />
-            </CardContent>
-          </Card>
+                  }}
+                />
+              </CardContent>
+            </Card>
+          </div>
         </Grid>
 
         {/* Performance by Subject */}
         <Grid item xs={12} md={6}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-          }}>
-            <CardContent sx={{ p: 4 }}>
-              <Typography sx={{ 
-                fontWeight: 600, 
-                color: '#1e293b',
-                fontSize: '1.25rem',
-                mb: 3
-              }}>
-                Fanlar bo'yicha natijalar
-              </Typography>
-              <Pie
-                data={subjectPerformanceData}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: {
-                      position: 'bottom',
+          <div data-aos="fade-left">
+            <Card sx={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+            }}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography sx={{
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  fontSize: '1.25rem',
+                  mb: 3
+                }}>
+                  Fanlar bo'yicha natijalar
+                </Typography>
+                <Pie
+                  data={subjectPerformanceData}
+                  options={{
+                    responsive: true,
+                    plugins: {
+                      legend: {
+                        position: 'bottom',
+                      },
                     },
-                  },
-                }}
-              />
-            </CardContent>
-          </Card>
+                  }}
+                />
+              </CardContent>
+            </Card>
+          </div>
         </Grid>
 
         {/* Score Trend */}
         <Grid item xs={12}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-          }}>
-            <CardContent sx={{ p: 4 }}>
-              <Typography sx={{ 
-                fontWeight: 600, 
-                color: '#1e293b',
-                fontSize: '1.25rem',
-                mb: 3
-              }}>
-                Ballar tendensiyasi (oxirgi 10 ta test)
-              </Typography>
-              <Line
-                data={scoreTrendData}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: {
-                      position: 'top',
+          <div data-aos="fade-up">
+            <Card sx={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+            }}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography sx={{
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  fontSize: '1.25rem',
+                  mb: 3
+                }}>
+                  Ballar tendensiyasi (oxirgi 10 ta test)
+                </Typography>
+                <Line
+                  data={scoreTrendData}
+                  options={{
+                    responsive: true,
+                    plugins: {
+                      legend: {
+                        position: 'top',
+                      },
                     },
-                  },
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      max: 100
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        max: 100
+                      }
                     }
-                  }
-                }}
-              />
-            </CardContent>
-          </Card>
+                  }}
+                />
+              </CardContent>
+            </Card>
+          </div>
         </Grid>
 
         {/* Recent Activity */}
         <Grid item xs={12} md={6}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-          }}>
-            <CardContent sx={{ p: 4 }}>
-              <Typography sx={{ 
-                fontWeight: 600, 
-                color: '#1e293b',
-                fontSize: '1.25rem',
-                mb: 3
-              }}>
-                So'nggi faoliyat
-              </Typography>
+          <div data-aos="fade-right">
+            <Card sx={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+            }}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography sx={{
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  fontSize: '1.25rem',
+                  mb: 3
+                }}>
+                  So'nggi faoliyat
+                </Typography>
               {recentAttempts.length > 0 ? (
                 <Box sx={{ maxHeight: 300, overflowY: 'auto' }}>
                   {recentAttempts.map((attempt, index) => {
@@ -471,25 +518,27 @@ const StudentStatistics = () => {
               )}
             </CardContent>
           </Card>
+          </div>
         </Grid>
 
         {/* Performance Summary */}
         <Grid item xs={12} md={6}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-          }}>
-            <CardContent sx={{ p: 4 }}>
-              <Typography sx={{ 
-                fontWeight: 600, 
-                color: '#1e293b',
-                fontSize: '1.25rem',
-                mb: 3
-              }}>
-                Natija umumlashtiruvi
-              </Typography>
+          <div data-aos="fade-left">
+            <Card sx={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+            }}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography sx={{
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  fontSize: '1.25rem',
+                  mb: 3
+                }}>
+                  Natija umumlashtiruvi
+                </Typography>
               <Box sx={{ p: 2 }}>
                 <Typography variant="body2" gutterBottom sx={{ color: '#334155', fontWeight: 500 }}>
                   <strong>Jami testlar:</strong> {totalTests}
@@ -511,6 +560,7 @@ const StudentStatistics = () => {
               </Box>
             </CardContent>
           </Card>
+          </div>
         </Grid>
       </Grid>
     </Box>

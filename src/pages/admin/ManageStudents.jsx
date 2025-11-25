@@ -296,18 +296,20 @@ const ManageStudents = () => {
   });
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       py: 4,
       backgroundColor: '#ffffff'
     }}>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}>
+      }}
+      data-aos="fade-down"
+      >
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -330,6 +332,8 @@ const ManageStudents = () => {
               backgroundColor: '#1d4ed8',
             }
           }}
+          data-aos="zoom-in"
+          data-aos-delay="200"
         >
           O'quvchi qo'shish
         </Button>
@@ -342,7 +346,7 @@ const ManageStudents = () => {
       )}
 
       {/* Search Input */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 4 }} data-aos="fade-up" data-aos-delay="300">
         <TextField
           fullWidth
           variant="outlined"
@@ -377,12 +381,13 @@ const ManageStudents = () => {
         )}
       </Box>
 
-      <TableContainer component={Paper} sx={{
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-      }}>
+      <div data-aos="fade-up" data-aos-delay="400">
+        <TableContainer component={Paper} sx={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        }}>
         <Table>
           <TableHead>
             <TableRow sx={{
@@ -589,27 +594,32 @@ const ManageStudents = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      </div>
 
       {filteredStudents.length === 0 && students.length > 0 && (
-        <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
-          <Typography variant="h6" color="textSecondary">
-            Qidiruv natijasi bo'yicha o'quvchi topilmadi
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Qidiruv so'zini o'zgartirib ko'ring
-          </Typography>
-        </Paper>
+        <div data-aos="fade-up" data-aos-delay="500">
+          <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
+            <Typography variant="h6" color="textSecondary">
+              Qidiruv natijasi bo'yicha o'quvchi topilmadi
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Qidiruv so'zini o'zgartirib ko'ring
+            </Typography>
+          </Paper>
+        </div>
       )}
 
       {students.length === 0 && (
-        <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
-          <Typography variant="h6" color="textSecondary">
-            Hali o'quvchilar qo'shilmagan
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Yuqoridagi "O'quvchi qo'shish" tugmasini bosing
-          </Typography>
-        </Paper>
+        <div data-aos="fade-up" data-aos-delay="500">
+          <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
+            <Typography variant="h6" color="textSecondary">
+              Hali o'quvchilar qo'shilmagan
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Yuqoridagi "O'quvchi qo'shish" tugmasini bosing
+            </Typography>
+          </Paper>
+        </div>
       )}
 
       {/* Add Student Dialog */}

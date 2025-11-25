@@ -121,7 +121,7 @@ class Test(models.Model):
     total_questions = models.IntegerField(default=0)
     time_limit = models.IntegerField(help_text="Time limit in minutes")
     difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES, default='medium')
-    target_grades = models.JSONField(default=list, blank=True, help_text="List of grades this test is for, empty for all grades")
+    target_grades = models.CharField(max_length=200, default='', blank=True, help_text="Comma-separated list of grades this test is for, empty for all grades")
     created_at = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
 

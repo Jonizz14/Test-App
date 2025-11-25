@@ -178,6 +178,18 @@ class ApiService {
     return this.get(`/tests/${queryString ? `?${queryString}` : ''}`);
   }
 
+  // Public test methods (no authentication required)
+  async getPublicTests(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    // Use fetch directly without authentication headers
+    const url = `${this.baseURL}/tests/public_list/${queryString ? `?${queryString}` : ''}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.json();
+  }
+
   async getTest(id) {
     return this.get(`/tests/${id}/`);
   }
@@ -198,6 +210,18 @@ class ApiService {
   async getQuestions(params = {}) {
     const queryString = new URLSearchParams(params).toString();
     return this.get(`/questions/${queryString ? `?${queryString}` : ''}`);
+  }
+
+  // Public question methods (no authentication required)
+  async getPublicQuestions(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    // Use fetch directly without authentication headers
+    const url = `${this.baseURL}/questions/public_list/${queryString ? `?${queryString}` : ''}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.json();
   }
 
   async createQuestion(data) {

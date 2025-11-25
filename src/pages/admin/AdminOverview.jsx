@@ -212,15 +212,17 @@ const AdminOverview = () => {
   }
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       py: 4,
       backgroundColor: '#ffffff'
     }}>
-      <Box sx={{ 
+      <Box sx={{
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}>
+      }}
+      data-aos="fade-down"
+      >
         <Typography
           sx={{
             fontSize: '2.5rem',
@@ -231,10 +233,10 @@ const AdminOverview = () => {
         >
           Admin Umumiy ko'rinishi
         </Typography>
-        <Typography sx={{ 
-          fontSize: '1.125rem', 
+        <Typography sx={{
+          fontSize: '1.125rem',
           color: '#64748b',
-          fontWeight: 400 
+          fontWeight: 400
         }}>
           Platformaning umumiy statistikasi va faoliyati
         </Typography>
@@ -242,98 +244,117 @@ const AdminOverview = () => {
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Jami foydalanuvchilar"
-            value={stats.totalUsers}
-            icon={<PeopleIcon fontSize="large" />}
-            color="primary.main"
-          />
+          <div data-aos="fade-up" data-aos-delay="100">
+            <StatCard
+              title="Jami foydalanuvchilar"
+              value={stats.totalUsers}
+              icon={<PeopleIcon fontSize="large" />}
+              color="primary.main"
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="O'qituvchilar"
-            value={stats.totalTeachers}
-            icon={<SchoolIcon fontSize="large" />}
-            color="secondary.main"
-          />
+          <div data-aos="fade-up" data-aos-delay="200">
+            <StatCard
+              title="O'qituvchilar"
+              value={stats.totalTeachers}
+              icon={<SchoolIcon fontSize="large" />}
+              color="secondary.main"
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="O'quvchilar"
-            value={stats.totalStudents}
-            icon={<PeopleIcon fontSize="large" />}
-            color="success.main"
-          />
+          <div data-aos="fade-up" data-aos-delay="300">
+            <StatCard
+              title="O'quvchilar"
+              value={stats.totalStudents}
+              icon={<PeopleIcon fontSize="large" />}
+              color="success.main"
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <StatCard
-            title="Jami testlar"
-            value={stats.totalTests}
-            icon={<AssessmentIcon fontSize="large" />}
-            color="warning.main"
-          />
+          <div data-aos="fade-up" data-aos-delay="400">
+            <StatCard
+              title="Jami testlar"
+              value={stats.totalTests}
+              icon={<AssessmentIcon fontSize="large" />}
+              color="warning.main"
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <StatCard
-            title="Jami urinishlar"
-            value={stats.totalAttempts}
-            icon={<AssessmentIcon fontSize="large" />}
-            color="primary.main"
-          />
+          <div data-aos="fade-up" data-aos-delay="500">
+            <StatCard
+              title="Jami urinishlar"
+              value={stats.totalAttempts}
+              icon={<AssessmentIcon fontSize="large" />}
+              color="primary.main"
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <StatCard
-            title="Faol testlar"
-            value={stats.activeTests}
-            icon={<AssessmentIcon fontSize="large" />}
-            color="success.main"
-          />
+          <div data-aos="fade-up" data-aos-delay="600">
+            <StatCard
+              title="Faol testlar"
+              value={stats.activeTests}
+              icon={<AssessmentIcon fontSize="large" />}
+              color="success.main"
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="O'rtacha ball"
-            value={`${stats.averageScore}%`}
-            icon={<TrendingUpIcon fontSize="large" />}
-            color="info.main"
-          />
+          <div data-aos="fade-up" data-aos-delay="700">
+            <StatCard
+              title="O'rtacha ball"
+              value={`${stats.averageScore}%`}
+              icon={<TrendingUpIcon fontSize="large" />}
+              color="info.main"
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Eng yuqori ball"
-            value={`${stats.highestScore}%`}
-            icon={<TrendingUpIcon fontSize="large" />}
-            color="success.main"
-          />
+          <div data-aos="fade-up" data-aos-delay="800">
+            <StatCard
+              title="Eng yuqori ball"
+              value={`${stats.highestScore}%`}
+              icon={<TrendingUpIcon fontSize="large" />}
+              color="success.main"
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Eng past ball"
-            value={`${stats.lowestScore}%`}
-            icon={<TrendingUpIcon fontSize="large" />}
-            color="warning.main"
-          />
+          <div data-aos="fade-up" data-aos-delay="900">
+            <StatCard
+              title="Eng past ball"
+              value={`${stats.lowestScore}%`}
+              icon={<TrendingUpIcon fontSize="large" />}
+              color="warning.main"
+            />
+          </div>
         </Grid>
       </Grid>
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-          <Paper sx={{
-            p: 4,
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          }}>
-            <Typography
-              sx={{
-                fontSize: '1.25rem',
-                fontWeight: 700,
-                color: '#1e293b',
-                mb: 3
-              }}
-            >
-              Platform Statistikasi
-            </Typography>
+          <div data-aos="fade-right">
+            <Paper sx={{
+              p: 4,
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            }}>
+              <Typography
+                sx={{
+                  fontSize: '1.25rem',
+                  fontWeight: 700,
+                  color: '#1e293b',
+                  mb: 3
+                }}
+              >
+                Platform Statistikasi
+              </Typography>
             <List sx={{ p: 0 }}>
               <ListItem sx={{ px: 0, py: 2 }}>
                 <ListItemText
@@ -366,26 +387,28 @@ const AdminOverview = () => {
               </ListItem>
             </List>
           </Paper>
+          </div>
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Paper sx={{
-            p: 4,
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          }}>
-            <Typography
-              sx={{
-                fontSize: '1.25rem',
-                fontWeight: 700,
-                color: '#1e293b',
-                mb: 3
-              }}
-            >
-              So'nggi Faoliyat
-            </Typography>
+          <div data-aos="fade-left">
+            <Paper sx={{
+              p: 4,
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            }}>
+              <Typography
+                sx={{
+                  fontSize: '1.25rem',
+                  fontWeight: 700,
+                  color: '#1e293b',
+                  mb: 3
+                }}
+              >
+                So'nggi Faoliyat
+              </Typography>
             <List sx={{ p: 0 }}>
               {stats.recentActivity.length > 0 ? (
                 stats.recentActivity.map((activity, index) => (
@@ -446,12 +469,13 @@ const AdminOverview = () => {
               )}
             </List>
           </Paper>
+          </div>
         </Grid>
       </Grid>
 
       {/* Banned Users Section */}
       {stats.bannedUsers.length > 0 && (
-        <Box sx={{ mt: 4 }}>
+        <Box sx={{ mt: 4 }} data-aos="fade-up">
           <Paper sx={{
             p: 4,
             backgroundColor: '#ffffff',

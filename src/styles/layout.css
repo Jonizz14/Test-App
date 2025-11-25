@@ -3,35 +3,88 @@
    This file contains layout-related CSS classes for containers, grids, and positioning
    ========================================================================== */
 
-/* Full page layouts */
+/* Enhanced Full page layouts */
 .page-container {
   min-height: 100vh;
   width: 100%;
-  background: var(--bg-secondary);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(59, 130, 246, 0.02) 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.page-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(120, 219, 226, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .page-content {
   padding: var(--spacing-xl);
-  min-height: calc(100vh - 64px); /* Account for header height */
+  min-height: calc(100vh - 64px);
+  position: relative;
+  z-index: 1;
+  animation: fadeIn 0.8s ease-out;
 }
 
 .page-header {
   margin-bottom: var(--spacing-xl);
   padding-bottom: var(--spacing-lg);
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 2px solid linear-gradient(90deg, var(--border-light) 0%, transparent 100%);
+  position: relative;
+  animation: slideInDown 0.6s ease-out;
+}
+
+.page-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+  border-radius: 1px;
 }
 
 .page-title {
-  font-size: 2rem;
-  font-weight: var(--font-weight-heading);
-  color: var(--primary);
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin-bottom: var(--spacing-sm);
+  animation: slideInLeft 0.7s ease-out;
+  position: relative;
+}
+
+.page-title::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+  border-radius: 2px;
+  animation: slideInLeft 0.8s ease-out 0.2s both;
 }
 
 .page-subtitle {
   font-size: 1.125rem;
   color: var(--text-secondary);
   font-weight: 400;
+  animation: fadeIn 0.8s ease-out 0.3s both;
+  max-width: 600px;
+  line-height: 1.6;
 }
 
 /* Content sections with alternating backgrounds */
@@ -170,18 +223,74 @@
   padding: var(--spacing-xl);
 }
 
-/* Card layouts */
+/* Enhanced Card layouts */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: var(--spacing-lg);
   margin: var(--spacing-xl) 0;
+  animation: fadeIn 0.8s ease-out;
 }
 
 .card-list {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  animation: slideInUp 0.6s ease-out;
+}
+
+/* Modern card effects */
+.card-modern {
+  background: linear-gradient(135deg, var(--bg-primary) 0%, rgba(255, 255, 255, 0.9) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(10px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.05), transparent);
+  transition: left 0.6s;
+}
+
+.card-modern:hover::before {
+  left: 100%;
+}
+
+.card-modern:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.card-glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.card-neon {
+  border: 2px solid var(--primary);
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(37, 99, 235, 0.02) 100%);
+}
+
+.card-neon:hover {
+  box-shadow: 0 0 30px rgba(37, 99, 235, 0.5), 0 0 60px rgba(37, 99, 235, 0.3);
+  transform: translateY(-5px);
+}
+
 /* Burger menu for mobile */
 .burger-menu {
   display: none;
@@ -237,7 +346,6 @@
 .sidebar-mobile.open {
   left: 0;
 }
-}
 
 /* Responsive layouts */
 @media (max-width: 768px) {
@@ -273,6 +381,30 @@
 
   .card-grid {
     grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  /* Enhanced mobile spacing */
+  .container {
+    padding: 0 var(--spacing-md);
+  }
+
+  .section {
+    padding: var(--spacing-xl) 0;
+  }
+
+  /* Better mobile cards */
+  .card {
+    margin-bottom: var(--spacing-md);
+  }
+
+  /* Mobile navigation improvements */
+  .navbar {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .navbar .nav-links {
+    display: none; /* Hide on mobile, show burger menu */
   }
 }
 

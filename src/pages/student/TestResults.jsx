@@ -137,19 +137,21 @@ const TestResults = () => {
   }
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       py: 4,
       backgroundColor: '#ffffff'
     }}>
       {/* Header */}
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}>
+      }}
+      data-aos="fade-down"
+      >
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -160,30 +162,33 @@ const TestResults = () => {
       </Box>
 
       {results.length === 0 ? (
-        <Card sx={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          p: 4,
-          textAlign: 'center'
-        }}>
-          <AssessmentIcon sx={{ fontSize: 64, color: '#64748b', mb: 2 }} />
-          <Typography variant="h6" sx={{ color: '#64748b', mb: 2 }}>
-            Hozircha test natijalari yo'q
-          </Typography>
-          <Typography variant="body2" color="#64748b">
-            Test topshirgandan keyin natijalaringiz shu yerda ko'rinadi
-          </Typography>
-        </Card>
+        <div data-aos="fade-up" data-aos-delay="300">
+          <Card sx={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            p: 4,
+            textAlign: 'center'
+          }}>
+            <AssessmentIcon sx={{ fontSize: 64, color: '#64748b', mb: 2 }} />
+            <Typography variant="h6" sx={{ color: '#64748b', mb: 2 }}>
+              Hozircha test natijalari yo'q
+            </Typography>
+            <Typography variant="body2" color="#64748b">
+              Test topshirgandan keyin natijalaringiz shu yerda ko'rinadi
+            </Typography>
+          </Card>
+        </div>
       ) : (
-        <Card sx={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          overflow: 'hidden'
-        }}>
+        <div data-aos="fade-up" data-aos-delay="200">
+          <Card sx={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            overflow: 'hidden'
+          }}>
           <TableContainer>
             <Table>
               <TableHead>
@@ -287,6 +292,7 @@ const TestResults = () => {
             </Table>
           </TableContainer>
         </Card>
+        </div>
       )}
 
       {/* Results Details Dialog */}

@@ -166,22 +166,30 @@ const TakeTest = () => {
   // Check for testId in URL parameters
   useEffect(() => {
     const testIdFromParams = searchParams.get('testId');
-    
+
     if (testIdFromParams && teachers.length > 0) {
       // Check if there's an active session for this test
       const checkAndHandleTest = async () => {
         try {
           setSessionRecovering(true);
           const activeSession = await checkActiveSession(testIdFromParams);
-          
+
           if (activeSession) {
             // Continue existing session
             await continueTestFromSession(activeSession, testIdFromParams);
           } else {
-            // Load test to show "Start Test" or "Continue Test" based on taken status
+            // Load test and check if it should auto-start
             const test = await apiService.getTest(testIdFromParams);
             if (test && test.is_active) {
-              setSelectedTest(test);
+              const alreadyTaken = takenTests.has(testIdFromParams);
+
+              if (!alreadyTaken) {
+                // Auto-start the test since user came from preview page
+                await startTest(test);
+              } else {
+                // Just show the test details if already taken
+                setSelectedTest(test);
+              }
             }
           }
         } catch (error) {
@@ -192,10 +200,10 @@ const TakeTest = () => {
           setSessionRecovering(false);
         }
       };
-      
+
       checkAndHandleTest();
     }
-  }, [searchParams, teachers]);
+  }, [searchParams, teachers, takenTests]);
 
   // Handle session completion
   useEffect(() => {
@@ -474,19 +482,21 @@ const TakeTest = () => {
 
   if (testCompleted) {
     return (
-      <Box sx={{ 
+      <Box sx={{
         py: 4,
         backgroundColor: '#ffffff'
       }}>
         {/* Header */}
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
           mb: 6,
           pb: 4,
           borderBottom: '1px solid #e2e8f0'
-        }}>
+        }}
+        data-aos="fade-down"
+        >
           <Typography sx={{
             fontSize: '2.5rem',
             fontWeight: 700,
@@ -496,16 +506,17 @@ const TakeTest = () => {
           </Typography>
         </Box>
 
-        <Paper sx={{
-          p: 4,
-          textAlign: 'center',
-          background: score >= 70
-            ? 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)'
-            : 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
-          border: score >= 70 ? '1px solid #22c55e' : '1px solid #dc2626',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-        }}>
+        <div data-aos="zoom-in" data-aos-delay="300">
+          <Paper sx={{
+            p: 4,
+            textAlign: 'center',
+            background: score >= 70
+              ? 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)'
+              : 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+            border: score >= 70 ? '1px solid #22c55e' : '1px solid #dc2626',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+          }}>
           <Typography variant="h3" sx={{
             fontWeight: 700,
             color: score >= 70 ? 'success.main' : 'error.main',
@@ -539,6 +550,7 @@ const TakeTest = () => {
             </Button>
           </Box>
         </Paper>
+        </div>
       </Box>
     );
   }
@@ -578,7 +590,7 @@ const TakeTest = () => {
     }
 
     return (
-      <Box sx={{ 
+      <Box sx={{
         py: 4,
         backgroundColor: '#ffffff'
       }}>
@@ -598,7 +610,9 @@ const TakeTest = () => {
           background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
           borderRadius: 2,
           border: '1px solid rgba(148, 163, 184, 0.2)'
-        }}>
+        }}
+        data-aos="fade-down"
+        >
           <Typography variant="h6">
             {selectedTest.title}
           </Typography>
@@ -649,6 +663,8 @@ const TakeTest = () => {
             borderRadius: 3,
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           }}
+          data-aos="fade-up"
+          data-aos-delay="200"
         >
           {/* Image displayed at the top - bigger */}
           {currentQuestion.image && (
@@ -818,13 +834,13 @@ const TakeTest = () => {
         </Paper>
 
         {/* Question Navigation Panel */}
-        <Box sx={{ mt: 3 }}>
+        <Box sx={{ mt: 3 }} data-aos="fade-up" data-aos-delay="400">
           <Typography variant="h6" sx={{ mb: 2, color: '#1e293b', fontWeight: 600 }}>
             Savollar ro'yxati:
           </Typography>
-          <Box sx={{ 
-            display: 'flex', 
-            flexWrap: 'wrap', 
+          <Box sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
             gap: 1,
             backgroundColor: '#ffffff',
             p: 2,
@@ -949,7 +965,7 @@ const TakeTest = () => {
   }
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       py: 4,
       backgroundColor: '#ffffff'
     }}>
@@ -961,14 +977,16 @@ const TakeTest = () => {
       )}
 
       {/* Header */}
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}>
+      }}
+      data-aos="fade-down"
+      >
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -979,12 +997,12 @@ const TakeTest = () => {
       </Box>
 
       {/* Barcha testlar section with difficulty sorting */}
-      <Box sx={{ mb: 6 }}>
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          mb: 4 
+      <Box sx={{ mb: 6 }} data-aos="fade-up" data-aos-delay="200">
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 4
         }}>
           <Typography sx={{
             fontSize: '1.5rem',
@@ -1016,7 +1034,7 @@ const TakeTest = () => {
         </Box>
 
         <Grid container spacing={3}>
-          {getSortedTests().map((test) => {
+          {getSortedTests().map((test, index) => {
             const alreadyTaken = hasStudentTakenTest(test.id);
             const hasActiveSession = !!activeTestSessions[test.id];
 
@@ -1043,16 +1061,23 @@ const TakeTest = () => {
 
             return (
               <Grid item xs={12} md={6} lg={4} key={test.id}>
-                <Card sx={{
-                  height: '100%',
-                  cursor: buttonDisabled ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.3s ease',
-                  backgroundColor: buttonDisabled ? '#f8f9fa' : '#ffffff',
-                  '&:hover': {
-                    transform: buttonDisabled ? 'none' : 'translateY(-4px)',
-                    boxShadow: buttonDisabled ? 'none' : '0 12px 40px rgba(0, 0, 0, 0.15)',
-                  }
-                }}>
+                <div data-aos="zoom-in" data-aos-delay={300 + index * 100}>
+                  <Card sx={{
+                    height: '100%',
+                    cursor: buttonDisabled ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.3s ease',
+                    backgroundColor: buttonDisabled ? '#f8f9fa' : '#ffffff',
+                    '&:hover': {
+                      transform: buttonDisabled ? 'none' : 'translateY(-4px)',
+                      boxShadow: buttonDisabled ? 'none' : '0 12px 40px rgba(0, 0, 0, 0.15)',
+                    }
+                  }}
+                  onClick={() => {
+                    if (!buttonDisabled) {
+                      navigate(`/student/test-preview/${test.id}`);
+                    }
+                  }}
+                  >
                   <CardContent sx={{ p: 3 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                       <Chip
@@ -1116,6 +1141,7 @@ const TakeTest = () => {
                     </Button>
                   </CardContent>
                 </Card>
+                </div>
               </Grid>
             );
           })}

@@ -27,6 +27,7 @@ const StudentOverview = () => {
   const [myAttempts, setMyAttempts] = useState([]);
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [warningCount, setWarningCount] = useState(0);
 
   useEffect(() => {
     loadData();
@@ -36,19 +37,25 @@ const StudentOverview = () => {
     try {
       setLoading(true);
 
-      // Load student's attempts from API
-      const attemptsResponse = await apiService.getAttempts({ student: currentUser.id });
-      const studentAttempts = attemptsResponse.results || attemptsResponse;
-      setMyAttempts(studentAttempts);
+      // Load student's attempts, tests, and warnings from API
+      const [attemptsResponse, testsResponse, warningsResponse] = await Promise.all([
+        apiService.getAttempts({ student: currentUser.id }),
+        apiService.getTests(),
+        apiService.getWarnings({ student: currentUser.id })
+      ]);
 
-      // Load tests to get titles for recent attempts
-      const testsResponse = await apiService.getTests();
+      const studentAttempts = attemptsResponse.results || attemptsResponse;
       const allTests = testsResponse.results || testsResponse;
+      const warnings = warningsResponse.results || warningsResponse;
+
+      setMyAttempts(studentAttempts);
       setTests(allTests);
+      setWarningCount(Array.isArray(warnings) ? warnings.length : 0);
 
       console.log('Student overview data loaded:', {
         attempts: studentAttempts.length,
-        tests: allTests.length
+        tests: allTests.length,
+        warnings: Array.isArray(warnings) ? warnings.length : 0
       });
     } catch (error) {
       console.error('Failed to load student data:', error);
@@ -120,19 +127,22 @@ const StudentOverview = () => {
   }
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       py: 4,
       backgroundColor: '#ffffff'
     }}>
       {/* Header */}
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        mb: 6,
-        pb: 4,
-        borderBottom: '1px solid #e2e8f0'
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 6,
+          pb: 4,
+          borderBottom: '1px solid #e2e8f0'
+        }}
+        data-aos="fade-down"
+      >
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -155,104 +165,138 @@ const StudentOverview = () => {
               backgroundColor: '#1d4ed8',
             }
           }}
+          data-aos="zoom-in"
+          data-aos-delay="200"
         >
           O'qituvchilarni topish
         </Button>
       </Box>
 
+      {/* Warning Count Alert - Only show if 3 or more warnings */}
+      {warningCount >= 3 && (
+        <div data-aos="fade-up" data-aos-delay="300">
+          <div style={{
+            backgroundColor: '#fef3c7',
+            border: '1px solid #f59e0b',
+            borderRadius: '12px',
+            padding: '16px',
+            marginBottom: '24px',
+            color: '#92400e'
+          }}>
+            <div style={{ fontWeight: 600, marginBottom: '8px' }}>
+              ⚠️ Ogohlantirishlar: {warningCount} ta
+            </div>
+            <div style={{ fontSize: '14px' }}>
+              Siz test qoidalariga {warningCount} marta rioya qilmadingiz. Iltimos, test qoidalariga rioya qiling, aks holda profilingiz bloklanishi mumkin.
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Statistics Cards */}
       <Grid container spacing={4} sx={{ mb: 6 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Topshirilgan testlar"
-            value={totalTests}
-            subtitle="jami"
-          />
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <div data-aos="fade-up" data-aos-delay="100">
+            <StatCard
+              title="Topshirilgan testlar"
+              value={totalTests}
+              subtitle="jami"
+            />
+          </div>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="O'rtacha ball"
-            value={`${averageScore}%`}
-            subtitle="barcha testlar"
-          />
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <div data-aos="fade-up" data-aos-delay="200">
+            <StatCard
+              title="O'rtacha ball"
+              value={`${averageScore}%`}
+              subtitle="barcha testlar"
+            />
+          </div>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Eng yuqori ball"
-            value={`${highestScore}%`}
-            subtitle="eng yaxshi"
-          />
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <div data-aos="fade-up" data-aos-delay="300">
+            <StatCard
+              title="Eng yuqori ball"
+              value={`${highestScore}%`}
+              subtitle="eng yaxshi"
+            />
+          </div>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Eng past ball"
-            value={`${lowestScore}%`}
-            subtitle="eng past"
-          />
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <div data-aos="fade-up" data-aos-delay="400">
+            <StatCard
+              title="Eng past ball"
+              value={`${lowestScore}%`}
+              subtitle="eng past"
+            />
+          </div>
         </Grid>
       </Grid>
 
       <Grid container spacing={4}>
         {/* Activity Summary */}
-        <Grid item xs={12} md={8}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-          }}>
-            <CardContent sx={{ p: 4 }}>
-              <Typography sx={{ 
-                fontWeight: 600, 
-                color: '#1e293b',
-                fontSize: '1.25rem',
-                mb: 3
-              }}>
-                Faoliyat
-              </Typography>
-              <Box sx={{ textAlign: 'center', py: 4 }}>
-                <Typography variant="body2" color="#64748b" sx={{ mb: 3 }}>
-                  Siz {totalTests} ta test topshirgansiz. O'qituvchilarni topib, ko'proq testlarni sinab ko'ring.
+        <Grid size={{ xs: 12, md: 8 }}>
+          <div data-aos="fade-right">
+            <Card sx={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+            }}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography sx={{
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  fontSize: '1.25rem',
+                  mb: 3
+                }}>
+                  Faoliyat
                 </Typography>
-                <Button
-                  variant="contained"
-                  onClick={() => navigate('/student/search')}
-                  sx={{
-                    backgroundColor: '#2563eb',
-                    color: '#ffffff',
-                    padding: '12px 24px',
-                    borderRadius: '8px',
-                    fontWeight: 600,
-                    textTransform: 'none',
-                    '&:hover': {
-                      backgroundColor: '#1d4ed8',
-                    }
-                  }}
-                >
-                  O'qituvchilarni topish
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
+                <Box sx={{ textAlign: 'center', py: 4 }}>
+                  <Typography variant="body2" color="#64748b" sx={{ mb: 3 }}>
+                    Siz {totalTests} ta test topshirgansiz. O'qituvchilarni topib, ko'proq testlarni sinab ko'ring.
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    onClick={() => navigate('/student/search')}
+                    sx={{
+                      backgroundColor: '#2563eb',
+                      color: '#ffffff',
+                      padding: '12px 24px',
+                      borderRadius: '8px',
+                      fontWeight: 600,
+                      textTransform: 'none',
+                      '&:hover': {
+                        backgroundColor: '#1d4ed8',
+                      }
+                    }}
+                  >
+                    O'qituvchilarni topish
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </div>
         </Grid>
 
         {/* Recent Tests */}
-        <Grid item xs={12} md={4}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-          }}>
-            <CardContent sx={{ p: 4 }}>
-              <Typography sx={{ 
-                fontWeight: 600, 
-                color: '#1e293b',
-                fontSize: '1.25rem',
-                mb: 3
-              }}>
-                So'nggi testlar
-              </Typography>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <div data-aos="fade-left">
+            <Card sx={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+            }}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography sx={{
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  fontSize: '1.25rem',
+                  mb: 3
+                }}>
+                  So'nggi testlar
+                </Typography>
               <List>
                 {myAttempts
                   .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
@@ -290,27 +334,29 @@ const StudentOverview = () => {
               )}
             </CardContent>
           </Card>
+          </div>
         </Grid>
 
         {/* Quick Actions */}
-        <Grid item xs={12}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-          }}>
-            <CardContent sx={{ p: 4 }}>
-              <Typography sx={{ 
-                fontWeight: 600, 
-                color: '#1e293b',
-                fontSize: '1.25rem',
-                mb: 3
-              }}>
-                Tezkor amallar
-              </Typography>
+        <Grid size={{ xs: 12 }}>
+          <div data-aos="fade-up">
+            <Card sx={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+            }}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography sx={{
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  fontSize: '1.25rem',
+                  mb: 3
+                }}>
+                  Tezkor amallar
+                </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <Button
                     variant="outlined"
                     fullWidth
@@ -332,7 +378,7 @@ const StudentOverview = () => {
                     O'qituvchilarni topish
                   </Button>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <Button
                     variant="outlined"
                     fullWidth
@@ -354,7 +400,7 @@ const StudentOverview = () => {
                     Test natijalari
                   </Button>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <Button
                     variant="outlined"
                     fullWidth
@@ -376,7 +422,7 @@ const StudentOverview = () => {
                     Batafsil statistika
                   </Button>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <Button
                     variant="outlined"
                     fullWidth
@@ -401,6 +447,7 @@ const StudentOverview = () => {
               </Grid>
             </CardContent>
           </Card>
+          </div>
         </Grid>
       </Grid>
     </Box>

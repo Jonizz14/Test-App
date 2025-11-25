@@ -115,17 +115,20 @@ const AdminDashboard = () => {
         justifyContent: 'center',
         flexDirection: 'column',
         gap: 1
-      }}>
-        <img 
-          src="/src/assets/image.png" 
-          alt="STIM Test App Logo" 
-          style={{ 
-            height: '32px', 
+      }}
+      data-aos="fade-down"
+      data-aos-delay="100"
+      >
+        <img
+          src="/src/assets/image.png"
+          alt="STIM Test App Logo"
+          style={{
+            height: '32px',
             width: 'auto',
             maxWidth: '60px'
-          }} 
+          }}
         />
-        <Typography variant="h6" sx={{ 
+        <Typography variant="h6" sx={{
           color: '#1e293b',
           fontWeight: 700,
           fontSize: '1.1rem'
@@ -134,43 +137,59 @@ const AdminDashboard = () => {
         </Typography>
       </Toolbar>
       <List sx={{ pt: 0 }}>
-        {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <ListItemButton
-              onClick={() => {
-                navigate(item.path);
-                if (isMobile) setMobileOpen(false);
-              }}
-              sx={{
-                mx: 1,
-                my: 0.5,
-                borderRadius: '8px',
-                '&:hover': {
-                  backgroundColor: '#f1f5f9',
-                },
-                '&.Mui-selected': {
-                  backgroundColor: '#e0f2fe',
-                  color: '#0284c7',
-                  '& .MuiListItemIcon-root': {
-                    color: '#0284c7',
-                  }
-                }
-              }}
-            >
-              <ListItemIcon sx={{
-                color: '#64748b',
-                minWidth: '40px'
-              }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText 
-                primary={item.text}
-                primaryTypographyProps={{
-                  fontSize: '0.875rem',
-                  fontWeight: 500
+        {menuItems.map((item, index) => (
+          <ListItem key={item.text} disablePadding sx={{ px: 1, py: 0.5 }}>
+            <div data-aos="fade-right" data-aos-delay={200 + index * 50} style={{ width: '100%' }}>
+              <ListItemButton
+                onClick={() => {
+                  navigate(item.path);
+                  if (isMobile) setMobileOpen(false);
                 }}
-              />
-            </ListItemButton>
+                sx={{
+                  width: '100%',
+                  height: '48px',
+                  borderRadius: '8px',
+                  px: 2,
+                  py: 1.5,
+                  display: 'flex',
+                  alignItems: 'center',
+                  '&:hover': {
+                    backgroundColor: '#f1f5f9',
+                    '& .MuiListItemIcon-root': {
+                      color: '#2563eb',
+                    },
+                    '& .MuiListItemText-primary': {
+                      color: '#2563eb',
+                    }
+                  },
+                  '&.Mui-selected': {
+                    backgroundColor: '#e0f2fe',
+                    color: '#0284c7',
+                    '& .MuiListItemIcon-root': {
+                      color: '#0284c7',
+                    },
+                    '& .MuiListItemText-primary': {
+                      color: '#0284c7',
+                    }
+                  }
+                }}
+              >
+                <ListItemIcon sx={{
+                  color: '#64748b',
+                  minWidth: '40px',
+                  mr: 2
+                }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.text}
+                  primaryTypographyProps={{
+                    fontSize: '0.875rem',
+                    fontWeight: 500
+                  }}
+                />
+              </ListItemButton>
+            </div>
           </ListItem>
         ))}
       </List>
@@ -286,7 +305,7 @@ const AdminDashboard = () => {
             ml: isMobile ? 0 : '280px',
           }}
         >
-          <Container maxWidth={false}>
+          <Container maxWidth={false} data-aos="fade-in" data-aos-delay="300">
             <Routes>
               <Route path="/" element={<AdminOverview />} />
               <Route path="/teachers" element={<ManageTeachers />} />

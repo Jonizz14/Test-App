@@ -230,16 +230,18 @@ const SearchTeachers = () => {
   }
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       py: 4,
       backgroundColor: '#ffffff'
     }}>
       {/* Header */}
-      <Box sx={{ 
+      <Box sx={{
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}>
+      }}
+      data-aos="fade-down"
+      >
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -248,17 +250,17 @@ const SearchTeachers = () => {
         }}>
           O'qituvchilarni qidirish
         </Typography>
-        <Typography sx={{ 
-          fontSize: '1.125rem', 
+        <Typography sx={{
+          fontSize: '1.125rem',
           color: '#64748b',
-          fontWeight: 400 
+          fontWeight: 400
         }}>
           O'qituvchilarni toping va ularning testlarini ko'ring
         </Typography>
       </Box>
 
       {/* Search and filter section */}
-      <Box sx={{ mb: 6 }}>
+      <Box sx={{ mb: 6 }} data-aos="fade-up" data-aos-delay="200">
         <Grid container spacing={3} sx={{ mb: 3 }}>
           {/* Teacher name search */}
           <Grid item xs={12} md={6}>
@@ -372,8 +374,8 @@ const SearchTeachers = () => {
       </Box>
 
       {/* Teachers section */}
-      <Box sx={{ mb: 6 }}>
-        <Typography sx={{ 
+      <Box sx={{ mb: 6 }} data-aos="fade-up" data-aos-delay="400">
+        <Typography sx={{
           fontSize: '1.25rem',
           fontWeight: 700,
           color: '#1e293b',
@@ -384,25 +386,26 @@ const SearchTeachers = () => {
 
         {/* Teacher list view */}
         <Grid container spacing={3}>
-          {filteredTeachers.map((teacher) => {
+          {filteredTeachers.map((teacher, index) => {
             const teacherTests = getTeacherTests(teacher.id);
             return (
               <Grid item xs={12} md={6} lg={4} key={teacher.id}>
-                <Card sx={{
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '12px',
-                  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
-                    transform: 'translateY(-4px)',
-                  },
-                  height: '100%'
-                }}
-                onClick={() => navigate(`/student/teacher-details/${teacher.id}`)}
-                >
+                <div data-aos="zoom-in" data-aos-delay={500 + index * 100}>
+                  <Card sx={{
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+                      transform: 'translateY(-4px)',
+                    },
+                    height: '100%'
+                  }}
+                  onClick={() => navigate(`/student/teacher-details/${teacher.id}`)}
+                  >
                   <CardContent sx={{ p: 3 }}>
                     {/* Teacher info header */}
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -507,6 +510,7 @@ const SearchTeachers = () => {
                     </Box>
                   </CardContent>
                 </Card>
+                </div>
               </Grid>
             );
           })}
@@ -517,25 +521,27 @@ const SearchTeachers = () => {
 
       {/* No results message */}
       {filteredTeachers.length === 0 && allTests.length === 0 && (
-        <Card sx={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          p: 6,
-          textAlign: 'center'
-        }}>
-          <Typography variant="h6" sx={{ 
-            color: '#64748b', 
-            fontWeight: 600,
-            mb: 2
+        <div data-aos="fade-up" data-aos-delay="600">
+          <Card sx={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            p: 6,
+            textAlign: 'center'
           }}>
-            Sizning kriteriyalaringizga mos o'qituvchi topilmadi
-          </Typography>
-          <Typography sx={{ color: '#94a3b8' }}>
-            Qidiruv so'zlarini yoki fan filtrlarini o'zgartirib ko'ring
-          </Typography>
-        </Card>
+            <Typography variant="h6" sx={{
+              color: '#64748b',
+              fontWeight: 600,
+              mb: 2
+            }}>
+              Sizning kriteriyalaringizga mos o'qituvchi topilmadi
+            </Typography>
+            <Typography sx={{ color: '#94a3b8' }}>
+              Qidiruv so'zlarini yoki fan filtrlarini o'zgartirib ko'ring
+            </Typography>
+          </Card>
+        </div>
       )}
     </Box>
   );

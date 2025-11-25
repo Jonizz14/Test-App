@@ -70,12 +70,29 @@ const CreateTest = () => {
       
       if (test && test.teacher === currentUser.id) {
         setIsEditing(true);
+
+        // Parse target_grades properly
+        let parsedGrades = [];
+        if (Array.isArray(test.target_grades)) {
+          parsedGrades = test.target_grades;
+        } else if (typeof test.target_grades === 'string') {
+          try {
+            parsedGrades = JSON.parse(test.target_grades);
+            if (!Array.isArray(parsedGrades)) {
+              parsedGrades = [];
+            }
+          } catch {
+            // If not JSON, treat as comma separated
+            parsedGrades = test.target_grades.split(',').map(g => g.trim()).filter(g => g);
+          }
+        }
+
         setFormData({
           title: test.title,
           subject: test.subject,
           description: test.description || '',
           time_limit: test.time_limit,
-          target_grades: test.target_grades || [],
+          target_grades: parsedGrades,
           difficulty: test.difficulty || 'medium',
         });
         
@@ -261,9 +278,12 @@ const CreateTest = () => {
           title: formData.title,
           description: formData.description,
           time_limit: parseInt(formData.time_limit),
+          target_grades: formData.target_grades,
           total_questions: questions.length,
         });
-        
+
+        console.log('target_grades type:', typeof formData.target_grades, 'value:', formData.target_grades);
+
         const testData = await apiService.createTest({
           subject: formData.subject,
           title: formData.title,
@@ -309,15 +329,15 @@ const CreateTest = () => {
   };
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       py: 4,
       backgroundColor: '#ffffff'
     }}>
-      <Box sx={{ 
+      <Box sx={{
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}>
+      }} data-aos="fade-down">
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -326,8 +346,8 @@ const CreateTest = () => {
         }}>
           {isEditing ? 'Testni tahrirlash' : 'Yangi test yaratish'}
         </Typography>
-        <Typography sx={{ 
-          fontSize: '1.125rem', 
+        <Typography sx={{
+          fontSize: '1.125rem',
           color: '#64748b',
           fontWeight: 400
         }}>
@@ -354,7 +374,7 @@ const CreateTest = () => {
           </Alert>
         )}
 
-        <Box sx={{ p: 4 }} component="form" onSubmit={handleSubmit}>
+        <Box sx={{ p: 4 }} component="form" onSubmit={handleSubmit} data-aos="fade-up">
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <TextField
@@ -472,7 +492,7 @@ const CreateTest = () => {
 
           <Divider sx={{ my: 3 }} />
 
-          <Typography variant="h5" gutterBottom>
+          <Typography variant="h5" gutterBottom data-aos="fade-in">
             Savollar ({questions.length})
           </Typography>
 

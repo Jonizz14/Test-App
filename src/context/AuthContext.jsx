@@ -17,23 +17,47 @@ export const AuthProvider = ({ children }) => {
 
   // Check for stored user on app load
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem('currentUser');
-      const accessToken = localStorage.getItem('accessToken');
-      if (storedUser && accessToken) {
-        const parsedUser = JSON.parse(storedUser);
-        apiService.setToken(accessToken);
-        console.log('Restored user from localStorage:', parsedUser?.name);
-        setCurrentUser(parsedUser);
+    const checkStoredUser = async () => {
+      try {
+        const storedUser = localStorage.getItem('currentUser');
+        const accessToken = localStorage.getItem('accessToken');
+        if (storedUser && accessToken) {
+          const parsedUser = JSON.parse(storedUser);
+          apiService.setToken(accessToken);
+
+          // Check if user is still valid and not banned
+          try {
+            // You could add a user validation endpoint here if needed
+            // For now, we'll trust the stored data but check ban status
+            if (parsedUser.is_banned) {
+              console.log('Stored user is banned, clearing data');
+              localStorage.removeItem('currentUser');
+              localStorage.removeItem('accessToken');
+              localStorage.removeItem('refreshToken');
+              setCurrentUser(null);
+            } else {
+              console.log('Restored user from localStorage:', parsedUser?.name);
+              setCurrentUser(parsedUser);
+            }
+          } catch (validationError) {
+            console.log('User validation failed, clearing stored data');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            setCurrentUser(null);
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing stored user:', error);
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Error parsing stored user:', error);
-      localStorage.removeItem('currentUser');
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-    } finally {
-      setIsLoading(false);
-    }
+    };
+
+    checkStoredUser();
   }, []);
 
   const login = async (email, password) => {
@@ -42,6 +66,13 @@ export const AuthProvider = ({ children }) => {
     try {
       const user = await apiService.login(email, password);
 
+      // Check if user is banned
+      if (user.is_banned) {
+        console.log('User is banned, login blocked');
+        // Don't set currentUser for banned users
+        // The LoginPage will handle showing the UnbanModal
+        return user; // Still return user so LoginPage can check ban status
+      }
 
       setCurrentUser(user);
       localStorage.setItem('currentUser', JSON.stringify(user));

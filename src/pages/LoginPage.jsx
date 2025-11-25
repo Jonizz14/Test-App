@@ -20,6 +20,7 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import UnbanModal from '../components/UnbanModal';
+import logoImage from '../assets/image.png';
 
 // LoginPage Component - Handles user authentication
 const LoginPage = () => {
@@ -34,6 +35,7 @@ const LoginPage = () => {
   // Authentication context and navigation hook
   const { login, logout, currentUser, isAuthenticated, isBanned } = useAuth();
   const navigate = useNavigate();
+  const [bannedUser, setBannedUser] = useState(null);
 
   // Redirect authenticated users to their appropriate dashboard (but not if banned)
   useEffect(() => {
@@ -61,13 +63,22 @@ const LoginPage = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    setBannedUser(null);
 
     try {
       console.log('Login sahifasi: Login urinish -', formData.email);
       console.log('Current URL:', window.location.href);
       console.log('Current host:', window.location.host);
 
-      await login(formData.email, formData.password);
+      const user = await login(formData.email, formData.password);
+
+      // Check if user is banned
+      if (user && user.is_banned) {
+        console.log('User is banned, showing unban modal');
+        setBannedUser(user);
+        return; // Don't proceed with navigation
+      }
+
       console.log('Login muvaffaqiyatli, qayta yo\'naltirish...');
 
       // Navigation will be handled by useEffect after state updates
@@ -84,9 +95,9 @@ const LoginPage = () => {
   };
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       minHeight: '100vh',
-      backgroundColor: '#f8fafc',
+      backgroundColor: 'background.default',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -94,184 +105,152 @@ const LoginPage = () => {
       px: 3
     }}>
       <Container maxWidth="xl">
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
           minHeight: '80vh',
           justifyContent: 'center'
         }}>
-          <Grid container spacing={8} alignItems="stretch" justifyContent="center" sx={{ maxWidth: '1200px' }}>
-            {/* Left side - Platform info */}
-            <Grid item xs={12} lg={5}>
-              <Box sx={{ 
-                textAlign: { xs: 'center', lg: 'left' }, 
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                height: '100%',
-                pl: { lg: 4 }
-              }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, justifyContent: { xs: 'center', lg: 'flex-start' }, flexDirection: 'column', gap: 2 }}>
-                  <img 
-                    src="/src/assets/image.png" 
-                    alt="STIM Test App Logo" 
-                    style={{ 
-                      height: '80px', 
-                      width: 'auto',
-                      maxWidth: '120px'
-                    }} 
-                  />
-                  <Typography variant="h2" component="h1" sx={{ 
-                    fontWeight: 700, 
-                    color: '#1e293b',
-                    fontSize: { xs: '2.2rem', lg: '2.8rem' }
-                  }}>
-                    STIM Test App
-                  </Typography>
-                </Box>
-                
-                <Typography variant="h5" sx={{ 
-                  color: '#64748b', 
-                  mb: 6,
-                  fontWeight: 400,
-                  fontSize: { xs: '1.2rem', lg: '1.4rem' }
-                }}>
-                  Zamonaviy test platformasi
-                </Typography>
+          <Card sx={{
+            maxWidth: 480,
+            width: '100%',
+            backgroundColor: 'background.paper',
+            border: '1px solid',
+            borderColor: 'divider',
+            overflow: 'hidden',
+            height: 'fit-content'
+          }} data-aos="zoom-in">
+            <Box sx={{
+              background: 'linear-gradient(135deg, primary.main 0%, primary.dark 100%)',
+              color: 'white',
+              p: 3,
+              textAlign: 'center'
+            }}>
+              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+                <img
+                  src={logoImage}
+                  alt="STIM Test App Logo"
+                  style={{
+                    height: '60px',
+                    width: 'auto',
+                    maxWidth: '80px',
+                    marginBottom: '16px'
+                  }}
+                />
               </Box>
-            </Grid>
-
-            {/* Right side - Login form */}
-            <Grid item xs={12} lg={5}>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                height: '100%',
-                pr: { lg: 4 }
+              <Typography variant="h3" component="h1" sx={{
+                fontWeight: 700,
+                mb: 2,
+                fontSize: '2.8rem',
+                color: '#1e293b'
               }}>
-                <Card sx={{ 
-                  maxWidth: 480,
-                  width: '100%',
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '20px',
-                  boxShadow: '0 8px 25px -5px rgba(0, 0, 0, 0.1)',
-                  overflow: 'hidden',
-                  height: 'fit-content'
-                }}>
-                  <Box sx={{ 
-                    background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-                    color: 'white',
-                    p: 5,
-                    textAlign: 'center'
-                  }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-                      <LoginIcon sx={{ fontSize: '3.5rem' }} />
-                    </Box>
-                    <Typography variant="h4" component="h2" sx={{ fontWeight: 700, mb: 2 }}>
-                      Tizimga kirish
-                    </Typography>
-                    <Typography variant="body1" sx={{ opacity: 0.9 }}>
-                      Hisobingizga kirish uchun ma'lumotlarni kiriting
-                    </Typography>
-                  </Box>
-
-                  <CardContent sx={{ p: 5 }}>
-                    {/* Alert for already authenticated users */}
-                    {isAuthenticated && (
-                      <Alert severity="info" sx={{ mb: 4 }}>
-                        Siz allaqachon {currentUser?.name} sifatida kirgansiz.{' '}
-                        <Button 
-                          variant="text" 
-                          onClick={logout}
-                          sx={{ ml: 1, p: 0, minWidth: 'auto' }}
-                        >
-                          Chiqish
-                        </Button>
-                      </Alert>
-                    )}
-
-                    {/* Error alert */}
-                    {error && (
-                      <Alert severity="error" sx={{ mb: 4 }}>
-                        {error}
-                      </Alert>
-                    )}
-
-                    {/* Login form */}
-                    <Box component="form" onSubmit={handleSubmit}>
-                      <TextField
-                        fullWidth
-                        label="Email manzil yoki ID"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        autoComplete="email"
-                        autoFocus
-                        sx={{ 
-                          mb: 4,
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: '12px'
-                          }
-                        }}
-                        placeholder="Admin uchun email, o'quvchi/o'qituvchi uchun ID"
-                      />
-
-                      <TextField
-                        fullWidth
-                        label="Parol"
-                        name="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        autoComplete="current-password"
-                        sx={{ 
-                          mb: 5,
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: '12px'
-                          }
-                        }}
-                      />
-
-                      <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        size="large"
-                        disabled={loading}
-                        sx={{ 
-                          backgroundColor: '#2563eb',
-                          color: 'white',
-                          py: 1.8,
-                          fontSize: '1.1rem',
-                          fontWeight: 600,
-                          borderRadius: '12px',
-                          textTransform: 'none',
-                          '&:hover': {
-                            backgroundColor: '#1d4ed8',
-                          },
-                          '&:disabled': {
-                            backgroundColor: '#94a3b8',
-                          }
-                        }}
-                      >
-                        {loading ? 'Kirish...' : 'Kirish'}
-                      </Button>
-                    </Box>
-                  </CardContent>
-                </Card>
+                STIM Test App
+              </Typography>
+              <Typography variant="h6" sx={{
+                opacity: 0.9,
+                mb: 3,
+                fontWeight: 400,
+                color: '#1e293b'
+              }}>
+                Zamonaviy test platformasi
+              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+                <LoginIcon sx={{ fontSize: '2.5rem', color: '#1e293b' }} />
               </Box>
-            </Grid>
-          </Grid>
+              <Typography variant="h5" component="h2" sx={{ fontWeight: 600, mb: 2, color: '#1e293b' }}>
+                Tizimga kirish
+              </Typography>
+              <Typography variant="body1" sx={{ opacity: 0.9, color: '#1e293b' }}>
+                Hisobingizga kirish uchun ma'lumotlarni kiriting
+              </Typography>
+            </Box>
+
+            <CardContent sx={{ p: 5 }}>
+              {/* Alert for already authenticated users */}
+              {isAuthenticated && (
+                <Alert severity="info" sx={{ mb: 4 }}>
+                  Siz allaqachon {currentUser?.name} sifatida kirgansiz.{' '}
+                  <Button
+                    variant="text"
+                    onClick={logout}
+                    sx={{ ml: 1, p: 0, minWidth: 'auto' }}
+                  >
+                    Chiqish
+                  </Button>
+                </Alert>
+              )}
+
+              {/* Error alert */}
+              {error && (
+                <Alert severity="error" sx={{ mb: 4 }}>
+                  {error}
+                </Alert>
+              )}
+
+              {/* Login form */}
+              <Box component="form" onSubmit={handleSubmit}>
+                <TextField
+                  fullWidth
+                  label="Email manzil yoki ID"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  autoComplete="email"
+                  autoFocus
+                  sx={{
+                    mb: 4,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px'
+                    }
+                  }}
+                  placeholder="Admin uchun email, o'quvchi/o'qituvchi uchun ID"
+                />
+
+                <TextField
+                  fullWidth
+                  label="Parol"
+                  name="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  autoComplete="current-password"
+                  sx={{
+                    mb: 5,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px'
+                    }
+                  }}
+                />
+
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  disabled={loading}
+                  sx={{
+                    py: 1.8,
+                    fontSize: '1.1rem',
+                    fontWeight: 600,
+                    textTransform: 'none',
+                  }}
+                >
+                  {loading ? 'Kirish...' : 'Kirish'}
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
         </Box>
       </Container>
 
       {/* Unban Modal for Banned Users */}
       <UnbanModal
-        open={isBanned}
-        onClose={() => {}} // Modal cannot be closed manually
+        open={isBanned || !!bannedUser}
+        user={bannedUser || currentUser}
+        onClose={() => {
+          setBannedUser(null);
+        }} // Modal can be closed for newly banned users
       />
     </Box>
   );

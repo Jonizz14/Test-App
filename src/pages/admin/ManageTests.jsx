@@ -118,18 +118,20 @@ const ManageTests = () => {
   }
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       py: 4,
       backgroundColor: '#ffffff'
     }}>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}>
+      }}
+      data-aos="fade-down"
+      >
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -155,6 +157,8 @@ const ManageTests = () => {
               backgroundColor: '#1d4ed8',
             }
           }}
+          data-aos="zoom-in"
+          data-aos-delay="200"
         >
           Test qo'shish
         </Button>
@@ -172,12 +176,13 @@ const ManageTests = () => {
         </Alert>
       )}
 
-      <TableContainer component={Paper} sx={{
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-      }}>
+      <div data-aos="fade-up" data-aos-delay="300">
+        <TableContainer component={Paper} sx={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        }}>
         <Table>
           <TableHead>
             <TableRow sx={{
@@ -324,16 +329,19 @@ const ManageTests = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      </div>
 
       {tests.length === 0 && (
-        <Box sx={{ p: 4, textAlign: 'center', mt: 3 }}>
-          <Typography variant="h6" color="text.secondary" gutterBottom>
-            Hech qanday test topilmadi
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Yangi test yaratish uchun "Test qo'shish" tugmasini bosing
-          </Typography>
-        </Box>
+        <div data-aos="fade-up" data-aos-delay="400">
+          <Box sx={{ p: 4, textAlign: 'center', mt: 3 }}>
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              Hech qanday test topilmadi
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Yangi test yaratish uchun "Test qo'shish" tugmasini bosing
+            </Typography>
+          </Box>
+        </div>
       )}
 
       {/* Delete Confirmation Dialog */}

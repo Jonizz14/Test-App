@@ -107,19 +107,21 @@ const ReceivedLessons = () => {
   }
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       py: 4,
       backgroundColor: '#ffffff'
     }}>
       {/* Header */}
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}>
+      }}
+      data-aos="fade-down"
+      >
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -130,30 +132,35 @@ const ReceivedLessons = () => {
       </Box>
 
       {lessons.length === 0 ? (
-        <Paper sx={{ p: 4, textAlign: 'center', bgcolor: '#f8f9fa' }}>
-          <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-          <Typography variant="h6" color="textSecondary" gutterBottom>
-            Hozircha qo'shimcha darslar yo'q
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            O'qituvchingiz test natijalaringizga qarab qo'shimcha dars yuborishi mumkin
-          </Typography>
-        </Paper>
+        <div data-aos="fade-up" data-aos-delay="300">
+          <Paper sx={{ p: 4, textAlign: 'center', bgcolor: '#f8f9fa' }}>
+            <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+            <Typography variant="h6" color="textSecondary" gutterBottom>
+              Hozircha qo'shimcha darslar yo'q
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              O'qituvchingiz test natijalaringizga qarab qo'shimcha dars yuborishi mumkin
+            </Typography>
+          </Paper>
+        </div>
       ) : (
         <Box>
-          <Alert severity="info" sx={{ mb: 3 }}>
-            Sizga {lessons.length} ta qo'shimcha dars yuborilgan. Har bir darsni o'rganib, bilimlaringizni mustahkamlang!
-          </Alert>
+          <div data-aos="fade-up" data-aos-delay="200">
+            <Alert severity="info" sx={{ mb: 3 }}>
+              Sizga {lessons.length} ta qo'shimcha dars yuborilgan. Har bir darsni o'rganib, bilimlaringizni mustahkamlang!
+            </Alert>
+          </div>
 
           <Grid container spacing={3}>
-            {lessons.map((lesson) => (
+            {lessons.map((lesson, index) => (
               <Grid item xs={12} key={lesson.id}>
-                <Card sx={{
-                  border: '1px solid #e9ecef',
-                  borderRadius: 2,
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                  transition: 'none',
-                }}>
+                <div data-aos="fade-up" data-aos-delay={300 + index * 100}>
+                  <Card sx={{
+                    border: '1px solid #e9ecef',
+                    borderRadius: 2,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                    transition: 'none',
+                  }}>
                   <CardContent sx={{ p: 0 }}>
                     <Accordion sx={{
                       boxShadow: 'none',
@@ -292,6 +299,7 @@ const ReceivedLessons = () => {
                     </Accordion>
                   </CardContent>
                 </Card>
+                </div>
               </Grid>
             ))}
           </Grid>

@@ -170,6 +170,7 @@ const StudentRatings = () => {
           pb: 4,
           borderBottom: "1px solid #e2e8f0",
         }}
+        data-aos="fade-down"
       >
         <Typography
           sx={{
@@ -182,15 +183,16 @@ const StudentRatings = () => {
         </Typography>
       </Box>
 
-      <TableContainer
-        component={Paper}
-        sx={{
-          backgroundColor: "#ffffff",
-          border: "1px solid #e2e8f0",
-          borderRadius: "12px",
-          boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
-        }}
-      >
+      <div data-aos="fade-up" data-aos-delay="200">
+        <TableContainer
+          component={Paper}
+          sx={{
+            backgroundColor: "#ffffff",
+            border: "1px solid #e2e8f0",
+            borderRadius: "12px",
+            boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
+          }}
+        >
         <Table>
           <TableHead>
             <TableRow
@@ -477,13 +479,16 @@ const StudentRatings = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      </div>
 
       {students.length === 0 && (
-        <Box sx={{ textAlign: "center", mt: 4 }}>
-          <Typography variant="h6" color="textSecondary">
-            O'quvchilar topilmadi
-          </Typography>
-        </Box>
+        <div data-aos="fade-up" data-aos-delay="300">
+          <Box sx={{ textAlign: "center", mt: 4 }}>
+            <Typography variant="h6" color="textSecondary">
+              O'quvchilar topilmadi
+            </Typography>
+          </Box>
+        </div>
       )}
     </Box>
   );

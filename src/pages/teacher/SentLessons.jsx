@@ -97,11 +97,11 @@ const SentLessons = () => {
       py: 4,
       backgroundColor: '#ffffff'
     }}>
-      <Box sx={{ 
+      <Box sx={{
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}>
+      }} data-aos="fade-down">
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -110,8 +110,8 @@ const SentLessons = () => {
         }}>
           Yuborilgan darslar
         </Typography>
-        <Typography sx={{ 
-          fontSize: '1.125rem', 
+        <Typography sx={{
+          fontSize: '1.125rem',
           color: '#64748b',
           fontWeight: 400
         }}>
@@ -120,7 +120,7 @@ const SentLessons = () => {
       </Box>
 
       {sentLessons.length === 0 ? (
-        <Paper sx={{ p: 4, textAlign: 'center', bgcolor: '#f8f9fa' }}>
+        <Paper sx={{ p: 4, textAlign: 'center', bgcolor: '#f8f9fa' }} data-aos="fade-up">
           <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
           <Typography variant="h6" color="textSecondary" gutterBottom>
             Hozircha darsga chaqirish yuborilmagan
@@ -135,7 +135,7 @@ const SentLessons = () => {
             Siz {sentLessons.length} ta darsga chaqirish yuborgansiz
           </Alert>
 
-          <Grid container spacing={3}>
+          <Grid container spacing={3} data-aos="fade-up">
             {sentLessons.map((lesson) => (
               <Grid item xs={12} key={lesson.id}>
                 <Card sx={{

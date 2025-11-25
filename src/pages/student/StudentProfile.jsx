@@ -59,19 +59,21 @@ const StudentProfile = () => {
   };
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       py: 4,
       backgroundColor: '#ffffff'
     }}>
       {/* Header */}
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}>
+      }}
+      data-aos="fade-down"
+      >
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -84,12 +86,13 @@ const StudentProfile = () => {
       <Grid container spacing={4}>
         {/* Name and Basic Info */}
         <Grid item xs={12} md={6}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-          }}>
+          <div data-aos="fade-up" data-aos-delay="100">
+            <Card sx={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+            }}>
             <CardContent sx={{ p: 4 }}>
               <Typography sx={{ 
                 fontWeight: 600, 
@@ -144,16 +147,18 @@ const StudentProfile = () => {
               </Box>
             </CardContent>
           </Card>
+          </div>
         </Grid>
 
         {/* Academic Information */}
         <Grid item xs={12} md={6}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-          }}>
+          <div data-aos="fade-up" data-aos-delay="200">
+            <Card sx={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+            }}>
             <CardContent sx={{ p: 4 }}>
               <Typography sx={{ 
                 fontWeight: 600, 
@@ -207,17 +212,19 @@ const StudentProfile = () => {
               </Box>
             </CardContent>
           </Card>
+          </div>
         </Grid>
 
         {/* Curator Teacher */}
         {curatorTeacher && (
           <Grid item xs={12} md={6}>
-            <Card sx={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-            }}>
+            <div data-aos="fade-up" data-aos-delay="300">
+              <Card sx={{
+                backgroundColor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+              }}>
               <CardContent sx={{ p: 4 }}>
                 <Typography sx={{ 
                   fontWeight: 600, 
@@ -240,17 +247,19 @@ const StudentProfile = () => {
                 </Typography>
               </CardContent>
             </Card>
+            </div>
           </Grid>
         )}
 
-        {/* Test Statistics */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-          }}>
+       {/* Test Statistics */}
+       <Grid item xs={12} md={6}>
+         <div data-aos="fade-up" data-aos-delay="400">
+           <Card sx={{
+             backgroundColor: '#ffffff',
+             border: '1px solid #e2e8f0',
+             borderRadius: '12px',
+             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+           }}>
             <CardContent sx={{ p: 4 }}>
               <Typography sx={{ 
                 fontWeight: 600, 
@@ -276,18 +285,20 @@ const StudentProfile = () => {
               </Box>
             </CardContent>
           </Card>
+          </div>
         </Grid>
       </Grid>
 
       {/* Summary Card */}
-      <Paper sx={{
-        p: 4,
-        mt: 4,
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-      }}>
+      <div data-aos="fade-up" data-aos-delay="500">
+        <Paper sx={{
+          p: 4,
+          mt: 4,
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+        }}>
         <Typography variant="h6" gutterBottom sx={{ 
           fontWeight: 600, 
           color: '#1e293b',
@@ -308,6 +319,7 @@ const StudentProfile = () => {
           }.
         </Typography>
       </Paper>
+      </div>
     </Box>
   );
 };

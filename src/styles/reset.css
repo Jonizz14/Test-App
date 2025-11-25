@@ -46,10 +46,7 @@ body {
   outline: none;
 }
 
-/* Border radius reset - minimal styling */
-* {
-  border-radius: var(--radius-none) !important;
-}
+/* Consistent border radius */
 
 /* Link styles */
 a {

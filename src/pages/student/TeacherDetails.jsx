@@ -184,19 +184,21 @@ const TeacherDetails = () => {
   const teacherTests = getTeacherTests();
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       py: 4,
       backgroundColor: '#ffffff'
     }}>
       {/* Header with back button */}
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}>
+      }}
+      data-aos="fade-down"
+      >
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -216,20 +218,23 @@ const TeacherDetails = () => {
               backgroundColor: '#f8fafc'
             }
           }}
+          data-aos="zoom-in"
+          data-aos-delay="200"
         >
           O'qituvchilarni qidirishga qaytish
         </Button>
       </Box>
 
       {/* Teacher information section */}
-      <Paper sx={{
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '16px',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-        p: 4,
-        mb: 6
-      }}>
+      <div data-aos="fade-up" data-aos-delay="300">
+        <Paper sx={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '16px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          p: 4,
+          mb: 6
+        }}>
         <Grid container spacing={4} alignItems="center">
           {/* Teacher avatar and basic info */}
           <Grid item xs={12} md={4} sx={{ textAlign: { xs: 'center', md: 'left' } }}>
@@ -382,10 +387,11 @@ const TeacherDetails = () => {
           </Grid>
         </Grid>
       </Paper>
+      </div>
 
       {/* Tests section */}
-      <Box sx={{ mb: 4 }}>
-        <Typography sx={{ 
+      <Box sx={{ mb: 4 }} data-aos="fade-up" data-aos-delay="400">
+        <Typography sx={{
           fontSize: '1.5rem',
           fontWeight: 700,
           color: '#1e293b',
@@ -397,26 +403,30 @@ const TeacherDetails = () => {
         {/* Tests grid */}
         {teacherTests.length > 0 ? (
           <Grid container spacing={3}>
-            {teacherTests.map((test) => {
+            {teacherTests.map((test, index) => {
               const completionStatus = getTestCompletionStatus(test.id);
               const isCompleted = completionStatus.hasCompleted;
               const hasActiveSession = !!activeTestSessions[test.id];
-              
+
               return (
                 <Grid item xs={12} md={6} lg={4} key={test.id}>
-                  <Card sx={{
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '12px',
-                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-                    position: 'relative',
-                    overflow: 'visible',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
-                      transform: 'translateY(-4px)',
-                    }
-                  }}>
+                  <div data-aos="zoom-in" data-aos-delay={500 + index * 100}>
+                    <Card sx={{
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '12px',
+                      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                      position: 'relative',
+                      overflow: 'visible',
+                      transition: 'all 0.3s ease',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+                        transform: 'translateY(-4px)',
+                      }
+                    }}
+                    onClick={() => navigate(`/student/test-preview/${test.id}`)}
+                    >
                     {/* Status badge */}
                     {hasActiveSession ? (
                       <Chip
@@ -452,7 +462,7 @@ const TeacherDetails = () => {
                       />
                     )}
 
-                    <CardContent sx={{ p: 3 }}>
+                    <CardContent sx={{ p: 3, minHeight: '280px', display: 'flex', flexDirection: 'column' }}>
                       {/* Test title and difficulty */}
                       <Box sx={{ mb: 3 }}>
                         <Typography variant="h6" sx={{ 
@@ -483,33 +493,34 @@ const TeacherDetails = () => {
                       </Box>
 
                       {/* Test description */}
-                      {test.description && (
-                        <Typography sx={{ 
-                          color: '#64748b',
-                          fontSize: '0.75rem',
-                          mb: 3,
-                          lineHeight: 1.4,
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden'
-                        }}>
-                          {test.description}
-                        </Typography>
-                      )}
+                      <Box sx={{ flex: 1, mb: 3 }}>
+                        {test.description && (
+                          <Typography sx={{
+                            color: '#64748b',
+                            fontSize: '0.75rem',
+                            lineHeight: 1.4,
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden'
+                          }}>
+                            {test.description}
+                          </Typography>
+                        )}
+                      </Box>
 
 
 
                       {/* Completion info for completed tests */}
-                      {isCompleted && (
-                        <Box sx={{ 
+                      {isCompleted ? (
+                        <Box sx={{
                           backgroundColor: '#f0f9ff',
                           border: '1px solid #0ea5e9',
                           borderRadius: '8px',
                           p: 2,
                           mb: 3
                         }}>
-                          <Typography sx={{ 
+                          <Typography sx={{
                             color: '#0c4a6e',
                             fontSize: '0.75rem',
                             fontWeight: 600,
@@ -517,23 +528,25 @@ const TeacherDetails = () => {
                           }}>
                             ✅ Bu test ishlangan
                           </Typography>
-                          <Typography sx={{ 
+                          <Typography sx={{
                             color: '#0c4a6e',
                             fontSize: '0.625rem'
                           }}>
                             Eng yuqori ball: {completionStatus.lastScore}
                           </Typography>
-                          <Typography sx={{ 
+                          <Typography sx={{
                             color: '#0c4a6e',
                             fontSize: '0.625rem'
                           }}>
                             Urinishlar soni: {completionStatus.attemptCount}
                           </Typography>
                         </Box>
+                      ) : (
+                        <Box sx={{ mb: 3, minHeight: '90px' }}></Box>
                       )}
 
                       {/* Test actions */}
-                      <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Box sx={{ display: 'flex', gap: 1, mt: 'auto' }}>
                         <Button
                           fullWidth
                           variant="contained"
@@ -571,32 +584,35 @@ const TeacherDetails = () => {
                       </Box>
                     </CardContent>
                   </Card>
+                  </div>
                 </Grid>
               );
             })}
           </Grid>
         ) : (
           // No tests message
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            p: 6,
-            textAlign: 'center'
-          }}>
-            <Typography sx={{ fontSize: '3rem', mb: 2 }}>📝</Typography>
-            <Typography variant="h6" sx={{ 
-              color: '#64748b', 
-              fontWeight: 600,
-              mb: 2
+          <div data-aos="fade-up" data-aos-delay="500">
+            <Card sx={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              p: 6,
+              textAlign: 'center'
             }}>
-              Bu o'qituvchining hali testlari yo'q
-            </Typography>
-            <Typography sx={{ color: '#94a3b8' }}>
-              Tez orada yangi testlar qo'shilishi mumkin
-            </Typography>
-          </Card>
+              <Typography sx={{ fontSize: '3rem', mb: 2 }}>📝</Typography>
+              <Typography variant="h6" sx={{
+                color: '#64748b',
+                fontWeight: 600,
+                mb: 2
+              }}>
+                Bu o'qituvchining hali testlari yo'q
+              </Typography>
+              <Typography sx={{ color: '#94a3b8' }}>
+                Tez orada yangi testlar qo'shilishi mumkin
+              </Typography>
+            </Card>
+          </div>
         )}
       </Box>
     </Box>

@@ -89,7 +89,26 @@ const MyTests = () => {
       const teacherTests = response.results || response;
       const teacherTestsFiltered = teacherTests.filter(test =>
         test.teacher === currentUser.id
-      );
+      ).map(test => {
+        let parsedGrades = [];
+        if (Array.isArray(test.target_grades)) {
+          parsedGrades = test.target_grades;
+        } else if (typeof test.target_grades === 'string') {
+          try {
+            parsedGrades = JSON.parse(test.target_grades);
+            if (!Array.isArray(parsedGrades)) {
+              parsedGrades = [parsedGrades];
+            }
+          } catch {
+            // If not JSON, treat as comma separated
+            parsedGrades = test.target_grades.split(',').map(g => g.trim()).filter(g => g);
+          }
+        }
+        return {
+          ...test,
+          target_grades: parsedGrades
+        };
+      });
       setTests(teacherTestsFiltered);
 
       // Load all users to get student information
@@ -292,6 +311,14 @@ const MyTests = () => {
         return a.title.localeCompare(b.title);
       case 'subject':
         return a.subject.localeCompare(b.subject);
+      case 'class':
+        // Sort by the minimum target grade number ascending, then by title
+        const aMinGrade = a.target_grades.length > 0 ? Math.min(...a.target_grades.map(g => parseInt(g.split('-')[0]))) : 0;
+        const bMinGrade = b.target_grades.length > 0 ? Math.min(...b.target_grades.map(g => parseInt(g.split('-')[0]))) : 0;
+        if (aMinGrade !== bMinGrade) {
+          return aMinGrade - bMinGrade;
+        }
+        return a.title.localeCompare(b.title);
       case 'average_score':
         return getTestStats(b.id).averageScore - getTestStats(a.id).averageScore;
       case 'attempts':
@@ -302,15 +329,15 @@ const MyTests = () => {
   });
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       p: 4,
       backgroundColor: '#ffffff'
     }}>
-      <Box sx={{ 
+      <Box sx={{
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}>
+      }} data-aos="fade-down">
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -319,18 +346,18 @@ const MyTests = () => {
         }}>
           Mening testlarim ({sortedTests.length})
         </Typography>
-        <Typography sx={{ 
-          fontSize: '1.125rem', 
+        <Typography sx={{
+          fontSize: '1.125rem',
           color: '#64748b',
           fontWeight: 400,
           mb: 3
         }}>
           Barcha testlaringizni boshqaring, o'quvchilarning natijalarini kuzating
         </Typography>
-        <Box display="flex" gap={1}>
+        <Box display="flex" gap={1} data-aos="zoom-in" data-aos-delay="200">
           <Tooltip title="Yangilash">
-            <IconButton 
-              onClick={() => loadData(true)} 
+            <IconButton
+              onClick={() => loadData(true)}
               disabled={refreshing}
               sx={{
                 color: '#64748b',
@@ -365,13 +392,14 @@ const MyTests = () => {
       </Box>
 
       {/* Filters and Sort */}
-      <Box display="flex" gap={2} mb={3} flexWrap="wrap" alignItems="center">
+      <Box display="flex" gap={2} mb={3} flexWrap="wrap" alignItems="center" data-aos="fade-up">
         <FormControl size="small" sx={{ minWidth: 140 }}>
           <InputLabel>Sort qilish</InputLabel>
           <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)} label="Sort qilish">
             <MenuItem value="created_at">Yangi avval</MenuItem>
             <MenuItem value="title">Sarlavha</MenuItem>
             <MenuItem value="subject">Fan</MenuItem>
+            <MenuItem value="class">Sinf</MenuItem>
             <MenuItem value="average_score">O'rtacha ball</MenuItem>
             <MenuItem value="attempts">Urinishlar</MenuItem>
           </Select>
@@ -398,7 +426,9 @@ const MyTests = () => {
           <InputLabel>Sinf</InputLabel>
           <Select value={filterGrade} onChange={(e) => setFilterGrade(e.target.value)} label="Sinf">
             <MenuItem value="">Barcha</MenuItem>
-            {[5,6,7,8,9,10,11].map(g => <MenuItem key={g} value={g}>{g}-sinf</MenuItem>)}
+            {Array.from({ length: 7 }, (_, i) => i + 5).map(g => (
+              <MenuItem key={g} value={g}>{g}-sinf</MenuItem>
+            ))}
           </Select>
         </FormControl>
       </Box>
@@ -429,9 +459,9 @@ const MyTests = () => {
           boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
           p: 6,
           textAlign: 'center'
-        }}>
-          <Typography variant="h6" sx={{ 
-            color: '#64748b', 
+        }} data-aos="fade-up">
+          <Typography variant="h6" sx={{
+            color: '#64748b',
             fontWeight: 600,
             mb: 2
           }}>
@@ -442,31 +472,32 @@ const MyTests = () => {
           </Typography>
         </Card>
       ) : (
-        <Grid container spacing={3}>
-          {sortedTests.map((test) => {
+        <Grid container spacing={3} data-aos="fade-up">
+          {sortedTests.map((test, index) => {
             const stats = getTestStats(test.id);
-            
+
             return (
               <Grid item xs={12} md={6} lg={4} key={test.id}>
-                <Card
-                  onClick={() => handleOpenTestDetails(test)}
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '12px',
-                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-                    opacity: test.is_active ? 1 : 0.7,
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
-                      transform: 'translateY(-4px)',
-                    }
-                  }}
-                >
+                <div data-aos="zoom-in" data-aos-delay={index * 100}>
+                  <Card
+                    onClick={() => handleOpenTestDetails(test)}
+                    sx={{
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '12px',
+                      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                      opacity: test.is_active ? 1 : 0.7,
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+                        transform: 'translateY(-4px)',
+                      }
+                    }}
+                  >
                   <CardContent sx={{ flex: 1, p: 3 }}>
                     <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
                       <Typography variant="h6" component="h2" sx={{ flex: 1, pr: 1, color: '#1e293b' }}>
@@ -507,7 +538,7 @@ const MyTests = () => {
                           {test.target_grades.map((grade) => (
                             <Chip
                               key={grade}
-                              label={`${grade}-sinf`}
+                              label={`${grade.replace(/^\[|"|\]$/g, '')}-sinf`}
                               size="small"
                               variant="filled"
                               color="info"
@@ -539,6 +570,7 @@ const MyTests = () => {
                     </Box>
                   </CardContent>
                 </Card>
+                </div>
               </Grid>
             );
           })}
@@ -690,7 +722,7 @@ const MyTests = () => {
                       {selectedTest.target_grades.map((grade) => (
                         <Chip
                           key={grade}
-                          label={`${grade}-sinf`}
+                          label={`${grade.replace(/^\[|"|\]$/g, '')}-sinf`}
                           size="small"
                           color="info"
                         />

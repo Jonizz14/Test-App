@@ -45,19 +45,16 @@ const useAntiCheating = (isActive = true, sessionId = null, initialWarningCount 
     setWarningMessage(message);
     setShowWarning(true);
 
-    // If this is the 4th warning, ban the user after showing the warning
-    if (newCount >= 4) {
-      // Ban after a short delay to let the warning modal show
-      setTimeout(async () => {
-        try {
-          await banCurrentUser('Test qoidalariga rioya qilmaganligi uchun bloklandi');
-          // Log out and redirect to login page
-          logout();
-          window.location.href = '/login';
-        } catch (error) {
-          console.error('Failed to ban user:', error);
-        }
-      }, 3000); // 3 seconds delay to show the warning
+    // If this is the 3rd warning, ban the user immediately
+    if (newCount >= 3) {
+      try {
+        await banCurrentUser('Test qoidalariga rioya qilmaganligi uchun bloklandi');
+        // Log out immediately and redirect to login page
+        logout();
+        window.location.href = '/login';
+      } catch (error) {
+        console.error('Failed to ban user:', error);
+      }
     }
   }, [warningCount, sessionId, banCurrentUser, logout]);
 

@@ -39,6 +39,7 @@ class TestSerializer(serializers.ModelSerializer):
     attempt_count = serializers.SerializerMethodField()
     average_score = serializers.SerializerMethodField()
     average_time = serializers.SerializerMethodField()
+    target_grades = serializers.CharField(required=False, default='')
 
     class Meta:
         model = Test
@@ -46,6 +47,26 @@ class TestSerializer(serializers.ModelSerializer):
                   'total_questions', 'question_count', 'time_limit', 'difficulty', 'target_grades', 'created_at', 'is_active',
                   'attempt_count', 'average_score', 'average_time']
         read_only_fields = ['id', 'created_at', 'teacher']
+
+    def to_internal_value(self, data):
+        # Convert target_grades list to comma-separated string
+        if 'target_grades' in data:
+            data = data.copy()
+            if isinstance(data['target_grades'], list):
+                data['target_grades'] = ','.join(data['target_grades'])
+            elif isinstance(data['target_grades'], str):
+                # If it's already a string, keep it as is
+                pass
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Convert comma-separated string back to list
+        if instance.target_grades:
+            data['target_grades'] = [grade.strip() for grade in instance.target_grades.split(',') if grade.strip()]
+        else:
+            data['target_grades'] = []
+        return data
 
     def get_question_count(self, obj):
         return obj.questions.count()
