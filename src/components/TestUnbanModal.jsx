@@ -52,8 +52,7 @@ const TestUnbanModal = ({
       disableBackdropClick
       sx={{
         '& .MuiDialog-paper': {
-          borderRadius: '12px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          borderRadius: '8px',
         }
       }}
     >
@@ -61,13 +60,12 @@ const TestUnbanModal = ({
         backgroundColor: '#fef3c7',
         color: '#d97706',
         textAlign: 'center',
-        py: 3,
-        borderBottom: '1px solid #fcd34d'
+        py: 2,
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
           <WarningIcon sx={{ fontSize: '1.5rem' }} />
           <Typography variant="h5" sx={{
-            fontWeight: 700,
+            fontWeight: 600,
             color: '#d97706',
           }}>
             Ogohlantirishlar tugadi!
@@ -139,15 +137,6 @@ const TestUnbanModal = ({
             }}
             sx={{
               mb: 3,
-              '& .MuiOutlinedInput-root': {
-                backgroundColor: '#f9fafb',
-                '&:hover': {
-                  backgroundColor: '#f3f4f6',
-                },
-                '&.Mui-focused': {
-                  backgroundColor: '#ffffff',
-                }
-              }
             }}
             disabled={isLoading}
           />
@@ -159,7 +148,7 @@ const TestUnbanModal = ({
             disabled={isLoading || !unbanCode.trim()}
             sx={{
               py: 1.5,
-              fontSize: '1.1rem',
+              fontSize: '1rem',
               fontWeight: 600,
               backgroundColor: '#059669',
               color: '#ffffff',

@@ -93,53 +93,24 @@ const UnbanModal = ({ open, onClose }) => {
       }}
     >
       <DialogTitle sx={{
-        background: 'linear-gradient(135deg, #fef2f2 0%, #fef2f2 100%)',
+        backgroundColor: '#fef2f2',
         color: '#dc2626',
         textAlign: 'center',
-        py: 3,
-        position: 'relative',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(220, 38, 38, 0.02) 100%)',
-          borderRadius: '12px 12px 0 0',
-        }
+        py: 2,
       }}>
         <Box sx={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 2,
-          position: 'relative',
-          zIndex: 1
+          gap: 1,
         }}>
-          <Box sx={{
-            backgroundColor: '#ffffff',
-            borderRadius: '100%',
-            width: 64,
-            height: 64,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            p: 5,
-            pb: 5,
-            boxShadow: '0 4px 12px rgba(220, 38, 38, 0.15)',
-            border: '2px solid #fecaca'
-          }}>
-            <LockIcon sx={{
-              fontSize: '2.5rem',
-              color: '#dc2626',
-            }} />
-          </Box>
-          <Typography variant="h5" sx={{
-            fontWeight: 700,
+          <LockIcon sx={{
+            fontSize: '2rem',
             color: '#dc2626',
-            fontSize: '1.5rem',
-            letterSpacing: '0.5px'
+          }} />
+          <Typography variant="h5" sx={{
+            fontWeight: 600,
+            color: '#dc2626',
           }}>
             Profil bloklangan
           </Typography>
@@ -214,18 +185,11 @@ const UnbanModal = ({ open, onClose }) => {
                     width: '60px',
                     '& .MuiOutlinedInput-root': {
                       backgroundColor: '#ffffff',
-                      borderRadius: '12px',
-                      border: '2px solid #e5e7eb',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-                      transition: 'all 0.3s ease',
                       '&:hover': {
                         borderColor: '#059669',
-                        boxShadow: '0 4px 12px rgba(5, 150, 105, 0.15)',
                       },
                       '&.Mui-focused': {
                         borderColor: '#059669',
-                        boxShadow: '0 6px 16px rgba(5, 150, 105, 0.25)',
-                        backgroundColor: '#ffffff',
                       }
                     },
                     '& .MuiOutlinedInput-notchedOutline': {
@@ -245,25 +209,17 @@ const UnbanModal = ({ open, onClose }) => {
               disabled={isLoading || code.some(digit => !digit)}
               sx={{
                 minWidth: '200px',
-                py: 1.75,
-                px: 5,
-                fontSize: '1.1rem',
+                py: 1.5,
+                fontSize: '1rem',
                 fontWeight: 600,
-                background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                backgroundColor: '#059669',
                 color: '#ffffff',
-                borderRadius: '12px',
-                boxShadow: '0 4px 15px rgba(5, 150, 105, 0.3)',
-                transition: 'all 0.3s ease',
                 '&:hover': {
-                  background: 'linear-gradient(135deg, #047857 0%, #065f46 100%)',
-                  boxShadow: '0 6px 20px rgba(5, 150, 105, 0.4)',
-                  transform: 'translateY(-2px)',
+                  backgroundColor: '#047857',
                 },
                 '&:disabled': {
                   backgroundColor: '#d1d5db',
                   color: '#9ca3af',
-                  boxShadow: 'none',
-                  transform: 'none'
                 }
               }}
             >
@@ -307,17 +263,10 @@ const UnbanModal = ({ open, onClose }) => {
                 color: '#dc2626',
                 borderColor: '#fecaca',
                 backgroundColor: '#fef2f2',
-                fontSize: '0.95rem',
-                fontWeight: 500,
-                borderRadius: '8px',
-                px: 3,
-                py: 1,
-                transition: 'all 0.2s ease',
                 '&:hover': {
                   backgroundColor: '#fecaca',
                   borderColor: '#f87171',
                   color: '#b91c1c',
-                  transform: 'translateY(-1px)',
                 }
               }}
             >

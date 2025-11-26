@@ -110,6 +110,11 @@ const useAntiCheating = (isActive = true, sessionId = null, initialWarningCount 
     // Trigger ban (this will be handled by the backend when 3 warnings are logged)
   }, []);
 
+  const handleWindowBlur = useCallback(() => {
+    // Trigger warning when window loses focus (minimize or switch to another window)
+    triggerWarning('Diqqat! Siz test oynasini kichiklashtirdingiz yoki boshqa oynaga o\'tdingiz. Bu test qoidalariga zid!', 'window_blur');
+  }, [triggerWarning]);
+
   useEffect(() => {
     if (!isActive) return;
 
@@ -191,6 +196,7 @@ const useAntiCheating = (isActive = true, sessionId = null, initialWarningCount 
     document.addEventListener('paste', handlePaste);
     document.addEventListener('cut', handleCut);
     window.addEventListener('resize', handleResize);
+    window.addEventListener('blur', handleWindowBlur);
 
     // Cleanup
     return () => {
@@ -201,8 +207,9 @@ const useAntiCheating = (isActive = true, sessionId = null, initialWarningCount 
       document.removeEventListener('paste', handlePaste);
       document.removeEventListener('cut', handleCut);
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('blur', handleWindowBlur);
     };
-  }, [isActive, triggerWarning]);
+  }, [isActive, triggerWarning, handleWindowBlur]);
 
   return {
     showWarning,

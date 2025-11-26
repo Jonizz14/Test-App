@@ -26,8 +26,8 @@ const BannedStudentsModal = ({ open, onClose, bannedStudents, onUnbanStudent }) 
       sx={{
         '& .MuiDrawer-paper': {
           height: '70vh',
-          borderTopLeftRadius: '16px',
-          borderTopRightRadius: '16px',
+          borderTopLeftRadius: '8px',
+          borderTopRightRadius: '8px',
           backgroundColor: '#ffffff',
         },
       }}
@@ -64,7 +64,7 @@ const BannedStudentsModal = ({ open, onClose, bannedStudents, onUnbanStudent }) 
                       px: 0,
                       py: 2,
                       backgroundColor: '#fef2f2',
-                      borderRadius: '8px',
+                      borderRadius: '4px',
                       mb: 1,
                       border: '1px solid #fecaca',
                     }}
@@ -139,9 +139,6 @@ const BannedStudentsModal = ({ open, onClose, bannedStudents, onUnbanStudent }) 
                             backgroundColor: '#ecfdf5',
                             borderColor: '#059669',
                           },
-                          fontSize: '0.75rem',
-                          px: 2,
-                          py: 0.5,
                         }}
                       >
                         Blokdan chiqarish
@@ -173,9 +170,6 @@ const BannedStudentsModal = ({ open, onClose, bannedStudents, onUnbanStudent }) 
             sx={{
               backgroundColor: '#2563eb',
               color: '#ffffff',
-              py: 1.5,
-              borderRadius: '8px',
-              fontWeight: 600,
               '&:hover': {
                 backgroundColor: '#1d4ed8',
               },
