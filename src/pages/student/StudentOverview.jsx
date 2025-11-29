@@ -17,6 +17,8 @@ import {
   Search as SearchIcon,
   TrendingUp as TrendingUpIcon,
   School as SchoolIcon,
+  EmojiPeople as EmojiPeopleIcon,
+  LocalLibrary as LocalLibraryIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';

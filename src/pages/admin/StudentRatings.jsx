@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Typography,
   Box,
@@ -23,7 +23,6 @@ import {
 import apiService from "../../data/apiService";
 
 const StudentRatings = () => {
-  const [students, setStudents] = useState([]);
   const [originalStudents, setOriginalStudents] = useState([]);
   const [attempts, setAttempts] = useState([]);
   const [expanded, setExpanded] = useState({});
@@ -58,14 +57,6 @@ const StudentRatings = () => {
         });
         
         setOriginalStudents(studentsWithStats);
-        
-        // Sort initially by average_score desc
-        const sorted = [...studentsWithStats].sort((a, b) => {
-          const aScore = a.average_score || 0;
-          const bScore = b.average_score || 0;
-          return bScore - aScore;
-        });
-        setStudents(sorted);
       } catch (error) {
         console.error("Failed to load students:", error);
       }
@@ -73,12 +64,12 @@ const StudentRatings = () => {
     loadStudents();
   }, []);
 
-  useEffect(() => {
-    if (originalStudents.length === 0) return;
-    
-    const sortedStudents = [...originalStudents].sort((a, b) => {
+  const students = useMemo(() => {
+    if (originalStudents.length === 0) return [];
+
+    return [...originalStudents].sort((a, b) => {
       let aValue, bValue;
-      
+
       switch (sortField) {
         case 'average_score':
           aValue = a.average_score || 0;
@@ -119,15 +110,13 @@ const StudentRatings = () => {
         default:
           return 0;
       }
-      
+
       if (sortDirection === 'asc') {
         return aValue - bValue;
       } else {
         return bValue - aValue;
       }
     });
-    
-    setStudents(sortedStudents);
   }, [sortField, sortDirection, originalStudents]);
 
   const handleExpandClick = (id) => {

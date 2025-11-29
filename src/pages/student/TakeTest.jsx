@@ -88,7 +88,8 @@ const TakeTest = () => {
     unbanError,
     handleUnbanSubmit,
     closeUnbanPrompt,
-    warningCount
+    warningCount,
+    exitFullscreen
   } = useAntiCheating(
     sessionStarted,
     sessionId,
@@ -214,20 +215,23 @@ const TakeTest = () => {
   }, [hasTimeRemaining, sessionStarted]);
 
   const continueTestFromSession = async (session, testId) => {
+    if (!session || !testId) {
+      alert("Sessiya yoki test ID topilmadi. Iltimos, sahifani yangilang yoki administratorga murojaat qiling.");
+      return;
+    }
     try {
       const test = await apiService.getTest(testId);
-      if (test) {
-        const questionsData = await apiService.getQuestions({ test: test.id });
-        const questionsList = questionsData.results || questionsData;
-        
-        setSelectedTest({
-          ...test,
-          questions: questionsList
-        });
-        setAnswers(session.answers || {});
-        setCurrentQuestionIndex(0);
+      if (!test) {
+        alert('Test topilmadi.');
+        return;
       }
+      const questionsData = await apiService.getQuestions({ test: test.id });
+      const questionsList = questionsData.results || questionsData;
+      setSelectedTest({ ...test, questions: questionsList });
+      setAnswers(session.answers || {});
+      setCurrentQuestionIndex(0);
     } catch (error) {
+      alert('Sessiyani tiklashda muammo yuz berdi.');
       console.error('Failed to continue test session:', error);
       clearSession();
     }
@@ -313,63 +317,50 @@ const TakeTest = () => {
   };
 
   const startTest = async (test) => {
-    // Check if student has already taken this test
-    if (hasStudentTakenTest(test.id)) {
-      return; // Don't start test if already taken
+    if (!test || !test.id) {
+      alert("Test ma'lumotlari to'liq emas yoki noto'g'ri. Iltimos, boshqa test tanlang yoki administratorga murojaat qiling.");
+      return;
     }
-
     try {
-      // Start server-side session
       const session = await startTestSession(test.id);
-      
-      // Load questions for the test
+      if (!session) throw new Error('Test session yaratilmagan.');
       const questionsData = await apiService.getQuestions({ test: test.id });
       const questionsList = questionsData.results || questionsData;
-      
-      // Add questions to test object
-      const testWithQuestions = {
-        ...test,
-        questions: questionsList
-      };
-
-      setSelectedTest(testWithQuestions);
+      setSelectedTest({ ...test, questions: questionsList });
       setCurrentQuestionIndex(0);
       setAnswers({});
     } catch (error) {
+      alert('Testni boshlashda muammo yuz berdi. Keyinroq qayta urinib ko‘ring.');
       console.error('Failed to start test:', error);
-      if (error.response?.status === 400) {
-        // Test already completed
-        alert('Test allaqachon tugallangan!');
-        window.location.reload();
-      }
     }
   };
 
   const continueTest = async (test) => {
-    // Use existing active session if available
+    if (!test || !test.id) {
+      alert("Davom ettirish uchun test ma'lumotlari to'liq emas!");
+      return;
+    }
     const existingSession = activeTestSessions[test.id];
-    
     if (existingSession) {
       try {
         await continueTestFromSession(existingSession, test.id);
       } catch (error) {
+        alert('Davom etuvchilar sessiyasini yuklashda muammo!');
         console.error('Failed to continue test from existing session:', error);
-        // Remove invalid session from cache
         const updatedSessions = { ...activeTestSessions };
         delete updatedSessions[test.id];
         setActiveTestSessions(updatedSessions);
       }
     } else {
-      // Fallback: check for session via API
       try {
         const activeSession = await checkActiveSession(test.id);
         if (activeSession) {
           await continueTestFromSession(activeSession, test.id);
         } else {
-          console.log('No active session found, starting new test');
           await startTest(test);
         }
       } catch (error) {
+        alert('Sessiyani davom ettirishda muammo. Keyinroq urinib ko‘ring.');
         console.error('Failed to continue test:', error);
       }
     }
@@ -388,6 +379,7 @@ const TakeTest = () => {
 
   const handleExitTest = () => {
     setExitDialogOpen(false);
+    exitFullscreen();
     clearSession();
     resetTest();
   };
@@ -417,11 +409,15 @@ const TakeTest = () => {
   const handleTestComplete = async () => {
     try {
       const result = await submitTest();
-      if (result.success) {
+      if (result && result.success) {
         setScore(result.score);
         setTestCompleted(true);
+        exitFullscreen();
+      } else {
+        alert('Test yakunini saqlashda muammo yuz berdi.');
       }
     } catch (error) {
+      alert('Test yakunida xatolik. Internet yoki serverda muammo bo‘lishi mumkin.');
       console.error('Failed to complete test:', error);
     }
   };
@@ -432,6 +428,7 @@ const TakeTest = () => {
       if (result.success) {
         setScore(result.score);
         setTestCompleted(true);
+        exitFullscreen();
       }
     } catch (error) {
       console.error('Failed to submit test:', error);

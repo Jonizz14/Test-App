@@ -19,12 +19,14 @@ import {
   Badge,
 } from '@mui/material';
 import {
-  Menu as MenuIcon,
-  Dashboard as DashboardIcon,
-  People as PeopleIcon,
-  Assessment as AssessmentIcon,
-  ExitToApp as LogoutIcon,
-  Shield as ShieldIcon,
+  Dehaze as MenuIcon,
+  Home as DashboardIcon,
+  SupervisorAccount as SupervisorAccountIcon,
+  Group as GroupIcon,
+  TrendingUp as TrendingUpIcon,
+  Leaderboard as LeaderboardIcon,
+  PowerSettingsNew as LogoutIcon,
+  Security as ShieldIcon,
   Notifications as NotificationsIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
@@ -34,7 +36,9 @@ import apiService from '../data/apiService';
 import AdminOverview from './admin/AdminOverview';
 import ManageTeachers from './admin/ManageTeachers';
 import ManageStudents from './admin/ManageStudents';
-import ManageTests from './admin/ManageTests';
+import TeacherDetails from './admin/TeacherDetails';
+import StudentDetails from './admin/StudentDetails';
+import TestDetails from './admin/TestDetails';
 import TestStatistics from './admin/TestStatistics';
 import StudentRatings from './admin/StudentRatings';
 
@@ -51,9 +55,7 @@ const AdminDashboard = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleDrawerToggle = () => {
-    if (isMobile) {
-      setMobileOpen(!mobileOpen);
-    }
+    setMobileOpen(!mobileOpen);
   };
 
   const handleLogout = () => {
@@ -93,11 +95,10 @@ const AdminDashboard = () => {
 
   const menuItems = [
     { text: 'Umumiy', icon: <DashboardIcon />, path: '/admin' },
-    { text: 'O\'qituvchilarni boshqarish', icon: <PeopleIcon />, path: '/admin/teachers' },
-    { text: 'O\'quvchilarni boshqarish', icon: <PeopleIcon />, path: '/admin/students' },
-    { text: 'Testlarni boshqarish', icon: <AssessmentIcon />, path: '/admin/tests' },
-    { text: 'Testlar statistikasi', icon: <AssessmentIcon />, path: '/admin/test-stats' },
-    { text: 'O\'quvchilar reytingi', icon: <PeopleIcon />, path: '/admin/student-ratings' },
+    { text: 'O\'qituvchilarni boshqarish', icon: <SupervisorAccountIcon />, path: '/admin/teachers' },
+    { text: 'O\'quvchilarni boshqarish', icon: <GroupIcon />, path: '/admin/students' },
+    { text: 'Testlar statistikasi', icon: <TrendingUpIcon />, path: '/admin/test-stats' },
+    { text: 'O\'quvchilar reytingi', icon: <LeaderboardIcon />, path: '/admin/student-ratings' },
   ];
 
   const drawer = (
@@ -148,11 +149,12 @@ const AdminDashboard = () => {
                 sx={{
                   width: '100%',
                   height: '48px',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   px: 2,
                   py: 1.5,
                   display: 'flex',
                   alignItems: 'center',
+                  transition: 'background-color 0.4s ease, outline 0.4s ease, color 0.4s ease',
                   '&:hover': {
                     backgroundColor: '#f1f5f9',
                     '& .MuiListItemIcon-root': {
@@ -211,17 +213,19 @@ const AdminDashboard = () => {
         }}
       >
         <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 4 }}
-          >
-            <MenuIcon />
-          </IconButton>
+          {isMobile && (
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 4 }}
+            >
+              <MenuIcon sx={{ fontSize: '1.2rem' }} />
+            </IconButton>
+          )}
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-            <ShieldIcon sx={{ mr: 1, color: '#2563eb' }} />
+            <ShieldIcon sx={{ mr: 1, color: '#2563eb', fontSize: '1.8rem' }} />
             <Typography variant="h6" noWrap component="div">
               STIM Anti-Cheat System
             </Typography>
@@ -240,14 +244,14 @@ const AdminDashboard = () => {
               title={`${bannedStudents.length} ta bloklangan o'quvchi bor`}
             >
               <Badge badgeContent={bannedStudents.length} color="error">
-                <NotificationsIcon />
+                <NotificationsIcon sx={{ fontSize: '1.3rem' }} />
               </Badge>
             </IconButton>
           )}
           <Typography variant="body1" sx={{ mr: 2 }}>
             Welcome, {currentUser?.name}
           </Typography>
-          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon />}>
+          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon sx={{ fontSize: '1.4rem' }} />}>
             Chiqish
           </Button>
         </Toolbar>
@@ -309,9 +313,11 @@ const AdminDashboard = () => {
             <Routes>
               <Route path="/" element={<AdminOverview />} />
               <Route path="/teachers" element={<ManageTeachers />} />
+              <Route path="/teacher-details/:id" element={<TeacherDetails />} />
               <Route path="/students" element={<ManageStudents />} />
-              <Route path="/tests" element={<ManageTests />} />
+              <Route path="/student-details/:id" element={<StudentDetails />} />
               <Route path="/test-stats" element={<TestStatistics />} />
+              <Route path="/test-details/:id" element={<TestDetails />} />
               <Route path="/student-ratings" element={<StudentRatings />} />
             </Routes>
           </Container>

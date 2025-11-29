@@ -18,15 +18,16 @@ import {
   useTheme,
 } from '@mui/material';
 import {
-  Menu as MenuIcon,
+  Dehaze as MenuIcon,
   Dashboard as DashboardIcon,
   Search as SearchIcon,
-  Assessment as AssessmentIcon,
+  PlayArrow as PlayArrowIcon,
+  AssignmentTurnedIn as AssignmentTurnedInIcon,
   BarChart as BarChartIcon,
   Person as PersonIcon,
   School as SchoolIcon,
-  ExitToApp as LogoutIcon,
-  Shield as ShieldIcon,
+  PowerSettingsNew as LogoutIcon,
+  Security as ShieldIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import NotificationCenter from '../components/NotificationCenter';
@@ -46,18 +47,13 @@ import TeacherDetails from './student/TeacherDetails';
 
 const StudentDashboard = () => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [drawerOpen, setDrawerOpen] = React.useState(true);
   const { currentUser, logout, isBanned } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleDrawerToggle = () => {
-    if (isMobile) {
-      setMobileOpen(!mobileOpen);
-    } else {
-      setDrawerOpen(!drawerOpen);
-    }
+    setMobileOpen(!mobileOpen);
   };
 
   const handleLogout = () => {
@@ -68,8 +64,8 @@ const StudentDashboard = () => {
   const menuItems = [
     { text: 'Asosiy', icon: <DashboardIcon />, path: '/student' },
     { text: 'O\'qituvchilarni izlash', icon: <SearchIcon />, path: '/student/search' },
-    { text: 'Test topshirish', icon: <AssessmentIcon />, path: '/student/take-test' },
-    { text: 'Mening natijalarim', icon: <AssessmentIcon />, path: '/student/results' },
+    { text: 'Test topshirish', icon: <PlayArrowIcon />, path: '/student/take-test' },
+    { text: 'Mening natijalarim', icon: <AssignmentTurnedInIcon />, path: '/student/results' },
     { text: 'Qabul qilingan darslar', icon: <SchoolIcon />, path: '/student/lessons' },
     { text: 'Statistika', icon: <BarChartIcon />, path: '/student/statistics' },
     { text: 'Ma\'lumotlarim', icon: <PersonIcon />, path: '/student/profile' },
@@ -123,11 +119,12 @@ const StudentDashboard = () => {
                 sx={{
                   width: '100%',
                   height: '48px',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   px: 2,
                   py: 1.5,
                   display: 'flex',
                   alignItems: 'center',
+                  transition: 'background-color 0.4s ease, outline 0.4s ease, color 0.4s ease',
                   '&:hover': {
                     backgroundColor: '#f1f5f9',
                     '& .MuiListItemIcon-root': {
@@ -186,17 +183,19 @@ const StudentDashboard = () => {
         }}
       >
         <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 4 }}
-          >
-            <MenuIcon />
-          </IconButton>
+          {isMobile && (
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 4 }}
+            >
+              <MenuIcon sx={{ fontSize: '1.2rem' }} />
+            </IconButton>
+          )}
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-            <ShieldIcon sx={{ mr: 1, color: '#2563eb' }} />
+            <ShieldIcon sx={{ mr: 1, color: '#2563eb', fontSize: '1.8rem' }} />
             <Typography variant="h6" noWrap component="div">
               STIM Anti-Cheat System
             </Typography>
@@ -205,7 +204,7 @@ const StudentDashboard = () => {
             Salom, {currentUser?.name}
           </Typography>
           <NotificationCenter />
-          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon />}>
+          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon sx={{ fontSize: '1.4rem' }} />}>
             Chiqish
           </Button>
         </Toolbar>

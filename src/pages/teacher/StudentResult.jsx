@@ -40,73 +40,73 @@ const StudentResult = () => {
   const [lessonModalOpen, setLessonModalOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
-  const loadStudentResult = async () => {
-    try {
-      // Load attempt data from API
-      const foundAttempt = await apiService.getAttempt(attemptId);
-
-      if (!foundAttempt) {
-        setError('Natija topilmadi');
-        setLoading(false);
-        return;
-      }
-
-      // Check if teacher owns this test
-      const foundTest = await apiService.getTest(foundAttempt.test);
-
-      if (!foundTest || foundTest.teacher !== currentUser.id) {
-        setError('Ruxsat yo\'q');
-        setLoading(false);
-        return;
-      }
-
-      setAttempt(foundAttempt);
-      setTest(foundTest);
-
-      // Get all users and find student
-      const usersResponse = await apiService.getUsers();
-      const allUsers = usersResponse.results || usersResponse;
-      const foundStudent = allUsers.find(user => user.id === foundAttempt.student && user.role === 'student');
-      setStudent(foundStudent);
-
-      // Load questions from API
-      const questionsResponse = await apiService.getQuestions({ test: foundAttempt.test });
-      let testQuestions = questionsResponse.results || questionsResponse;
-
-      // If still no questions, create dummy questions based on answers
-      if (testQuestions.length === 0 && foundAttempt.answers) {
-        const answerKeys = Object.keys(foundAttempt.answers);
-        testQuestions = answerKeys.map((questionId, index) => ({
-          id: questionId,
-          test: foundAttempt.test,
-          question_text: `Savol ${index + 1}`,
-          question_type: 'short_answer',
-          options: [],
-          correct_answer: 'Noma\'lum',
-          explanation: 'Savol tafsilotlari mavjud emas'
-        }));
-      }
-
-      setQuestions(testQuestions);
-
-      // Load notifications to check lesson invitations
-      const allNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
-      const lessonNotifications = allNotifications.filter(n =>
-        n.type === 'lesson_reminder' && n.studentId === foundAttempt.student && n.testId === foundAttempt.test
-      );
-      setNotifications(lessonNotifications);
-
-      setLoading(false);
-    } catch (err) {
-      console.error('Failed to load student result:', err);
-      setError('Natija yuklanmadi');
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const loadStudentResult = async () => {
+      try {
+        // Load attempt data from API
+        const foundAttempt = await apiService.getAttempt(attemptId);
+
+        if (!foundAttempt) {
+          setError('Natija topilmadi');
+          setLoading(false);
+          return;
+        }
+
+        // Check if teacher owns this test
+        const foundTest = await apiService.getTest(foundAttempt.test);
+
+        if (!foundTest || foundTest.teacher !== currentUser.id) {
+          setError('Ruxsat yo\'q');
+          setLoading(false);
+          return;
+        }
+
+        setAttempt(foundAttempt);
+        setTest(foundTest);
+
+        // Get all users and find student
+        const usersResponse = await apiService.getUsers();
+        const allUsers = usersResponse.results || usersResponse;
+        const foundStudent = allUsers.find(user => user.id === foundAttempt.student && user.role === 'student');
+        setStudent(foundStudent);
+
+        // Load questions from API
+        const questionsResponse = await apiService.getQuestions({ test: foundAttempt.test });
+        let testQuestions = questionsResponse.results || questionsResponse;
+
+        // If still no questions, create dummy questions based on answers
+        if (testQuestions.length === 0 && foundAttempt.answers) {
+          const answerKeys = Object.keys(foundAttempt.answers);
+          testQuestions = answerKeys.map((questionId, index) => ({
+            id: questionId,
+            test: foundAttempt.test,
+            question_text: `Savol ${index + 1}`,
+            question_type: 'short_answer',
+            options: [],
+            correct_answer: 'Noma\'lum',
+            explanation: 'Savol tafsilotlari mavjud emas'
+          }));
+        }
+
+        setQuestions(testQuestions);
+
+        // Load notifications to check lesson invitations
+        const allNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+        const lessonNotifications = allNotifications.filter(n =>
+          n.type === 'lesson_reminder' && n.studentId === foundAttempt.student && n.testId === foundAttempt.test
+        );
+        setNotifications(lessonNotifications);
+
+        setLoading(false);
+      } catch (err) {
+        console.error('Failed to load student result:', err);
+        setError('Natija yuklanmadi');
+        setLoading(false);
+      }
+    };
+
     loadStudentResult();
-  }, [attemptId]);
+  }, [attemptId, currentUser.id]);
 
   const getScoreColor = (score) => {
     if (score >= 90) return 'success';

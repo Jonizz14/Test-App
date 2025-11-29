@@ -43,7 +43,6 @@ const ServerTestDemo = () => {
     clearSession,
     formatTime,
     isSessionActive,
-    hasTimeRemaining,
   } = useServerTest();
 
   const [availableTests, setAvailableTests] = useState([]);
@@ -53,43 +52,43 @@ const ServerTestDemo = () => {
   const [demoCompleted, setDemoCompleted] = useState(false);
   const [demoScore, setDemoScore] = useState(0);
 
-  const loadAvailableTests = async () => {
-    try {
-      const tests = await apiService.getTests({ is_active: true });
-      // Filter for demo - get first few active tests
-      setAvailableTests(tests.slice(0, 3));
-    } catch (error) {
-      console.error('Failed to load tests:', error);
-    }
-  };
-
-  const checkForExistingSessions = async () => {
-    if (!currentUser) return;
-
-    try {
-      // Check for any active sessions
-      const sessions = await apiService.getSessions({
-        student: currentUser.id,
-        active_only: 'true'
-      });
-
-      if (sessions && sessions.length > 0) {
-        console.log('Found active session:', sessions[0]);
-        // Could auto-continue here if desired
+  useEffect(() => {
+    const loadAvailableTests = async () => {
+      try {
+        const tests = await apiService.getTests({ is_active: true });
+        // Filter for demo - get first few active tests
+        setAvailableTests(tests.slice(0, 3));
+      } catch (error) {
+        console.error('Failed to load tests:', error);
       }
-    } catch (error) {
-      console.error('Failed to check sessions:', error);
-    }
-  };
+    };
 
-  useEffect(() => {
     loadAvailableTests();
-  }, [loadAvailableTests]);
+  }, []);
 
   useEffect(() => {
+    const checkForExistingSessions = async () => {
+      if (!currentUser) return;
+
+      try {
+        // Check for any active sessions
+        const sessions = await apiService.getSessions({
+          student: currentUser.id,
+          active_only: 'true'
+        });
+
+        if (sessions && sessions.length > 0) {
+          console.log('Found active session:', sessions[0]);
+          // Could auto-continue here if desired
+        }
+      } catch (error) {
+        console.error('Failed to check sessions:', error);
+      }
+    };
+
     // Check for existing sessions on component mount
     checkForExistingSessions();
-  }, [checkForExistingSessions]);
+  }, [currentUser]);
 
   const startDemoTest = async (test) => {
     try {
@@ -107,19 +106,6 @@ const ServerTestDemo = () => {
     }
   };
 
-  const continueDemoTest = async (test) => {
-    try {
-      const activeSession = await checkActiveSession(test.id);
-      if (activeSession) {
-        await continueTestSession(activeSession.session_id);
-        setSelectedTest(test);
-        setShowTestDialog(true);
-        setDemoCompleted(false);
-      }
-    } catch (error) {
-      console.error('Failed to continue demo test:', error);
-    }
-  };
 
   const handleDemoAnswerChange = (questionId, answer) => {
     const newAnswers = {
@@ -148,31 +134,6 @@ const ServerTestDemo = () => {
   const exitDemoTest = () => {
     setShowTestDialog(false);
     clearSession();
-  };
-
-  const DemoTimer = () => {
-    if (!sessionStarted) return null;
-
-    return (
-      <Box sx={{ mb: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-          <TimeIcon color="primary" />
-          <Typography variant="h6">
-            Qolgan vaqt: {formatTime(timeRemaining)}
-          </Typography>
-          <Chip 
-            label={isSessionActive ? 'Faol' : 'Faol emas'} 
-            color={isSessionActive ? 'success' : 'error'} 
-            size="small" 
-          />
-        </Box>
-        <LinearProgress 
-          variant="determinate" 
-          value={Math.max(0, (timeRemaining / (selectedTest?.time_limit * 60 || 600)) * 100)}
-          sx={{ height: 10, borderRadius: 5 }}
-        />
-      </Box>
-    );
   };
 
   return (
@@ -304,9 +265,19 @@ const ServerTestDemo = () => {
           <Typography sx={{ mb: 2 }}>
             Demo uchun hech qanday test mavjud emas.
           </Typography>
-          <Button 
-            variant="outlined" 
-            onClick={loadAvailableTests}
+          <Button
+            variant="outlined"
+            onClick={() => {
+              const loadTests = async () => {
+                try {
+                  const tests = await apiService.getTests({ is_active: true });
+                  setAvailableTests(tests.slice(0, 3));
+                } catch (error) {
+                  console.error('Failed to load tests:', error);
+                }
+              };
+              loadTests();
+            }}
             startIcon={<RefreshIcon />}
           >
             Qayta yuklash
@@ -333,8 +304,27 @@ const ServerTestDemo = () => {
         </DialogTitle>
         
         <DialogContent>
-          <DemoTimer />
-          
+          {sessionStarted && (
+            <Box sx={{ mb: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                <TimeIcon color="primary" />
+                <Typography variant="h6">
+                  Qolgan vaqt: {formatTime(timeRemaining)}
+                </Typography>
+                <Chip
+                  label={isSessionActive ? 'Faol' : 'Faol emas'}
+                  color={isSessionActive ? 'success' : 'error'}
+                  size="small"
+                />
+              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={Math.max(0, (timeRemaining / (selectedTest?.time_limit * 60 || 600)) * 100)}
+                sx={{ height: 10, borderRadius: 5 }}
+              />
+            </Box>
+          )}
+
           <Paper sx={{ p: 3, bgcolor: 'grey.50' }}>
             <Typography variant="h6" sx={{ mb: 3 }}>
               Demo savol: 2 + 2 nechaga teng?

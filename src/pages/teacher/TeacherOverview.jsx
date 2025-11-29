@@ -22,6 +22,8 @@ import {
   School as SchoolIcon,
   Quiz as QuizIcon,
   CheckCircle as CheckCircleIcon,
+  LocalLibrary as LocalLibraryIcon,
+  EmojiPeople as EmojiPeopleIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
@@ -290,7 +292,7 @@ const TeacherOverview = () => {
             <StatCard
               title="Jami urinishlar"
               value={totalAttempts}
-              icon={<PeopleIcon />}
+              icon={<EmojiPeopleIcon />}
               color="secondary.main"
               subtitle={`${uniqueStudents} ta o'quvchi`}
             />
@@ -437,161 +439,31 @@ const TeacherOverview = () => {
                         <Chip
                           label={`${attempt.score}%`}
                           size="small"
-                          color={attempt.score >= 70 ? 'success' : attempt.score >= 50 ? 'warning' : 'error'}
+                          color={attempt.score >= 80 ? 'success' : attempt.score >= 60 ? 'warning' : 'error'}
                         />
-                        <Typography variant="caption" color="textSecondary">
-                          {new Date(attempt.submitted_at).toLocaleDateString('uz-UZ')}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <CheckCircleIcon 
-                      color={attempt.score >= 70 ? 'success' : attempt.score >= 50 ? 'warning' : 'error'} 
-                      fontSize="small"
-                    />
-                  </Box>
-                </ListItem>
-              ))}
-              {recentAttempts.length === 0 && (
-                <ListItem sx={{ px: 0 }}>
-                  <ListItemText
-                    primary={
-                      <Typography sx={{ 
-                        fontSize: '0.875rem', 
-                        fontWeight: 500, 
-                        color: '#64748b' 
-                      }}>
-                        Hali o'quvchi urinishlari yo'q
-                      </Typography>
-                    }
-                    secondary={
-                      <Typography sx={{ 
-                        fontSize: '0.75rem', 
-                        color: '#94a3b8' 
-                      }}>
-                        O'quvchilar sizning testlaringizni topshirganda bu yerda paydo bo'ladi
-                      </Typography>
-                    }
-                  />
-                </ListItem>
-              )}
-              </List>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Quick Actions */}
-        <Grid item xs={12}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-          }} data-aos="fade-up">
-            <CardContent sx={{ p: 4 }}>
-              <Typography sx={{
-                fontWeight: 600,
-                color: '#1e293b',
-                fontSize: '1.25rem',
-                mb: 3
-              }}>
-                Tezkor amallar
-              </Typography>
-              <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={3}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  startIcon={<QuizIcon />}
-                  onClick={() => navigate('/teacher/create-test')}
-                  sx={{
-                    borderColor: '#e2e8f0',
-                    color: '#374151',
-                    borderRadius: '8px',
-                    padding: '12px 16px',
-                    fontWeight: 600,
-                    textTransform: 'none',
-                    '&:hover': {
-                      borderColor: '#2563eb',
-                      backgroundColor: '#f8fafc',
-                    }
-                  }}
-                >
-                  Yangi test yaratish
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  startIcon={<AssessmentIcon />}
-                  onClick={() => navigate('/teacher/my-tests')}
-                  sx={{
-                    borderColor: '#e2e8f0',
-                    color: '#374151',
-                    borderRadius: '8px',
-                    padding: '12px 16px',
-                    fontWeight: 600,
-                    textTransform: 'none',
-                    '&:hover': {
-                      borderColor: '#2563eb',
-                      backgroundColor: '#f8fafc',
-                    }
-                  }}
-                >
-                  Barcha testlar
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  startIcon={<TrendingUpIcon />}
-                  onClick={() => navigate('/teacher/statistics')}
-                  sx={{
-                    borderColor: '#e2e8f0',
-                    color: '#374151',
-                    borderRadius: '8px',
-                    padding: '12px 16px',
-                    fontWeight: 600,
-                    textTransform: 'none',
-                    '&:hover': {
-                      borderColor: '#2563eb',
-                      backgroundColor: '#f8fafc',
-                    }
-                  }}
-                >
-                  Batafsil statistika
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  startIcon={<PeopleIcon />}
-                  onClick={() => navigate('/teacher/student-results')}
-                  sx={{
-                    borderColor: '#e2e8f0',
-                    color: '#374151',
-                    borderRadius: '8px',
-                    padding: '12px 16px',
-                    fontWeight: 600,
-                    textTransform: 'none',
-                    '&:hover': {
-                      borderColor: '#2563eb',
-                      backgroundColor: '#f8fafc',
-                    }
-                  }}
-                >
-                  O'quvchi natijalari
-                </Button>
-              </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </Box>
-  );
+                         <Typography variant="caption" color="textSecondary">
+                           {new Date(attempt.submitted_at).toLocaleDateString('uz-UZ')}
+                         </Typography>
+                       </Box>
+                     </Box>
+                   </Box>
+                 </ListItem>
+               ))}
+               {recentAttempts.length === 0 && (
+                 <ListItem>
+                   <ListItemText
+                     primary="Hali urinishlar yo'q"
+                     secondary="O'quvchilar testlarni topshirganda bu yerda ko'rinadi"
+                   />
+                 </ListItem>
+               )}
+             </List>
+           </CardContent>
+         </Card>
+       </Grid>
+     </Grid>
+   </Box>
+ );
 };
 
 export default TeacherOverview;

@@ -115,8 +115,50 @@ const useAntiCheating = (isActive = true, sessionId = null, initialWarningCount 
     triggerWarning('Diqqat! Siz test oynasini kichiklashtirdingiz yoki boshqa oynaga o\'tdingiz. Bu test qoidalariga zid!', 'window_blur');
   }, [triggerWarning]);
 
+  const enterFullscreen = useCallback(async () => {
+    try {
+      if (document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen();
+      } else if (document.documentElement.webkitRequestFullscreen) {
+        await document.documentElement.webkitRequestFullscreen();
+      } else if (document.documentElement.msRequestFullscreen) {
+        await document.documentElement.msRequestFullscreen();
+      }
+    } catch (error) {
+      console.error('Failed to enter fullscreen:', error);
+    }
+  }, []);
+
+  const exitFullscreen = useCallback(async () => {
+    try {
+      if (document.exitFullscreen) {
+        await document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        await document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        await document.msExitFullscreen();
+      }
+    } catch (error) {
+      console.error('Failed to exit fullscreen:', error);
+    }
+  }, []);
+
+  const handleFullscreenChange = useCallback(() => {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+      // User exited fullscreen - warn and try to re-enter
+      triggerWarning('Diqqat! Siz to\'li ekran rejimidan chiqdingiz. Test to\'li ekranda o\'tishi kerak!', 'fullscreen_exit');
+      // Try to re-enter fullscreen after a short delay
+      setTimeout(() => {
+        enterFullscreen();
+      }, 1000);
+    }
+  }, [triggerWarning, enterFullscreen]);
+
   useEffect(() => {
     if (!isActive) return;
+
+    // Enter fullscreen when test becomes active
+    enterFullscreen();
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
@@ -125,6 +167,20 @@ const useAntiCheating = (isActive = true, sessionId = null, initialWarningCount 
     };
 
     const handleKeyDown = (event) => {
+      // F11 key (fullscreen toggle)
+      if (event.key === 'F11') {
+        event.preventDefault();
+        triggerWarning('Diqqat! F11 tugmasini bosish taqiqlanadi. Test to\'li ekranda o\'tishi kerak!', 'f11_fullscreen');
+        return;
+      }
+
+      // Escape key (might exit fullscreen)
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        triggerWarning('Diqqat! Escape tugmasini bosish taqiqlanadi. Test to\'li ekranda o\'tishi kerak!', 'escape_key');
+        return;
+      }
+
       // F12 key
       if (event.key === 'F12') {
         event.preventDefault();
@@ -197,6 +253,9 @@ const useAntiCheating = (isActive = true, sessionId = null, initialWarningCount 
     document.addEventListener('cut', handleCut);
     window.addEventListener('resize', handleResize);
     window.addEventListener('blur', handleWindowBlur);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('msfullscreenchange', handleFullscreenChange);
 
     // Cleanup
     return () => {
@@ -208,8 +267,11 @@ const useAntiCheating = (isActive = true, sessionId = null, initialWarningCount 
       document.removeEventListener('cut', handleCut);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('blur', handleWindowBlur);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('msfullscreenchange', handleFullscreenChange);
     };
-  }, [isActive, triggerWarning, handleWindowBlur]);
+  }, [isActive, triggerWarning, handleWindowBlur, handleFullscreenChange, enterFullscreen]);
 
   return {
     showWarning,
@@ -222,6 +284,7 @@ const useAntiCheating = (isActive = true, sessionId = null, initialWarningCount 
     handleUnbanSubmit,
     closeUnbanPrompt,
     warningCount,
+    exitFullscreen,
   };
 };
 

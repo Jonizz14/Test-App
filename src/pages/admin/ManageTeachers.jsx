@@ -26,10 +26,12 @@ import {
   MenuItem,
   InputAdornment,
 } from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon, Search as SearchIcon } from '@mui/icons-material';
+import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon, Search as SearchIcon, Info as InfoIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
 
 const ManageTeachers = () => {
+  const navigate = useNavigate();
   const [teachers, setTeachers] = useState([]);
   const [tests, setTests] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -48,29 +50,23 @@ const ManageTeachers = () => {
   const [success, setSuccess] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const loadTeachers = async () => {
-    try {
-      // Load teachers from API
-      const allUsers = await apiService.getUsers();
-      const allTeachers = allUsers.filter(user => user.role === 'teacher');
-      setTeachers(allTeachers);
-    } catch (error) {
-      console.error('Failed to load teachers:', error);
-    }
-  };
-
-  const loadTests = async () => {
-    try {
-      const allTests = await apiService.getTests();
-      setTests(allTests);
-    } catch (error) {
-      console.error('Failed to load tests:', error);
-    }
-  };
-
   useEffect(() => {
-    loadTeachers();
-    loadTests();
+    const loadData = async () => {
+      try {
+        // Load teachers from API
+        const allUsers = await apiService.getUsers();
+        const allTeachers = allUsers.filter(user => user.role === 'teacher');
+        setTeachers(allTeachers);
+
+        // Load tests
+        const allTests = await apiService.getTests();
+        setTests(allTests);
+      } catch (error) {
+        console.error('Failed to load data:', error);
+      }
+    };
+
+    loadData();
   }, []);
 
   const generateTeacherId = (firstName, lastName, randomDigits) => {
@@ -230,6 +226,7 @@ const ManageTeachers = () => {
     });
     setEditDialogOpen(true);
   };
+
 
   // Filter teachers based on search term
   const filteredTeachers = teachers.filter(teacher => {
@@ -437,6 +434,25 @@ const ManageTeachers = () => {
                 </TableCell>
                 <TableCell>
                   <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => navigate(`/admin/teacher-details/${teacher.id}`)}
+                      startIcon={<InfoIcon />}
+                      sx={{
+                        fontSize: '0.75rem',
+                        padding: '4px 8px',
+                        minWidth: 'auto',
+                        borderColor: '#2563eb',
+                        color: '#2563eb',
+                        '&:hover': {
+                          backgroundColor: '#eff6ff',
+                          borderColor: '#1d4ed8',
+                        }
+                      }}
+                    >
+                      Batafsil
+                    </Button>
                     <IconButton
                       size="small"
                       onClick={() => handleEditClick(teacher)}
@@ -685,6 +701,7 @@ const ManageTeachers = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
     </Box>
   );
 };

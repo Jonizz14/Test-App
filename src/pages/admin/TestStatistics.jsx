@@ -34,6 +34,7 @@ import {
   Block as BlockIcon,
   School as SchoolIcon,
 } from '@mui/icons-material';
+import { CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
 
@@ -50,10 +51,6 @@ const TestStatistics = () => {
   const [scoreOrder, setScoreOrder] = useState('');
   const [attemptOrder, setAttemptOrder] = useState('');
   const [loading, setLoading] = useState(true);
-  const [selectedTest, setSelectedTest] = useState(null);
-  const [studentDetails, setStudentDetails] = useState([]);
-  const [detailsLoading, setDetailsLoading] = useState(false);
-  const [detailsOpen, setDetailsOpen] = useState(false);
   useEffect(() => {
     const loadTests = async () => {
       try {
@@ -137,51 +134,6 @@ const TestStatistics = () => {
     });
   }, [filteredTests, scoreOrder, attemptOrder]);
 
-  const handleViewDetails = async (test) => {
-    setSelectedTest(test);
-    setDetailsOpen(true);
-    setDetailsLoading(true);
-
-    try {
-      // Get test attempts with student details
-      const attempts = await apiService.getAttempts({ test: test.id });
-
-      // Get warning logs for ban calculations
-      const warnings = await apiService.getWarnings();
-
-      // Process student data
-      const studentData = attempts.map(attempt => {
-        // Calculate bans based on warnings (every 3 warnings = 1 ban)
-        const studentWarnings = warnings.filter(w => w.student === attempt.student).length;
-        const banCount = Math.floor(studentWarnings / 3);
-
-        return {
-          id: attempt.student,
-          name: attempt.student_name,
-          score: attempt.score,
-          submittedAt: attempt.submitted_at,
-          timeTaken: attempt.time_taken,
-          warningCount: studentWarnings,
-          banCount: banCount,
-          // Mock data for additional lessons (you may need to implement this based on your backend)
-          hasExtraLessons: Math.random() > 0.7, // Placeholder - replace with actual data
-        };
-      });
-
-      setStudentDetails(studentData);
-    } catch (error) {
-      console.error('Failed to load student details:', error);
-      setStudentDetails([]);
-    } finally {
-      setDetailsLoading(false);
-    }
-  };
-
-  const handleCloseDetails = () => {
-    setDetailsOpen(false);
-    setSelectedTest(null);
-    setStudentDetails([]);
-  };
 
   // Debug logging (remove in production)
   // console.log('Total tests:', Array.isArray(tests) ? tests.length : 'Not an array');
@@ -191,14 +143,35 @@ const TestStatistics = () => {
   if (loading) {
     return (
       <Box sx={{
-        py: 4,
+        py: 8,
         backgroundColor: '#ffffff',
         display: 'flex',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        minHeight: '400px'
+        minHeight: '400px',
+        gap: 3
       }}>
-        <Typography>Yuklanmoqda...</Typography>
+        <CircularProgress
+          size={60}
+          thickness={4}
+          sx={{
+            color: '#2563eb',
+            '& .MuiCircularProgress-circle': {
+              strokeLinecap: 'round',
+            }
+          }}
+        />
+        <Typography
+          sx={{
+            fontSize: '1.125rem',
+            color: '#64748b',
+            fontWeight: 500,
+            textAlign: 'center'
+          }}
+        >
+          Testlar yuklanmoqda...
+        </Typography>
       </Box>
     );
   }
@@ -212,7 +185,9 @@ const TestStatistics = () => {
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}>
+      }}
+      data-aos="fade-down"
+      >
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -240,7 +215,10 @@ const TestStatistics = () => {
         flexWrap: 'wrap',
         gap: 3,
         alignItems: 'center'
-      }}>
+      }}
+      data-aos="fade-up"
+      data-aos-delay="200"
+      >
         <FormControl size="small" sx={{ 
           minWidth: 150,
           '& .MuiOutlinedInput-root': {
@@ -358,320 +336,130 @@ const TestStatistics = () => {
       </Box>
 
 
-      <Grid container spacing={3}>
-        {sortedTests.map((test, index) => (
-          <Grid item xs={12} key={test.id}>
-            <Card
-                sx={{
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '12px',
-                  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-                  transition: 'none',
-                  '&:hover': {
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                  },
-                }}
-              >
-              <CardContent sx={{ p: 4 }}>
-                <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={3}>
-                  <Box flex={1}>
-                    <Typography variant="h6" sx={{ 
-                      fontSize: '1.25rem',
+      <TableContainer component={Paper} sx={{
+        backgroundColor: '#ffffff',
+        border: '1px solid #e2e8f0',
+        borderRadius: '12px',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+      }}
+      data-aos="fade-up"
+      data-aos-delay="400"
+      >
+        <Table>
+          <TableHead>
+            <TableRow sx={{
+              backgroundColor: '#f8fafc',
+              '& th': {
+                fontWeight: 700,
+                fontSize: '0.875rem',
+                color: '#1e293b',
+                borderBottom: '1px solid #e2e8f0',
+                padding: '16px'
+              }
+            }}>
+              <TableCell>Test nomi</TableCell>
+              <TableCell>O'qituvchi</TableCell>
+              <TableCell>Fan</TableCell>
+              <TableCell>Savollar</TableCell>
+              <TableCell>Vaqt (daqiqa)</TableCell>
+              <TableCell>Urinishlar</TableCell>
+              <TableCell>O'rtacha ball</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Harakatlar</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {sortedTests.map((test, index) => (
+              <TableRow key={test.id} sx={{
+                backgroundColor: index % 2 === 0 ? '#ffffff' : '#f8fafc',
+                '&:hover': {
+                  backgroundColor: '#eff6ff',
+                },
+                '& td': {
+                  borderBottom: '1px solid #e2e8f0',
+                  padding: '16px',
+                  fontSize: '0.875rem',
+                  color: '#334155'
+                }
+              }}>
+                <TableCell>
+                  <Typography sx={{ fontWeight: 600, color: '#1e293b' }}>
+                    {test.title}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography sx={{ fontWeight: 500 }}>
+                    {test.teacher_name || ''} {test.teacher_surname || ''}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={test.subject}
+                    size="small"
+                    sx={{
+                      backgroundColor: '#eff6ff',
+                      color: '#2563eb',
+                      fontWeight: 500,
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Typography sx={{ fontWeight: 700, color: '#2563eb' }}>
+                    {test.total_questions}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography sx={{ fontWeight: 700, color: '#059669' }}>
+                    {test.time_limit}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography sx={{ fontWeight: 700, color: '#2563eb' }}>
+                    {test.attempt_count || 0}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography sx={{ fontWeight: 700, color: '#059669' }}>
+                    {(test.average_score || 0).toFixed(1)}%
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={test.is_active ? 'Faol' : 'Nofaol'}
+                    size="small"
+                    sx={{
+                      backgroundColor: test.is_active ? '#ecfdf5' : '#f1f5f9',
+                      color: test.is_active ? '#059669' : '#64748b',
                       fontWeight: 600,
-                      color: '#1e293b',
-                      lineHeight: 1.4,
-                      mb: 1
-                    }}>
-                      {test.title}
-                    </Typography>
-                    <Typography sx={{ 
-                      fontSize: '0.875rem',
-                      color: '#64748b'
-                    }}>
-                      {test.teacher_name || ''} {test.teacher_surname || ''} {test.teacher_id ? ` (ID: ${test.teacher_id})` : ''}
-                    </Typography>
-                  </Box>
-                  <Box display="flex" gap={1}>
-                    <Chip 
-                      label={test.is_active ? 'Faol' : 'Nofaol'}
-                      size="small"
-                      sx={{
-                        backgroundColor: test.is_active ? '#ecfdf5' : '#f1f5f9',
-                        color: test.is_active ? '#059669' : '#64748b',
-                        fontWeight: 600,
-                      }}
-                    />
-                    <Chip 
-                      label={test.subject} 
-                      size="small" 
-                      sx={{
-                        backgroundColor: '#eff6ff',
-                        color: '#2563eb',
-                        fontWeight: 500,
-                      }}
-                    />
-                  </Box>
-                </Box>
-                
-                <Grid container spacing={4}>
-                  <Grid item xs={12} md={8}>
-                    <Box mb={3}>
-                      <Typography sx={{ 
-                        fontSize: '0.875rem', 
-                        fontWeight: 600, 
-                        color: '#64748b',
-                        mb: 2
-                      }}>
-                        Test ma'lumotlari:
-                      </Typography>
-                      <Grid container spacing={3}>
-                        <Grid item xs={6} sm={3}>
-                          <Box sx={{ 
-                            backgroundColor: '#f8fafc', 
-                            border: '1px solid #e2e8f0',
-                            borderRadius: '8px',
-                            p: 2,
-                            textAlign: 'center'
-                          }}>
-                            <Typography sx={{ 
-                              fontSize: '1.5rem', 
-                              fontWeight: 700, 
-                              color: '#2563eb',
-                              mb: 0.5
-                            }}>
-                              {test.total_questions}
-                            </Typography>
-                            <Typography sx={{ 
-                              fontSize: '0.75rem', 
-                              color: '#64748b',
-                              fontWeight: 600
-                            }}>
-                              Savollar
-                            </Typography>
-                          </Box>
-                        </Grid>
-                        <Grid item xs={6} sm={3}>
-                          <Box sx={{ 
-                            backgroundColor: '#f8fafc', 
-                            border: '1px solid #e2e8f0',
-                            borderRadius: '8px',
-                            p: 2,
-                            textAlign: 'center'
-                          }}>
-                            <Typography sx={{ 
-                              fontSize: '1.5rem', 
-                              fontWeight: 700, 
-                              color: '#059669',
-                              mb: 0.5
-                            }}>
-                              {test.time_limit}
-                            </Typography>
-                            <Typography sx={{ 
-                              fontSize: '0.75rem', 
-                              color: '#64748b',
-                              fontWeight: 600
-                            }}>
-                              Daqiqa
-                            </Typography>
-                          </Box>
-                        </Grid>
-                        <Grid item xs={6} sm={3}>
-                          <Box sx={{ 
-                            backgroundColor: '#f8fafc', 
-                            border: '1px solid #e2e8f0',
-                            borderRadius: '8px',
-                            p: 2,
-                            textAlign: 'center'
-                          }}>
-                            <Typography sx={{
-                              fontSize: '1.5rem',
-                              fontWeight: 700,
-                              color: '#2563eb',
-                              mb: 0.5
-                            }}>
-                              {test.attempt_count || 0}
-                            </Typography>
-                            <Typography sx={{ 
-                              fontSize: '0.75rem', 
-                              color: '#64748b',
-                              fontWeight: 600
-                            }}>
-                              Urinish
-                            </Typography>
-                          </Box>
-                        </Grid>
-                        <Grid item xs={6} sm={3}>
-                          <Box sx={{ 
-                            backgroundColor: '#f8fafc', 
-                            border: '1px solid #e2e8f0',
-                            borderRadius: '8px',
-                            p: 2,
-                            textAlign: 'center'
-                          }}>
-                            <Typography sx={{
-                              fontSize: '1.5rem',
-                              fontWeight: 700,
-                              color: '#059669',
-                              mb: 0.5
-                            }}>
-                              {(test.average_score || 0).toFixed(1)}%
-                            </Typography>
-                            <Typography sx={{ 
-                              fontSize: '0.75rem', 
-                              color: '#64748b',
-                              fontWeight: 600
-                            }}>
-                              O'rtacha ball
-                            </Typography>
-                          </Box>
-                        </Grid>
-                      </Grid>
-                    </Box>
-                    
-                    <Box>
-                      <Typography sx={{ 
-                        fontSize: '0.875rem', 
-                        fontWeight: 600, 
-                        color: '#64748b',
-                        mb: 1
-                      }}>
-                        Maqsadli sinflar:
-                      </Typography>
-                      <Box display="flex" flexWrap="wrap" gap={1}>
-                        {(() => {
-                          // Parse target_grades properly
-                          let grades = [];
-                          if (Array.isArray(test.target_grades)) {
-                            grades = test.target_grades;
-                          } else if (typeof test.target_grades === 'string') {
-                            // Handle string that might be JSON array or comma-separated
-                            try {
-                              const parsed = JSON.parse(test.target_grades);
-                              if (Array.isArray(parsed)) {
-                                grades = parsed;
-                              } else {
-                                grades = test.target_grades.split(',').map(g => g.trim()).filter(g => g);
-                              }
-                            } catch {
-                              // Not JSON, treat as comma-separated
-                              grades = test.target_grades.split(',').map(g => g.trim()).filter(g => g);
-                            }
-                          }
-
-                          // Remove any brackets or quotes from grade names
-                          grades = grades.map(grade => grade.replace(/[\[\]"'`]/g, '').trim());
-
-                          return grades.length > 0 ? (
-                            grades.sort((a, b) => parseInt(a.split('-')[0]) - parseInt(b.split('-')[0])).map((grade, index) => (
-                              <Chip
-                                key={index}
-                                label={`${grade}-sinf`}
-                                size="small"
-                                sx={{
-                                  backgroundColor: '#eff6ff',
-                                  color: '#2563eb',
-                                  fontWeight: 600
-                                }}
-                              />
-                            ))
-                          ) : (
-                            <Chip
-                              label="Barcha sinflar uchun"
-                              size="small"
-                              sx={{
-                                backgroundColor: '#ecfdf5',
-                                color: '#059669',
-                                fontWeight: 600
-                              }}
-                            />
-                          );
-                        })()}
-                      </Box>
-                    </Box>
-                  </Grid>
-                  
-                  <Grid item xs={12} md={4}>
-                    <Box>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                        <Typography sx={{
-                          fontSize: '0.875rem',
-                          fontWeight: 600,
-                          color: '#64748b'
-                        }}>
-                          Qo'shimcha ma'lumotlar:
-                        </Typography>
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          startIcon={<VisibilityIcon />}
-                          onClick={() => handleViewDetails(test)}
-                          sx={{
-                            fontSize: '0.75rem',
-                            py: 0.5,
-                            px: 2,
-                            borderColor: '#059669',
-                            color: '#059669',
-                            '&:hover': {
-                              borderColor: '#047857',
-                              backgroundColor: '#ecfdf5',
-                            }
-                          }}
-                        >
-                          Batafsil
-                        </Button>
-                      </Box>
-                      <Box sx={{
-                        backgroundColor: '#f8fafc',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '8px',
-                        p: 2
-                      }}>
-                        <Typography sx={{
-                          fontSize: '0.75rem',
-                          fontWeight: 600,
-                          color: '#64748b',
-                          mb: 1
-                        }}>
-                          Yaratilgan sana:
-                        </Typography>
-                        <Typography sx={{
-                          fontSize: '0.875rem',
-                          color: '#1e293b',
-                          fontWeight: 600,
-                          mb: 2
-                        }}>
-                          {new Date(test.created_at).toLocaleString('uz-UZ')}
-                        </Typography>
-
-                        {test.updated_at && test.updated_at !== test.created_at && (
-                          <>
-                            <Typography sx={{
-                              fontSize: '0.75rem',
-                              fontWeight: 600,
-                              color: '#64748b',
-                              mb: 1
-                            }}>
-                              Oxirgi yangilanish:
-                            </Typography>
-                            <Typography sx={{
-                              fontSize: '0.875rem',
-                              color: '#1e293b',
-                              fontWeight: 600
-                            }}>
-                              {new Date(test.updated_at).toLocaleString('uz-UZ')}
-                            </Typography>
-                          </>
-                        )}
-                      </Box>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<VisibilityIcon />}
+                    onClick={() => navigate(`/admin/test-details/${test.id}`)}
+                    sx={{
+                      fontSize: '0.75rem',
+                      py: 0.5,
+                      px: 2,
+                      borderColor: '#059669',
+                      color: '#059669',
+                      '&:hover': {
+                        borderColor: '#047857',
+                        backgroundColor: '#ecfdf5',
+                      }
+                    }}
+                  >
+                    Batafsil
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       {!loading && tests.length === 0 && (
         <Box sx={{ textAlign: 'center', mt: 4 }}>
@@ -681,177 +469,6 @@ const TestStatistics = () => {
         </Box>
       )}
 
-      {/* Detailed Student View Modal */}
-      <Dialog
-        open={detailsOpen}
-        onClose={handleCloseDetails}
-        maxWidth="lg"
-        fullWidth
-        sx={{
-          '& .MuiDialog-paper': {
-            borderRadius: '12px',
-            maxHeight: '90vh',
-          }
-        }}
-      >
-        <DialogTitle sx={{
-          background: 'linear-gradient(135deg, #f8fafc 0%, #f8fafc 100%)',
-          borderBottom: '1px solid #e2e8f0',
-          py: 3,
-          px: 4
-        }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Box>
-              <Typography variant="h5" sx={{
-                fontWeight: 700,
-                color: '#1e293b',
-                mb: 1
-              }}>
-                {selectedTest?.title} - Batafsil natijalar
-              </Typography>
-              <Typography sx={{
-                color: '#64748b',
-                fontSize: '0.95rem'
-              }}>
-                Test topshirgan barcha o'quvchilar ro'yxati
-              </Typography>
-            </Box>
-            <IconButton
-              onClick={handleCloseDetails}
-              sx={{
-                color: '#64748b',
-                '&:hover': {
-                  backgroundColor: '#f1f5f9',
-                }
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          </Box>
-        </DialogTitle>
-
-        <DialogContent sx={{ p: 0 }}>
-          {detailsLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
-              <Typography>Yuklanmoqda...</Typography>
-            </Box>
-          ) : (
-            <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
-              <Table>
-                <TableHead>
-                  <TableRow sx={{ backgroundColor: '#f8fafc' }}>
-                    <TableCell sx={{ fontWeight: 600, color: '#374151', py: 2 }}>O'quvchi</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#374151', py: 2 }}>Ball</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#374151', py: 2 }}>Topshirgan sana</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#374151', py: 2 }}>Sarflangan vaqt</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#374151', py: 2 }}>Qo'shimcha dars</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#374151', py: 2 }}>Ogohlantirishlar</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#374151', py: 2 }}>Banlar soni</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {studentDetails.map((student) => (
-                    <TableRow
-                      key={student.id}
-                      sx={{
-                        '&:hover': {
-                          backgroundColor: '#f8fafc',
-                        }
-                      }}
-                    >
-                      <TableCell sx={{ py: 2 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                          <Avatar sx={{
-                            width: 32,
-                            height: 32,
-                            bgcolor: '#059669',
-                            fontSize: '0.875rem',
-                            fontWeight: 600
-                          }}>
-                            {student.name.charAt(0).toUpperCase()}
-                          </Avatar>
-                          <Typography sx={{
-                            fontWeight: 500,
-                            color: '#1e293b'
-                          }}>
-                            {student.name}
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell sx={{ py: 2 }}>
-                        <Chip
-                          label={`${student.score.toFixed(1)}%`}
-                          size="small"
-                          sx={{
-                            backgroundColor: student.score >= 70 ? '#ecfdf5' : student.score >= 50 ? '#fef3c7' : '#fef2f2',
-                            color: student.score >= 70 ? '#059669' : student.score >= 50 ? '#d97706' : '#dc2626',
-                            fontWeight: 600,
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell sx={{ py: 2, color: '#64748b' }}>
-                        {new Date(student.submittedAt).toLocaleString('uz-UZ')}
-                      </TableCell>
-                      <TableCell sx={{ py: 2, color: '#64748b' }}>
-                        {Math.floor(student.timeTaken / 60)}:{(student.timeTaken % 60).toString().padStart(2, '0')}
-                      </TableCell>
-                      <TableCell sx={{ py: 2 }}>
-                        {student.hasExtraLessons ? (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <SchoolIcon sx={{ color: '#059669', fontSize: '1.2rem' }} />
-                            <Typography sx={{ color: '#059669', fontWeight: 500, fontSize: '0.875rem' }}>
-                              Oldi
-                            </Typography>
-                          </Box>
-                        ) : (
-                          <Typography sx={{ color: '#64748b', fontSize: '0.875rem' }}>
-                            Olmadi
-                          </Typography>
-                        )}
-                      </TableCell>
-                      <TableCell sx={{ py: 2 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <WarningIcon sx={{
-                            color: student.warningCount > 0 ? '#d97706' : '#64748b',
-                            fontSize: '1.2rem'
-                          }} />
-                          <Typography sx={{
-                            color: student.warningCount > 0 ? '#d97706' : '#64748b',
-                            fontWeight: 500
-                          }}>
-                            {student.warningCount}
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell sx={{ py: 2 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <BlockIcon sx={{
-                            color: student.banCount > 0 ? '#dc2626' : '#64748b',
-                            fontSize: '1.2rem'
-                          }} />
-                          <Typography sx={{
-                            color: student.banCount > 0 ? '#dc2626' : '#64748b',
-                            fontWeight: 500
-                          }}>
-                            {student.banCount}
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {studentDetails.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={7} sx={{ textAlign: 'center', py: 6, color: '#64748b' }}>
-                        Bu testni hali hech kim topshirmagan
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </DialogContent>
-      </Dialog>
 
     </Box>
   );

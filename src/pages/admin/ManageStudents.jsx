@@ -25,10 +25,12 @@ import {
   Tooltip,
   InputAdornment,
 } from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon, Block as BlockIcon, CheckCircle as CheckCircleIcon, Edit as EditIcon, Search as SearchIcon } from '@mui/icons-material';
+import { Add as AddIcon, Delete as DeleteIcon, Block as BlockIcon, CheckCircle as CheckCircleIcon, Edit as EditIcon, Search as SearchIcon, Info as InfoIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
 
 const ManageStudents = () => {
+  const navigate = useNavigate();
   const [students, setStudents] = useState([]);
   const [attempts, setAttempts] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -47,21 +49,21 @@ const ManageStudents = () => {
   const [success, setSuccess] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const loadStudents = async () => {
-    try {
-      const [allUsers, allAttempts] = await Promise.all([
-        apiService.getUsers(),
-        apiService.getAttempts()
-      ]);
-      const allStudents = allUsers.filter(user => user.role === 'student');
-      setStudents(allStudents);
-      setAttempts(allAttempts.results || allAttempts);
-    } catch (error) {
-      console.error('Failed to load students:', error);
-    }
-  };
-
   useEffect(() => {
+    const loadStudents = async () => {
+      try {
+        const [allUsers, allAttempts] = await Promise.all([
+          apiService.getUsers(),
+          apiService.getAttempts()
+        ]);
+        const allStudents = allUsers.filter(user => user.role === 'student');
+        setStudents(allStudents);
+        setAttempts(allAttempts.results || allAttempts);
+      } catch (error) {
+        console.error('Failed to load students:', error);
+      }
+    };
+
     loadStudents();
   }, []);
 
@@ -200,6 +202,7 @@ const ManageStudents = () => {
     setEditDialogOpen(true);
   };
 
+
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -246,7 +249,13 @@ const ManageStudents = () => {
     try {
       await apiService.banUser(studentId, 'Admin tomonidan bloklandi');
       // Reload students
-      await loadStudents();
+      const [allUsers, allAttempts] = await Promise.all([
+        apiService.getUsers(),
+        apiService.getAttempts()
+      ]);
+      const allStudents = allUsers.filter(user => user.role === 'student');
+      setStudents(allStudents);
+      setAttempts(allAttempts.results || allAttempts);
       setSuccess('O\'quvchi muvaffaqiyatli bloklandi!');
     } catch (error) {
       console.error('Failed to ban student:', error);
@@ -258,7 +267,13 @@ const ManageStudents = () => {
     try {
       await apiService.unbanUser(studentId);
       // Reload students
-      await loadStudents();
+      const [allUsers, allAttempts] = await Promise.all([
+        apiService.getUsers(),
+        apiService.getAttempts()
+      ]);
+      const allStudents = allUsers.filter(user => user.role === 'student');
+      setStudents(allStudents);
+      setAttempts(allAttempts.results || allAttempts);
       setSuccess('O\'quvchi muvaffaqiyatli blokdan chiqarildi!');
     } catch (error) {
       console.error('Failed to unban student:', error);
@@ -281,6 +296,14 @@ const ManageStudents = () => {
 
     const averageScore = studentAttempts.reduce((sum, attempt) => sum + (attempt.score || 0), 0) / studentAttempts.length;
     return Math.round(averageScore);
+  };
+
+  const getStudentLastActivity = (studentId) => {
+    const studentAttempts = attempts.filter(attempt => attempt.student === studentId);
+    if (studentAttempts.length === 0) return null;
+
+    const lastAttempt = studentAttempts.sort((a, b) => new Date(b.completed_at) - new Date(a.completed_at))[0];
+    return new Date(lastAttempt.completed_at).toLocaleString('uz-UZ');
   };
 
   // Filter students based on search term
@@ -406,6 +429,7 @@ const ManageStudents = () => {
               <TableCell>Yo'nalish</TableCell>
               <TableCell>Test urinishlari</TableCell>
               <TableCell>O'rtacha ball</TableCell>
+              <TableCell>Oxirgi kirish</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Unban kodi</TableCell>
               <TableCell>Harakatlar</TableCell>
@@ -488,6 +512,15 @@ const ManageStudents = () => {
                   </Typography>
                 </TableCell>
                 <TableCell>
+                  <Typography sx={{
+                    fontWeight: 500,
+                    color: '#1e293b',
+                    fontSize: '0.875rem'
+                  }}>
+                    {student.last_login ? new Date(student.last_login).toLocaleString('uz-UZ') : '-'}
+                  </Typography>
+                </TableCell>
+                <TableCell>
                   <Chip
                     label={student.is_banned ? 'Bloklangan' : 'Faol'}
                     size="small"
@@ -528,6 +561,25 @@ const ManageStudents = () => {
                 </TableCell>
                 <TableCell>
                   <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => navigate(`/admin/student-details/${student.id}`)}
+                      startIcon={<InfoIcon />}
+                      sx={{
+                        fontSize: '0.75rem',
+                        padding: '4px 8px',
+                        minWidth: 'auto',
+                        borderColor: '#2563eb',
+                        color: '#2563eb',
+                        '&:hover': {
+                          backgroundColor: '#eff6ff',
+                          borderColor: '#1d4ed8',
+                        }
+                      }}
+                    >
+                      Batafsil
+                    </Button>
                     <Tooltip title="Tahrirlash">
                       <IconButton
                         size="small"
@@ -843,6 +895,7 @@ const ManageStudents = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
     </Box>
   );
 };

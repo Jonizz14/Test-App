@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Badge,
@@ -24,18 +24,16 @@ const NotificationCenter = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const loadNotifications = useCallback(() => {
+  useEffect(() => {
     if (currentUser) {
       const allNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
       const userNotifications = allNotifications.filter(n => n.studentId === currentUser.id);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNotifications(userNotifications);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUnreadCount(userNotifications.filter(n => !n.isRead).length);
     }
   }, [currentUser]);
-
-  useEffect(() => {
-    loadNotifications();
-  }, [currentUser, loadNotifications]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -51,7 +49,12 @@ const NotificationCenter = () => {
       n.id === notificationId ? { ...n, isRead: true } : n
     );
     localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
-    loadNotifications();
+    // Reload notifications
+    if (currentUser) {
+      const userNotifications = updatedNotifications.filter(n => n.studentId === currentUser.id);
+      setNotifications(userNotifications);
+      setUnreadCount(userNotifications.filter(n => !n.isRead).length);
+    }
   };
 
   const handleNotificationClick = (notification) => {

@@ -12,12 +12,23 @@ import {
   Divider,
   Alert,
   CircularProgress,
+  Button,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 import {
   People as PeopleIcon,
   Assessment as AssessmentIcon,
   School as SchoolIcon,
   TrendingUp as TrendingUpIcon,
+  AdminPanelSettings as AdminPanelSettingsIcon,
+  LocalLibrary as LocalLibraryIcon,
+  EmojiPeople as EmojiPeopleIcon,
+  BarChart as BarChartIcon,
+  Quiz as QuizIcon,
+  Timeline as TimelineIcon,
+  ExpandMore as ExpandMoreIcon,
 } from '@mui/icons-material';
 import apiService from '../../data/apiService';
 
@@ -30,10 +41,12 @@ const AdminOverview = () => {
     totalAttempts: 0,
     activeTests: 0,
     recentActivity: [],
+    allRecentActivity: [],
     bannedUsers: []
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
 
   // Fetch real statistics from the database
   useEffect(() => {
@@ -77,16 +90,19 @@ const AdminOverview = () => {
           ? Math.round(Math.min(...scores))
           : 0;
 
-        // Get recent activity (last 5 attempts)
-        const recentActivity = attempts
+        // Get recent activity (last 10 attempts for modal, 3 for overview)
+        const allRecentActivity = attempts
           .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
-          .slice(0, 5)
+          .slice(0, 10)
           .map(attempt => ({
             id: attempt.id,
             action: `Test yakunlandi: ${attempt.test_title || 'Noma\'lum test'}`,
             user: attempt.student_name || 'Noma\'lum o\'quvchi',
-            time: new Date(attempt.submitted_at).toLocaleDateString('uz-UZ')
+            time: new Date(attempt.submitted_at).toLocaleDateString('uz-UZ'),
+            score: attempt.score
           }));
+
+        const recentActivity = allRecentActivity.slice(0, 3);
 
         setStats({
           totalUsers,
@@ -99,6 +115,7 @@ const AdminOverview = () => {
           highestScore,
           lowestScore,
           recentActivity,
+          allRecentActivity,
           bannedUsers
         });
 
@@ -248,7 +265,7 @@ const AdminOverview = () => {
             <StatCard
               title="Jami foydalanuvchilar"
               value={stats.totalUsers}
-              icon={<PeopleIcon fontSize="large" />}
+              icon={<AdminPanelSettingsIcon fontSize="large" />}
               color="primary.main"
             />
           </div>
@@ -258,7 +275,7 @@ const AdminOverview = () => {
             <StatCard
               title="O'qituvchilar"
               value={stats.totalTeachers}
-              icon={<SchoolIcon fontSize="large" />}
+              icon={<LocalLibraryIcon fontSize="large" />}
               color="secondary.main"
             />
           </div>
@@ -268,7 +285,7 @@ const AdminOverview = () => {
             <StatCard
               title="O'quvchilar"
               value={stats.totalStudents}
-              icon={<PeopleIcon fontSize="large" />}
+              icon={<EmojiPeopleIcon fontSize="large" />}
               color="success.main"
             />
           </div>
@@ -335,143 +352,472 @@ const AdminOverview = () => {
         </Grid>
       </Grid>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <div data-aos="fade-right">
-            <Paper sx={{
-              p: 4,
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
+      <Box sx={{ mt: 4 }}>
+        <Accordion
+          expanded={detailsExpanded}
+          onChange={() => setDetailsExpanded(!detailsExpanded)}
+          sx={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '16px !important',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            '&:before': {
+              display: 'none',
+            },
+            '&.Mui-expanded': {
+              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+            }
+          }}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon sx={{ color: '#2563eb' }} />}
+            sx={{
+              backgroundColor: '#f8fafc',
+              borderBottom: detailsExpanded ? '1px solid #e2e8f0' : 'none',
+              borderRadius: detailsExpanded ? '16px 16px 0 0' : '16px',
+              py: 3,
+              px: 4,
+              '&:hover': {
+                backgroundColor: '#f1f5f9',
+              },
+              '& .MuiAccordionSummary-content': {
+                alignItems: 'center',
+                gap: 2,
+              }
+            }}
+          >
+            <Box sx={{
+              width: 48,
+              height: 48,
               borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              backgroundColor: '#eff6ff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}>
-              <Typography
-                sx={{
-                  fontSize: '1.25rem',
-                  fontWeight: 700,
-                  color: '#1e293b',
-                  mb: 3
-                }}
-              >
-                Platform Statistikasi
+              <AdminPanelSettingsIcon sx={{ color: '#2563eb', fontSize: '1.5rem' }} />
+            </Box>
+            <Box>
+              <Typography sx={{
+                fontSize: '1.25rem',
+                fontWeight: 700,
+                color: '#1e293b',
+                mb: 0.5
+              }}>
+                📊 To'liq statistika va faoliyatni ko'rish
               </Typography>
-            <List sx={{ p: 0 }}>
-              <ListItem sx={{ px: 0, py: 2 }}>
-                <ListItemText
-                  primary="Jami test urinishlari"
-                  secondary={
-                    <Typography sx={{ 
-                      fontSize: '1.5rem', 
-                      fontWeight: 700, 
-                      color: '#2563eb' 
-                    }}>
-                      {stats.totalAttempts}
-                    </Typography>
-                  }
-                />
-              </ListItem>
-              <Divider sx={{ my: 1 }} />
-              <ListItem sx={{ px: 0, py: 2 }}>
-                <ListItemText
-                  primary="Faol testlar"
-                  secondary={
-                    <Typography sx={{ 
-                      fontSize: '1.5rem', 
-                      fontWeight: 700, 
-                      color: '#059669' 
-                    }}>
-                      {stats.activeTests}
-                    </Typography>
-                  }
-                />
-              </ListItem>
-            </List>
-          </Paper>
-          </div>
-        </Grid>
+              <Typography sx={{
+                fontSize: '0.875rem',
+                color: '#64748b',
+                fontWeight: 400
+              }}>
+                Platformaning batafsil statistikasi va faoliyat tarixi
+              </Typography>
+            </Box>
+          </AccordionSummary>
 
-        <Grid item xs={12} md={6}>
-          <div data-aos="fade-left">
-            <Paper sx={{
-              p: 4,
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            }}>
-              <Typography
-                sx={{
+          <AccordionDetails sx={{ p: 0 }}>
+            <Box sx={{ p: 4 }}>
+            {/* Statistics Overview */}
+            <Box sx={{ mb: 4 }}>
+              <Box sx={{
+                backgroundColor: '#eff6ff',
+                borderRadius: '12px',
+                padding: '16px 20px',
+                mb: 3,
+                border: '1px solid #e2e8f0'
+              }}>
+                <Typography sx={{
                   fontSize: '1.25rem',
-                  fontWeight: 700,
+                  fontWeight: 600,
                   color: '#1e293b',
-                  mb: 3
-                }}
-              >
-                So'nggi Faoliyat
-              </Typography>
-            <List sx={{ p: 0 }}>
-              {stats.recentActivity.length > 0 ? (
-                stats.recentActivity.map((activity, index) => (
-                  <React.Fragment key={activity.id}>
-                    <ListItem sx={{ 
-                      px: 0, 
-                      py: 2,
-                      '&:hover': {
-                        backgroundColor: '#f8fafc',
-                      }
-                    }}>
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1
+                }}>
+                  <BarChartIcon sx={{ color: '#2563eb' }} />
+                  Asosiy ko'rsatkichlar
+                </Typography>
+              </Box>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6} md={4}>
+                  <Card sx={{
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      transform: 'translateY(-2px)'
+                    }
+                  }}>
+                    <CardContent sx={{ p: 3, textAlign: 'center', '&:last-child': { pb: 3 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+                          <PeopleIcon sx={{ fontSize: '2rem', color: '#2563eb' }} />
+                          <Typography sx={{
+                            fontSize: '2.5rem',
+                            fontWeight: 700,
+                            color: '#2563eb'
+                          }}>
+                            {stats.totalUsers}
+                          </Typography>
+                        </Box>
+                        <Typography sx={{
+                          fontSize: '0.875rem',
+                          color: '#64748b',
+                          fontWeight: 500
+                        }}>
+                          Jami foydalanuvchilar
+                        </Typography>
+                      </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <Card sx={{
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      transform: 'translateY(-2px)'
+                    }
+                  }}>
+                    <CardContent sx={{ p: 3, textAlign: 'center', '&:last-child': { pb: 3 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+                          <LocalLibraryIcon sx={{ fontSize: '2rem', color: '#059669' }} />
+                          <Typography sx={{
+                            fontSize: '2.5rem',
+                            fontWeight: 700,
+                            color: '#059669'
+                          }}>
+                            {stats.totalTeachers}
+                          </Typography>
+                        </Box>
+                        <Typography sx={{
+                          fontSize: '0.875rem',
+                          color: '#64748b',
+                          fontWeight: 500
+                        }}>
+                          O'qituvchilar
+                        </Typography>
+                      </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <Card sx={{
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      transform: 'translateY(-2px)'
+                    }
+                  }}>
+                    <CardContent sx={{ p: 3, textAlign: 'center', '&:last-child': { pb: 3 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+                          <EmojiPeopleIcon sx={{ fontSize: '2rem', color: '#7c3aed' }} />
+                          <Typography sx={{
+                            fontSize: '2.5rem',
+                            fontWeight: 700,
+                            color: '#7c3aed'
+                          }}>
+                            {stats.totalStudents}
+                          </Typography>
+                        </Box>
+                        <Typography sx={{
+                          fontSize: '0.875rem',
+                          color: '#64748b',
+                          fontWeight: 500
+                        }}>
+                          O'quvchilar
+                        </Typography>
+                      </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+            </Box>
+
+            {/* Test Statistics */}
+            <Box sx={{ mb: 4 }}>
+              <Box sx={{
+                backgroundColor: '#ecfdf5',
+                borderRadius: '12px',
+                padding: '16px 20px',
+                mb: 3,
+                border: '1px solid #e2e8f0'
+              }}>
+                <Typography sx={{
+                  fontSize: '1.25rem',
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1
+                }}>
+                  <QuizIcon sx={{ color: '#059669' }} />
+                  Test statistikasi
+                </Typography>
+              </Box>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6} md={3}>
+                  <Card sx={{
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      transform: 'translateY(-2px)'
+                    }
+                  }}>
+                    <CardContent sx={{ p: 3, textAlign: 'center', '&:last-child': { pb: 3 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+                          <AssessmentIcon sx={{ fontSize: '1.75rem', color: '#2563eb' }} />
+                          <Typography sx={{
+                            fontSize: '2rem',
+                            fontWeight: 700,
+                            color: '#2563eb'
+                          }}>
+                            {stats.totalTests}
+                          </Typography>
+                        </Box>
+                        <Typography sx={{
+                          fontSize: '0.875rem',
+                          color: '#64748b',
+                          fontWeight: 500
+                        }}>
+                          Jami testlar
+                        </Typography>
+                      </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <Card sx={{
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      transform: 'translateY(-2px)'
+                    }
+                  }}>
+                    <CardContent sx={{ p: 3, textAlign: 'center', '&:last-child': { pb: 3 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+                          <QuizIcon sx={{ fontSize: '1.75rem', color: '#059669' }} />
+                          <Typography sx={{
+                            fontSize: '2rem',
+                            fontWeight: 700,
+                            color: '#059669'
+                          }}>
+                            {stats.activeTests}
+                          </Typography>
+                        </Box>
+                        <Typography sx={{
+                          fontSize: '0.875rem',
+                          color: '#64748b',
+                          fontWeight: 500
+                        }}>
+                          Faol testlar
+                        </Typography>
+                      </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <Card sx={{
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      transform: 'translateY(-2px)'
+                    }
+                  }}>
+                    <CardContent sx={{ p: 3, textAlign: 'center', '&:last-child': { pb: 3 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+                          <SchoolIcon sx={{ fontSize: '1.75rem', color: '#d97706' }} />
+                          <Typography sx={{
+                            fontSize: '2rem',
+                            fontWeight: 700,
+                            color: '#d97706'
+                          }}>
+                            {stats.totalAttempts}
+                          </Typography>
+                        </Box>
+                        <Typography sx={{
+                          fontSize: '0.875rem',
+                          color: '#64748b',
+                          fontWeight: 500
+                        }}>
+                          Jami urinishlar
+                        </Typography>
+                      </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <Card sx={{
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      transform: 'translateY(-2px)'
+                    }
+                  }}>
+                    <CardContent sx={{ p: 3, textAlign: 'center', '&:last-child': { pb: 3 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+                          <TrendingUpIcon sx={{ fontSize: '1.75rem', color: '#059669' }} />
+                          <Typography sx={{
+                            fontSize: '2rem',
+                            fontWeight: 700,
+                            color: '#059669'
+                          }}>
+                            {stats.averageScore}%
+                          </Typography>
+                        </Box>
+                        <Typography sx={{
+                          fontSize: '0.875rem',
+                          color: '#64748b',
+                          fontWeight: 500
+                        }}>
+                          O'rtacha ball
+                        </Typography>
+                      </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+            </Box>
+
+            {/* Recent Activity */}
+            <Box>
+              <Box sx={{
+                backgroundColor: '#fffbeb',
+                borderRadius: '12px',
+                padding: '16px 20px',
+                mb: 3,
+                border: '1px solid #e2e8f0'
+              }}>
+                <Typography sx={{
+                  fontSize: '1.25rem',
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1
+                }}>
+                  <TimelineIcon sx={{ color: '#d97706' }} />
+                  So'nggi faoliyat
+                </Typography>
+              </Box>
+              <Card sx={{
+                backgroundColor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                maxHeight: '400px',
+                overflow: 'auto'
+              }}>
+                <List sx={{ p: 0 }}>
+                  {stats.allRecentActivity.length > 0 ? (
+                    stats.allRecentActivity.map((activity, index) => (
+                      <React.Fragment key={activity.id}>
+                        <ListItem sx={{
+                          px: 3,
+                          py: 2.5,
+                          '&:hover': {
+                            backgroundColor: '#f8fafc',
+                          },
+                          transition: 'background-color 0.2s ease'
+                        }}>
+                          <ListItemText
+                            primary={
+                              <Box sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                mb: 0.5
+                              }}>
+                                <Typography sx={{
+                                  fontSize: '0.875rem',
+                                  fontWeight: 600,
+                                  color: '#1e293b'
+                                }}>
+                                  {activity.action}
+                                </Typography>
+                                <Box sx={{
+                                  backgroundColor: activity.score >= 80 ? '#ecfdf5' :
+                                                 activity.score >= 60 ? '#fffbeb' : '#fef2f2',
+                                  color: activity.score >= 80 ? '#059669' :
+                                        activity.score >= 60 ? '#d97706' : '#dc2626',
+                                  px: 2,
+                                  py: 0.5,
+                                  borderRadius: '6px',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 600
+                                }}>
+                                  {activity.score}%
+                                </Box>
+                              </Box>
+                            }
+                            secondary={
+                              <Typography sx={{
+                                fontSize: '0.75rem',
+                                color: '#64748b',
+                                fontWeight: 400
+                              }}>
+                                {activity.user} • {activity.time}
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                        {index < stats.allRecentActivity.length - 1 && (
+                          <Divider sx={{ my: 0, mx: 3 }} />
+                        )}
+                      </React.Fragment>
+                    ))
+                  ) : (
+                    <ListItem sx={{ px: 3, py: 6 }}>
                       <ListItemText
                         primary={
-                          <Typography sx={{ 
-                            fontSize: '0.875rem', 
-                            fontWeight: 600, 
-                            color: '#1e293b' 
+                          <Typography sx={{
+                            fontSize: '0.875rem',
+                            fontWeight: 500,
+                            color: '#64748b',
+                            textAlign: 'center'
                           }}>
-                            {activity.action}
+                            Hozircha faoliyat yo'q
                           </Typography>
                         }
                         secondary={
-                          <Typography sx={{ 
-                            fontSize: '0.75rem', 
-                            color: '#64748b',
-                            fontWeight: 400
+                          <Typography sx={{
+                            fontSize: '0.75rem',
+                            color: '#94a3b8',
+                            textAlign: 'center'
                           }}>
-                            {activity.user} • {activity.time}
+                            Testlar yakunlanganda bu yerda ko'rinadi
                           </Typography>
                         }
                       />
                     </ListItem>
-                    {index < stats.recentActivity.length - 1 && <Divider sx={{ my: 1 }} />}
-                  </React.Fragment>
-                ))
-              ) : (
-                <ListItem sx={{ px: 0, py: 2 }}>
-                  <ListItemText
-                    primary={
-                      <Typography sx={{ 
-                        fontSize: '0.875rem', 
-                        fontWeight: 500, 
-                        color: '#64748b' 
-                      }}>
-                        Hozircha faoliyat yo'q
-                      </Typography>
-                    }
-                    secondary={
-                      <Typography sx={{ 
-                        fontSize: '0.75rem', 
-                        color: '#94a3b8' 
-                      }}>
-                        Testlar yakunlanganda bu yerda ko'rinadi
-                      </Typography>
-                    }
-                  />
-                </ListItem>
-              )}
-            </List>
-          </Paper>
-          </div>
-        </Grid>
-      </Grid>
+                  )}
+                </List>
+              </Card>
+            </Box>
+          </Box>
+        </AccordionDetails>
+        </Accordion>
+      </Box>
 
       {/* Banned Users Section */}
       {stats.bannedUsers.length > 0 && (

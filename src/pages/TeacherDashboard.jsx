@@ -18,14 +18,14 @@ import {
   useTheme,
 } from '@mui/material';
 import {
-  Menu as MenuIcon,
+  Dehaze as MenuIcon,
   Dashboard as DashboardIcon,
   Assessment as AssessmentIcon,
   Add as AddIcon,
   BarChart as BarChartIcon,
-  ExitToApp as LogoutIcon,
+  PowerSettingsNew as LogoutIcon,
   School as SchoolIcon,
-  Shield as ShieldIcon,
+  Security as ShieldIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import NotificationCenter from '../components/NotificationCenter';
@@ -47,9 +47,7 @@ const TeacherDashboard = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleDrawerToggle = () => {
-    if (isMobile) {
-      setMobileOpen(!mobileOpen);
-    }
+    setMobileOpen(!mobileOpen);
   };
 
   const handleLogout = () => {
@@ -113,11 +111,12 @@ const TeacherDashboard = () => {
                 sx={{
                   width: '100%',
                   height: '48px',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   px: 2,
                   py: 1.5,
                   display: 'flex',
                   alignItems: 'center',
+                  transition: 'background-color 0.4s ease, outline 0.4s ease, color 0.4s ease',
                   '&:hover': {
                     backgroundColor: '#f1f5f9',
                     '& .MuiListItemIcon-root': {
@@ -176,17 +175,19 @@ const TeacherDashboard = () => {
         }}
       >
         <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 4 }}
-          >
-            <MenuIcon />
-          </IconButton>
+          {isMobile && (
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 4 }}
+            >
+              <MenuIcon sx={{ fontSize: '1.2rem' }} />
+            </IconButton>
+          )}
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-            <ShieldIcon sx={{ mr: 1, color: '#2563eb' }} />
+            <ShieldIcon sx={{ mr: 1, color: '#2563eb', fontSize: '1.8rem' }} />
             <Typography variant="h6" noWrap component="div">
               STIM Anti-Cheat System
             </Typography>
@@ -195,7 +196,7 @@ const TeacherDashboard = () => {
             Salom, {currentUser?.name}
           </Typography>
           <NotificationCenter />
-          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon />}>
+          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon sx={{ fontSize: '1.4rem' }} />}>
             Chiqish
           </Button>
         </Toolbar>

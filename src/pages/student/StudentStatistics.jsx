@@ -195,19 +195,22 @@ const StudentStatistics = () => {
       backgroundColor: '#ffffff',
       border: '1px solid #e2e8f0',
       borderRadius: '12px',
-      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+      aspectRatio: 1,
+      display: 'flex',
+      flexDirection: 'column'
     }}>
-      <CardContent sx={{ p: 4 }}>
-        <Typography sx={{ 
-          fontWeight: 600, 
+      <CardContent sx={{ p: 4, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <Typography sx={{
+          fontWeight: 600,
           color: '#64748b',
           fontSize: '0.875rem',
           mb: 2
         }}>
           {title}
         </Typography>
-        <Typography sx={{ 
-          fontWeight: 700, 
+        <Typography sx={{
+          fontWeight: 700,
           color: '#2563eb',
           fontSize: '2.25rem',
           mb: 1
