@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import {
   Typography,
@@ -15,14 +15,21 @@ import {
   Radio,
   TextField,
   LinearProgress,
-  Alert,
-  Select,
-  MenuItem,
-  InputAdornment,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  Alert,
+  Select,
+  MenuItem,
+  InputAdornment,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Checkbox,
 } from '@mui/material';
 import {
   Person as PersonIcon,
@@ -31,13 +38,14 @@ import {
   CheckCircle as CheckCircleIcon,
   PlayArrow as PlayArrowIcon,
   Sort as SortIcon,
+  Search as SearchIcon,
+  Info as InfoIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import { useServerTest } from '../../context/ServerTestContext';
 import apiService from '../../data/apiService';
 import useAntiCheating from '../../hooks/useAntiCheating';
 import WarningModal from '../../components/WarningModal';
-import TestUnbanModal from '../../components/TestUnbanModal';
 
 const TakeTest = () => {
   const { currentUser } = useAuth();
@@ -58,6 +66,44 @@ const TakeTest = () => {
     hasTimeRemaining,
   } = useServerTest();
 
+  // Show loading if user is not authenticated
+  if (!currentUser) {
+    return (
+      <Box sx={{
+        py: 4,
+        backgroundColor: '#ffffff',
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <Paper sx={{
+          p: 4,
+          textAlign: 'center',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          maxWidth: '500px',
+          width: '100%'
+        }}>
+          <Typography sx={{
+            fontSize: '2rem',
+            fontWeight: 700,
+            color: '#1e293b',
+            mb: 3
+          }}>
+            Yuklanmoqda...
+          </Typography>
+          <LinearProgress sx={{ mb: 2, height: 8, borderRadius: 4 }} />
+          <Typography variant="body1" sx={{ color: '#64748b' }}>
+            Iltimos kuting, sahifa yuklanmoqda...
+          </Typography>
+        </Paper>
+      </Box>
+    );
+  }
+
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -75,9 +121,27 @@ const TakeTest = () => {
   const [urgentSubmitDialogOpen, setUrgentSubmitDialogOpen] = useState(false);
   const [sessionRecovering, setSessionRecovering] = useState(false);
   const [activeTestSessions, setActiveTestSessions] = useState({}); // Track active sessions for each test
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Anti-cheating hook - only active during test session
-  const [sessionId, setSessionId] = useState(null);
+  // Define handleTestComplete before using it in the hook
+  const handleTestComplete = async () => {
+    try {
+      const result = await submitTest();
+      if (result && result.success) {
+        setScore(result.score);
+        setTestCompleted(true);
+        // Update takenTests to include this completed test
+        setTakenTests(prev => new Set([...prev, selectedTest.id]));
+      } else {
+        alert('Test yakunini saqlashda muammo yuz berdi.');
+      }
+    } catch (error) {
+      alert('Test yakunida xatolik. Internet yoki serverda muammo bo‘lishi mumkin.');
+      console.error('Failed to complete test:', error);
+    }
+  };
+
+  // Anti-cheat system
   const {
     showWarning,
     warningMessage,
@@ -89,22 +153,18 @@ const TakeTest = () => {
     handleUnbanSubmit,
     closeUnbanPrompt,
     warningCount,
-    exitFullscreen
+    exitFullscreen,
   } = useAntiCheating(
-    sessionStarted,
-    sessionId,
-    currentSession?.warning_count || 0,
-    currentSession?.unban_prompt_shown || false
+    sessionStarted, // isActive
+    currentSession?.session_id, // sessionId
+    currentSession?.warning_count || 0, // initialWarningCount
+    currentSession?.unban_prompt_shown || false, // initialUnbanPromptShown
+    handleTestComplete // onBan callback
   );
+  const [antiCheatModalOpen, setAntiCheatModalOpen] = useState(false);
+  const [pendingTest, setPendingTest] = useState(null); // Store test to start after anti-cheat check
+  const [modalConfirmed, setModalConfirmed] = useState(false); // Track if user confirmed all requirements
 
-  // Update sessionId when currentSession changes
-  useEffect(() => {
-    if (currentSession?.session_id) {
-      setSessionId(currentSession.session_id);
-    } else if (!sessionStarted) {
-      setSessionId(null);
-    }
-  }, [currentSession, sessionStarted]);
 
 
   // Difficulty labels mapping
@@ -135,17 +195,36 @@ const TakeTest = () => {
     return filteredTests;
   };
 
+  // Filter tests based on search term
+  const getFilteredTests = () => {
+    const sortedTests = getSortedTests();
+    if (!searchTerm) return sortedTests;
+
+    const searchLower = searchTerm.toLowerCase();
+    return sortedTests.filter(test => {
+      const title = test.title || '';
+      const subject = test.subject || '';
+      const teacherName = test.teacherName || '';
+
+      return title.toLowerCase().includes(searchLower) ||
+             subject.toLowerCase().includes(searchLower) ||
+             teacherName.toLowerCase().includes(searchLower);
+    });
+  };
+
   useEffect(() => {
-    loadTeachers();
-  }, []);
+    if (currentUser) {
+      loadTeachers();
+    }
+  }, [currentUser]);
 
   // Check for active sessions for all tests
   useEffect(() => {
     const checkAllActiveSessions = async () => {
-      if (allTests.length === 0) return;
+      if (allTests.length === 0 || !currentUser) return;
 
       const sessionsMap = {};
-      
+
       for (const test of allTests) {
         try {
           const activeSession = await checkActiveSession(test.id);
@@ -157,44 +236,53 @@ const TakeTest = () => {
           console.debug(`No active session for test ${test.id}`);
         }
       }
-      
+
       setActiveTestSessions(sessionsMap);
     };
 
     checkAllActiveSessions();
-  }, [allTests]);
+  }, [allTests, currentUser]);
 
   // Check for testId in URL parameters
   useEffect(() => {
     const testIdFromParams = searchParams.get('testId');
 
-    if (testIdFromParams && teachers.length > 0) {
+    if (testIdFromParams && teachers.length > 0 && currentUser) {
       // Check if there's an active session for this test
       const checkAndHandleTest = async () => {
         try {
           setSessionRecovering(true);
+
+          // Check if student has already taken this test via API
+          const attempts = await apiService.getAttempts({ student: currentUser.id, test: testIdFromParams });
+          const hasAttempt = attempts && attempts.length > 0;
+
+          if (hasAttempt) {
+            // Test already completed - redirect to results page
+            navigate('/student/results');
+            return;
+          }
+
           const activeSession = await checkActiveSession(testIdFromParams);
 
           if (activeSession) {
             // Continue existing session
             await continueTestFromSession(activeSession, testIdFromParams);
           } else {
-            // Load test and check if it should auto-start
+            // Load test and show anti-cheat modal before starting
             const test = await apiService.getTest(testIdFromParams);
             if (test && test.is_active) {
-              const alreadyTaken = takenTests.has(testIdFromParams);
-
-              if (!alreadyTaken) {
-                // Auto-start the test since user came from preview page
-                await startTest(test);
-              } else {
-                // Just show the test details if already taken
-                setSelectedTest(test);
-              }
+              // Show anti-cheat modal before auto-starting the test
+              handleStartTestWithAntiCheat(test);
             }
           }
         } catch (error) {
           console.error('Failed to handle test from URL:', error);
+          // If test is already completed, redirect to results
+          if (error.message && (error.message.includes('Test already completed') || error.message.includes('400') || error.message.includes('already completed'))) {
+            navigate('/student/results');
+            return;
+          }
           // Clear any session data that might be invalid
           clearSession();
         } finally {
@@ -204,7 +292,7 @@ const TakeTest = () => {
 
       checkAndHandleTest();
     }
-  }, [searchParams, teachers, takenTests]);
+  }, [searchParams, teachers, navigate, checkActiveSession, currentUser]);
 
   // Handle session completion
   useEffect(() => {
@@ -213,6 +301,7 @@ const TakeTest = () => {
       handleTestComplete();
     }
   }, [hasTimeRemaining, sessionStarted]);
+
 
   const continueTestFromSession = async (session, testId) => {
     if (!session || !testId) {
@@ -316,6 +405,46 @@ const TakeTest = () => {
     return takenTests.has(testId);
   };
 
+  // Check if browser is in fullscreen mode
+  const isFullscreen = () => {
+    // Check standard fullscreen APIs
+    const standardFullscreen = !!(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement
+    );
+
+    // On Mac, also check if window is maximized or in presentation mode
+    const isMacFullscreen = window.innerWidth === screen.width && window.innerHeight === screen.height;
+
+    // Accept either standard fullscreen or Mac-style fullscreen
+    return standardFullscreen || isMacFullscreen;
+  };
+
+  // Handle anti-cheat modal and test start
+  const handleStartTestWithAntiCheat = (test) => {
+    setPendingTest(test);
+    setAntiCheatModalOpen(true);
+  };
+
+  // Confirm test start after anti-cheat check
+  const confirmStartTest = () => {
+    if (!modalConfirmed) {
+      alert('Iltimos, barcha talablarni bajarilganligini tasdiqlang!');
+      return;
+    }
+
+    if (pendingTest) {
+      startTest(pendingTest);
+      setPendingTest(null);
+      setModalConfirmed(false);
+    }
+    setAntiCheatModalOpen(false);
+  };
+
+
+
   const startTest = async (test) => {
     if (!test || !test.id) {
       alert("Test ma'lumotlari to'liq emas yoki noto'g'ri. Iltimos, boshqa test tanlang yoki administratorga murojaat qiling.");
@@ -330,8 +459,15 @@ const TakeTest = () => {
       setCurrentQuestionIndex(0);
       setAnswers({});
     } catch (error) {
-      alert('Testni boshlashda muammo yuz berdi. Keyinroq qayta urinib ko‘ring.');
       console.error('Failed to start test:', error);
+      // Check if the error is due to test already being completed
+      if (error.message && (error.message.includes('Test already completed') || error.message.includes('400'))) {
+        // Update takenTests to include this test and redirect to results
+        setTakenTests(prev => new Set([...prev, test.id]));
+        navigate('/student/results');
+      } else {
+        alert('Testni boshlashda muammo yuz berdi. Keyinroq qayta urinib ko‘ring.');
+      }
     }
   };
 
@@ -366,20 +502,28 @@ const TakeTest = () => {
     }
   };
 
-  const handleAnswerChange = (questionId, answer) => {
+  const handleAnswerChange = async (questionId, answer) => {
     const newAnswers = {
       ...answers,
       [questionId]: answer
     };
     setAnswers(newAnswers);
-    
+
     // Save to server for persistence
-    updateAnswers({ [questionId]: answer });
+    try {
+      await updateAnswers({ [questionId]: answer });
+    } catch (error) {
+      console.error('Failed to save answer:', error);
+      // Revert the local change if server save failed
+      const revertedAnswers = { ...answers };
+      delete revertedAnswers[questionId];
+      setAnswers(revertedAnswers);
+      alert('Javob saqlanmadi. Internet yoki serverda muammo bo\'lishi mumkin.');
+    }
   };
 
   const handleExitTest = () => {
     setExitDialogOpen(false);
-    exitFullscreen();
     clearSession();
     resetTest();
   };
@@ -387,52 +531,23 @@ const TakeTest = () => {
   const handleNext = () => {
     if (currentQuestionIndex < selectedTest.total_questions - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      // Clear all answers when moving to avoid confusion between questions
-      setAnswers({});
     }
   };
 
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
-      // Clear all answers when moving back to avoid confusion between questions
-      setAnswers({});
     }
   };
 
   const handleQuestionNavigation = (index) => {
     setCurrentQuestionIndex(index);
-    // Clear all answers when navigating to avoid confusion between questions
-    setAnswers({});
   };
 
-  const handleTestComplete = async () => {
-    try {
-      const result = await submitTest();
-      if (result && result.success) {
-        setScore(result.score);
-        setTestCompleted(true);
-        exitFullscreen();
-      } else {
-        alert('Test yakunini saqlashda muammo yuz berdi.');
-      }
-    } catch (error) {
-      alert('Test yakunida xatolik. Internet yoki serverda muammo bo‘lishi mumkin.');
-      console.error('Failed to complete test:', error);
-    }
-  };
 
-  const handleSubmitTest = async () => {
-    try {
-      const result = await submitTest();
-      if (result.success) {
-        setScore(result.score);
-        setTestCompleted(true);
-        exitFullscreen();
-      }
-    } catch (error) {
-      console.error('Failed to submit test:', error);
-    }
+  const handleSubmitTest = () => {
+    // Navigate to separate submission page
+    navigate('/student/submit-test');
   };
 
   const resetTest = () => {
@@ -623,6 +738,14 @@ const TakeTest = () => {
               color={timeRemaining < 300 ? 'error' : 'primary'}
               size="small"
             />
+            {warningCount > 0 && (
+              <Chip
+                label={`Ogohlantirish: ${warningCount}/3`}
+                color={warningCount >= 3 ? 'error' : 'warning'}
+                size="small"
+                sx={{ ml: 1 }}
+              />
+            )}
           </Box>
         </Box>
 
@@ -652,7 +775,6 @@ const TakeTest = () => {
         </Box>
 
         <Paper
-          className="anti-screenshot"
           sx={{
             p: 4,
             backgroundColor: '#ffffff',
@@ -920,7 +1042,7 @@ const TakeTest = () => {
             <Button onClick={() => setUrgentSubmitDialogOpen(false)} sx={{ color: '#64748b' }}>
               Bekor qilish
             </Button>
-            <Button 
+            <Button
               onClick={() => {
                 setUrgentSubmitDialogOpen(false);
                 handleSubmitTest();
@@ -934,29 +1056,9 @@ const TakeTest = () => {
           </DialogActions>
         </Dialog>
 
-        {/* Anti-cheating Warning Modal */}
-        <WarningModal
-          open={showWarning}
-          message={warningMessage}
-          onClose={closeWarning}
-        />
 
-        {/* Test Unban Prompt Modal */}
-        <TestUnbanModal
-          open={showUnbanPrompt}
-          onUnbanSuccess={() => {
-            closeUnbanPrompt();
-            // Reset warning count and continue test
-          }}
-          onUnbanFail={() => {
-            // User failed to enter code, they will be banned by backend
-            closeUnbanPrompt();
-          }}
-          unbanCode={unbanCode}
-          setUnbanCode={setUnbanCode}
-          unbanError={unbanError}
-          handleUnbanSubmit={handleUnbanSubmit}
-        />
+
+
       </Box>
     );
   }
@@ -993,7 +1095,7 @@ const TakeTest = () => {
         </Typography>
       </Box>
 
-      {/* Barcha testlar section with difficulty sorting */}
+      {/* Barcha testlar section with table layout */}
       <Box sx={{ mb: 6 }} data-aos="fade-up" data-aos-delay="200">
         <Box sx={{
           display: 'flex',
@@ -1008,13 +1110,13 @@ const TakeTest = () => {
           }}>
             📋 Barcha testlar
           </Typography>
-          
+
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <SortIcon sx={{ color: '#64748b' }} />
             <Select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              sx={{ 
+              sx={{
                 minWidth: 120,
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '8px',
@@ -1030,144 +1132,565 @@ const TakeTest = () => {
           </Box>
         </Box>
 
-        <Grid container spacing={3}>
-          {getSortedTests().map((test, index) => {
-            const alreadyTaken = hasStudentTakenTest(test.id);
-            const hasActiveSession = !!activeTestSessions[test.id];
+        {/* Search Input */}
+        <Box sx={{ mb: 4 }} data-aos="fade-up" data-aos-delay="300">
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="Test nomini, fanini yoki o'qituvchi nomini qidirish..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: '#64748b' }} />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '8px',
+                backgroundColor: '#ffffff',
+                borderColor: '#e2e8f0',
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#2563eb'
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#2563eb'
+                }
+              }
+            }}
+          />
+          {searchTerm && (
+            <Typography sx={{ mt: 1, color: '#64748b', fontSize: '0.875rem' }}>
+              {getFilteredTests().length} ta test topildi
+            </Typography>
+          )}
+        </Box>
 
-            // Determine button state
-            let buttonText = 'Testni boshlash';
-            let buttonIcon = <PlayArrowIcon />;
-            let buttonColor = '#3b82f6';
-            let buttonDisabled = false;
-            let buttonAction = () => startTest(test);
+        <div data-aos="fade-up" data-aos-delay="400">
+          <TableContainer component={Paper} sx={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          }}>
+            <Table>
+              <TableHead>
+                <TableRow sx={{
+                  backgroundColor: '#f8fafc',
+                  '& th': {
+                    fontWeight: 700,
+                    fontSize: '0.875rem',
+                    color: '#1e293b',
+                    borderBottom: '1px solid #e2e8f0',
+                    padding: '16px'
+                  }
+                }}>
+                  <TableCell>Test nomi</TableCell>
+                  <TableCell>Fan</TableCell>
+                  <TableCell>Qiyinchilik</TableCell>
+                  <TableCell>O'qituvchi</TableCell>
+                  <TableCell>Vaqt</TableCell>
+                  <TableCell>Savollar</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Harakatlar</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {getFilteredTests().map((test) => {
+                  const alreadyTaken = hasStudentTakenTest(test.id);
+                  const hasActiveSession = !!activeTestSessions[test.id];
 
-            if (hasActiveSession) {
-              // Has active session - allow continuing
-              buttonText = 'Testni davom ettirish';
-              buttonIcon = <PlayArrowIcon />;
-              buttonColor = '#10b981'; // Green for continue
-              buttonAction = () => continueTest(test);
-            } else if (alreadyTaken) {
-              // Test already completed
-              buttonText = 'Test allaqachon topshirildi';
-              buttonIcon = <CheckCircleIcon />;
-              buttonColor = '#e5e7eb';
-              buttonDisabled = true;
-            }
+                  // Determine button state
+                  let buttonText = 'Testni boshlash';
+                  let buttonIcon = <PlayArrowIcon />;
+                  let buttonColor = '#2563eb';
+                  let buttonDisabled = false;
+                  let buttonAction = () => handleStartTestWithAntiCheat(test);
 
-            return (
-              <Grid item xs={12} md={6} lg={4} key={test.id}>
-                <div data-aos="zoom-in" data-aos-delay={300 + index * 100}>
-                  <Card sx={{
-                    height: '100%',
-                    cursor: buttonDisabled ? 'not-allowed' : 'pointer',
-                    transition: 'all 0.3s ease',
-                    backgroundColor: buttonDisabled ? '#f8f9fa' : '#ffffff',
-                    '&:hover': {
-                      transform: buttonDisabled ? 'none' : 'translateY(-4px)',
-                      boxShadow: buttonDisabled ? 'none' : '0 12px 40px rgba(0, 0, 0, 0.15)',
-                    }
-                  }}
-                  onClick={() => {
-                    if (!buttonDisabled) {
-                      navigate(`/student/test-preview/${test.id}`);
-                    }
-                  }}
-                  >
-                  <CardContent sx={{ p: 3 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <Chip
-                        label={difficultyLabels[test.difficulty] || test.difficulty}
-                        color={
-                          test.difficulty === 'easy' ? 'success' : 
-                          test.difficulty === 'medium' ? 'warning' : 'error'
-                        }
-                        size="small"
-                        sx={{ mr: 2 }}
-                      />
-                      <Typography variant="body2" color="textSecondary">
-                        {test.subject}
-                      </Typography>
-                    </Box>
+                  if (hasActiveSession) {
+                    // Has active session - allow continuing
+                    buttonText = 'Davom ettirish';
+                    buttonIcon = <PlayArrowIcon />;
+                    buttonColor = '#059669'; // Green for continue
+                    buttonAction = () => continueTest(test);
+                  } else if (alreadyTaken) {
+                    // Test already completed
+                    buttonText = 'Topshirilgan';
+                    buttonIcon = <CheckCircleIcon />;
+                    buttonColor = '#059669';
+                    buttonDisabled = true;
+                  }
 
-                    <Typography variant="h6" sx={{ 
-                      fontWeight: 600,
-                      mb: 1,
-                      color: buttonDisabled ? '#6b7280' : '#1e293b'
+                  return (
+                    <TableRow key={test.id} sx={{
+                      '&:hover': {
+                        backgroundColor: '#f8fafc',
+                      },
+                      '& td': {
+                        borderBottom: '1px solid #f1f5f9',
+                        padding: '16px',
+                        fontSize: '0.875rem',
+                        color: '#334155'
+                      }
                     }}>
-                      {test.title}
-                    </Typography>
+                      <TableCell>
+                        <Typography sx={{
+                          fontWeight: 600,
+                          color: '#1e293b',
+                          fontSize: '0.875rem'
+                        }}>
+                          {test.title}
+                        </Typography>
+                        {test.description && (
+                          <Typography sx={{
+                            fontSize: '0.75rem',
+                            color: '#64748b',
+                            mt: 0.5
+                          }}>
+                            {test.description}
+                          </Typography>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Typography sx={{
+                          fontWeight: 500,
+                          color: '#1e293b',
+                          fontSize: '0.875rem'
+                        }}>
+                          {test.subject}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={difficultyLabels[test.difficulty] || test.difficulty}
+                          color={
+                            test.difficulty === 'easy' ? 'success' :
+                            test.difficulty === 'medium' ? 'warning' : 'error'
+                          }
+                          size="small"
+                          sx={{
+                            fontWeight: 600,
+                            borderRadius: '6px',
+                            fontSize: '0.75rem'
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Typography sx={{
+                          fontWeight: 500,
+                          color: '#1e293b',
+                          fontSize: '0.875rem'
+                        }}>
+                          {test.teacherName}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography sx={{
+                          fontWeight: 600,
+                          color: '#2563eb',
+                          fontSize: '0.875rem'
+                        }}>
+                          {test.time_limit} daq
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography sx={{
+                          fontWeight: 600,
+                          color: '#059669',
+                          fontSize: '0.875rem'
+                        }}>
+                          {test.total_questions}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        {hasActiveSession ? (
+                          <Chip
+                            label="Faol"
+                            size="small"
+                            sx={{
+                              backgroundColor: '#ecfdf5',
+                              color: '#059669',
+                              fontWeight: 600,
+                              borderRadius: '6px',
+                              fontSize: '0.75rem'
+                            }}
+                          />
+                        ) : alreadyTaken ? (
+                          <Chip
+                            label="Topshirilgan"
+                            size="small"
+                            sx={{
+                              backgroundColor: '#f3f4f6',
+                              color: '#6b7280',
+                              fontWeight: 600,
+                              borderRadius: '6px',
+                              fontSize: '0.75rem'
+                            }}
+                          />
+                        ) : (
+                          <Chip
+                            label="Mavjud"
+                            size="small"
+                            sx={{
+                              backgroundColor: '#eff6ff',
+                              color: '#2563eb',
+                              fontWeight: 600,
+                              borderRadius: '6px',
+                              fontSize: '0.75rem'
+                            }}
+                          />
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          {!alreadyTaken && (
+                            <Button
+                              size="small"
+                              variant="contained"
+                              onClick={buttonAction}
+                              disabled={buttonDisabled}
+                              sx={{
+                                fontSize: '0.75rem',
+                                padding: '4px 8px',
+                                minWidth: 'auto',
+                                backgroundColor: buttonColor,
+                                '&:hover': {
+                                  backgroundColor: buttonColor,
+                                }
+                              }}
+                              startIcon={buttonIcon}
+                            >
+                              {buttonText}
+                            </Button>
+                          )}
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
 
-                    <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-                      {test.description || 'Tavsif mavjud emas'}
-                    </Typography>
-
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <Typography variant="body2" color="textSecondary" sx={{ mr: 2 }}>
-                        👨‍🏫 {test.teacherName}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        ⏱️ {test.time_limit} daqiqa
-                      </Typography>
-                    </Box>
-
-                    {/* Show active session indicator */}
-                    {hasActiveSession && (
-                      <Alert severity="info" sx={{ mb: 2, py: 1 }}>
-                        ⚡ Faol test seansi mavjud
-                      </Alert>
-                    )}
-
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      onClick={buttonAction}
-                      disabled={buttonDisabled}
-                      sx={{
-                        cursor: buttonDisabled ? 'not-allowed' : 'pointer',
-                        backgroundColor: buttonColor,
-                        color: buttonDisabled ? '#6b7280' : '#ffffff',
-                        '&:hover': {
-                          backgroundColor: buttonDisabled ? '#e5e7eb' : (hasActiveSession ? '#059669' : '#2563eb'),
-                        }
-                      }}
-                      startIcon={buttonIcon}
-                    >
-                      {buttonText}
-                    </Button>
-                  </CardContent>
-                </Card>
-                </div>
-              </Grid>
-            );
-          })}
-        </Grid>
+        {getFilteredTests().length === 0 && getSortedTests().length > 0 && (
+          <div data-aos="fade-up" data-aos-delay="500">
+            <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
+              <Typography variant="h6" color="textSecondary">
+                Qidiruv natijasi bo'yicha test topilmadi
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Qidiruv so'zini o'zgartirib ko'ring
+              </Typography>
+            </Paper>
+          </div>
+        )}
 
         {getSortedTests().length === 0 && (
-          <Paper sx={{ 
-            p: 6, 
+          <div data-aos="fade-up" data-aos-delay="500">
+            <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
+              <Typography variant="h6" color="textSecondary">
+                {sortBy === 'easy' || sortBy === 'medium' || sortBy === 'hard'
+                  ? `${difficultyLabels[sortBy]} testlar topilmadi`
+                  : 'Hozircha testlar mavjud emas'
+                }
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                {sortBy === 'easy' || sortBy === 'medium' || sortBy === 'hard'
+                  ? 'Boshqa qiyinchilik darajasini tanlang'
+                  : 'Admin o\'qituvchilarni va testlarni qo\'shishi kerak'
+                }
+              </Typography>
+            </Paper>
+          </div>
+        )}
+
+        {/* Anti-Cheat Modal */}
+        <Dialog
+          open={antiCheatModalOpen}
+          onClose={() => setAntiCheatModalOpen(false)}
+          maxWidth="md"
+          fullWidth
+          disableEscapeKeyDown
+          sx={{
+            '& .MuiDialog-paper': {
+              borderRadius: '16px',
+              padding: '8px'
+            }
+          }}
+        >
+          <DialogTitle sx={{
+            color: '#1e293b',
+            fontWeight: 700,
+            fontSize: '1.5rem',
             textAlign: 'center',
-            backgroundColor: '#f8fafc',
-            border: '1px solid #e2e8f0'
+            pb: 1
           }}>
-            <Typography variant="h6" sx={{ 
-              color: '#64748b',
+            ⚠️ Testni boshlashdan oldin
+          </DialogTitle>
+          <DialogContent sx={{ textAlign: 'center', pb: 3 }}>
+            <Typography sx={{
+              color: '#374151',
+              fontSize: '1.1rem',
+              mb: 3,
+              fontWeight: 500
+            }}>
+              Test davomida quyidagi qoidalarga rioya qiling:
+            </Typography>
+
+            <Box sx={{
+              backgroundColor: '#f8fafc',
+              borderRadius: '12px',
+              p: 3,
+              mb: 3,
+              border: '1px solid #e2e8f0'
+            }}>
+              <Typography sx={{
+                color: '#1e293b',
+                fontWeight: 600,
+                mb: 2,
+                fontSize: '1.1rem'
+              }}>
+                📋 Anti-Cheat qoidalari:
+              </Typography>
+              <Box sx={{ textAlign: 'left', maxWidth: '400px', mx: 'auto' }}>
+                <Typography sx={{ color: '#374151', mb: 1, fontSize: '0.95rem' }}>
+                  • Test davomida boshqa oynalarga o'tmang
+                </Typography>
+                <Typography sx={{ color: '#374151', mb: 1, fontSize: '0.95rem' }}>
+                  • Boshqa dasturlarni ishga tushirmang
+                </Typography>
+                <Typography sx={{ color: '#374151', mb: 1, fontSize: '0.95rem' }}>
+                  • Testni to'xtatib qo'ymang yoki yangilamang
+                </Typography>
+                <Typography sx={{ color: '#374151', mb: 1, fontSize: '0.95rem' }}>
+                  • Vaqt tugaguncha testni yakunlang
+                </Typography>
+              </Box>
+            </Box>
+
+            <Typography sx={{
+              color: '#dc2626',
               fontWeight: 600,
+              fontSize: '1.2rem',
               mb: 2
             }}>
-              {sortBy === 'easy' || sortBy === 'medium' || sortBy === 'hard' 
-                ? `${difficultyLabels[sortBy]} testlar topilmadi`
-                : 'Hozircha testlar mavjud emas'
-              }
+              F11 tugmasini bosib to'liq ekran rejimiga o'ting!
             </Typography>
-            <Typography sx={{ color: '#94a3b8' }}>
-              {sortBy === 'easy' || sortBy === 'medium' || sortBy === 'hard' 
-                ? 'Boshqa qiyinchilik darajasini tanlang'
-                : 'Admin o\'qituvchilarni va testlarni qo\'shishi kerak'
-              }
+
+            <Typography sx={{
+              color: '#64748b',
+              fontSize: '0.9rem',
+              mb: 3
+            }}>
+              Test faqat to'liq ekran rejimida boshlanadi
             </Typography>
-          </Paper>
+
+            {/* Additional requirements */}
+            <Box sx={{
+              backgroundColor: '#f0f9ff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              p: 3,
+              mb: 3
+            }}>
+              <Typography sx={{
+                color: '#1e293b',
+                fontWeight: 600,
+                mb: 2,
+                fontSize: '1.1rem'
+              }}>
+                📋 Testdan oldin tekshiring:
+              </Typography>
+              <Box sx={{ textAlign: 'left', maxWidth: '400px', mx: 'auto' }}>
+                <Typography sx={{ color: '#374151', mb: 1, fontSize: '0.95rem' }}>
+                  • Qurilmangiz zaryadi kam bo'lsa, uni quvvat manbaiga ulang
+                </Typography>
+                <Typography sx={{ color: '#374151', mb: 1, fontSize: '0.95rem' }}>
+                  • Internetga to'g'ri ulanganligingizni tekshiring
+                </Typography>
+                <Typography sx={{ color: '#374151', mb: 1, fontSize: '0.95rem' }}>
+                  • Internet uzulishlari bo'lmasligiga amin bo'ling
+                </Typography>
+                <Typography sx={{ color: '#374151', mb: 1, fontSize: '0.95rem' }}>
+                  • Barcha talablar bajarilganligini tasdiqlang
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* Anti-cheat warning */}
+            <Box sx={{
+              backgroundColor: '#fef2f2',
+              border: '2px solid #dc2626',
+              borderRadius: '12px',
+              p: 3,
+              mb: 2,
+              textAlign: 'center'
+            }}>
+              <Typography sx={{
+                color: '#dc2626',
+                fontWeight: 700,
+                fontSize: '1.2rem',
+                mb: 1
+              }}>
+                ⚠️ ANTI-CHEAT OGOHLANTIRISH
+              </Typography>
+              <Typography sx={{
+                color: '#dc2626',
+                fontSize: '1rem',
+                fontWeight: 600
+              }}>
+                Agar test sahifani Fullscreenga o'tkazmagan bo'lsangiz, ANTI-CHEAT tizimi ogohlantirish beradi!
+              </Typography>
+            </Box>
+
+            {/* Confirmation checkbox */}
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mb: 3,
+              p: 2,
+              backgroundColor: '#f8fafc',
+              borderRadius: '8px',
+              border: '1px solid #e2e8f0'
+            }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={modalConfirmed}
+                    onChange={(e) => setModalConfirmed(e.target.checked)}
+                    sx={{
+                      color: '#64748b',
+                      '&.Mui-checked': {
+                        color: '#10b981',
+                      },
+                    }}
+                  />
+                }
+                label={
+                  <Typography sx={{
+                    color: '#374151',
+                    fontWeight: 500,
+                    fontSize: '0.95rem'
+                  }}>
+                    Hammasi bajarilgan
+                  </Typography>
+                }
+              />
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{
+            justifyContent: 'center',
+            gap: 2,
+            pb: 3,
+            flexDirection: { xs: 'column', sm: 'row' }
+          }}>
+            <Button
+              onClick={() => {
+                setAntiCheatModalOpen(false);
+                setPendingTest(null);
+                setModalConfirmed(false);
+              }}
+              variant="outlined"
+              sx={{
+                borderColor: '#d1d5db',
+                color: '#374151',
+                px: 4,
+                py: 1.5,
+                borderRadius: '8px',
+                fontWeight: 600,
+                '&:hover': { backgroundColor: '#f9fafb' }
+              }}
+            >
+              Bekor qilish
+            </Button>
+            <Button
+              onClick={confirmStartTest}
+              variant="contained"
+              sx={{
+                backgroundColor: '#10b981',
+                px: 4,
+                py: 1.5,
+                borderRadius: '8px',
+                fontWeight: 600,
+                '&:hover': { backgroundColor: '#059669' }
+              }}
+            >
+              Davom ettirish
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Anti-Cheat Warning Modal */}
+        <WarningModal
+          open={showWarning}
+          message={warningMessage}
+          onClose={closeWarning}
+        />
+
+        {/* Unban Prompt Modal */}
+        {showUnbanPrompt && (
+          <Dialog
+            open={showUnbanPrompt}
+            onClose={closeUnbanPrompt}
+            maxWidth="sm"
+            fullWidth
+            disableEscapeKeyDown
+          >
+            <DialogTitle sx={{
+              backgroundColor: '#dc2626',
+              color: 'white',
+              textAlign: 'center',
+              fontWeight: 700
+            }}>
+              Profilingiz bloklandi!
+            </DialogTitle>
+            <DialogContent sx={{ pt: 3, textAlign: 'center' }}>
+              <Typography sx={{ mb: 2, color: '#374151' }}>
+                Siz 3 marta test qoidalarini buzdingiz. Profilingiz bloklandi.
+              </Typography>
+              <Typography sx={{ mb: 3, color: '#6b7280', fontSize: '0.9rem' }}>
+                Blokdan chiqish uchun 4 xonali kodni kiriting:
+              </Typography>
+              <TextField
+                fullWidth
+                variant="outlined"
+                placeholder="Kodni kiriting"
+                value={unbanCode}
+                onChange={(e) => setUnbanCode(e.target.value)}
+                inputProps={{ maxLength: 4 }}
+                sx={{
+                  mb: 2,
+                  '& .MuiOutlinedInput-root': {
+                    textAlign: 'center',
+                    fontSize: '1.5rem',
+                    fontWeight: 600,
+                    letterSpacing: '0.5rem'
+                  }
+                }}
+              />
+              {unbanError && (
+                <Typography sx={{ color: '#dc2626', fontSize: '0.9rem' }}>
+                  {unbanError}
+                </Typography>
+              )}
+            </DialogContent>
+            <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+              <Button
+                onClick={() => handleUnbanSubmit(unbanCode)}
+                variant="contained"
+                sx={{
+                  backgroundColor: '#10b981',
+                  '&:hover': { backgroundColor: '#059669' }
+                }}
+              >
+                Kodni tekshirish
+              </Button>
+            </DialogActions>
+          </Dialog>
         )}
       </Box>
     </Box>

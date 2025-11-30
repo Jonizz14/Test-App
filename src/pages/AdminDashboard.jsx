@@ -120,15 +120,6 @@ const AdminDashboard = () => {
       data-aos="fade-down"
       data-aos-delay="100"
       >
-        <img
-          src="/src/assets/image.png"
-          alt="STIM Test App Logo"
-          style={{
-            height: '32px',
-            width: 'auto',
-            maxWidth: '60px'
-          }}
-        />
         <Typography variant="h6" sx={{
           color: '#1e293b',
           fontWeight: 700,
@@ -251,7 +242,19 @@ const AdminDashboard = () => {
           <Typography variant="body1" sx={{ mr: 2 }}>
             Welcome, {currentUser?.name}
           </Typography>
-          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon sx={{ fontSize: '1.4rem' }} />}>
+          <Button
+            variant="outlined"
+            onClick={handleLogout}
+            startIcon={<LogoutIcon sx={{ fontSize: '1.4rem' }} />}
+            sx={{
+              border: 'none',
+              color: '#64748b',
+              '&:hover': {
+                backgroundColor: '#f1f5f9',
+                border: 'none'
+              }
+            }}
+          >
             Chiqish
           </Button>
         </Toolbar>

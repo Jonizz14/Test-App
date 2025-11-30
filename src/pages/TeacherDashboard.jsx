@@ -82,15 +82,6 @@ const TeacherDashboard = () => {
       data-aos="fade-down"
       data-aos-delay="100"
       >
-        <img
-          src="/src/assets/image.png"
-          alt="STIM Test App Logo"
-          style={{
-            height: '32px',
-            width: 'auto',
-            maxWidth: '60px'
-          }}
-        />
         <Typography variant="h6" sx={{
           color: '#1e293b',
           fontWeight: 700,

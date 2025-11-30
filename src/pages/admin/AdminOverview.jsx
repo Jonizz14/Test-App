@@ -822,11 +822,11 @@ const AdminOverview = () => {
       {/* Banned Users Section */}
       {stats.bannedUsers.length > 0 && (
         <Box sx={{ mt: 4 }} data-aos="fade-up">
-          <Paper sx={{
-            p: 4,
+          <Box sx={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
+            p: 4,
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
           }}>
             <Typography
@@ -839,55 +839,63 @@ const AdminOverview = () => {
             >
               🚫 Bloklangan o'quvchilar
             </Typography>
-            <List sx={{ p: 0 }}>
+            <Grid container spacing={3}>
               {stats.bannedUsers.map((user, index) => (
-                <React.Fragment key={user.id}>
-                  <ListItem sx={{
-                    px: 0,
-                    py: 2,
+                <Grid item xs={12} sm={6} md={4} key={user.id}>
+                  <Card sx={{
                     backgroundColor: '#fef2f2',
-                    borderRadius: '8px',
-                    mb: 1
+                    border: '1px solid #fecaca',
+                    borderRadius: '12px',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                    transition: 'none',
+                    '&:hover': {
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                    },
                   }}>
-                    <ListItemText
-                      primary={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                          <Typography sx={{
-                            fontSize: '0.875rem',
-                            fontWeight: 600,
-                            color: '#dc2626'
-                          }}>
-                            {user.name || user.username}
-                          </Typography>
-                          <Typography sx={{
-                            fontSize: '0.75rem',
-                            color: '#6b7280',
-                            backgroundColor: '#fee2e2',
-                            px: 2,
-                            py: 0.5,
-                            borderRadius: '4px',
-                            fontFamily: 'monospace',
-                            fontWeight: 'bold'
-                          }}>
-                            Kod: {user.unban_code}
-                          </Typography>
-                        </Box>
-                      }
-                      secondary={
+                    <CardContent sx={{
+                      p: 3,
+                      '&:last-child': { pb: 3 }
+                    }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                        <Typography sx={{
+                          fontSize: '1rem',
+                          fontWeight: 600,
+                          color: '#dc2626'
+                        }}>
+                          {user.name || user.username}
+                        </Typography>
                         <Typography sx={{
                           fontSize: '0.75rem',
-                          color: '#6b7280'
+                          color: '#6b7280',
+                          backgroundColor: '#fee2e2',
+                          px: 2,
+                          py: 0.5,
+                          borderRadius: '4px',
+                          fontFamily: 'monospace',
+                          fontWeight: 'bold'
                         }}>
-                          Bloklash sababi: {user.ban_reason} • Bloklangan: {user.ban_date ? new Date(user.ban_date).toLocaleDateString('uz-UZ') : 'Noma\'lum'}
+                          Kod: {user.unban_code}
                         </Typography>
-                      }
-                    />
-                  </ListItem>
-                  {index < stats.bannedUsers.length - 1 && <Divider sx={{ my: 1 }} />}
-                </React.Fragment>
+                      </Box>
+                      <Typography sx={{
+                        fontSize: '0.875rem',
+                        color: '#6b7280',
+                        mb: 1
+                      }}>
+                        <strong>Bloklash sababi:</strong> {user.ban_reason}
+                      </Typography>
+                      <Typography sx={{
+                        fontSize: '0.875rem',
+                        color: '#6b7280'
+                      }}>
+                        <strong>Bloklangan:</strong> {user.ban_date ? new Date(user.ban_date).toLocaleDateString('uz-UZ') : 'Noma\'lum'}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
               ))}
-            </List>
-          </Paper>
+            </Grid>
+          </Box>
         </Box>
       )}
     </Box>

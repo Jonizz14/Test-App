@@ -425,7 +425,7 @@ const TeacherDetails = () => {
                         transform: 'translateY(-4px)',
                       }
                     }}
-                    onClick={() => navigate(`/student/test-preview/${test.id}`)}
+                    onClick={() => navigate(`/student/take-test?testId=${test.id}`)}
                     >
                     {/* Status badge */}
                     {hasActiveSession ? (

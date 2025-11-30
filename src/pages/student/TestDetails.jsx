@@ -104,8 +104,8 @@ const TestDetails = () => {
       return; // Don't start test if already taken
     }
 
-    // Redirect to preview page instead of starting test directly
-    navigate(`/student/test-preview/${testId}`);
+    // Go directly to test taking page
+    navigate(`/student/take-test?testId=${testId}`);
   };
 
   const formatTime = (seconds) => {

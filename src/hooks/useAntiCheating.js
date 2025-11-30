@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 // Note: Browser extensions cannot be blocked from web pages as they run in privileged contexts.
 // OS-level screenshot shortcuts (Cmd+Shift+4, Cmd+Shift+5) cannot be prevented from web pages.
 // This hook focuses on detectable user actions and keyboard shortcuts that can be intercepted.
-const useAntiCheating = (isActive = true, sessionId = null, initialWarningCount = 0, initialUnbanPromptShown = false) => {
+const useAntiCheating = (isActive = true, sessionId = null, initialWarningCount = 0, initialUnbanPromptShown = false, onBan = null) => {
   const { banCurrentUser, logout } = useAuth();
   const [warningMessage, setWarningMessage] = useState('');
   const [showWarning, setShowWarning] = useState(false);
@@ -48,6 +48,11 @@ const useAntiCheating = (isActive = true, sessionId = null, initialWarningCount 
     // If this is the 3rd warning, ban the user immediately
     if (newCount >= 3) {
       try {
+        // Call onBan callback if provided (to submit test with 0%)
+        if (onBan) {
+          await onBan();
+        }
+
         await banCurrentUser('Test qoidalariga rioya qilmaganligi uchun bloklandi');
         // Log out immediately and redirect to login page
         logout();
@@ -131,6 +136,15 @@ const useAntiCheating = (isActive = true, sessionId = null, initialWarningCount 
 
   const exitFullscreen = useCallback(async () => {
     try {
+      // Check if we're actually in fullscreen before trying to exit
+      const isFullscreen = document.fullscreenElement ||
+                          document.webkitFullscreenElement ||
+                          document.msFullscreenElement;
+
+      if (!isFullscreen) {
+        return; // Not in fullscreen, no need to exit
+      }
+
       if (document.exitFullscreen) {
         await document.exitFullscreen();
       } else if (document.webkitExitFullscreen) {
@@ -167,10 +181,8 @@ const useAntiCheating = (isActive = true, sessionId = null, initialWarningCount 
     };
 
     const handleKeyDown = (event) => {
-      // F11 key (fullscreen toggle)
+      // F11 key (fullscreen toggle) - allow it
       if (event.key === 'F11') {
-        event.preventDefault();
-        triggerWarning('Diqqat! F11 tugmasini bosish taqiqlanadi. Test to\'li ekranda o\'tishi kerak!', 'f11_fullscreen');
         return;
       }
 
@@ -243,6 +255,12 @@ const useAntiCheating = (isActive = true, sessionId = null, initialWarningCount 
       triggerWarning('Diqqat! Oyna o\'lchami o\'zgartirildi. Bu test qoidalariga zid!', 'window_resize');
     };
 
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = 'Test davom etmoqda. Sahifadan chiqish taqiqlanadi!';
+      return e.returnValue;
+    };
+
 
     // Add event listeners
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -256,6 +274,7 @@ const useAntiCheating = (isActive = true, sessionId = null, initialWarningCount 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
     document.addEventListener('msfullscreenchange', handleFullscreenChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     // Cleanup
     return () => {
@@ -270,6 +289,7 @@ const useAntiCheating = (isActive = true, sessionId = null, initialWarningCount 
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
       document.removeEventListener('msfullscreenchange', handleFullscreenChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [isActive, triggerWarning, handleWindowBlur, handleFullscreenChange, enterFullscreen]);
 

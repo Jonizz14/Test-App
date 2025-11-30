@@ -30,6 +30,7 @@ import {
   Security as ShieldIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
+import { useServerTest } from '../context/ServerTestContext';
 import NotificationCenter from '../components/NotificationCenter';
 import UnbanModal from '../components/UnbanModal';
 
@@ -37,17 +38,17 @@ import UnbanModal from '../components/UnbanModal';
 import StudentOverview from './student/StudentOverview';
 import SearchTeachers from './student/SearchTeachers';
 import TakeTest from './student/TakeTest';
+import SubmitTest from './student/SubmitTest';
 import TestResults from './student/TestResults';
 import StudentStatistics from './student/StudentStatistics';
 import ReceivedLessons from './student/ReceivedLessons';
 import StudentProfile from './student/StudentProfile';
-import TestDetails from './student/TestDetails';
-import TestPreview from './student/TestPreview';
 import TeacherDetails from './student/TeacherDetails';
 
 const StudentDashboard = () => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const { currentUser, logout, isBanned } = useAuth();
+  const { sessionStarted } = useServerTest();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -60,6 +61,16 @@ const StudentDashboard = () => {
     logout();
     navigate('/login');
   };
+
+  const handleNavigation = (path) => {
+    if (sessionStarted && path !== '/student/take-test') {
+      alert('Test topshirayotganingizda boshqa sahifalarga o\'ta olmaysiz. Avval testni yakunlang!');
+      return;
+    }
+    navigate(path);
+    if (isMobile) setMobileOpen(false);
+  };
+
 
   const menuItems = [
     { text: 'Asosiy', icon: <DashboardIcon />, path: '/student' },
@@ -90,15 +101,6 @@ const StudentDashboard = () => {
       data-aos="fade-down"
       data-aos-delay="100"
       >
-        <img
-          src="/src/assets/image.png"
-          alt="STIM Test App Logo"
-          style={{
-            height: '32px',
-            width: 'auto',
-            maxWidth: '60px'
-          }}
-        />
         <Typography variant="h6" sx={{
           color: '#1e293b',
           fontWeight: 700,
@@ -112,10 +114,8 @@ const StudentDashboard = () => {
           <ListItem key={item.text} disablePadding sx={{ px: 1, py: 0.5 }}>
             <div data-aos="fade-right" data-aos-delay={200 + index * 50} style={{ width: '100%' }}>
               <ListItemButton
-                onClick={() => {
-                  navigate(item.path);
-                  if (isMobile) setMobileOpen(false);
-                }}
+                onClick={() => handleNavigation(item.path)}
+                disabled={sessionStarted && item.path !== '/student/take-test'}
                 sx={{
                   width: '100%',
                   height: '48px',
@@ -125,13 +125,14 @@ const StudentDashboard = () => {
                   display: 'flex',
                   alignItems: 'center',
                   transition: 'background-color 0.4s ease, outline 0.4s ease, color 0.4s ease',
+                  opacity: sessionStarted && item.path !== '/student/take-test' ? 0.5 : 1,
                   '&:hover': {
-                    backgroundColor: '#f1f5f9',
+                    backgroundColor: sessionStarted && item.path !== '/student/take-test' ? 'transparent' : '#f1f5f9',
                     '& .MuiListItemIcon-root': {
-                      color: '#2563eb',
+                      color: sessionStarted && item.path !== '/student/take-test' ? '#64748b' : '#2563eb',
                     },
                     '& .MuiListItemText-primary': {
-                      color: '#2563eb',
+                      color: sessionStarted && item.path !== '/student/take-test' ? '#64748b' : '#2563eb',
                     }
                   },
                   '&.Mui-selected': {
@@ -143,6 +144,10 @@ const StudentDashboard = () => {
                     '& .MuiListItemText-primary': {
                       color: '#0284c7',
                     }
+                  },
+                  '&.Mui-disabled': {
+                    opacity: 0.5,
+                    cursor: 'not-allowed',
                   }
                 }}
               >
@@ -197,14 +202,40 @@ const StudentDashboard = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
             <ShieldIcon sx={{ mr: 1, color: '#2563eb', fontSize: '1.8rem' }} />
             <Typography variant="h6" noWrap component="div">
-              STIM Anti-Cheat System
+              STIM Test App
             </Typography>
           </Box>
           <Typography variant="body1" sx={{ mr: 2 }}>
             Salom, {currentUser?.name}
           </Typography>
+          {sessionStarted && (
+            <Typography variant="body2" sx={{
+              mr: 2,
+              color: '#dc2626',
+              fontWeight: 600,
+              backgroundColor: '#fef2f2',
+              px: 2,
+              py: 0.5,
+              borderRadius: '12px',
+              border: '1px solid #dc2626'
+            }}>
+              ⚠️ Test faol
+            </Typography>
+          )}
           <NotificationCenter />
-          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon sx={{ fontSize: '1.4rem' }} />}>
+          <Button
+            color="inherit"
+            onClick={sessionStarted ? () => alert('Test topshirayotganingizda chiqa olmaysiz. Avval testni yakunlang!') : handleLogout}
+            disabled={sessionStarted}
+            startIcon={<LogoutIcon sx={{ fontSize: '1.4rem' }} />}
+            sx={{
+              opacity: sessionStarted ? 0.5 : 1,
+              '&.Mui-disabled': {
+                opacity: 0.5,
+                cursor: 'not-allowed',
+              }
+            }}
+          >
             Chiqish
           </Button>
         </Toolbar>
@@ -268,8 +299,7 @@ const StudentDashboard = () => {
               <Route path="/search" element={<SearchTeachers />} />
               <Route path="/teacher-details/:teacherId" element={<TeacherDetails />} />
               <Route path="/take-test" element={<TakeTest />} />
-              <Route path="/test-details/:testId" element={<TestDetails />} />
-              <Route path="/test-preview/:testId" element={<TestPreview />} />
+              <Route path="/submit-test" element={<SubmitTest />} />
               <Route path="/results" element={<TestResults />} />
               <Route path="/lessons" element={<ReceivedLessons />} />
               <Route path="/statistics" element={<StudentStatistics />} />

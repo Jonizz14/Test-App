@@ -21,6 +21,9 @@ import {
   CheckCircle as CheckCircleIcon,
   PlayArrow as PlayArrowIcon,
   Repeat as RepeatIcon,
+  ArrowBack as ArrowBackIcon,
+  AccessTime as TimeIcon,
+  Quiz as QuizIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import { useServerTest } from '../../context/ServerTestContext';
@@ -43,6 +46,8 @@ const SearchTeachers = () => {
   const [activeTestSessions, setActiveTestSessions] = useState({}); // Track active sessions for each test
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
+  const [teacherTests, setTeacherTests] = useState([]);
 
   // Load initial data from API on component mount
   useEffect(() => {
@@ -153,6 +158,24 @@ const SearchTeachers = () => {
   const getActiveSessionsCountForTeacher = (teacherId) => {
     const teacherTests = getTeacherTests(teacherId);
     return teacherTests.filter(test => !!activeTestSessions[test.id]).length;
+  };
+
+  // Handle teacher selection to show their tests
+  const handleTeacherSelect = (teacher) => {
+    setSelectedTeacher(teacher);
+    const testsForTeacher = getTeacherTests(teacher.id);
+    setTeacherTests(testsForTeacher);
+  };
+
+  // Handle back to teachers list
+  const handleBackToTeachers = () => {
+    setSelectedTeacher(null);
+    setTeacherTests([]);
+  };
+
+  // Handle start test
+  const handleStartTest = (testId) => {
+    navigate(`/student/take-test?testId=${testId}`);
   };
 
   // Filter teachers based on search term and subject filter
@@ -404,7 +427,7 @@ const SearchTeachers = () => {
                     },
                     height: '100%'
                   }}
-                  onClick={() => navigate(`/student/teacher-details/${teacher.id}`)}
+                  onClick={() => handleTeacherSelect(teacher)}
                   >
                   <CardContent sx={{ p: 3 }}>
                     {/* Teacher info header */}
@@ -516,8 +539,6 @@ const SearchTeachers = () => {
           })}
         </Grid>
       </Box>
-
-
 
       {/* No results message */}
       {filteredTeachers.length === 0 && allTests.length === 0 && (

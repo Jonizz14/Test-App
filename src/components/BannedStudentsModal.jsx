@@ -4,12 +4,11 @@ import {
   Box,
   Typography,
   IconButton,
-  List,
-  ListItem,
-  ListItemText,
   Chip,
   Button,
-  Divider,
+  Grid,
+  Card,
+  CardContent,
 } from '@mui/material';
 import {
   Close as CloseIcon,
@@ -51,82 +50,83 @@ const BannedStudentsModal = ({ open, onClose, bannedStudents, onUnbanStudent }) 
           </IconButton>
         </Box>
 
-        <Divider sx={{ mb: 3 }} />
 
         {/* Banned Students List */}
         <Box sx={{ flex: 1, overflowY: 'auto' }}>
           {bannedStudents.length > 0 ? (
-            <List sx={{ p: 0 }}>
-              {bannedStudents.map((student, index) => (
-                <React.Fragment key={student.id}>
-                  <ListItem
-                    sx={{
-                      px: 0,
-                      py: 2,
-                      backgroundColor: '#fef2f2',
-                      borderRadius: '4px',
-                      mb: 1,
-                      border: '1px solid #fecaca',
-                    }}
-                  >
-                    <ListItemText
-                      primary={
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                          <Typography sx={{
-                            fontSize: '1rem',
+            <Grid container spacing={2}>
+              {bannedStudents.map((student) => (
+                <Grid item xs={12} sm={6} md={4} key={student.id}>
+                  <Card sx={{
+                    backgroundColor: '#fef2f2',
+                    border: '1px solid #fecaca',
+                    borderRadius: '12px',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                    transition: 'none',
+                    '&:hover': {
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                    },
+                  }}>
+                    <CardContent sx={{
+                      p: 3,
+                      '&:last-child': { pb: 3 }
+                    }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                        <Typography sx={{
+                          fontSize: '1rem',
+                          fontWeight: 600,
+                          color: '#dc2626'
+                        }}>
+                          {student.name}
+                        </Typography>
+                        <Chip
+                          label="Bloklangan"
+                          size="small"
+                          sx={{
+                            backgroundColor: '#fef2f2',
+                            color: '#dc2626',
                             fontWeight: 600,
-                            color: '#dc2626'
-                          }}>
-                            {student.name}
-                          </Typography>
-                          <Chip
-                            label="Bloklangan"
-                            size="small"
-                            sx={{
-                              backgroundColor: '#fef2f2',
-                              color: '#dc2626',
-                              fontWeight: 600,
-                              borderRadius: '6px',
-                              fontSize: '0.75rem'
-                            }}
-                          />
-                        </Box>
-                      }
-                      secondary={
-                        <Box>
-                          <Typography sx={{
-                            fontSize: '0.875rem',
-                            color: '#6b7280',
-                            mb: 1
-                          }}>
-                            ID: {student.display_id || student.username}
-                          </Typography>
-                          <Typography sx={{
-                            fontSize: '0.75rem',
-                            color: '#6b7280'
-                          }}>
-                            Bloklash sababi: {student.ban_reason || 'Noma\'lum'} •
-                            Bloklangan: {student.ban_date ? new Date(student.ban_date).toLocaleDateString('uz-UZ') : 'Noma\'lum'}
-                          </Typography>
-                          {student.unban_code && (
-                            <Typography sx={{
-                              fontSize: '0.75rem',
-                              color: '#6b7280',
-                              fontFamily: 'monospace',
-                              backgroundColor: '#fee2e2',
-                              px: 1,
-                              py: 0.5,
-                              borderRadius: '4px',
-                              display: 'inline-block',
-                              mt: 1
-                            }}>
-                              Kod: {student.unban_code}
-                            </Typography>
-                          )}
-                        </Box>
-                      }
-                    />
-                    <Box sx={{ ml: 2 }}>
+                            borderRadius: '6px',
+                            fontSize: '0.75rem'
+                          }}
+                        />
+                      </Box>
+                      <Typography sx={{
+                        fontSize: '0.875rem',
+                        color: '#6b7280',
+                        mb: 1
+                      }}>
+                        <strong>ID:</strong> {student.display_id || student.username}
+                      </Typography>
+                      <Typography sx={{
+                        fontSize: '0.875rem',
+                        color: '#6b7280',
+                        mb: 1
+                      }}>
+                        <strong>Bloklash sababi:</strong> {student.ban_reason || 'Noma\'lum'}
+                      </Typography>
+                      <Typography sx={{
+                        fontSize: '0.875rem',
+                        color: '#6b7280',
+                        mb: 2
+                      }}>
+                        <strong>Bloklangan:</strong> {student.ban_date ? new Date(student.ban_date).toLocaleDateString('uz-UZ') : 'Noma\'lum'}
+                      </Typography>
+                      {student.unban_code && (
+                        <Typography sx={{
+                          fontSize: '0.75rem',
+                          color: '#6b7280',
+                          fontFamily: 'monospace',
+                          backgroundColor: '#fee2e2',
+                          px: 2,
+                          py: 0.5,
+                          borderRadius: '4px',
+                          display: 'inline-block',
+                          mb: 2
+                        }}>
+                          Kod: {student.unban_code}
+                        </Typography>
+                      )}
                       <Button
                         variant="outlined"
                         size="small"
@@ -143,12 +143,11 @@ const BannedStudentsModal = ({ open, onClose, bannedStudents, onUnbanStudent }) 
                       >
                         Blokdan chiqarish
                       </Button>
-                    </Box>
-                  </ListItem>
-                  {index < bannedStudents.length - 1 && <Divider sx={{ my: 1 }} />}
-                </React.Fragment>
+                    </CardContent>
+                  </Card>
+                </Grid>
               ))}
-            </List>
+            </Grid>
           ) : (
             <Box sx={{ textAlign: 'center', py: 4 }}>
               <Typography variant="h6" sx={{ color: '#64748b', mb: 1 }}>
