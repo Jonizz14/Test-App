@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Box, Paper, Grid, Card, CardContent, Alert } from '@mui/material';
+import { Typography, Box, Paper, Grid, Card, CardContent, Alert, Button } from '@mui/material';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,6 +14,12 @@ import {
 } from 'chart.js';
 import { Bar, Pie, Line } from 'react-chartjs-2';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import {
+  Search as SearchIcon,
+  Assessment as AssessmentIcon,
+  TrendingUp as TrendingUpIcon,
+} from '@mui/icons-material';
 import apiService from '../../data/apiService';
 
 ChartJS.register(
@@ -30,6 +36,7 @@ ChartJS.register(
 
 const StudentStatistics = () => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const [myAttempts, setMyAttempts] = useState([]);
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,11 +67,6 @@ const StudentStatistics = () => {
       setTests(allTests);
       setWarningCount(Array.isArray(warnings) ? warnings.length : 0);
 
-      console.log('Student statistics loaded:', {
-        attempts: studentAttempts.length,
-        tests: allTests.length,
-        warnings: Array.isArray(warnings) ? warnings.length : 0
-      });
     } catch (err) {
       console.error('Failed to load student statistics:', err);
       setError('O\'quvchi statistikasini yuklashda xatolik yuz berdi');
@@ -190,38 +192,73 @@ const StudentStatistics = () => {
     .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
     .slice(0, 10);
 
-  const StatCard = ({ title, value, subtitle }) => (
+  const StatCard = ({ title, value, icon, color }) => (
     <Card sx={{
       backgroundColor: '#ffffff',
       border: '1px solid #e2e8f0',
       borderRadius: '12px',
       boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-      aspectRatio: 1,
-      display: 'flex',
-      flexDirection: 'column'
+      transition: 'none',
+      '&:hover': {
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+      },
     }}>
-      <CardContent sx={{ p: 4, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <Typography sx={{
-          fontWeight: 600,
-          color: '#64748b',
-          fontSize: '0.875rem',
-          mb: 2
-        }}>
-          {title}
-        </Typography>
-        <Typography sx={{
-          fontWeight: 700,
-          color: '#2563eb',
-          fontSize: '2.25rem',
-          mb: 1
-        }}>
-          {value}
-        </Typography>
-        {subtitle && (
-          <Typography variant="body2" color="#64748b">
-            {subtitle}
-          </Typography>
-        )}
+      <CardContent sx={{
+        p: 4,
+        '&:last-child': { pb: 4 }
+      }}>
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Box flex={1}>
+            <Typography
+              sx={{
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                color: '#64748b',
+                mb: 1
+              }}
+            >
+              {title}
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: '2.5rem',
+                fontWeight: 700,
+                color: '#1e293b',
+                lineHeight: 1.2
+              }}
+            >
+              {value}
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              backgroundColor: color === 'primary.main' ? '#eff6ff' :
+                              color === 'secondary.main' ? '#f0fdf4' :
+                              color === 'success.main' ? '#ecfdf5' :
+                              color === 'warning.main' ? '#fffbeb' :
+                              '#f8fafc',
+              borderRadius: '12px',
+              padding: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              ml: 2
+            }}
+          >
+            {React.cloneElement(icon, {
+              sx: {
+                fontSize: '2rem',
+                color: color === 'primary.main' ? '#2563eb' :
+                       color === 'secondary.main' ? '#16a34a' :
+                       color === 'success.main' ? '#059669' :
+                       color === 'warning.main' ? '#d97706' :
+                       '#64748b'
+              }
+            })}
+          </Box>
+        </Box>
       </CardContent>
     </Card>
   );
@@ -274,29 +311,62 @@ const StudentStatistics = () => {
       py: 4,
       backgroundColor: '#ffffff'
     }}>
-      {/* Header */}
       <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
       }}
       data-aos="fade-down"
       >
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b'
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 2
         }}>
-          Mening statistikam
+          <Typography
+            sx={{
+              fontSize: '2.5rem',
+              fontWeight: 700,
+              color: '#1e293b',
+              mb: 2
+            }}
+          >
+            Mening statistikam
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<SearchIcon />}
+            onClick={() => navigate('/student/search')}
+            sx={{
+              backgroundColor: '#2563eb',
+              color: '#ffffff',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontWeight: 600,
+              textTransform: 'none',
+              '&:hover': {
+                backgroundColor: '#1d4ed8',
+              }
+            }}
+            data-aos="zoom-in"
+            data-aos-delay="200"
+          >
+            O'qituvchilarni topish
+          </Button>
+        </Box>
+        <Typography sx={{
+          fontSize: '1.125rem',
+          color: '#64748b',
+          fontWeight: 400
+        }}>
+          Test natijalaringiz va statistik ma'lumotlari
         </Typography>
       </Box>
 
       {/* Warning Count Alert - Only show if 3 or more warnings */}
       {warningCount >= 3 && (
-        <div data-aos="fade-up" data-aos-delay="300">
+        <div data-aos="fade-up" data-aos-delay="200">
           <Alert
             severity="warning"
             sx={{
@@ -320,46 +390,74 @@ const StudentStatistics = () => {
       )}
 
       {/* Main Statistics Cards */}
-      <Grid container spacing={4} sx={{ mb: 6 }}>
-        <Grid item xs={12} sm={6} md={3}>
+      <Grid container spacing={3} sx={{ mb: 4 }} data-aos="fade-up" data-aos-delay="300">
+        <Grid item xs={12} md={3}>
           <div data-aos="fade-up" data-aos-delay="100">
             <StatCard
               title="Topshirilgan testlar"
               value={totalTests}
-              subtitle="jami"
+              icon={<AssessmentIcon fontSize="large" />}
+              color="primary.main"
             />
           </div>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={12} md={3}>
           <div data-aos="fade-up" data-aos-delay="200">
             <StatCard
               title="O'rtacha ball"
               value={`${averageScore}%`}
-              subtitle="barcha testlar"
+              icon={<TrendingUpIcon fontSize="large" />}
+              color="success.main"
             />
           </div>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={12} md={3}>
           <div data-aos="fade-up" data-aos-delay="300">
             <StatCard
               title="Eng yuqori ball"
               value={`${highestScore}%`}
-              subtitle="eng yaxshi"
+              icon={<TrendingUpIcon fontSize="large" />}
+              color="warning.main"
             />
           </div>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={12} md={3}>
           <div data-aos="fade-up" data-aos-delay="400">
             <StatCard
               title="Eng past ball"
               value={`${lowestScore}%`}
-              subtitle="eng past"
+              icon={<TrendingUpIcon fontSize="large" />}
+              color="error.main"
             />
           </div>
         </Grid>
       </Grid>
 
-      <Grid container spacing={4}>
+      <Box sx={{ mt: 4 }}>
+        <Box sx={{
+          backgroundColor: '#eff6ff',
+          borderRadius: '12px',
+          padding: '16px 20px',
+          mb: 3,
+          border: '1px solid #e2e8f0'
+        }}
+        data-aos="fade-up"
+        data-aos-delay="400"
+        >
+          <Typography sx={{
+            fontSize: '1.25rem',
+            fontWeight: 600,
+            color: '#1e293b',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1
+          }}>
+            <AssessmentIcon sx={{ color: '#2563eb' }} />
+            Statistik ma'lumotlar va tahlillar
+          </Typography>
+        </Box>
+
+        <Grid container spacing={4} data-aos="fade-up" data-aos-delay="500">
         {/* Score Distribution Chart */}
         <Grid item xs={12} md={6}>
           <div data-aos="fade-right">
@@ -367,9 +465,13 @@ const StudentStatistics = () => {
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
               borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              height: '100%',
+              minHeight: '400px',
+              display: 'flex',
+              flexDirection: 'column'
             }}>
-              <CardContent sx={{ p: 4 }}>
+              <CardContent sx={{ p: 4, flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <Typography sx={{
                   fontWeight: 600,
                   color: '#1e293b',
@@ -378,25 +480,28 @@ const StudentStatistics = () => {
                 }}>
                   Ballar taqsimoti
                 </Typography>
-                <Bar
-                  data={scoreDistributionData}
-                  options={{
-                    responsive: true,
-                    plugins: {
-                      legend: {
-                        position: 'top',
+                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Bar
+                    data={scoreDistributionData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: 'top',
+                        },
                       },
-                    },
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        ticks: {
-                          stepSize: 1
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          ticks: {
+                            stepSize: 1
+                          }
                         }
                       }
-                    }
-                  }}
-                />
+                    }}
+                  />
+                </Box>
               </CardContent>
             </Card>
           </div>
@@ -409,9 +514,13 @@ const StudentStatistics = () => {
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
               borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              height: '100%',
+              minHeight: '400px',
+              display: 'flex',
+              flexDirection: 'column'
             }}>
-              <CardContent sx={{ p: 4 }}>
+              <CardContent sx={{ p: 4, flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <Typography sx={{
                   fontWeight: 600,
                   color: '#1e293b',
@@ -420,17 +529,20 @@ const StudentStatistics = () => {
                 }}>
                   Fanlar bo'yicha natijalar
                 </Typography>
-                <Pie
-                  data={subjectPerformanceData}
-                  options={{
-                    responsive: true,
-                    plugins: {
-                      legend: {
-                        position: 'bottom',
+                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Pie
+                    data={subjectPerformanceData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: 'bottom',
+                        },
                       },
-                    },
-                  }}
-                />
+                    }}
+                  />
+                </Box>
               </CardContent>
             </Card>
           </div>
@@ -443,9 +555,12 @@ const StudentStatistics = () => {
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
               borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              minHeight: '400px',
+              display: 'flex',
+              flexDirection: 'column'
             }}>
-              <CardContent sx={{ p: 4 }}>
+              <CardContent sx={{ p: 4, flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <Typography sx={{
                   fontWeight: 600,
                   color: '#1e293b',
@@ -454,86 +569,45 @@ const StudentStatistics = () => {
                 }}>
                   Ballar tendensiyasi (oxirgi 10 ta test)
                 </Typography>
-                <Line
-                  data={scoreTrendData}
-                  options={{
-                    responsive: true,
-                    plugins: {
-                      legend: {
-                        position: 'top',
+                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Line
+                    data={scoreTrendData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: 'top',
+                        },
                       },
-                    },
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        max: 100
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          max: 100
+                        }
                       }
-                    }
-                  }}
-                />
+                    }}
+                  />
+                </Box>
               </CardContent>
             </Card>
           </div>
         </Grid>
 
-        {/* Recent Activity */}
-        <Grid item xs={12} md={6}>
-          <div data-aos="fade-right">
-            <Card sx={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-            }}>
-              <CardContent sx={{ p: 4 }}>
-                <Typography sx={{
-                  fontWeight: 600,
-                  color: '#1e293b',
-                  fontSize: '1.25rem',
-                  mb: 3
-                }}>
-                  So'nggi faoliyat
-                </Typography>
-              {recentAttempts.length > 0 ? (
-                <Box sx={{ maxHeight: 300, overflowY: 'auto' }}>
-                  {recentAttempts.map((attempt, index) => {
-                    const test = tests.find(t => t.id === attempt.test);
-                    return (
-                      <Box key={attempt.id} sx={{ mb: 3, pb: 2, borderBottom: '1px solid #f1f5f9' }}>
-                        <Typography variant="body2" sx={{ 
-                          color: '#2563eb',
-                          fontWeight: 600,
-                          mb: 1
-                        }}>
-                          {test?.title || 'Noma\'lum test'} - {attempt.score || 0}%
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: '#64748b' }}>
-                          {new Date(attempt.submitted_at).toLocaleDateString('uz-UZ')}
-                        </Typography>
-                      </Box>
-                    );
-                  })}
-                </Box>
-              ) : (
-                <Typography variant="body2" sx={{ color: '#64748b' }}>
-                  Hali faoliyat yo'q
-                </Typography>
-              )}
-            </CardContent>
-          </Card>
-          </div>
-        </Grid>
-
         {/* Performance Summary */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12}>
           <div data-aos="fade-left">
             <Card sx={{
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
               borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              height: '100%',
+              minHeight: '400px',
+              display: 'flex',
+              flexDirection: 'column'
             }}>
-              <CardContent sx={{ p: 4 }}>
+              <CardContent sx={{ p: 4, flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <Typography sx={{
                   fontWeight: 600,
                   color: '#1e293b',
@@ -542,30 +616,144 @@ const StudentStatistics = () => {
                 }}>
                   Natija umumlashtiruvi
                 </Typography>
-              <Box sx={{ p: 2 }}>
-                <Typography variant="body2" gutterBottom sx={{ color: '#334155', fontWeight: 500 }}>
-                  <strong>Jami testlar:</strong> {totalTests}
-                </Typography>
-                <Typography variant="body2" gutterBottom sx={{ color: '#334155', fontWeight: 500 }}>
-                  <strong>O'rtacha ball:</strong> {averageScore}%
-                </Typography>
-                <Typography variant="body2" gutterBottom sx={{ color: '#334155', fontWeight: 500 }}>
-                  <strong>Eng yuqori ball:</strong> {highestScore}%
-                </Typography>
-                <Typography variant="body2" gutterBottom sx={{ color: '#334155', fontWeight: 500 }}>
-                  <strong>Eng past ball:</strong> {lowestScore}%
-                </Typography>
-                <Typography variant="body2" sx={{ mt: 3, color: '#64748b', fontWeight: 500 }}>
-                  {averageScore >= 80 ? 'Ajoyib natija! Davom eting!' :
-                   averageScore >= 60 ? 'Yaxshi natija! Yanada yaxshilashingiz mumkin.' :
-                   'Ko\'proq mashq qiling va bilim oling!'}
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
+                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', p: 2 }}>
+                  <Typography variant="body2" gutterBottom sx={{ color: '#334155', fontWeight: 500 }}>
+                    <strong>Jami testlar:</strong> {totalTests}
+                  </Typography>
+                  <Typography variant="body2" gutterBottom sx={{ color: '#334155', fontWeight: 500 }}>
+                    <strong>O'rtacha ball:</strong> {averageScore}%
+                  </Typography>
+                  <Typography variant="body2" gutterBottom sx={{ color: '#334155', fontWeight: 500 }}>
+                    <strong>Eng yuqori ball:</strong> {highestScore}%
+                  </Typography>
+                  <Typography variant="body2" gutterBottom sx={{ color: '#334155', fontWeight: 500 }}>
+                    <strong>Eng past ball:</strong> {lowestScore}%
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 3, color: '#64748b', fontWeight: 500 }}>
+                    {averageScore >= 80 ? 'Ajoyib natija! Davom eting!' :
+                     averageScore >= 60 ? 'Yaxshi natija! Yanada yaxshilashingiz mumkin.' :
+                     'Ko\'proq mashq qiling va bilim oling!'}
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
           </div>
         </Grid>
       </Grid>
+
+      {/* Quick Actions */}
+      <Box sx={{
+        backgroundColor: '#f8fafc',
+        borderRadius: '12px',
+        padding: '16px 20px',
+        mt: 3,
+        border: '1px solid #e2e8f0'
+      }}
+      >
+        <Typography sx={{
+          fontSize: '1.25rem',
+          fontWeight: 600,
+          color: '#1e293b',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          mb: 3
+        }}>
+          <AssessmentIcon sx={{ color: '#2563eb' }} />
+          Tezkor amallar
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={3}>
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={<SearchIcon />}
+              onClick={() => navigate('/student/search')}
+              sx={{
+                borderColor: '#e2e8f0',
+                color: '#374151',
+                borderRadius: '8px',
+                padding: '12px 16px',
+                fontWeight: 600,
+                textTransform: 'none',
+                '&:hover': {
+                  borderColor: '#2563eb',
+                  backgroundColor: '#f8fafc',
+                }
+              }}
+            >
+              O'qituvchilarni topish
+            </Button>
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={<AssessmentIcon />}
+              onClick={() => navigate('/student/results')}
+              sx={{
+                borderColor: '#e2e8f0',
+                color: '#374151',
+                borderRadius: '8px',
+                padding: '12px 16px',
+                fontWeight: 600,
+                textTransform: 'none',
+                '&:hover': {
+                  borderColor: '#2563eb',
+                  backgroundColor: '#f8fafc',
+                }
+              }}
+            >
+              Test natijalari
+            </Button>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={<TrendingUpIcon />}
+              onClick={() => navigate('/student')}
+              sx={{
+                borderColor: '#e2e8f0',
+                color: '#374151',
+                borderRadius: '8px',
+                padding: '12px 16px',
+                fontWeight: 600,
+                textTransform: 'none',
+                '&:hover': {
+                  borderColor: '#2563eb',
+                  backgroundColor: '#f8fafc',
+                }
+              }}
+            >
+              Bosh sahifa
+            </Button>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={<AssessmentIcon />}
+              onClick={() => navigate('/student/profile')}
+              sx={{
+                borderColor: '#e2e8f0',
+                color: '#374151',
+                borderRadius: '8px',
+                padding: '12px 16px',
+                fontWeight: 600,
+                textTransform: 'none',
+                '&:hover': {
+                  borderColor: '#2563eb',
+                  backgroundColor: '#f8fafc',
+                }
+              }}
+            >
+              Mening profilim
+            </Button>
+          </Grid>
+        </Grid>
+      </Box>
+      </Box>
     </Box>
   );
 };

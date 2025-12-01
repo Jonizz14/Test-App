@@ -133,6 +133,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const setCurrentUserData = (userData) => {
+    setCurrentUser(userData);
+    localStorage.setItem('currentUser', JSON.stringify(userData));
+  };
+
   const unbanWithCode = async (code) => {
     try {
       const updatedUser = await apiService.unbanWithCode(code);
@@ -164,6 +169,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     register,
     updateProfile,
+    setCurrentUserData,
     unbanWithCode,
     banCurrentUser,
     isAuthenticated: !!currentUser,

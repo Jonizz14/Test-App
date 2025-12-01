@@ -38,23 +38,58 @@ class User(AbstractUser):
     ban_date = models.DateTimeField(null=True, blank=True, help_text="When the user was banned")
     unban_code = models.CharField(max_length=4, blank=True, help_text="4-digit code to unban the user")
 
+    # Premium profile system (for students)
+    is_premium = models.BooleanField(default=False, help_text="Whether the student has premium status")
+    premium_granted_date = models.DateTimeField(null=True, blank=True, help_text="When premium was granted")
+    profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True, help_text="Profile photo (can be GIF)")
+    profile_status = models.CharField(max_length=100, blank=True, help_text="Custom status message")
+    premium_emoji_count = models.IntegerField(default=0, help_text="Number of premium emojis available")
+
     def save(self, *args, **kwargs):
         # Auto-generate display_id if not set and user is student/teacher
         if not self.display_id and self.role in ['student', 'teacher']:
             self.generate_display_id()
-        
+
         # Auto-generate email if not set
         if not self.email and self.username:
             self.generate_email()
-        
+
         # If username is not set but we have name, generate username from name
         if not self.username and self.first_name and self.last_name:
             # Create username from display_id for consistency
             if self.display_id:
                 self.username = self.display_id
-            
+
+        # Auto-manage premium status for students based on average score
+        if self.role == 'student':
+            self.update_premium_status()
+
         super().save(*args, **kwargs)
-    
+
+    def update_premium_status(self):
+        """Update premium status based on average score >= 95%"""
+        if self.role != 'student':
+            return
+
+        # Calculate current average score
+        attempts = self.attempts.all()
+        if attempts.exists():
+            avg_score = sum(attempt.score for attempt in attempts) / attempts.count()
+        else:
+            avg_score = 0
+
+        # Grant premium if average score >= 95%
+        if avg_score >= 95 and not self.is_premium:
+            from django.utils import timezone
+            self.is_premium = True
+            self.premium_granted_date = timezone.now()
+            self.premium_emoji_count = 50  # Grant 50 premium emojis
+        # Revoke premium if average score drops below 95%
+        elif avg_score < 95 and self.is_premium:
+            self.is_premium = False
+            self.premium_granted_date = None
+            self.premium_emoji_count = 0
+
     def generate_display_id(self):
         """Generate a display ID for student/teacher based on name and role"""
         if not self.name and not (self.first_name and self.last_name):

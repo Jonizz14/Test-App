@@ -221,7 +221,7 @@ const TeacherDetails = () => {
         ) : (
           <Grid container spacing={3}>
             {tests.map((test, index) => (
-              <Grid item xs={12} md={6} lg={4} key={test.id} data-aos="zoom-in" data-aos-delay={index * 100}>
+              <Grid item xs={12} md={6} key={test.id} data-aos="zoom-in" data-aos-delay={index * 100}>
                 <Card sx={{
                   height: '100%',
                   border: '1px solid #e2e8f0',

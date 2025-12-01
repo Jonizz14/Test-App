@@ -28,6 +28,7 @@ import {
   School as SchoolIcon,
   PowerSettingsNew as LogoutIcon,
   Security as ShieldIcon,
+  CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import { useServerTest } from '../context/ServerTestContext';
@@ -43,6 +44,7 @@ import TestResults from './student/TestResults';
 import StudentStatistics from './student/StudentStatistics';
 import ReceivedLessons from './student/ReceivedLessons';
 import StudentProfile from './student/StudentProfile';
+import StudentProfileView from './student/StudentProfileView';
 import TeacherDetails from './student/TeacherDetails';
 
 const StudentDashboard = () => {
@@ -205,8 +207,11 @@ const StudentDashboard = () => {
               STIM Test App
             </Typography>
           </Box>
-          <Typography variant="body1" sx={{ mr: 2 }}>
+          <Typography variant="body1" sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
             Salom, {currentUser?.name}
+            {currentUser?.is_premium && (
+              <CheckCircleIcon sx={{ color: '#10b981', fontSize: '1.2rem' }} />
+            )}
           </Typography>
           {sessionStarted && (
             <Typography variant="body2" sx={{
@@ -224,12 +229,18 @@ const StudentDashboard = () => {
           )}
           <NotificationCenter />
           <Button
-            color="inherit"
+            variant="outlined"
             onClick={sessionStarted ? () => alert('Test topshirayotganingizda chiqa olmaysiz. Avval testni yakunlang!') : handleLogout}
             disabled={sessionStarted}
             startIcon={<LogoutIcon sx={{ fontSize: '1.4rem' }} />}
             sx={{
+              border: 'none',
+              color: '#64748b',
               opacity: sessionStarted ? 0.5 : 1,
+              '&:hover': {
+                backgroundColor: sessionStarted ? 'transparent' : '#f1f5f9',
+                border: 'none'
+              },
               '&.Mui-disabled': {
                 opacity: 0.5,
                 cursor: 'not-allowed',
@@ -304,6 +315,7 @@ const StudentDashboard = () => {
               <Route path="/lessons" element={<ReceivedLessons />} />
               <Route path="/statistics" element={<StudentStatistics />} />
               <Route path="/profile" element={<StudentProfile />} />
+              <Route path="/student-profile/:id" element={<StudentProfileView />} />
             </Routes>
           </Container>
         </Box>

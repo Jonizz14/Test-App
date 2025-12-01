@@ -12,6 +12,12 @@ import {
   InputAdornment,
   Alert,
   Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -74,14 +80,6 @@ const SearchTeachers = () => {
       // Filter teachers from all users
       const teachersData = users.filter(user => user.role === 'teacher');
       
-      console.log('Data loaded:', {
-        totalUsers: users.length,
-        teachersFound: teachersData.length,
-        teachers: teachersData.map(t => ({ id: t.id, name: t.name })),
-        testsFound: tests.length,
-        tests: tests.map(t => ({ id: t.id, title: t.title, teacher: t.teacher })),
-        currentUser: currentUser
-      });
       
       setTeachers(teachersData);
       setTests(tests);
@@ -125,13 +123,6 @@ const SearchTeachers = () => {
       // Check if test is for this teacher (temporarily removed all other filters)
       const isForTeacher = test.teacher === teacherId;
       
-      console.log('Teacher test filtering:', {
-        teacherId,
-        testTitle: test.title,
-        testTeacherId: test.teacher,
-        isForTeacher,
-        currentUser
-      });
       
       return isForTeacher;
     });
@@ -407,137 +398,177 @@ const SearchTeachers = () => {
           📚 {filteredTeachers.length} ta o'qituvchi topildi
         </Typography>
 
-        {/* Teacher list view */}
-        <Grid container spacing={3}>
-          {filteredTeachers.map((teacher, index) => {
-            const teacherTests = getTeacherTests(teacher.id);
-            return (
-              <Grid item xs={12} md={6} lg={4} key={teacher.id}>
-                <div data-aos="zoom-in" data-aos-delay={500 + index * 100}>
-                  <Card sx={{
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '12px',
-                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
-                      transform: 'translateY(-4px)',
-                    },
-                    height: '100%'
-                  }}
-                  onClick={() => handleTeacherSelect(teacher)}
-                  >
-                  <CardContent sx={{ p: 3 }}>
-                    {/* Teacher info header */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <Typography sx={{ fontSize: '1.5rem', mr: 2 }}>👨‍🏫</Typography>
-                      <Typography variant="h6" sx={{ 
-                        fontWeight: 600,
-                        color: '#1e293b',
-                        fontSize: '1rem'
-                      }}>
-                        {teacher.name || 'Ismi ko\'rsatilmagan'}
-                      </Typography>
-                    </Box>
+        <div data-aos="fade-up" data-aos-delay="500">
+          <TableContainer component={Paper} sx={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          }}>
+            <Table>
+              <TableHead>
+                <TableRow sx={{
+                  backgroundColor: '#f8fafc',
+                  '& th': {
+                    fontWeight: 700,
+                    fontSize: '0.875rem',
+                    color: '#1e293b',
+                    borderBottom: '1px solid #e2e8f0',
+                    padding: '16px'
+                  }
+                }}>
+                  <TableCell>O'qituvchi ismi</TableCell>
+                  <TableCell>Fanlar</TableCell>
+                  <TableCell>Testlar soni</TableCell>
+                  <TableCell>Faol seanslar</TableCell>
+                  <TableCell>Harakatlar</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredTeachers.map((teacher) => {
+                  const teacherTests = getTeacherTests(teacher.id);
+                  const activeSessionsCount = getActiveSessionsCountForTeacher(teacher.id);
+                  const hasActiveSessions = activeSessionsCount > 0;
 
-                    {/* Teacher bio */}
-                    <Typography sx={{ 
-                      color: '#64748b',
-                      fontSize: '0.875rem',
-                      mb: 3,
-                      minHeight: '40px',
-                      lineHeight: 1.4
-                    }}>
-                      {teacher.bio || 'Ma\'lumot mavjud emas'}
-                    </Typography>
-
-                    {/* Subjects */}
-                    <Box sx={{ mb: 3 }}>
-                      <Typography sx={{ 
-                        fontWeight: 600, 
-                        color: '#374151',
+                  return (
+                    <TableRow key={teacher.id} sx={{
+                      '&:hover': {
+                        backgroundColor: '#f8fafc',
+                      },
+                      '& td': {
+                        borderBottom: '1px solid #f1f5f9',
+                        padding: '16px',
                         fontSize: '0.875rem',
-                        mb: 2
-                      }}>
-                        Fanlar:
-                      </Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {teacher.subjects?.map((subject) => (
+                        color: '#334155'
+                      }
+                    }}>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Typography sx={{ fontSize: '1.25rem', mr: 2 }}>👨‍🏫</Typography>
+                          <Box>
+                            <Typography sx={{
+                              fontWeight: 600,
+                              color: '#1e293b',
+                              fontSize: '0.875rem'
+                            }}>
+                              {teacher.name || 'Ismi ko\'rsatilmagan'}
+                            </Typography>
+                            {teacher.bio && (
+                              <Typography sx={{
+                                fontSize: '0.75rem',
+                                color: '#64748b',
+                                mt: 0.5
+                              }}>
+                                {teacher.bio}
+                              </Typography>
+                            )}
+                          </Box>
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                          {teacher.subjects?.slice(0, 3).map((subject) => (
+                            <Chip
+                              key={subject}
+                              label={subject}
+                              size="small"
+                              sx={{
+                                backgroundColor: '#eff6ff',
+                                color: '#2563eb',
+                                fontWeight: 500,
+                                borderRadius: '6px',
+                                fontSize: '0.75rem',
+                                height: '24px'
+                              }}
+                            />
+                          )) || (
+                            <Typography sx={{
+                              color: '#94a3b8',
+                              fontSize: '0.75rem'
+                            }}>
+                              Fanlar ko'rsatilmagan
+                            </Typography>
+                          )}
+                          {teacher.subjects && teacher.subjects.length > 3 && (
+                            <Chip
+                              label={`+${teacher.subjects.length - 3}`}
+                              size="small"
+                              sx={{
+                                backgroundColor: '#f3f4f6',
+                                color: '#6b7280',
+                                fontWeight: 500,
+                                borderRadius: '6px',
+                                fontSize: '0.75rem',
+                                height: '24px'
+                              }}
+                            />
+                          )}
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Typography sx={{
+                          fontWeight: 600,
+                          color: '#059669',
+                          fontSize: '0.875rem'
+                        }}>
+                          {teacherTests.length}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        {hasActiveSessions ? (
                           <Chip
-                            key={subject}
-                            label={subject}
+                            label={`${activeSessionsCount} ta`}
                             size="small"
                             sx={{
-                              backgroundColor: '#eff6ff',
-                              color: '#2563eb',
-                              fontWeight: 500,
+                              backgroundColor: '#ecfdf5',
+                              color: '#059669',
+                              fontWeight: 600,
                               borderRadius: '6px',
                               fontSize: '0.75rem'
                             }}
                           />
-                        )) || (
-                          <Typography sx={{ 
-                            color: '#94a3b8',
-                            fontSize: '0.75rem'
-                          }}>
-                            Fanlar ko'rsatilmagan
-                          </Typography>
+                        ) : (
+                          <Chip
+                            label="Yo'q"
+                            size="small"
+                            sx={{
+                              backgroundColor: '#f3f4f6',
+                              color: '#6b7280',
+                              fontWeight: 600,
+                              borderRadius: '6px',
+                              fontSize: '0.75rem'
+                            }}
+                          />
                         )}
-                      </Box>
-                    </Box>
-
-                    {/* Test count and view button */}
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Box>
-                        <Typography sx={{ 
-                          color: '#64748b',
-                          fontSize: '0.875rem'
-                        }}>
-                          📊 {teacherTests.length} ta faol test mavjud
-                        </Typography>
-                        {hasActiveSessionsForTeacher(teacher.id) && (
-                          <Typography sx={{ 
-                            color: '#059669',
-                            fontSize: '0.75rem',
-                            fontWeight: 600,
-                            mt: 0.5
-                          }}>
-                            ⚡ {getActiveSessionsCountForTeacher(teacher.id)} ta faol test seansi
-                          </Typography>
-                        )}
-                      </Box>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        sx={{
-                          borderColor: hasActiveSessionsForTeacher(teacher.id) ? '#059669' : '#2563eb',
-                          color: hasActiveSessionsForTeacher(teacher.id) ? '#059669' : '#2563eb',
-                          '&:hover': {
-                            backgroundColor: hasActiveSessionsForTeacher(teacher.id) ? '#ecfdf5' : '#eff6ff',
-                            borderColor: hasActiveSessionsForTeacher(teacher.id) ? '#047857' : '#1d4ed8'
-                          },
-                          fontSize: '0.75rem',
-                          textTransform: 'none',
-                          fontWeight: 600,
-                          ml: '10px'
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/student/teacher-details/${teacher.id}`);
-                        }}
-                      >
-                        {hasActiveSessionsForTeacher(teacher.id) ? 'Davom ettirish' : 'Ko\'rish'}
-                      </Button>
-                    </Box>
-                  </CardContent>
-                </Card>
-                </div>
-              </Grid>
-            );
-          })}
-        </Grid>
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button
+                            size="small"
+                            variant="contained"
+                            onClick={() => navigate(`/student/teacher-details/${teacher.id}`)}
+                            sx={{
+                              fontSize: '0.75rem',
+                              padding: '4px 8px',
+                              minWidth: 'auto',
+                              backgroundColor: hasActiveSessions ? '#059669' : '#2563eb',
+                              '&:hover': {
+                                backgroundColor: hasActiveSessions ? '#047857' : '#1d4ed8',
+                              }
+                            }}
+                            startIcon={<PersonIcon />}
+                          >
+                            {hasActiveSessions ? 'Davom ettirish' : 'Ko\'rish'}
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
       </Box>
 
       {/* No results message */}

@@ -6,14 +6,26 @@ class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(validators=[])  # Remove default username validators
     email = serializers.EmailField(validators=[])  # Remove default email validators
 
+    profile_photo_url = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ['id', 'username', 'display_id', 'email', 'password', 'role', 'name', 'first_name', 'last_name',
-                 'created_at', 'last_login', 'class_group', 'direction', 'registration_date',
-                 'subjects', 'bio', 'total_tests_created', 'average_student_score', 'is_curator', 'curator_class',
-                 'total_tests_taken', 'average_score', 'completed_subjects',
-                 'is_banned', 'ban_reason', 'ban_date', 'unban_code']
+                  'created_at', 'last_login', 'class_group', 'direction', 'registration_date',
+                  'subjects', 'bio', 'total_tests_created', 'average_student_score', 'is_curator', 'curator_class',
+                  'total_tests_taken', 'average_score', 'completed_subjects',
+                  'is_banned', 'ban_reason', 'ban_date', 'unban_code',
+                  'is_premium', 'premium_granted_date', 'profile_photo', 'profile_photo_url', 'profile_status', 'premium_emoji_count']
         read_only_fields = ['id', 'created_at', 'last_login', 'display_id']
+
+    def get_profile_photo_url(self, obj):
+        if obj.profile_photo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.profile_photo.url)
+            else:
+                return obj.profile_photo.url
+        return None
 
     def create(self, validated_data):
         # Check if username already exists
@@ -30,6 +42,15 @@ class UserSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         # Add display_id to the response for frontend compatibility
         data = super().to_representation(instance)
+
+        # Convert profile_photo to full URL if it exists
+        if instance.profile_photo:
+            request = self.context.get('request')
+            if request:
+                data['profile_photo'] = request.build_absolute_uri(instance.profile_photo.url)
+            else:
+                data['profile_photo'] = instance.profile_photo.url
+
         data['display_id'] = instance.username  # Use username as display_id
         return data
 

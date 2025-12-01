@@ -146,7 +146,19 @@ const StudentDetails = () => {
             {student.name.charAt(0).toUpperCase()}
           </Avatar>
           <Box>
-            <Typography variant="h5" sx={{ fontWeight: 700, color: '#1e293b', mb: 1 }}>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 700,
+                color: '#2563eb',
+                mb: 1,
+                cursor: 'pointer',
+                '&:hover': {
+                  textDecoration: 'underline'
+                }
+              }}
+              onClick={() => navigate(`/admin/student-profile/${student.id}`)}
+            >
               {student.name}
             </Typography>
             <Typography sx={{ color: '#64748b', mb: 1 }}>
