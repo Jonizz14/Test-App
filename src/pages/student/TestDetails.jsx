@@ -251,7 +251,6 @@ const TestDetails = () => {
           pb: 4,
           borderBottom: '1px solid #e2e8f0'
         }}
-        data-aos="fade-down"
         >
           <Typography sx={{
             fontSize: '2.5rem',
@@ -262,7 +261,7 @@ const TestDetails = () => {
           </Typography>
         </Box>
 
-        <div data-aos="zoom-in" data-aos-delay="300">
+        <div>
           <Paper sx={{
             p: 4,
             textAlign: 'center',
@@ -331,7 +330,6 @@ const TestDetails = () => {
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
       }}
-      data-aos="fade-down"
       >
         <Typography sx={{
           fontSize: '2.5rem',
@@ -345,7 +343,7 @@ const TestDetails = () => {
       <Grid container spacing={4}>
         {/* Left Side - Test Details */}
         <Grid item xs={12} md={5}>
-          <div data-aos="fade-right" data-aos-delay="200">
+          <div>
             <Card sx={{
               height: 'fit-content',
               backgroundColor: '#ffffff',
@@ -460,7 +458,7 @@ const TestDetails = () => {
         {/* Right Side - Test Taking */}
         <Grid item xs={12} md={7}>
           {testStarted && currentQuestion ? (
-            <div data-aos="fade-left" data-aos-delay="300">
+            <div>
               <Paper sx={{
                 p: 4,
                 backgroundColor: '#ffffff',
@@ -587,7 +585,7 @@ const TestDetails = () => {
             </Paper>
             </div>
           ) : (
-            <div data-aos="fade-left" data-aos-delay="400">
+            <div>
               <Paper sx={{
                 p: 6,
                 textAlign: 'center',

@@ -44,6 +44,8 @@ class User(AbstractUser):
     profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True, help_text="Profile photo (can be GIF)")
     profile_status = models.CharField(max_length=100, blank=True, help_text="Custom status message")
     premium_emoji_count = models.IntegerField(default=0, help_text="Number of premium emojis available")
+    background_gradient = models.JSONField(default=dict, blank=True, help_text="Background gradient settings for premium profile")
+    selected_emojis = models.JSONField(default=list, blank=True, help_text="List of selected premium emojis")
 
     def save(self, *args, **kwargs):
         # Auto-generate display_id if not set and user is student/teacher

@@ -237,7 +237,6 @@ const StudentOverview = () => {
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
       }}
-      data-aos="fade-down"
       >
         <Box sx={{
           display: 'flex',
@@ -270,10 +269,8 @@ const StudentOverview = () => {
                 backgroundColor: '#1d4ed8',
               }
             }}
-            data-aos="zoom-in"
-            data-aos-delay="200"
-          >
-            O'qituvchilarni topish
+            >
+              O'qituvchilarni topish
           </Button>
         </Box>
         <Typography sx={{
@@ -287,7 +284,7 @@ const StudentOverview = () => {
 
       {/* Warning Count Alert - Only show if 3 or more warnings */}
       {warningCount >= 3 && (
-        <div data-aos="fade-up" data-aos-delay="300">
+        <div>
           <Alert
             severity="warning"
             sx={{
@@ -312,7 +309,7 @@ const StudentOverview = () => {
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
-          <div data-aos="fade-up" data-aos-delay="100">
+          <div>
             <StatCard
               title="Topshirilgan testlar"
               value={totalTests}
@@ -322,7 +319,7 @@ const StudentOverview = () => {
           </div>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <div data-aos="fade-up" data-aos-delay="200">
+          <div>
             <StatCard
               title="O'rtacha ball"
               value={`${averageScore}%`}
@@ -332,7 +329,7 @@ const StudentOverview = () => {
           </div>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <div data-aos="fade-up" data-aos-delay="300">
+          <div>
             <StatCard
               title="Eng yuqori ball"
               value={`${highestScore}%`}
@@ -342,7 +339,7 @@ const StudentOverview = () => {
           </div>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <div data-aos="fade-up" data-aos-delay="400">
+          <div>
             <StatCard
               title="Eng past ball"
               value={`${lowestScore}%`}
@@ -361,8 +358,6 @@ const StudentOverview = () => {
           mb: 3,
           border: '1px solid #e2e8f0'
         }}
-        data-aos="fade-up"
-        data-aos-delay="500"
         >
           <Typography sx={{
             fontSize: '1.25rem',
@@ -387,8 +382,6 @@ const StudentOverview = () => {
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
           }
         }}
-        data-aos="fade-up"
-        data-aos-delay="600"
         >
           <CardContent sx={{ p: 4 }}>
             <Typography sx={{

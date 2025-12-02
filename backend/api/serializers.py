@@ -15,7 +15,8 @@ class UserSerializer(serializers.ModelSerializer):
                   'subjects', 'bio', 'total_tests_created', 'average_student_score', 'is_curator', 'curator_class',
                   'total_tests_taken', 'average_score', 'completed_subjects',
                   'is_banned', 'ban_reason', 'ban_date', 'unban_code',
-                  'is_premium', 'premium_granted_date', 'profile_photo', 'profile_photo_url', 'profile_status', 'premium_emoji_count']
+                  'is_premium', 'premium_granted_date', 'profile_photo', 'profile_photo_url', 'profile_status', 'premium_emoji_count',
+                  'background_gradient', 'selected_emojis']
         read_only_fields = ['id', 'created_at', 'last_login', 'display_id']
 
     def get_profile_photo_url(self, obj):

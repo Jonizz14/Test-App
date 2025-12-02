@@ -120,7 +120,6 @@ const ReceivedLessons = () => {
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
       }}
-      data-aos="fade-down"
       >
         <Typography sx={{
           fontSize: '2.5rem',
@@ -132,7 +131,7 @@ const ReceivedLessons = () => {
       </Box>
 
       {lessons.length === 0 ? (
-        <div data-aos="fade-up" data-aos-delay="300">
+        <div>
           <Paper sx={{ p: 4, textAlign: 'center', bgcolor: '#f8f9fa' }}>
             <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
             <Typography variant="h6" color="textSecondary" gutterBottom>
@@ -145,7 +144,7 @@ const ReceivedLessons = () => {
         </div>
       ) : (
         <Box>
-          <div data-aos="fade-up" data-aos-delay="200">
+          <div>
             <Alert severity="info" sx={{ mb: 3 }}>
               Sizga {lessons.length} ta qo'shimcha dars yuborilgan. Har bir darsni o'rganib, bilimlaringizni mustahkamlang!
             </Alert>
@@ -154,7 +153,7 @@ const ReceivedLessons = () => {
           <Grid container spacing={3}>
             {lessons.map((lesson, index) => (
               <Grid item xs={12} key={lesson.id}>
-                <div data-aos="fade-up" data-aos-delay={300 + index * 100}>
+                <div>
                   <Card sx={{
                     border: '1px solid #e9ecef',
                     borderRadius: 2,

@@ -110,3 +110,730 @@ body {
     padding: 4px;
   }
 }
+
+/* Swimming emoji animations */
+@keyframes swimEmojis {
+  0% {
+    transform: translateX(-120%) translateY(0px) rotate(0deg);
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.3;
+  }
+  20% {
+    transform: translateX(-80%) translateY(-30px) rotate(90deg);
+    opacity: 0.6;
+  }
+  40% {
+    transform: translateX(-40%) translateY(-10px) rotate(180deg);
+    opacity: 0.8;
+  }
+  60% {
+    transform: translateX(20%) translateY(-50px) rotate(270deg);
+    opacity: 0.6;
+  }
+  80% {
+    transform: translateX(60%) translateY(-20px) rotate(360deg);
+    opacity: 0.4;
+  }
+  95% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateX(120vw) translateY(-60px) rotate(450deg);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100vw);
+  }
+}
+
+/* Individual emoji swimming animations */
+@keyframes swimEmoji-0 {
+  0% { 
+    transform: translateX(-100px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  10% { opacity: 0.4; }
+  25% { 
+    transform: translateX(20px) translateY(-40px) rotate(45deg) scale(1.1);
+    opacity: 0.7;
+  }
+  50% { 
+    transform: translateX(150px) translateY(-20px) rotate(90deg) scale(0.9);
+    opacity: 0.9;
+  }
+  75% { 
+    transform: translateX(280px) translateY(-60px) rotate(135deg) scale(1.05);
+    opacity: 0.6;
+  }
+  90% { opacity: 0.3; }
+  100% { 
+    transform: translateX(400px) translateY(-30px) rotate(180deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmoji-1 {
+  0% { 
+    transform: translateX(-80px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  15% { opacity: 0.5; }
+  30% { 
+    transform: translateX(40px) translateY(-35px) rotate(60deg) scale(1.2);
+    opacity: 0.8;
+  }
+  55% { 
+    transform: translateX(180px) translateY(-15px) rotate(120deg) scale(0.8);
+    opacity: 0.9;
+  }
+  80% { 
+    transform: translateX(320px) translateY(-45px) rotate(180deg) scale(1.1);
+    opacity: 0.5;
+  }
+  100% { 
+    transform: translateX(460px) translateY(-25px) rotate(240deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmoji-2 {
+  0% { 
+    transform: translateX(-60px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  20% { opacity: 0.6; }
+  35% { 
+    transform: translateX(60px) translateY(-50px) rotate(75deg) scale(1.3);
+    opacity: 0.9;
+  }
+  60% { 
+    transform: translateX(200px) translateY(-25px) rotate(150deg) scale(0.7);
+    opacity: 0.8;
+  }
+  85% { 
+    transform: translateX(340px) translateY(-55px) rotate(225deg) scale(1.15);
+    opacity: 0.4;
+  }
+  100% { 
+    transform: translateX(480px) translateY(-35px) rotate(300deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmoji-3 {
+  0% { 
+    transform: translateX(-120px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  5% { opacity: 0.3; }
+  25% { 
+    transform: translateX(0px) translateY(-30px) rotate(30deg) scale(1.05);
+    opacity: 0.7;
+  }
+  50% { 
+    transform: translateX(120px) translateY(-10px) rotate(60deg) scale(0.95);
+    opacity: 0.9;
+  }
+  75% { 
+    transform: translateX(240px) translateY(-40px) rotate(90deg) scale(1.1);
+    opacity: 0.6;
+  }
+  95% { opacity: 0.2; }
+  100% { 
+    transform: translateX(360px) translateY(-20px) rotate(120deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmoji-4 {
+  0% { 
+    transform: translateX(-90px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  12% { opacity: 0.4; }
+  28% { 
+    transform: translateX(30px) translateY(-45px) rotate(50deg) scale(1.25);
+    opacity: 0.8;
+  }
+  53% { 
+    transform: translateX(170px) translateY(-20px) rotate(100deg) scale(0.85);
+    opacity: 0.9;
+  }
+  78% { 
+    transform: translateX(310px) translateY(-50px) rotate(150deg) scale(1.08);
+    opacity: 0.5;
+  }
+  100% { 
+    transform: translateX(450px) translateY(-30px) rotate(200deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmoji-5 {
+  0% { 
+    transform: translateX(-70px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  18% { opacity: 0.6; }
+  33% { 
+    transform: translateX(50px) translateY(-40px) rotate(70deg) scale(1.1);
+    opacity: 0.9;
+  }
+  58% { 
+    transform: translateX(190px) translateY(-18px) rotate(140deg) scale(0.9);
+    opacity: 0.8;
+  }
+  83% { 
+    transform: translateX(330px) translateY(-42px) rotate(210deg) scale(1.12);
+    opacity: 0.4;
+  }
+  100% { 
+    transform: translateX(470px) translateY(-28px) rotate(280deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmoji-6 {
+  0% { 
+    transform: translateX(-100px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  8% { opacity: 0.3; }
+  23% { 
+    transform: translateX(20px) translateY(-35px) rotate(40deg) scale(1.15);
+    opacity: 0.7;
+  }
+  48% { 
+    transform: translateX(160px) translateY(-15px) rotate(80deg) scale(0.85);
+    opacity: 0.9;
+  }
+  73% { 
+    transform: translateX(300px) translateY(-38px) rotate(120deg) scale(1.06);
+    opacity: 0.6;
+  }
+  92% { opacity: 0.2; }
+  100% { 
+    transform: translateX(440px) translateY(-22px) rotate(160deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmoji-7 {
+  0% { 
+    transform: translateX(-85px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  14% { opacity: 0.5; }
+  29% { 
+    transform: translateX(35px) translateY(-48px) rotate(65deg) scale(1.28);
+    opacity: 0.8;
+  }
+  54% { 
+    transform: translateX(175px) translateY(-22px) rotate(130deg) scale(0.82);
+    opacity: 0.9;
+  }
+  79% { 
+    transform: translateX(315px) translateY(-52px) rotate(195deg) scale(1.14);
+    opacity: 0.5;
+  }
+  100% { 
+    transform: translateX(455px) translateY(-32px) rotate(260deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmoji-8 {
+  0% { 
+    transform: translateX(-95px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  6% { opacity: 0.2; }
+  21% { 
+    transform: translateX(15px) translateY(-32px) rotate(35deg) scale(1.08);
+    opacity: 0.6;
+  }
+  46% { 
+    transform: translateX(155px) translateY(-12px) rotate(70deg) scale(0.92);
+    opacity: 0.9;
+  }
+  71% { 
+    transform: translateX(295px) translateY(-36px) rotate(105deg) scale(1.04);
+    opacity: 0.7;
+  }
+  89% { opacity: 0.3; }
+  100% { 
+    transform: translateX(435px) translateY(-18px) rotate(140deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmoji-9 {
+  0% { 
+    transform: translateX(-75px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  16% { opacity: 0.6; }
+  31% { 
+    transform: translateX(45px) translateY(-42px) rotate(75deg) scale(1.2);
+    opacity: 0.9;
+  }
+  56% { 
+    transform: translateX(185px) translateY(-18px) rotate(150deg) scale(0.88);
+    opacity: 0.8;
+  }
+  81% { 
+    transform: translateX(325px) translateY(-46px) rotate(225deg) scale(1.1);
+    opacity: 0.4;
+  }
+  100% { 
+    transform: translateX(465px) translateY(-26px) rotate(300deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmoji-10 {
+  0% { 
+    transform: translateX(-110px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  9% { opacity: 0.3; }
+  24% { 
+    transform: translateX(10px) translateY(-38px) rotate(45deg) scale(1.12);
+    opacity: 0.7;
+  }
+  49% { 
+    transform: translateX(150px) translateY(-16px) rotate(90deg) scale(0.86);
+    opacity: 0.9;
+  }
+  74% { 
+    transform: translateX(290px) translateY(-41px) rotate(135deg) scale(1.07);
+    opacity: 0.6;
+  }
+  93% { opacity: 0.2; }
+  100% { 
+    transform: translateX(430px) translateY(-24px) rotate(180deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmoji-11 {
+  0% { 
+    transform: translateX(-65px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  17% { opacity: 0.7; }
+  32% { 
+    transform: translateX(55px) translateY(-44px) rotate(80deg) scale(1.22);
+    opacity: 0.9;
+  }
+  57% { 
+    transform: translateX(195px) translateY(-20px) rotate(160deg) scale(0.84);
+    opacity: 0.8;
+  }
+  82% { 
+    transform: translateX(335px) translateY(-48px) rotate(240deg) scale(1.13);
+    opacity: 0.4;
+  }
+  100% { 
+    transform: translateX(475px) translateY(-30px) rotate(320deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmoji-12 {
+  0% { 
+    transform: translateX(-105px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  11% { opacity: 0.4; }
+  26% { 
+    transform: translateX(25px) translateY(-36px) rotate(50deg) scale(1.16);
+    opacity: 0.8;
+  }
+  51% { 
+    transform: translateX(165px) translateY(-14px) rotate(100deg) scale(0.84);
+    opacity: 0.9;
+  }
+  76% { 
+    transform: translateX(305px) translateY(-39px) rotate(150deg) scale(1.09);
+    opacity: 0.5;
+  }
+  100% { 
+    transform: translateX(445px) translateY(-21px) rotate(200deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmoji-13 {
+  0% { 
+    transform: translateX(-88px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  13% { opacity: 0.5; }
+  28% { 
+    transform: translateX(32px) translateY(-46px) rotate(70deg) scale(1.26);
+    opacity: 0.8;
+  }
+  53% { 
+    transform: translateX(172px) translateY(-20px) rotate(140deg) scale(0.82);
+    opacity: 0.9;
+  }
+  78% { 
+    transform: translateX(312px) translateY(-50px) rotate(210deg) scale(1.16);
+    opacity: 0.5;
+  }
+  100% { 
+    transform: translateX(452px) translateY(-32px) rotate(280deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmoji-14 {
+  0% { 
+    transform: translateX(-78px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  19% { opacity: 0.6; }
+  34% { 
+    transform: translateX(42px) translateY(-40px) rotate(85deg) scale(1.14);
+    opacity: 0.9;
+  }
+  59% { 
+    transform: translateX(182px) translateY(-16px) rotate(170deg) scale(0.86);
+    opacity: 0.8;
+  }
+  84% { 
+    transform: translateX(322px) translateY(-44px) rotate(255deg) scale(1.11);
+    opacity: 0.4;
+  }
+  100% { 
+    transform: translateX(462px) translateY(-28px) rotate(340deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmoji-15 {
+  0% { 
+    transform: translateX(-98px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  7% { opacity: 0.2; }
+  22% { 
+    transform: translateX(12px) translateY(-34px) rotate(40deg) scale(1.06);
+    opacity: 0.6;
+  }
+  47% { 
+    transform: translateX(152px) translateY(-12px) rotate(80deg) scale(0.94);
+    opacity: 0.9;
+  }
+  72% { 
+    transform: translateX(292px) translateY(-37px) rotate(120deg) scale(1.03);
+    opacity: 0.7;
+  }
+  91% { opacity: 0.3; }
+  100% { 
+    transform: translateX(432px) translateY(-19px) rotate(160deg) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Reverse swimming animations for second layer */
+@keyframes swimEmojiReverse-0 {
+  0% { 
+    transform: translateX(100px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  12% { opacity: 0.4; }
+  27% { 
+    transform: translateX(-40px) translateY(35px) rotate(-45deg) scale(1.1);
+    opacity: 0.7;
+  }
+  52% { 
+    transform: translateX(-180px) translateY(15px) rotate(-90deg) scale(0.9);
+    opacity: 0.9;
+  }
+  77% { 
+    transform: translateX(-320px) translateY(40px) rotate(-135deg) scale(1.05);
+    opacity: 0.6;
+  }
+  100% { 
+    transform: translateX(-460px) translateY(25px) rotate(-180deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmojiReverse-1 {
+  0% { 
+    transform: translateX(120px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  8% { opacity: 0.2; }
+  23% { 
+    transform: translateX(-20px) translateY(30px) rotate(-30deg) scale(1.08);
+    opacity: 0.6;
+  }
+  48% { 
+    transform: translateX(-160px) translateY(12px) rotate(-60deg) scale(0.92);
+    opacity: 0.9;
+  }
+  73% { 
+    transform: translateX(-300px) translateY(35px) rotate(-90deg) scale(1.04);
+    opacity: 0.7;
+  }
+  91% { opacity: 0.3; }
+  100% { 
+    transform: translateX(-440px) translateY(18px) rotate(-120deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmojiReverse-2 {
+  0% { 
+    transform: translateX(90px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  15% { opacity: 0.5; }
+  30% { 
+    transform: translateX(-50px) translateY(42px) rotate(-75deg) scale(1.24);
+    opacity: 0.8;
+  }
+  55% { 
+    transform: translateX(-190px) translateY(18px) rotate(-150deg) scale(0.84);
+    opacity: 0.9;
+  }
+  80% { 
+    transform: translateX(-330px) translateY(46px) rotate(-225deg) scale(1.12);
+    opacity: 0.5;
+  }
+  100% { 
+    transform: translateX(-470px) translateY(28px) rotate(-300deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmojiReverse-3 {
+  0% { 
+    transform: translateX(110px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  10% { opacity: 0.3; }
+  25% { 
+    transform: translateX(-30px) translateY(38px) rotate(-55deg) scale(1.16);
+    opacity: 0.7;
+  }
+  50% { 
+    transform: translateX(-170px) translateY(16px) rotate(-110deg) scale(0.86);
+    opacity: 0.9;
+  }
+  75% { 
+    transform: translateX(-310px) translateY(42px) rotate(-165deg) scale(1.07);
+    opacity: 0.6;
+  }
+  93% { opacity: 0.2; }
+  100% { 
+    transform: translateX(-450px) translateY(24px) rotate(-220deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmojiReverse-4 {
+  0% { 
+    transform: translateX(85px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  18% { opacity: 0.6; }
+  33% { 
+    transform: translateX(-55px) translateY(44px) rotate(-85deg) scale(1.22);
+    opacity: 0.9;
+  }
+  58% { 
+    transform: translateX(-195px) translateY(20px) rotate(-170deg) scale(0.86);
+    opacity: 0.8;
+  }
+  83% { 
+    transform: translateX(-335px) translateY(48px) rotate(-255deg) scale(1.11);
+    opacity: 0.4;
+  }
+  100% { 
+    transform: translateX(-475px) translateY(30px) rotate(-340deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmojiReverse-5 {
+  0% { 
+    transform: translateX(95px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  14% { opacity: 0.4; }
+  29% { 
+    transform: translateX(-45px) translateY(40px) rotate(-70deg) scale(1.18);
+    opacity: 0.8;
+  }
+  54% { 
+    transform: translateX(-185px) translateY(18px) rotate(-140deg) scale(0.88);
+    opacity: 0.9;
+  }
+  79% { 
+    transform: translateX(-325px) translateY(44px) rotate(-210deg) scale(1.09);
+    opacity: 0.5;
+  }
+  100% { 
+    transform: translateX(-465px) translateY(26px) rotate(-280deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmojiReverse-6 {
+  0% { 
+    transform: translateX(115px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  9% { opacity: 0.3; }
+  24% { 
+    transform: translateX(-25px) translateY(32px) rotate(-50deg) scale(1.12);
+    opacity: 0.7;
+  }
+  49% { 
+    transform: translateX(-165px) translateY(14px) rotate(-100deg) scale(0.84);
+    opacity: 0.9;
+  }
+  74% { 
+    transform: translateX(-305px) translateY(38px) rotate(-150deg) scale(1.06);
+    opacity: 0.6;
+  }
+  92% { opacity: 0.2; }
+  100% { 
+    transform: translateX(-445px) translateY(20px) rotate(-200deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmojiReverse-7 {
+  0% { 
+    transform: translateX(80px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  16% { opacity: 0.5; }
+  31% { 
+    transform: translateX(-60px) translateY(46px) rotate(-95deg) scale(1.26);
+    opacity: 0.8;
+  }
+  56% { 
+    transform: translateX(-200px) translateY(22px) rotate(-190deg) scale(0.82);
+    opacity: 0.9;
+  }
+  81% { 
+    transform: translateX(-340px) translateY(50px) rotate(-285deg) scale(1.14);
+    opacity: 0.5;
+  }
+  100% { 
+    transform: translateX(-480px) translateY(32px) rotate(-380deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmojiReverse-8 {
+  0% { 
+    transform: translateX(105px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  11% { opacity: 0.4; }
+  26% { 
+    transform: translateX(-35px) translateY(36px) rotate(-65deg) scale(1.14);
+    opacity: 0.7;
+  }
+  51% { 
+    transform: translateX(-175px) translateY(16px) rotate(-130deg) scale(0.86);
+    opacity: 0.9;
+  }
+  76% { 
+    transform: translateX(-315px) translateY(40px) rotate(-195deg) scale(1.08);
+    opacity: 0.6;
+  }
+  100% { 
+    transform: translateX(-455px) translateY(22px) rotate(-260deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmojiReverse-9 {
+  0% { 
+    transform: translateX(88px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  17% { opacity: 0.6; }
+  32% { 
+    transform: translateX(-52px) translateY(42px) rotate(-80deg) scale(1.2);
+    opacity: 0.9;
+  }
+  57% { 
+    transform: translateX(-192px) translateY(20px) rotate(-160deg) scale(0.88);
+    opacity: 0.8;
+  }
+  82% { 
+    transform: translateX(-332px) translateY(46px) rotate(-240deg) scale(1.1);
+    opacity: 0.4;
+  }
+  100% { 
+    transform: translateX(-472px) translateY(28px) rotate(-320deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmojiReverse-10 {
+  0% { 
+    transform: translateX(118px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  7% { opacity: 0.2; }
+  22% { 
+    transform: translateX(-18px) translateY(28px) rotate(-40deg) scale(1.06);
+    opacity: 0.6;
+  }
+  47% { 
+    transform: translateX(-158px) translateY(12px) rotate(-80deg) scale(0.94);
+    opacity: 0.9;
+  }
+  72% { 
+    transform: translateX(-298px) translateY(34px) rotate(-120deg) scale(1.03);
+    opacity: 0.7;
+  }
+  91% { opacity: 0.3; }
+  100% { 
+    transform: translateX(-438px) translateY(16px) rotate(-160deg) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes swimEmojiReverse-11 {
+  0% { 
+    transform: translateX(92px) translateY(0px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  13% { opacity: 0.5; }
+  28% { 
+    transform: translateX(-48px) translateY(38px) rotate(-75deg) scale(1.16);
+    opacity: 0.8;
+  }
+  53% { 
+    transform: translateX(-188px) translateY(18px) rotate(-150deg) scale(0.84);
+    opacity: 0.9;
+  }
+  78% { 
+    transform: translateX(-328px) translateY(42px) rotate(-225deg) scale(1.07);
+    opacity: 0.5;
+  }
+  100% { 
+    transform: translateX(-468px) translateY(24px) rotate(-300deg) scale(1);
+    opacity: 0;
+  }
+}

@@ -99,9 +99,10 @@ class ApiService {
   }
 
   async patch(endpoint, data) {
+    const isFormData = data instanceof FormData;
     const response = await this.request(endpoint, {
       method: 'PATCH',
-      body: JSON.stringify(data),
+      body: isFormData ? data : JSON.stringify(data),
     });
     return response.json();
   }

@@ -100,8 +100,6 @@ const StudentDashboard = () => {
         flexDirection: 'column',
         gap: 1
       }}
-      data-aos="fade-down"
-      data-aos-delay="100"
       >
         <Typography variant="h6" sx={{
           color: '#1e293b',
@@ -114,7 +112,7 @@ const StudentDashboard = () => {
       <List sx={{ pt: 0 }}>
         {menuItems.map((item, index) => (
           <ListItem key={item.text} disablePadding sx={{ px: 1, py: 0.5 }}>
-            <div data-aos="fade-right" data-aos-delay={200 + index * 50} style={{ width: '100%' }}>
+            <div style={{ width: '100%' }}>
               <ListItemButton
                 onClick={() => handleNavigation(item.path)}
                 disabled={sessionStarted && item.path !== '/student/take-test'}
@@ -304,7 +302,7 @@ const StudentDashboard = () => {
             ml: isMobile ? 0 : '280px',
           }}
         >
-          <Container maxWidth={false} data-aos="fade-in" data-aos-delay="300">
+          <Container maxWidth={false}>
             <Routes>
               <Route path="/" element={<StudentOverview />} />
               <Route path="/search" element={<SearchTeachers />} />

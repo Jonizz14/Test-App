@@ -158,7 +158,6 @@ const SubmitTest = () => {
           pb: 4,
           borderBottom: '1px solid #e2e8f0'
         }}
-        data-aos="fade-down"
         >
           <Typography sx={{
             fontSize: '2.5rem',
@@ -181,7 +180,7 @@ const SubmitTest = () => {
           </Button>
         </Box>
 
-        <div data-aos="zoom-in" data-aos-delay="300">
+        <div>
           <Paper sx={{
             p: 4,
             textAlign: 'center',

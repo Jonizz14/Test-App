@@ -197,7 +197,6 @@ const TeacherDetails = () => {
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
       }}
-      data-aos="fade-down"
       >
         <Typography sx={{
           fontSize: '2.5rem',
@@ -218,15 +217,13 @@ const TeacherDetails = () => {
               backgroundColor: '#f8fafc'
             }
           }}
-          data-aos="zoom-in"
-          data-aos-delay="200"
-        >
+          >
           O'qituvchilarni qidirishga qaytish
         </Button>
       </Box>
 
       {/* Teacher information section */}
-      <div data-aos="fade-up" data-aos-delay="300">
+      <div>
         <Paper sx={{
           backgroundColor: '#ffffff',
           border: '1px solid #e2e8f0',
@@ -390,7 +387,7 @@ const TeacherDetails = () => {
       </div>
 
       {/* Tests section */}
-      <Box sx={{ mb: 4 }} data-aos="fade-up" data-aos-delay="400">
+      <Box sx={{ mb: 4 }}>
         <Typography sx={{
           fontSize: '1.5rem',
           fontWeight: 700,
@@ -410,7 +407,7 @@ const TeacherDetails = () => {
 
               return (
                 <Grid item xs={12} md={6} lg={4} key={test.id}>
-                  <div data-aos="zoom-in" data-aos-delay={500 + index * 100}>
+                  <div>
                     <Card sx={{
                       backgroundColor: '#ffffff',
                       border: '1px solid #e2e8f0',
@@ -591,7 +588,7 @@ const TeacherDetails = () => {
           </Grid>
         ) : (
           // No tests message
-          <div data-aos="fade-up" data-aos-delay="500">
+          <div>
             <Card sx={{
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',

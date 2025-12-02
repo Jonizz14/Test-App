@@ -150,7 +150,6 @@ const TestResults = () => {
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
       }}
-      data-aos="fade-down"
       >
         <Typography sx={{
           fontSize: '2.5rem',
@@ -162,7 +161,7 @@ const TestResults = () => {
       </Box>
 
       {results.length === 0 ? (
-        <div data-aos="fade-up" data-aos-delay="300">
+        <div>
           <Card sx={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
@@ -181,7 +180,7 @@ const TestResults = () => {
           </Card>
         </div>
       ) : (
-        <div data-aos="fade-up" data-aos-delay="200">
+        <div>
           <Card sx={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',

@@ -607,7 +607,6 @@ const TakeTest = () => {
           pb: 4,
           borderBottom: '1px solid #e2e8f0'
         }}
-        data-aos="fade-down"
         >
           <Typography sx={{
             fontSize: '2.5rem',
@@ -618,7 +617,7 @@ const TakeTest = () => {
           </Typography>
         </Box>
 
-        <div data-aos="zoom-in" data-aos-delay="300">
+        <div>
           <Paper sx={{
             p: 4,
             textAlign: 'center',
@@ -723,7 +722,6 @@ const TakeTest = () => {
           borderRadius: 2,
           border: '1px solid rgba(148, 163, 184, 0.2)'
         }}
-        data-aos="fade-down"
         >
           <Typography variant="h6">
             {selectedTest.title}
@@ -782,8 +780,6 @@ const TakeTest = () => {
             borderRadius: 3,
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           }}
-          data-aos="fade-up"
-          data-aos-delay="200"
         >
           {/* Image displayed at the top - bigger */}
           {currentQuestion.image && (
@@ -953,7 +949,7 @@ const TakeTest = () => {
         </Paper>
 
         {/* Question Navigation Panel */}
-        <Box sx={{ mt: 3 }} data-aos="fade-up" data-aos-delay="400">
+        <Box sx={{ mt: 3 }}>
           <Typography variant="h6" sx={{ mb: 2, color: '#1e293b', fontWeight: 600 }}>
             Savollar ro'yxati:
           </Typography>
@@ -1084,7 +1080,6 @@ const TakeTest = () => {
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
       }}
-      data-aos="fade-down"
       >
         <Typography sx={{
           fontSize: '2.5rem',
@@ -1096,7 +1091,7 @@ const TakeTest = () => {
       </Box>
 
       {/* Barcha testlar section with table layout */}
-      <Box sx={{ mb: 6 }} data-aos="fade-up" data-aos-delay="200">
+      <Box sx={{ mb: 6 }}>
         <Box sx={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -1133,7 +1128,7 @@ const TakeTest = () => {
         </Box>
 
         {/* Search Input */}
-        <Box sx={{ mb: 4 }} data-aos="fade-up" data-aos-delay="300">
+        <Box sx={{ mb: 4 }}>
           <TextField
             fullWidth
             variant="outlined"
@@ -1168,7 +1163,7 @@ const TakeTest = () => {
           )}
         </Box>
 
-        <div data-aos="fade-up" data-aos-delay="400">
+        <div>
           <TableContainer component={Paper} sx={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
@@ -1376,7 +1371,7 @@ const TakeTest = () => {
         </div>
 
         {getFilteredTests().length === 0 && getSortedTests().length > 0 && (
-          <div data-aos="fade-up" data-aos-delay="500">
+          <div>
             <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
               <Typography variant="h6" color="textSecondary">
                 Qidiruv natijasi bo'yicha test topilmadi
@@ -1389,7 +1384,7 @@ const TakeTest = () => {
         )}
 
         {getSortedTests().length === 0 && (
-          <div data-aos="fade-up" data-aos-delay="500">
+          <div>
             <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
               <Typography variant="h6" color="textSecondary">
                 {sortBy === 'easy' || sortBy === 'medium' || sortBy === 'hard'

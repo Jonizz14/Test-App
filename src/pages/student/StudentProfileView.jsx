@@ -37,6 +37,7 @@ const StudentProfileView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [emojiPositions, setEmojiPositions] = useState([]);
 
   useEffect(() => {
     const loadStudentProfile = async () => {
@@ -60,6 +61,12 @@ const StudentProfileView = () => {
         const allAttempts = await apiService.getAttempts({ student: id });
         setAttempts(allAttempts);
 
+        // Generate random positions for the emojis if they exist
+        const emojis = studentData.selected_emojis || [];
+        if (emojis.length > 0) {
+          setEmojiPositions(generateRandomPositions(emojis.length));
+        }
+
       } catch (error) {
         console.error('Failed to load student profile:', error);
         setError('Ma\'lumotlarni yuklashda xatolik yuz berdi');
@@ -70,6 +77,22 @@ const StudentProfileView = () => {
 
     loadStudentProfile();
   }, [id, currentUser]);
+
+  // Function to generate random positions for emojis
+  const generateRandomPositions = (emojiCount) => {
+    const positions = [];
+    for (let i = 0; i < emojiCount; i++) {
+      positions.push({
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        delay: Math.random() * 5,
+        duration: 15 + Math.random() * 10,
+        scale: 0.7 + Math.random() * 0.6,
+        rotation: Math.random() * 360
+      });
+    }
+    return positions;
+  };
 
   // Calculate statistics
   const totalTests = attempts.length;
@@ -130,7 +153,6 @@ const StudentProfileView = () => {
         alignItems: 'center',
         gap: 2
       }}
-      data-aos="fade-down"
       >
         <Button
           startIcon={<ArrowBackIcon />}
@@ -156,16 +178,24 @@ const StudentProfileView = () => {
       <Paper sx={{
         p: 0,
         mb: 4,
-        background: student.is_premium
-          ? 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)'
-          : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+        background: student.is_premium && student.background_gradient
+          ? (typeof student.background_gradient === 'string' 
+              ? JSON.parse(student.background_gradient).css 
+              : student.background_gradient.css)
+          : student.is_premium
+            ? `
+              radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+              linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)
+            `
+            : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
         borderRadius: '20px',
         overflow: 'hidden',
         position: 'relative',
-        minHeight: '300px'
+        minHeight: '300px',
+        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
+        border: '1px solid rgba(255, 255, 255, 0.1)'
       }}
-      data-aos="fade-up"
-      data-aos-delay="200"
       >
         {/* Premium Badge */}
         {student.is_premium && (
@@ -197,13 +227,141 @@ const StudentProfileView = () => {
           flexDirection: { xs: 'column', md: 'row' },
           alignItems: 'center',
           p: 4,
-          minHeight: '300px'
+          minHeight: '300px',
+          position: 'relative',
+          overflow: 'hidden'
         }}>
+          {/* CSS Animations for Swimming Emojis */}
+          <style>{`
+            ${Array.from({ length: 20 }).map((_, i) => `
+              @keyframes swimAllEmojis-${i} {
+                0% { 
+                  transform: translateX(${(i % 4 - 2) * 25}%) translateY(0%) rotate(${i * 18}deg) scale(${0.7 + (i % 3) * 0.1}); 
+                }
+                25% { 
+                  transform: translateX(${(i % 4 - 1) * 25}%) translateY(-20%) rotate(${i * 18 + 90}deg) scale(${0.7 + ((i + 1) % 3) * 0.1}); 
+                }
+                50% { 
+                  transform: translateX(${(i % 4) * 25}%) translateY(-40%) rotate(${i * 18 + 180}deg) scale(${0.7 + ((i + 2) % 3) * 0.1}); 
+                }
+                75% { 
+                  transform: translateX(${(i % 4 + 1) * 25}%) translateY(-20%) rotate(${i * 18 + 270}deg) scale(${0.7 + ((i + 1) % 3) * 0.1}); 
+                }
+                100% { 
+                  transform: translateX(${(i % 4 - 2) * 25}%) translateY(0%) rotate(${i * 18 + 360}deg) scale(${0.7 + (i % 3) * 0.1}); 
+                }
+              }
+            `).join('')}
+          `}</style>
+          
+          {/* Emoji Background for Premium Users */}
+          {student.is_premium && student.selected_emojis && student.selected_emojis.length > 0 && (
+            <Box sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              pointerEvents: 'none',
+              zIndex: 1,
+              overflow: 'hidden'
+            }}>
+              {/* Floating emoji animation container */}
+              <Box sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                animation: 'swimEmojis 25s infinite linear'
+              }}>
+                {/* Random positioned animated emojis */}
+                {student.selected_emojis.map((emoji, index) => {
+                  const position = emojiPositions[index] || {
+                    left: Math.random() * 100,
+                    top: Math.random() * 100,
+                    delay: Math.random() * 5,
+                    duration: 15 + Math.random() * 10,
+                    scale: 0.7 + Math.random() * 0.6,
+                    rotation: Math.random() * 360
+                  };
+                  
+                  return (
+                    <Box
+                      key={`emoji-${index}`}
+                      sx={{
+                        position: 'absolute',
+                        fontSize: '3rem',
+                        opacity: 0.25 + (index % 3) * 0.05,
+                        color: 'rgba(255, 255, 255, 0.9)',
+                        filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))',
+                        left: `${position.left}%`,
+                        top: `${position.top}%`,
+                        transform: `rotate(${position.rotation}deg) scale(${position.scale})`,
+                        animation: `swimAllEmojis-${index % 20} ${position.duration}s infinite ease-in-out`,
+                        animationDelay: `${position.delay}s`,
+                        zIndex: 1
+                      }}
+                    >
+                      {emoji}
+                    </Box>
+                  );
+                })}
+                
+                {/* Additional floating emojis for density */}
+                {Array.from({ length: Math.min(8, student.selected_emojis.length * 2) }).map((_, index) => {
+                  const originalIndex = index % student.selected_emojis.length;
+                  const position = {
+                    left: Math.random() * 100,
+                    top: Math.random() * 100,
+                    delay: Math.random() * 8,
+                    duration: 12 + Math.random() * 8,
+                    scale: 0.5 + Math.random() * 0.5,
+                    rotation: Math.random() * 360
+                  };
+                  
+                  return (
+                    <Box
+                      key={`extra-emoji-${index}`}
+                      sx={{
+                        position: 'absolute',
+                        fontSize: '2.2rem',
+                        opacity: 0.15 + (index % 2) * 0.03,
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))',
+                        left: `${position.left}%`,
+                        top: `${position.top}%`,
+                        transform: `rotate(${position.rotation}deg) scale(${position.scale})`,
+                        animation: `swimAllEmojis-${(index + 10) % 20} ${position.duration}s infinite ease-in-out`,
+                        animationDelay: `${position.delay}s`,
+                        zIndex: 1
+                      }}
+                    >
+                      {student.selected_emojis[originalIndex]}
+                    </Box>
+                  );
+                })}
+              </Box>
+              
+              {/* Animated gradient overlay for depth */}
+              <Box sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.02) 50%, transparent 70%)',
+                animation: 'shimmer 8s infinite',
+                pointerEvents: 'none'
+              }} />
+            </Box>
+          )}
           {/* Profile Photo */}
           <Box sx={{
             position: 'relative',
             mb: { xs: 3, md: 0 },
-            mr: { xs: 0, md: 4 }
+            mr: { xs: 0, md: 4 },
+            zIndex: 3
           }}>
             {student.profile_photo ? (
               <Avatar
@@ -261,7 +419,9 @@ const StudentProfileView = () => {
           <Box sx={{
             textAlign: { xs: 'center', md: 'left' },
             flex: 1,
-            color: student.is_premium ? '#ffffff' : '#1e293b'
+            color: student.is_premium ? '#ffffff' : '#1e293b',
+            position: 'relative',
+            zIndex: 2
           }}>
             <Typography variant="h3" sx={{
               fontWeight: 700,
@@ -316,7 +476,7 @@ const StudentProfileView = () => {
       </Paper>
 
       {/* Statistics Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }} data-aos="fade-up" data-aos-delay="400">
+      <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
           <Card sx={{
             backgroundColor: '#ffffff',
@@ -588,8 +748,6 @@ const StudentProfileView = () => {
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
         }
       }}
-      data-aos="fade-up"
-      data-aos-delay="600"
       >
         <CardContent sx={{ p: 4 }}>
           <Typography sx={{

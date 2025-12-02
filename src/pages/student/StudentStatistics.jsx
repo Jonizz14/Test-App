@@ -316,7 +316,6 @@ const StudentStatistics = () => {
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
       }}
-      data-aos="fade-down"
       >
         <Box sx={{
           display: 'flex',
@@ -349,10 +348,8 @@ const StudentStatistics = () => {
                 backgroundColor: '#1d4ed8',
               }
             }}
-            data-aos="zoom-in"
-            data-aos-delay="200"
-          >
-            O'qituvchilarni topish
+            >
+              O'qituvchilarni topish
           </Button>
         </Box>
         <Typography sx={{
@@ -366,7 +363,7 @@ const StudentStatistics = () => {
 
       {/* Warning Count Alert - Only show if 3 or more warnings */}
       {warningCount >= 3 && (
-        <div data-aos="fade-up" data-aos-delay="200">
+        <div>
           <Alert
             severity="warning"
             sx={{
@@ -390,9 +387,9 @@ const StudentStatistics = () => {
       )}
 
       {/* Main Statistics Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }} data-aos="fade-up" data-aos-delay="300">
+      <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} md={3}>
-          <div data-aos="fade-up" data-aos-delay="100">
+          <div>
             <StatCard
               title="Topshirilgan testlar"
               value={totalTests}
@@ -402,7 +399,7 @@ const StudentStatistics = () => {
           </div>
         </Grid>
         <Grid item xs={12} md={3}>
-          <div data-aos="fade-up" data-aos-delay="200">
+          <div>
             <StatCard
               title="O'rtacha ball"
               value={`${averageScore}%`}
@@ -412,7 +409,7 @@ const StudentStatistics = () => {
           </div>
         </Grid>
         <Grid item xs={12} md={3}>
-          <div data-aos="fade-up" data-aos-delay="300">
+          <div>
             <StatCard
               title="Eng yuqori ball"
               value={`${highestScore}%`}
@@ -422,7 +419,7 @@ const StudentStatistics = () => {
           </div>
         </Grid>
         <Grid item xs={12} md={3}>
-          <div data-aos="fade-up" data-aos-delay="400">
+          <div>
             <StatCard
               title="Eng past ball"
               value={`${lowestScore}%`}
@@ -441,8 +438,6 @@ const StudentStatistics = () => {
           mb: 3,
           border: '1px solid #e2e8f0'
         }}
-        data-aos="fade-up"
-        data-aos-delay="400"
         >
           <Typography sx={{
             fontSize: '1.25rem',
@@ -457,10 +452,10 @@ const StudentStatistics = () => {
           </Typography>
         </Box>
 
-        <Grid container spacing={4} data-aos="fade-up" data-aos-delay="500">
+        <Grid container spacing={4}>
         {/* Score Distribution Chart */}
         <Grid item xs={12} md={6}>
-          <div data-aos="fade-right">
+          <div>
             <Card sx={{
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
@@ -509,7 +504,7 @@ const StudentStatistics = () => {
 
         {/* Performance by Subject */}
         <Grid item xs={12} md={6}>
-          <div data-aos="fade-left">
+          <div>
             <Card sx={{
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
@@ -550,7 +545,7 @@ const StudentStatistics = () => {
 
         {/* Score Trend */}
         <Grid item xs={12}>
-          <div data-aos="fade-up">
+          <div>
             <Card sx={{
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
@@ -596,7 +591,7 @@ const StudentStatistics = () => {
 
         {/* Performance Summary */}
         <Grid item xs={12}>
-          <div data-aos="fade-left">
+          <div>
             <Card sx={{
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',

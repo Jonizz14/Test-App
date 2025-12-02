@@ -254,7 +254,6 @@ const SearchTeachers = () => {
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
       }}
-      data-aos="fade-down"
       >
         <Typography sx={{
           fontSize: '2.5rem',
@@ -274,7 +273,7 @@ const SearchTeachers = () => {
       </Box>
 
       {/* Search and filter section */}
-      <Box sx={{ mb: 6 }} data-aos="fade-up" data-aos-delay="200">
+      <Box sx={{ mb: 6 }}>
         <Grid container spacing={3} sx={{ mb: 3 }}>
           {/* Teacher name search */}
           <Grid item xs={12} md={6}>
@@ -388,7 +387,7 @@ const SearchTeachers = () => {
       </Box>
 
       {/* Teachers section */}
-      <Box sx={{ mb: 6 }} data-aos="fade-up" data-aos-delay="400">
+      <Box sx={{ mb: 6 }}>
         <Typography sx={{
           fontSize: '1.25rem',
           fontWeight: 700,
@@ -398,7 +397,7 @@ const SearchTeachers = () => {
           📚 {filteredTeachers.length} ta o'qituvchi topildi
         </Typography>
 
-        <div data-aos="fade-up" data-aos-delay="500">
+        <div>
           <TableContainer component={Paper} sx={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
@@ -573,7 +572,7 @@ const SearchTeachers = () => {
 
       {/* No results message */}
       {filteredTeachers.length === 0 && allTests.length === 0 && (
-        <div data-aos="fade-up" data-aos-delay="600">
+        <div>
           <Card sx={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
