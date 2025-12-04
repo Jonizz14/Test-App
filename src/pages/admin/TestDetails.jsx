@@ -174,9 +174,10 @@ const TestDetails = () => {
               <Chip
                 label={test.subject}
                 sx={{
-                  backgroundColor: '#ecfdf5',
-                  color: '#059669',
-                  fontWeight: 600
+                  backgroundColor: test.subject === 'Ingliz tili' ? '#3b82f6' : '#ecfdf5',
+                  color: test.subject === 'Ingliz tili' ? '#ffffff' : '#059669',
+                  fontWeight: 600,
+                  borderColor: test.subject === 'Ingliz tili' ? '#3b82f6' : undefined
                 }}
               />
               <Chip

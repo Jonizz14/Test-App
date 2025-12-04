@@ -16,6 +16,7 @@ import {
   Card,
   CardContent,
   Grid,
+  Avatar,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
@@ -23,6 +24,10 @@ import {
   Person as PersonIcon,
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
+  People as PeopleIcon,
+  TrendingUp as TrendingUpIcon,
+  EmojiEvents as EmojiEventsIcon,
+  TrendingDown as TrendingDownIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
@@ -126,10 +131,17 @@ const TestDetails = () => {
     }
   };
 
+  const reloadNotifications = () => {
+    const allNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+    const lessonNotifications = allNotifications.filter(n => n.type === 'lesson_reminder' && n.testId === testId);
+    setNotifications(lessonNotifications);
+  };
+
   const handleCloseLessonModal = () => {
     setLessonModalOpen(false);
     setSelectedStudent(null);
     setSelectedAttempt(null);
+    reloadNotifications();
   };
 
   // Get student's answers for a question
@@ -218,6 +230,7 @@ const TestDetails = () => {
         pb: 4,
         borderBottom: '1px solid #e2e8f0',
         display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center'
       }}>
         <Button
@@ -225,7 +238,6 @@ const TestDetails = () => {
           onClick={() => navigate('/teacher/my-tests')}
           variant="outlined"
           sx={{
-            mr: 3,
             borderColor: '#e2e8f0',
             color: '#64748b',
             '&:hover': {
@@ -355,29 +367,55 @@ const TestDetails = () => {
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            textAlign: 'center',
-            p: 3
+            transition: 'none',
+            '&:hover': {
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            },
           }}>
-            <Typography
-              sx={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                color: '#64748b',
-                mb: 1
-              }}
-            >
-              Test topshirganlar
-            </Typography>
-            <Typography sx={{
-              fontSize: '2.5rem',
-              fontWeight: 700,
-              color: '#2563eb',
-              lineHeight: 1.2
+            <CardContent sx={{ 
+              p: 4,
+              '&:last-child': { pb: 4 }
             }}>
-              {totalAttempts}
-            </Typography>
+              <Box display="flex" alignItems="center" justifyContent="space-between">
+                <Box flex={1}>
+                  <Typography
+                    sx={{
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      color: '#64748b',
+                      mb: 1
+                    }}
+                  >
+                    Test topshirganlar
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: '2.5rem',
+                      fontWeight: 700,
+                      color: '#1e293b',
+                      lineHeight: 1.2
+                    }}
+                  >
+                    {totalAttempts}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    backgroundColor: '#eff6ff',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    ml: 2
+                  }}
+                >
+                  <PeopleIcon sx={{ fontSize: '2rem', color: '#2563eb' }} />
+                </Box>
+              </Box>
+            </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
@@ -386,29 +424,55 @@ const TestDetails = () => {
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            textAlign: 'center',
-            p: 3
+            transition: 'none',
+            '&:hover': {
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            },
           }}>
-            <Typography
-              sx={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                color: '#64748b',
-                mb: 1
-              }}
-            >
-              O'rtacha ball
-            </Typography>
-            <Typography sx={{
-              fontSize: '2.5rem',
-              fontWeight: 700,
-              color: '#059669',
-              lineHeight: 1.2
+            <CardContent sx={{ 
+              p: 4,
+              '&:last-child': { pb: 4 }
             }}>
-              {averageScore}%
-            </Typography>
+              <Box display="flex" alignItems="center" justifyContent="space-between">
+                <Box flex={1}>
+                  <Typography
+                    sx={{
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      color: '#64748b',
+                      mb: 1
+                    }}
+                  >
+                    O'rtacha ball
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: '2.5rem',
+                      fontWeight: 700,
+                      color: '#1e293b',
+                      lineHeight: 1.2
+                    }}
+                  >
+                    {averageScore}%
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    backgroundColor: '#ecfdf5',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    ml: 2
+                  }}
+                >
+                  <TrendingUpIcon sx={{ fontSize: '2rem', color: '#059669' }} />
+                </Box>
+              </Box>
+            </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
@@ -417,29 +481,55 @@ const TestDetails = () => {
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            textAlign: 'center',
-            p: 3
+            transition: 'none',
+            '&:hover': {
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            },
           }}>
-            <Typography
-              sx={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                color: '#64748b',
-                mb: 1
-              }}
-            >
-              Eng yuqori ball
-            </Typography>
-            <Typography sx={{
-              fontSize: '2.5rem',
-              fontWeight: 700,
-              color: '#10b981',
-              lineHeight: 1.2
+            <CardContent sx={{ 
+              p: 4,
+              '&:last-child': { pb: 4 }
             }}>
-              {highestScore}%
-            </Typography>
+              <Box display="flex" alignItems="center" justifyContent="space-between">
+                <Box flex={1}>
+                  <Typography
+                    sx={{
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      color: '#64748b',
+                      mb: 1
+                    }}
+                  >
+                    Eng yuqori ball
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: '2.5rem',
+                      fontWeight: 700,
+                      color: '#1e293b',
+                      lineHeight: 1.2
+                    }}
+                  >
+                    {highestScore}%
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    backgroundColor: '#f0fdf4',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    ml: 2
+                  }}
+                >
+                  <EmojiEventsIcon sx={{ fontSize: '2rem', color: '#16a34a' }} />
+                </Box>
+              </Box>
+            </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
@@ -448,29 +538,55 @@ const TestDetails = () => {
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            textAlign: 'center',
-            p: 3
+            transition: 'none',
+            '&:hover': {
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            },
           }}>
-            <Typography
-              sx={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                color: '#64748b',
-                mb: 1
-              }}
-            >
-              Eng past ball
-            </Typography>
-            <Typography sx={{
-              fontSize: '2.5rem',
-              fontWeight: 700,
-              color: '#d97706',
-              lineHeight: 1.2
+            <CardContent sx={{ 
+              p: 4,
+              '&:last-child': { pb: 4 }
             }}>
-              {lowestScore}%
-            </Typography>
+              <Box display="flex" alignItems="center" justifyContent="space-between">
+                <Box flex={1}>
+                  <Typography
+                    sx={{
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      color: '#64748b',
+                      mb: 1
+                    }}
+                  >
+                    Eng past ball
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: '2.5rem',
+                      fontWeight: 700,
+                      color: '#1e293b',
+                      lineHeight: 1.2
+                    }}
+                  >
+                    {lowestScore}%
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    backgroundColor: '#fffbeb',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    ml: 2
+                  }}
+                >
+                  <TrendingDownIcon sx={{ fontSize: '2rem', color: '#d97706' }} />
+                </Box>
+              </Box>
+            </CardContent>
           </Card>
         </Grid>
       </Grid>
@@ -518,7 +634,21 @@ const TestDetails = () => {
                   <TableRow key={attempt.id}>
                     <TableCell>
                       <Box display="flex" alignItems="center">
-                        <PersonIcon sx={{ mr: 1, color: 'primary.main' }} />
+                        {student?.is_premium && student?.profile_photo ? (
+                          <Avatar 
+                            src={student.profile_photo.startsWith('http') ? student.profile_photo : `http://localhost:8000${student.profile_photo}`}
+                            sx={{ 
+                              mr: 2, 
+                              width: 40, 
+                              height: 40,
+                              border: '2px solid #f59e0b'
+                            }} 
+                          />
+                        ) : (
+                          <Avatar sx={{ mr: 2, bgcolor: 'primary.main', width: 40, height: 40 }}>
+                            {(student?.name || student?.first_name || 'N').charAt(0).toUpperCase()}
+                          </Avatar>
+                        )}
                         <Box>
                           <Typography
                             variant="body1"
@@ -527,12 +657,22 @@ const TestDetails = () => {
                               fontWeight: 500,
                               '&:hover': { textDecoration: 'underline', color: 'primary.main' }
                             }}
-                            onClick={() => {
-                              const details = `Ism: ${student?.name || student?.first_name || 'Noma\'lum'} ${student?.last_name || ''}\nYo'nalish: ${getDirectionLabel(student?.direction) || 'Kiritilmagan'}\nID: ${attempt.student}`;
-                              alert(details);
-                            }}
+                            onClick={() => navigate(`/teacher/student-profile/${student?.id}`)}
                           >
                             {student?.name || student?.first_name || 'Noma\'lum'} {student?.last_name || ''}
+                            {student?.is_premium && (
+                              <Chip 
+                                label="Premium" 
+                                size="small" 
+                                sx={{ 
+                                  ml: 1, 
+                                  height: '18px', 
+                                  fontSize: '0.625rem',
+                                  backgroundColor: '#fef3c7',
+                                  color: '#d97706'
+                                }} 
+                              />
+                            )}
                           </Typography>
                           <Typography variant="body2" color="textSecondary">
                             {getDirectionLabel(student?.direction) || 'Yo\'nalish kiritilmagan'}
@@ -578,27 +718,63 @@ const TestDetails = () => {
                     </TableCell>
                     <TableCell>
                       <Box display="flex" gap={1} flexDirection="column">
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          startIcon={<AssessmentIcon />}
-                          onClick={() => {
-                            navigate(`/teacher/student-result/${attempt.id}`);
-                          }}
-                          sx={{ cursor: 'pointer' }}
-                        >
-                          Tafsilotlar
-                        </Button>
                         {(() => {
-                          const hasInvitation = notifications.some(n => n.studentId === attempt.student);
-                          if (hasInvitation) {
+                          const lessonInvitation = notifications.find(n => n.studentId === attempt.student);
+                          if (lessonInvitation) {
                             return (
-                              <Chip
-                                label="Darsga chaqirilgan"
-                                color="warning"
-                                size="small"
-                                variant="outlined"
-                              />
+                              <Box sx={{ minWidth: '200px' }}>
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    fontWeight: 600,
+                                    color: '#d97706',
+                                    mb: 0.5
+                                  }}
+                                >
+                                  Qo'shimcha dars yuborilgan
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    fontWeight: 500,
+                                    color: '#1e293b',
+                                    fontSize: '0.8rem',
+                                    mb: 0.5
+                                  }}
+                                >
+                                  {lessonInvitation.lessonTopic}
+                                </Typography>
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: '#64748b',
+                                    display: 'block',
+                                    mb: 0.5
+                                  }}
+                                >
+                                  {lessonInvitation.lessonDate} • {lessonInvitation.lessonTime}
+                                </Typography>
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: '#64748b',
+                                    display: 'block',
+                                    mb: 0.5
+                                  }}
+                                >
+                                  {lessonInvitation.room}
+                                </Typography>
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: '#dc2626',
+                                    display: 'block',
+                                    fontWeight: 500
+                                  }}
+                                >
+                                  Dars hali o'tilmagan
+                                </Typography>
+                              </Box>
                             );
                           } else if (attempt.score < 60 && student) {
                             return (
@@ -610,6 +786,26 @@ const TestDetails = () => {
                                 sx={{ cursor: 'pointer' }}
                               >
                                 Qo'shimcha dars
+                              </Button>
+                            );
+                          } else if (attempt.score >= 60) {
+                            return (
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                sx={{
+                                  cursor: 'default',
+                                  backgroundColor: '#ecfdf5',
+                                  color: '#059669',
+                                  borderColor: '#10b981',
+                                  '&:hover': {
+                                    backgroundColor: '#ecfdf5',
+                                    borderColor: '#10b981'
+                                  }
+                                }}
+                                disabled
+                              >
+                                Qoshimcha dars kerak emas
                               </Button>
                             );
                           }

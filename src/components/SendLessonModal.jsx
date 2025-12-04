@@ -73,12 +73,14 @@ const SendLessonModal = ({ open, onClose, student, testResult, teacherInfo }) =>
       const notification = {
         id: `lesson-${Date.now()}`,
         studentId: student.id,
+        studentName: student?.name || student?.fullName || student?.display_name || `${student?.first_name || ''} ${student?.last_name || ''}`.trim() || 'O\'quvchi',
+        studentClass: student?.class_group || student?.class || student?.grade || '',
         teacherId: teacherInfo?.id || 'current-teacher-id',
         teacherName: teacherInfo?.fullName || teacherInfo?.name || "O'qituvchi",
         type: 'lesson_reminder',
         title: "Qo'shimcha dars belgilandi",
         message: `${teacherInfo?.fullName || teacherInfo?.name || "O'qituvchi"} sizni ${formData.lessonDate} kuni ${formData.lessonTime}da "${formData.topic}" mavzusida qo'shimcha darsga taklif qiladi.\n\nFan: ${formData.subject}\nQiyinlik: ${formData.difficulty === 'easy' ? 'Oson' : formData.difficulty === 'medium' ? "O'rtacha" : 'Qiyin'}\nDavomiyligi: ${formData.estimatedTime} daqiqa\nHona: ${formData.room}\nTafsilot: ${formData.description}`,
-        testId: testResult?.id,
+        testId: testResult?.test?.id,
         testTitle: testResult?.test?.title,
         subject: formData.subject,
         room: formData.room,
@@ -148,7 +150,7 @@ const SendLessonModal = ({ open, onClose, student, testResult, teacherInfo }) =>
               Qo'shimcha dars yuborish
             </Typography>
             <Typography variant="body2" sx={{ color: '#6c757d', mt: 0.5 }}>
-              {student?.fullName || student?.name} uchun individual dars
+              {student?.name || student?.fullName || `${student?.first_name || ''} ${student?.last_name || ''}`.trim()} uchun individual dars
             </Typography>
           </Box>
         </Box>

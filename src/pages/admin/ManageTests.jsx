@@ -230,11 +230,12 @@ const ManageTests = () => {
                     label={test.subject}
                     size="small"
                     sx={{
-                      backgroundColor: '#eff6ff',
-                      color: '#2563eb',
+                      backgroundColor: test.subject === 'Ingliz tili' ? '#3b82f6' : '#eff6ff',
+                      color: test.subject === 'Ingliz tili' ? '#ffffff' : '#2563eb',
                       fontWeight: 500,
                       borderRadius: '6px',
-                      fontSize: '0.75rem'
+                      fontSize: '0.75rem',
+                      borderColor: test.subject === 'Ingliz tili' ? '#3b82f6' : undefined
                     }}
                   />
                 </TableCell>

@@ -179,6 +179,11 @@ class Question(models.Model):
     explanation = models.TextField(blank=True)
     points = models.IntegerField(default=1)
     image = models.ImageField(upload_to='question_images/', blank=True, null=True)
+    # Option images
+    option_a_image = models.ImageField(upload_to='question_images/', blank=True, null=True)
+    option_b_image = models.ImageField(upload_to='question_images/', blank=True, null=True)
+    option_c_image = models.ImageField(upload_to='question_images/', blank=True, null=True)
+    option_d_image = models.ImageField(upload_to='question_images/', blank=True, null=True)
 
     def __str__(self):
         return f"Question for {self.test.title}"

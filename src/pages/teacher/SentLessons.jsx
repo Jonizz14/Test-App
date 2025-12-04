@@ -16,6 +16,14 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tooltip,
+  IconButton,
 } from '@mui/material';
 import {
   School as SchoolIcon,
@@ -135,145 +143,162 @@ const SentLessons = () => {
             Siz {sentLessons.length} ta darsga chaqirish yuborgansiz
           </Alert>
 
-          <Grid container spacing={3}>
-            {sentLessons.map((lesson) => (
-              <Grid item xs={12} key={lesson.id}>
-                <Card sx={{
-                  border: '1px solid #e9ecef',
-                  borderRadius: 2,
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                  transition: 'none',
+          <TableContainer component={Paper} sx={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          }}>
+            <Table>
+              <TableHead>
+                <TableRow sx={{
+                  backgroundColor: '#f8fafc',
+                  '& th': {
+                    fontWeight: 700,
+                    fontSize: '0.875rem',
+                    color: '#1e293b',
+                    borderBottom: '1px solid #e2e8f0',
+                    padding: '16px'
+                  }
                 }}>
-                  <CardContent sx={{ p: 0 }}>
-                    <Accordion sx={{
-                      boxShadow: 'none',
-                      '&:before': { display: 'none' },
-                      borderRadius: 2,
-                    }}>
-                      <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
+                  <TableCell>Dars mavzusi</TableCell>
+                  <TableCell>O'quvchi</TableCell>
+                  <TableCell>Fan</TableCell>
+                  <TableCell>Sana va vaqt</TableCell>
+                  <TableCell>Hona</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Harakatlar</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {sentLessons.map((lesson) => (
+                  <TableRow
+                    key={lesson.id}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: '#f8fafc',
+                      },
+                      '& td': {
+                        borderBottom: '1px solid #f1f5f9',
+                        padding: '16px',
+                        fontSize: '0.875rem',
+                        color: '#334155'
+                      }
+                    }}
+                  >
+                    <TableCell>
+                      <Typography sx={{
+                        fontWeight: 600,
+                        color: '#1e293b',
+                        fontSize: '0.875rem'
+                      }}>
+                        {lesson.lessonTopic}
+                      </Typography>
+                      {lesson.lessonDescription && (
+                        <Typography sx={{
+                          fontSize: '0.75rem',
+                          color: '#64748b',
+                          mt: 0.5
+                        }}>
+                          {lesson.lessonDescription.length > 50 ? lesson.lessonDescription.substring(0, 50) + '...' : lesson.lessonDescription}
+                        </Typography>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Typography sx={{
+                        fontWeight: 500,
+                        color: '#1e293b',
+                        fontSize: '0.875rem'
+                      }}>
+                        {lesson.studentName || 'O\'quvchi'}
+                      </Typography>
+                      {lesson.studentClass && (
+                        <Typography sx={{
+                          fontSize: '0.75rem',
+                          color: '#64748b'
+                        }}>
+                          {lesson.studentClass}-sinf
+                        </Typography>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={lesson.subject}
+                        size="small"
+                        variant="outlined"
                         sx={{
-                          px: 3,
-                          py: 2,
-                          '&:hover': { backgroundColor: 'transparent' }
+                          fontWeight: 500,
+                          fontSize: '0.75rem'
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Typography sx={{
+                        fontWeight: 500,
+                        color: '#1e293b',
+                        fontSize: '0.875rem'
+                      }}>
+                        {lesson.lessonDate}
+                      </Typography>
+                      <Typography sx={{
+                        fontSize: '0.75rem',
+                        color: '#64748b'
+                      }}>
+                        {lesson.lessonTime}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography sx={{
+                        fontWeight: 500,
+                        color: '#1e293b',
+                        fontSize: '0.875rem'
+                      }}>
+                        {lesson.room}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {lesson.isRead ? (
+                          <CheckCircleIcon sx={{ color: 'success.main', fontSize: 16 }} />
+                        ) : (
+                          <UncheckedIcon sx={{ color: 'warning.main', fontSize: 16 }} />
+                        )}
+                        <Typography variant="body2" color={lesson.isRead ? 'success.main' : 'warning.main'}>
+                          {lesson.isRead ? 'Ko\'rilgan' : 'Ko\'rilmagan'}
+                        </Typography>
+                      </Box>
+                      <Typography sx={{
+                        fontSize: '0.75rem',
+                        color: '#64748b',
+                        mt: 0.5
+                      }}>
+                        {formatDate(lesson.createdAt)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        size="small"
+                        variant="contained"
+                        color="success"
+                        startIcon={<DoneIcon />}
+                        onClick={() => setConfirmDialog({ open: true, lesson })}
+                        sx={{
+                          fontSize: '0.75rem',
+                          padding: '4px 8px',
+                          minWidth: 'auto',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          color: '#ffffff'
                         }}
                       >
-                        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 2 }}>
-                          <SchoolIcon sx={{ color: 'primary.main', fontSize: '2rem' }} />
-
-                          <Box sx={{ flex: 1 }}>
-                            <Typography variant="h6" sx={{ fontWeight: 600, color: '#212529' }}>
-                              {lesson.lessonTopic}
-                            </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                              <PersonIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                              <Typography variant="body2" color="textSecondary">
-                                {lesson.studentName || 'O\'quvchi'}
-                              </Typography>
-                              <Chip
-                                label={lesson.subject}
-                                size="small"
-                                variant="outlined"
-                                sx={{ fontWeight: 500 }}
-                              />
-                            </Box>
-                          </Box>
-
-                          <Box sx={{ textAlign: 'right' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                              {lesson.isRead ? (
-                                <CheckCircleIcon sx={{ color: 'success.main', fontSize: 16 }} />
-                              ) : (
-                                <UncheckedIcon sx={{ color: 'warning.main', fontSize: 16 }} />
-                              )}
-                              <Typography variant="body2" color={lesson.isRead ? 'success.main' : 'warning.main'}>
-                                {lesson.isRead ? 'Ko\'rilgan' : 'Ko\'rilmagan'}
-                              </Typography>
-                            </Box>
-                            <Typography variant="body2" color="textSecondary">
-                              {formatDate(lesson.createdAt)}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </AccordionSummary>
-
-                      <AccordionDetails sx={{ px: 3, pb: 3, pt: 0 }}>
-                        <Box sx={{ borderTop: '1px solid #e9ecef', pt: 2 }}>
-                          <Typography variant="h6" gutterBottom sx={{ color: '#495057', fontWeight: 600 }}>
-                            Dars tafsilotlari
-                          </Typography>
-
-                          <Grid container spacing={2} sx={{ mb: 3 }}>
-                            <Grid item xs={12} md={6}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <TimeIcon sx={{ color: 'primary.main' }} />
-                                <Box>
-                                  <Typography variant="body2" color="textSecondary">
-                                    Sana va vaqt
-                                  </Typography>
-                                  <Typography variant="body1" fontWeight="500">
-                                    {lesson.lessonDate} • {lesson.lessonTime}
-                                  </Typography>
-                                </Box>
-                              </Box>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <SchoolIcon sx={{ color: 'primary.main' }} />
-                                <Box>
-                                  <Typography variant="body2" color="textSecondary">
-                                    Hona
-                                  </Typography>
-                                  <Typography variant="body1" fontWeight="500">
-                                    {lesson.room}
-                                  </Typography>
-                                </Box>
-                              </Box>
-                            </Grid>
-                          </Grid>
-
-                          <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.6, color: '#212529' }}>
-                            {lesson.lessonDescription}
-                          </Typography>
-
-                          <Box sx={{ display: 'flex', gap: 2 }}>
-                            <Chip
-                              label={`Qiyinlik: ${lesson.difficulty === 'easy' ? 'Oson' : lesson.difficulty === 'medium' ? 'O\'rtacha' : 'Qiyin'}`}
-                              color={lesson.difficulty === 'easy' ? 'success' : lesson.difficulty === 'medium' ? 'warning' : 'error'}
-                              size="small"
-                            />
-                            <Chip
-                              label={`${lesson.estimatedTime} daqiqa`}
-                              variant="outlined"
-                              size="small"
-                            />
-                          </Box>
-
-                          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                            <Button
-                              variant="contained"
-                              color="success"
-                              startIcon={<DoneIcon />}
-                              onClick={() => setConfirmDialog({ open: true, lesson })}
-                              sx={{
-                                cursor: 'pointer',
-                                borderRadius: 2,
-                                px: 3,
-                                fontWeight: 600,
-                                '&:hover': { backgroundColor: 'success.main' }
-                              }}
-                            >
-                              Dars o'tildi
-                            </Button>
-                          </Box>
-                        </Box>
-                      </AccordionDetails>
-                    </Accordion>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+                        Dars o'tildi
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Box>
       )}
 

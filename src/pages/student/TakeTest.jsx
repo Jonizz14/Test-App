@@ -796,6 +796,27 @@ const TakeTest = () => {
                   boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
                   objectFit: 'contain'
                 }}
+                onError={(e) => {
+                  console.error('Image failed to load:', currentQuestion.image);
+                  e.target.style.display = 'none';
+                  // Show error message instead of broken image
+                  const errorDiv = document.createElement('div');
+                  errorDiv.style.cssText = `
+                    padding: 20px;
+                    background: #f3f4f6;
+                    border: 2px dashed #d1d5db;
+                    border-radius: 12px;
+                    color: #6b7280;
+                    font-size: 14px;
+                    text-align: center;
+                    margin: 10px 0;
+                  `;
+                  errorDiv.textContent = 'Rasm yuklanmadi. Internet aloqasini tekshiring yoki administratorga murojaat qiling.';
+                  e.target.parentNode.appendChild(errorDiv);
+                }}
+                onLoad={() => {
+                  console.log('Image loaded successfully:', currentQuestion.image);
+                }}
               />
             </Box>
           )}
@@ -819,31 +840,57 @@ const TakeTest = () => {
               onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
               sx={{ mt: 2 }}
             >
-              {currentQuestion.options.map((option, index) => (
-                <FormControlLabel
-                  key={index}
-                  value={option}
-                  control={<Radio sx={{
-                    cursor: 'pointer',
-                    color: 'primary.main',
-                    '&.Mui-checked': {
+              {currentQuestion.options.map((option, index) => {
+                const optionImageField = ['option_a_image', 'option_b_image', 'option_c_image', 'option_d_image'][index];
+                const optionImage = currentQuestion[optionImageField];
+
+                return (
+                  <FormControlLabel
+                    key={index}
+                    value={option.text}
+                    control={<Radio sx={{
+                      cursor: 'pointer',
                       color: 'primary.main',
+                      '&.Mui-checked': {
+                        color: 'primary.main',
+                      }
+                    }} />}
+                    label={
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
+                        <Typography>{option.text}</Typography>
+                        {optionImage && (
+                          <img
+                            src={optionImage}
+                            alt={`Option ${String.fromCharCode(65 + index)}`}
+                            style={{
+                              maxWidth: '100px',
+                              maxHeight: '60px',
+                              borderRadius: '4px',
+                              border: '1px solid #e2e8f0',
+                              objectFit: 'contain'
+                            }}
+                            onError={(e) => {
+                              console.error('Option image failed to load:', optionImage);
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                        )}
+                      </Box>
                     }
-                  }} />}
-                  label={option}
-                  sx={{
-                    cursor: 'pointer',
-                    mb: 1,
-                    p: 2,
-                    border: '1px solid #f0f0f0',
-                    borderRadius: 2,
-                    width: '100%',
-                    m: 0,
-                    transition: 'none',
-                    '&:hover': { backgroundColor: 'transparent' }
-                  }}
-                />
-              ))}
+                    sx={{
+                      cursor: 'pointer',
+                      mb: 1,
+                      p: 2,
+                      border: '1px solid #f0f0f0',
+                      borderRadius: 2,
+                      width: '100%',
+                      m: 0,
+                      transition: 'none',
+                      '&:hover': { backgroundColor: 'transparent' }
+                    }}
+                  />
+                );
+              })}
             </RadioGroup>
           )}
 

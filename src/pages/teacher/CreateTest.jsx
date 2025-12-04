@@ -26,6 +26,7 @@ import {
   Add as AddIcon,
   Delete as DeleteIcon,
   CheckCircle as CorrectIcon,
+  ArrowBack as ArrowBackIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
@@ -37,7 +38,7 @@ const CreateTest = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
-    subject: '',
+    subject: 'Matematika',
     description: '',
     time_limit: 30,
     target_grades: [], // Empty array means all grades
@@ -46,10 +47,14 @@ const CreateTest = () => {
   const [questions, setQuestions] = useState([{
     question_text: '',
     question_type: 'multiple_choice',
-    options: ['A)', 'B)', 'C)', 'D)'],
+    options: [
+      { text: 'A)' },
+      { text: 'B)' },
+      { text: 'C)' },
+      { text: 'D)' }
+    ],
     correct_answer: '',
     explanation: '',
-    image: null,
     formula: '',
     code: ''
   }]);
@@ -99,17 +104,37 @@ const CreateTest = () => {
         // Load questions
         const questionsData = await apiService.getQuestions({ test: testId });
         const questionsList = questionsData.results || questionsData;
-        setQuestions(questionsList.map(q => ({
-          id: q.id,
-          question_text: q.question_text,
-          question_type: q.question_type,
-          options: q.options || ['A)', 'B)', 'C)', 'D)'],
-          correct_answer: q.correct_answer,
-          explanation: q.explanation || '',
-          image: null, // Images not loaded from backend yet
-          formula: q.formula || '',
-          code: q.code || ''
-        })));
+        setQuestions(questionsList.map(q => {
+          let parsedOptions = q.options || ['A)', 'B)', 'C)', 'D)'];
+          if (typeof parsedOptions === 'string') {
+            try {
+              parsedOptions = JSON.parse(parsedOptions);
+            } catch {
+              parsedOptions = ['A)', 'B)', 'C)', 'D)'];
+            }
+          }
+
+          return {
+            id: q.id,
+            question_text: q.question_text,
+            question_type: q.question_type,
+            options: Array.isArray(parsedOptions) ? parsedOptions.map((opt, idx) => {
+              if (typeof opt === 'object' && opt !== null) {
+                return { text: opt.text || `(${String.fromCharCode(65 + idx)})` };
+              }
+              return { text: opt };
+            }) : [
+              { text: 'A)' },
+              { text: 'B)' },
+              { text: 'C)' },
+              { text: 'D)' }
+            ],
+            correct_answer: q.correct_answer,
+            explanation: q.explanation || '',
+            formula: q.formula || '',
+            code: q.code || ''
+          };
+        }));
       } else {
         setError('Test not found or access denied');
       }
@@ -140,10 +165,14 @@ const CreateTest = () => {
     setQuestions([...questions, {
       question_text: '',
       question_type: 'multiple_choice',
-      options: ['A)', 'B)', 'C)', 'D)'],
+      options: [
+        { text: 'A)' },
+        { text: 'B)' },
+        { text: 'C)' },
+        { text: 'D)' }
+      ],
       correct_answer: '',
       explanation: '',
-      image: null,
       formula: '',
       code: ''
     }]);
@@ -157,14 +186,15 @@ const CreateTest = () => {
 
   const updateQuestionOption = (questionIndex, optionIndex, value) => {
     const updatedQuestions = [...questions];
-    updatedQuestions[questionIndex].options[optionIndex] = value;
+    updatedQuestions[questionIndex].options[optionIndex].text = value;
     setQuestions(updatedQuestions);
   };
+
 
   const toggleCorrectAnswer = (questionIndex, optionIndex) => {
     const updatedQuestions = [...questions];
     const question = updatedQuestions[questionIndex];
-    const optionValue = question.options[optionIndex];
+    const optionValue = question.options[optionIndex].text;
 
     question.correct_answer = optionValue;
     setQuestions(updatedQuestions);
@@ -200,7 +230,7 @@ const CreateTest = () => {
         return;
       }
       if (q.question_type === 'multiple_choice') {
-        if (q.options.some(opt => !opt.trim())) {
+        if (q.options.some(opt => !opt.text || opt.text.trim() === '')) {
           setError(`Savol ${i + 1} barcha variantlarni to'ldirish kerak`);
           return;
         }
@@ -256,12 +286,13 @@ const CreateTest = () => {
           questionData.append('test', testId);
           questionData.append('question_text', question.question_text);
           questionData.append('question_type', question.question_type);
-          questionData.append('options', JSON.stringify(question.options));
+          questionData.append('options', JSON.stringify(question.options.map(opt =>
+            typeof opt === 'object' ? { text: opt.text, image: null } : { text: opt, image: null }
+          )));
           questionData.append('correct_answer', question.correct_answer);
           questionData.append('explanation', question.explanation || '');
           if (question.formula) questionData.append('formula', question.formula);
           if (question.code) questionData.append('code', question.code);
-          if (question.image) questionData.append('image', question.image);
 
           await apiService.createQuestion(questionData);
         }
@@ -303,12 +334,13 @@ const CreateTest = () => {
           questionData.append('test', newTestId);
           questionData.append('question_text', question.question_text);
           questionData.append('question_type', question.question_type);
-          questionData.append('options', JSON.stringify(question.options));
+          questionData.append('options', JSON.stringify(question.options.map(opt =>
+            typeof opt === 'object' ? { text: opt.text, image: null } : { text: opt, image: null }
+          )));
           questionData.append('correct_answer', question.correct_answer);
           questionData.append('explanation', question.explanation || '');
           if (question.formula) questionData.append('formula', question.formula);
           if (question.code) questionData.append('code', question.code);
-          if (question.image) questionData.append('image', question.image);
 
           await apiService.createQuestion(questionData);
         }
@@ -356,11 +388,15 @@ const CreateTest = () => {
       </Box>
 
       <Card sx={{
-        maxWidth: 1000,
+        width: '100%',
+        minHeight: '600px',
         backgroundColor: '#ffffff',
         border: '1px solid #e2e8f0',
         borderRadius: '12px',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        '&:hover': {
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+        }
       }}>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -396,11 +432,12 @@ const CreateTest = () => {
                 name="subject"
                 value={formData.subject}
                 onChange={handleChange}
+                defaultValue="Matematika"
               >
+                <MenuItem value="Matematika">Matematika</MenuItem>
                 <MenuItem value="O'zbek tili">O'zbek tili</MenuItem>
                 <MenuItem value="Ingliz tili">Ingliz tili</MenuItem>
                 <MenuItem value="Rus tili">Rus tili</MenuItem>
-                <MenuItem value="Matematika">Matematika</MenuItem>
                 <MenuItem value="Fizika">Fizika</MenuItem>
                 <MenuItem value="Kimyo">Kimyo</MenuItem>
                 <MenuItem value="Biologiya">Biologiya</MenuItem>
@@ -418,8 +455,6 @@ const CreateTest = () => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                multiline
-                rows={2}
                 label="Tavsif"
                 name="description"
                 value={formData.description}
@@ -433,11 +468,13 @@ const CreateTest = () => {
                 required
                 fullWidth
                 type="number"
-                label="Vaqt limiti (daqiqa)"
+                label="daqiqa"
                 name="time_limit"
                 value={formData.time_limit}
                 onChange={handleChange}
                 inputProps={{ min: 5, max: 180 }}
+                helperText="Vaqt limiti (daqiqa)"
+                placeholder="30"
               />
             </Grid>
 
@@ -521,7 +558,7 @@ const CreateTest = () => {
                 />
 
                 <Grid container spacing={2} sx={{ mb: 2 }}>
-                  <Grid item xs={12} md={6}>
+                  <Grid item xs={12}>
                     <TextField
                       select
                       fullWidth
@@ -535,27 +572,6 @@ const CreateTest = () => {
                       <MenuItem value="code">Kod</MenuItem>
                     </TextField>
                   </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Button
-                      variant="outlined"
-                      component="label"
-                      fullWidth
-                      sx={{ height: '56px' }}
-                    >
-                      Rasm yuklash
-                      <input
-                        type="file"
-                        hidden
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files[0];
-                          if (file) {
-                            updateQuestion(index, 'image', file);
-                          }
-                        }}
-                      />
-                    </Button>
-                  </Grid>
                 </Grid>
 
                 {question.question_type === 'multiple_choice' && (
@@ -565,21 +581,24 @@ const CreateTest = () => {
                     </Typography>
 
                     {question.options.map((option, optionIndex) => (
-                      <Box key={optionIndex} display="flex" alignItems="center" sx={{ mb: 1 }}>
-                        <IconButton
-                          size="small"
-                          color={question.correct_answer === option ? "success" : "default"}
-                          onClick={() => toggleCorrectAnswer(index, optionIndex)}
-                        >
-                          <CorrectIcon />
-                        </IconButton>
-                        <TextField
-                          fullWidth
-                          size="small"
-                          value={option}
-                          onChange={(e) => updateQuestionOption(index, optionIndex, e.target.value)}
-                          placeholder={`Variant ${String.fromCharCode(65 + optionIndex)}`}
-                        />
+                      <Box key={optionIndex} sx={{ mb: 2, p: 2, border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                        <Box display="flex" alignItems="center" sx={{ mb: 1 }}>
+                          <IconButton
+                            size="small"
+                            color={question.correct_answer === option.text ? "success" : "default"}
+                            onClick={() => toggleCorrectAnswer(index, optionIndex)}
+                            sx={{ mr: 1 }}
+                          >
+                            <CorrectIcon />
+                          </IconButton>
+                          <TextField
+                            size="small"
+                            value={option.text}
+                            onChange={(e) => updateQuestionOption(index, optionIndex, e.target.value)}
+                            placeholder={`Variant ${String.fromCharCode(65 + optionIndex)}`}
+                            sx={{ flex: 1 }}
+                          />
+                        </Box>
                       </Box>
                     ))}
 
@@ -631,27 +650,6 @@ const CreateTest = () => {
                   />
                 )}
 
-                {question.image && (
-                  <Box sx={{ mb: 3, textAlign: 'center' }}>
-                    <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
-                      Yuklangan rasm:
-                    </Typography>
-                    <img
-                      src={URL.createObjectURL(question.image)}
-                      alt="Question"
-                      style={{
-                        maxWidth: '100%',
-                        maxHeight: '400px',
-                        width: 'auto',
-                        border: '2px solid #e0e0e0',
-                        borderRadius: '8px',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                        objectFit: 'contain'
-                      }}
-                    />
-                  </Box>
-                )}
-
                 <TextField
                   fullWidth
                   multiline
@@ -698,3 +696,4 @@ const CreateTest = () => {
 };
 
 export default CreateTest;
+

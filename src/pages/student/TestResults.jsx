@@ -231,11 +231,12 @@ const TestResults = () => {
                           label={test?.subject || 'Noma\'lum'}
                           size="small"
                           sx={{
-                            backgroundColor: '#eff6ff',
-                            color: '#2563eb',
+                            backgroundColor: test?.subject === 'Ingliz tili' ? '#3b82f6' : '#eff6ff',
+                            color: test?.subject === 'Ingliz tili' ? '#ffffff' : '#2563eb',
                             fontWeight: 600,
                             borderRadius: '6px',
-                            fontSize: '0.75rem'
+                            fontSize: '0.75rem',
+                            borderColor: test?.subject === 'Ingliz tili' ? '#3b82f6' : undefined
                           }}
                         />
                       </TableCell>
@@ -430,6 +431,27 @@ const TestResults = () => {
                                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                                     objectFit: 'contain'
                                   }}
+                                  onError={(e) => {
+                                    console.error('Image failed to load:', question.image);
+                                    e.target.style.display = 'none';
+                                    // Show error message instead of broken image
+                                    const errorDiv = document.createElement('div');
+                                    errorDiv.style.cssText = `
+                                      padding: 15px;
+                                      background: #f3f4f6;
+                                      border: 2px dashed #d1d5db;
+                                      border-radius: 8px;
+                                      color: #6b7280;
+                                      font-size: 12px;
+                                      text-align: center;
+                                      margin: 10px 0;
+                                    `;
+                                    errorDiv.textContent = 'Rasm yuklanmadi.';
+                                    e.target.parentNode.appendChild(errorDiv);
+                                  }}
+                                  onLoad={() => {
+                                    console.log('Image loaded successfully:', question.image);
+                                  }}
                                 />
                               </Box>
                             )}
@@ -445,37 +467,37 @@ const TestResults = () => {
                                     Variantlar:
                                   </Typography>
                                   {question.options.map((option, optionIndex) => (
-                                    <Box key={optionIndex} sx={{ 
-                                      display: 'flex', 
-                                      alignItems: 'center', 
+                                    <Box key={optionIndex} sx={{
+                                      display: 'flex',
+                                      alignItems: 'center',
                                       mb: 1,
                                       p: 1,
                                       borderRadius: '4px',
-                                      backgroundColor: option === question.correct_answer ? '#ecfdf5' : 
-                                                     option === studentAnswer ? '#fef3c7' : 'transparent',
-                                      border: option === question.correct_answer ? '1px solid #10b981' :
-                                             option === studentAnswer ? '1px solid #f59e0b' : '1px solid #f1f5f9'
+                                      backgroundColor: option.text === question.correct_answer ? '#ecfdf5' :
+                                                     option.text === studentAnswer ? '#fef3c7' : 'transparent',
+                                      border: option.text === question.correct_answer ? '1px solid #10b981' :
+                                             option.text === studentAnswer ? '1px solid #f59e0b' : '1px solid #f1f5f9'
                                     }}>
-                                      <Typography variant="body2" sx={{ 
-                                        color: option === question.correct_answer ? '#10b981' : '#334155',
-                                        fontWeight: option === studentAnswer ? 600 : 400
+                                      <Typography variant="body2" sx={{
+                                        color: option.text === question.correct_answer ? '#10b981' : '#334155',
+                                        fontWeight: option.text === studentAnswer ? 600 : 400
                                       }}>
-                                        {option}
+                                        {option.text}
                                       </Typography>
-                                      {option === question.correct_answer && (
-                                        <Typography variant="caption" sx={{ 
-                                          color: '#10b981', 
-                                          fontWeight: 600, 
-                                          ml: 1 
+                                      {option.text === question.correct_answer && (
+                                        <Typography variant="caption" sx={{
+                                          color: '#10b981',
+                                          fontWeight: 600,
+                                          ml: 1
                                         }}>
                                           (To'g'ri javob)
                                         </Typography>
                                       )}
-                                      {option === studentAnswer && option !== question.correct_answer && (
-                                        <Typography variant="caption" sx={{ 
-                                          color: '#f59e0b', 
-                                          fontWeight: 600, 
-                                          ml: 1 
+                                      {option.text === studentAnswer && option.text !== question.correct_answer && (
+                                        <Typography variant="caption" sx={{
+                                          color: '#f59e0b',
+                                          fontWeight: 600,
+                                          ml: 1
                                         }}>
                                           (Sizning javobingiz)
                                         </Typography>

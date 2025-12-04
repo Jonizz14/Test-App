@@ -27,6 +27,13 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -43,6 +50,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
 import SendLessonModal from '../../components/SendLessonModal';
+import TodoList from '../../components/TodoList';
 
 const MyTests = () => {
   const { currentUser } = useAuth();
@@ -64,9 +72,15 @@ const MyTests = () => {
   const [filterSubject, setFilterSubject] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterGrade, setFilterGrade] = useState('');
+  const [todoTasks, setTodoTasks] = useState([]);
 
   useEffect(() => {
     loadData();
+    // Load saved todo tasks from localStorage
+    const savedTasks = localStorage.getItem('teacher-todo-tasks');
+    if (savedTasks) {
+      setTodoTasks(JSON.parse(savedTasks));
+    }
   }, []);
 
   const handleOpenTestDetails = (test) => {
@@ -294,6 +308,64 @@ const MyTests = () => {
     return 'error';
   };
 
+  const handleTodoTasksChange = (tasks) => {
+    setTodoTasks(tasks);
+    localStorage.setItem('teacher-todo-tasks', JSON.stringify(tasks));
+  };
+
+  // Generate test-related todo suggestions
+  const generateTestSuggestions = () => {
+    const suggestions = [];
+    
+    tests.forEach(test => {
+      const stats = getTestStats(test.id);
+      if (stats.averageScore < 60) {
+        suggestions.push({
+          id: `suggestion-${test.id}-1`,
+          text: `"${test.title}" testi uchun o'quvchilarga qo'shimcha dars tashkil qiling`,
+          completed: false,
+          priority: 'high',
+          createdAt: new Date().toISOString(),
+          type: 'suggestion'
+        });
+      }
+      if (stats.completionRate < 50) {
+        suggestions.push({
+          id: `suggestion-${test.id}-2`,
+          text: `"${test.title}" testini ko'proq o'quvchilarga tarqating`,
+          completed: false,
+          priority: 'medium',
+          createdAt: new Date().toISOString(),
+          type: 'suggestion'
+        });
+      }
+      if (!test.is_active) {
+        suggestions.push({
+          id: `suggestion-${test.id}-3`,
+          text: `"${test.title}" testini qayta faollashtiring yoki o'chiring`,
+          completed: false,
+          priority: 'low',
+          createdAt: new Date().toISOString(),
+          type: 'suggestion'
+        });
+      }
+    });
+
+    return suggestions;
+  };
+
+  const addTestSuggestions = () => {
+    const suggestions = generateTestSuggestions();
+    const existingIds = todoTasks.map(task => task.id);
+    const newSuggestions = suggestions.filter(suggestion => !existingIds.includes(suggestion.id));
+    
+    if (newSuggestions.length > 0) {
+      const updatedTasks = [...todoTasks, ...newSuggestions];
+      setTodoTasks(updatedTasks);
+      localStorage.setItem('teacher-todo-tasks', JSON.stringify(updatedTasks));
+    }
+  };
+
   // Compute filtered and sorted tests
   const uniqueSubjects = [...new Set(tests.map(test => test.subject))];
   const filteredTests = tests.filter(test => {
@@ -336,25 +408,31 @@ const MyTests = () => {
       <Box sx={{
         mb: 6,
         pb: 4,
-        borderBottom: '1px solid #e2e8f0'
+        borderBottom: '1px solid #e2e8f0',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 2
       }}>
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          mb: 2
-        }}>
-          Mening testlarim ({sortedTests.length})
-        </Typography>
-        <Typography sx={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400,
-          mb: 3
-        }}>
-          Barcha testlaringizni boshqaring, o'quvchilarning natijalarini kuzating
-        </Typography>
-        <Box display="flex" gap={1}>
+        <Box>
+          <Typography sx={{
+            fontSize: '2.5rem',
+            fontWeight: 700,
+            color: '#1e293b',
+            mb: 2
+          }}>
+            Mening testlarim ({sortedTests.length})
+          </Typography>
+          <Typography sx={{
+            fontSize: '1.125rem',
+            color: '#64748b',
+            fontWeight: 400
+          }}>
+            Barcha testlaringizni boshqaring, o'quvchilarning natijalarini kuzating
+          </Typography>
+        </Box>
+        <Box display="flex" gap={1} alignItems="center">
           <Tooltip title="Yangilash">
             <IconButton
               onClick={() => loadData(true)}
@@ -381,6 +459,7 @@ const MyTests = () => {
               borderRadius: '8px',
               fontWeight: 600,
               textTransform: 'none',
+              minWidth: '200px',
               '&:hover': {
                 backgroundColor: '#1d4ed8',
               }
@@ -472,75 +551,97 @@ const MyTests = () => {
           </Typography>
         </Card>
       ) : (
-        <Grid container spacing={3}>
-          {sortedTests.map((test, index) => {
-            const stats = getTestStats(test.id);
-
-            return (
-              <Grid item xs={12} md={6} lg={4} key={test.id}>
-                <div>
-                  <Card
-                    onClick={() => handleOpenTestDetails(test)}
+        <TableContainer component={Paper} sx={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        }}>
+          <Table>
+            <TableHead>
+              <TableRow sx={{
+                backgroundColor: '#f8fafc',
+                '& th': {
+                  fontWeight: 700,
+                  fontSize: '0.875rem',
+                  color: '#1e293b',
+                  borderBottom: '1px solid #e2e8f0',
+                  padding: '16px'
+                }
+              }}>
+                <TableCell>Sarlavha</TableCell>
+                <TableCell>Fan</TableCell>
+                <TableCell>Sinflar</TableCell>
+                <TableCell>Savollar</TableCell>
+                <TableCell>Vaqt</TableCell>
+                <TableCell>O'quvchilar</TableCell>
+                <TableCell>O'rtacha ball</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Harakatlar</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {sortedTests.map((test) => {
+                const stats = getTestStats(test.id);
+                return (
+                  <TableRow 
+                    key={test.id} 
                     sx={{
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      backgroundColor: '#ffffff',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '12px',
-                      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
                       opacity: test.is_active ? 1 : 0.7,
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease',
                       '&:hover': {
-                        boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
-                        transform: 'translateY(-4px)',
+                        backgroundColor: '#f8fafc',
+                      },
+                      '& td': {
+                        borderBottom: '1px solid #f1f5f9',
+                        padding: '16px',
+                        fontSize: '0.875rem',
+                        color: '#334155'
                       }
                     }}
                   >
-                  <CardContent sx={{ flex: 1, p: 3 }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
-                      <Typography variant="h6" component="h2" sx={{ flex: 1, pr: 1, color: '#1e293b' }}>
+                    <TableCell>
+                      <Typography sx={{ 
+                        fontWeight: 600, 
+                        color: '#1e293b',
+                        fontSize: '0.875rem'
+                      }}>
                         {test.title}
                       </Typography>
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <Chip
-                          label={test.is_active ? 'Faol' : 'Nofaol'}
-                          color={test.is_active ? 'success' : 'default'}
-                          size="small"
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: '0.625rem'
-                          }}
-                        />
-                      </Box>
-                    </Box>
-
-                    <Typography variant="body2" color="#64748b" paragraph sx={{ minHeight: 40, fontSize: '0.875rem' }}>
-                      {test.description || 'Tavsif yo\'q'}
-                    </Typography>
-
-                    <Box mb={2}>
+                      {test.description && (
+                        <Typography sx={{ 
+                          fontSize: '0.75rem',
+                          color: '#64748b',
+                          mt: 0.5
+                        }}>
+                          {test.description.length > 50 ? test.description.substring(0, 50) + '...' : test.description}
+                        </Typography>
+                      )}
+                    </TableCell>
+                    <TableCell>
                       <Chip
                         label={test.subject}
                         size="small"
                         variant="outlined"
-                        color={getSubjectColor(test.subject)}
                         sx={{
                           fontWeight: 500,
-                          fontSize: '0.75rem'
+                          fontSize: '0.75rem',
+                          backgroundColor: test.subject === 'Ingliz tili' ? '#3b82f6' : undefined,
+                          color: test.subject === 'Ingliz tili' ? '#ffffff' : undefined,
+                          borderColor: test.subject === 'Ingliz tili' ? '#3b82f6' : undefined,
+                          '& .MuiChip-label': {
+                            color: test.subject === 'Ingliz tili' ? '#ffffff' : undefined,
+                          }
                         }}
                       />
-                      
-                      {/* Target Grades Display */}
-                      {test.target_grades && test.target_grades.length > 0 && (
-                        <Box display="flex" flexWrap="wrap" gap={0.5} mt={1}>
-                          {test.target_grades.map((grade) => (
+                    </TableCell>
+                    <TableCell>
+                      {test.target_grades && test.target_grades.length > 0 ? (
+                        <Box display="flex" flexWrap="wrap" gap={0.5}>
+                          {test.target_grades.slice(0, 3).map((grade) => (
                             <Chip
                               key={grade}
-                              label={`${grade.replace(/^\[|"|\]$/g, '')}-sinf`}
+                              label={`${grade.replace(/^\[|"|\]$/g, '')}`}
                               size="small"
-                              variant="filled"
                               color="info"
                               sx={{
                                 fontWeight: 500,
@@ -549,32 +650,148 @@ const MyTests = () => {
                               }}
                             />
                           ))}
+                          {test.target_grades.length > 3 && (
+                            <Chip
+                              label={`+${test.target_grades.length - 3}`}
+                              size="small"
+                              sx={{
+                                fontWeight: 500,
+                                fontSize: '0.625rem',
+                                height: '20px',
+                                backgroundColor: '#e2e8f0'
+                              }}
+                            />
+                          )}
                         </Box>
+                      ) : (
+                        <Chip
+                          label="Barcha"
+                          size="small"
+                          variant="outlined"
+                          color="success"
+                          sx={{
+                            fontWeight: 500,
+                            fontSize: '0.625rem'
+                          }}
+                        />
                       )}
-                      
-                      {/* All Grades Available Indicator */}
-                      {(!test.target_grades || test.target_grades.length === 0) && (
-                        <Box mt={1}>
-                          <Chip
-                            label="Barcha sinflar uchun"
+                    </TableCell>
+                    <TableCell>
+                      <Typography sx={{ 
+                        fontWeight: 700,
+                        color: '#2563eb',
+                        fontSize: '1rem'
+                      }}>
+                        {test.total_questions || 0}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography sx={{ 
+                        fontWeight: 500,
+                        color: '#1e293b',
+                        fontSize: '0.875rem'
+                      }}>
+                        {test.time_limit} daq
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography sx={{ 
+                        fontWeight: 700,
+                        color: '#059669',
+                        fontSize: '1rem'
+                      }}>
+                        {stats.uniqueStudents}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography sx={{
+                        fontWeight: 700,
+                        color: stats.averageScore >= 60 ? '#059669' : '#dc2626',
+                        fontSize: '1rem'
+                      }}>
+                        {stats.averageScore}%
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={test.is_active ? 'Faol' : 'Nofaol'}
+                        size="small"
+                        sx={{
+                          backgroundColor: test.is_active ? '#ecfdf5' : '#f1f5f9',
+                          color: test.is_active ? '#059669' : '#64748b',
+                          fontWeight: 600,
+                          borderRadius: '6px',
+                          fontSize: '0.75rem'
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Tooltip title="Batafsil ko'rish">
+                          <IconButton
                             size="small"
-                            variant="outlined"
-                            color="success"
+                            onClick={() => navigate(`/teacher/test-details/${test.id}`)}
                             sx={{
-                              fontWeight: 500,
-                              fontSize: '0.625rem'
+                              color: '#2563eb',
+                              '&:hover': {
+                                backgroundColor: '#eff6ff',
+                              }
                             }}
-                          />
-                        </Box>
-                      )}
-                    </Box>
-                  </CardContent>
-                </Card>
-                </div>
-              </Grid>
-            );
-          })}
-        </Grid>
+                          >
+                            <ViewIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Tahrirlash">
+                          <IconButton
+                            size="small"
+                            onClick={() => navigate(`/teacher/edit-test/${test.id}`)}
+                            sx={{
+                              color: '#f59e0b',
+                              '&:hover': {
+                                backgroundColor: '#fffbeb',
+                              }
+                            }}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title={test.is_active ? 'Nofaollashtirish' : 'Faollashtirish'}>
+                          <IconButton
+                            size="small"
+                            onClick={() => toggleTestStatus(test.id)}
+                            disabled={loading}
+                            sx={{
+                              color: test.is_active ? '#64748b' : '#059669',
+                              '&:hover': {
+                                backgroundColor: test.is_active ? '#f1f5f9' : '#ecfdf5',
+                              }
+                            }}
+                          >
+                            {test.is_active ? <AssessmentIcon /> : <AssessmentIcon />}
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="O'chirish">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleDeleteTest(test)}
+                            sx={{
+                              color: '#dc2626',
+                              '&:hover': {
+                                backgroundColor: '#fef2f2',
+                              }
+                            }}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
 
       {/* Student Details Dialog */}

@@ -549,9 +549,10 @@ const Questions = () => {
                           label={test.subject}
                           size="small"
                           sx={{
-                            backgroundColor: '#eff6ff',
-                            color: '#2563eb',
-                            fontWeight: 600
+                            backgroundColor: test.subject === 'Ingliz tili' ? '#3b82f6' : '#eff6ff',
+                            color: test.subject === 'Ingliz tili' ? '#ffffff' : '#2563eb',
+                            fontWeight: 600,
+                            borderColor: test.subject === 'Ingliz tili' ? '#3b82f6' : undefined
                           }}
                         />
                         <Typography sx={{
@@ -629,29 +630,51 @@ const Questions = () => {
                                   Variantlar:
                                 </Typography>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                  {question.options.map((option, oIndex) => (
-                                    <Box
-                                      key={oIndex}
-                                      sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 1,
-                                        p: 1,
-                                        borderRadius: '4px',
-                                        backgroundColor: option.is_correct ? '#ecfdf5' : '#ffffff',
-                                        border: option.is_correct ? '1px solid #10b981' : '1px solid #e2e8f0'
-                                      }}
-                                    >
-                                      <Typography sx={{
-                                        fontSize: '0.875rem',
-                                        fontWeight: option.is_correct ? 600 : 400,
-                                        color: option.is_correct ? '#059669' : '#374151'
-                                      }}>
-                                        {String.fromCharCode(65 + oIndex)}. {option.text || option.option_text || option.answer || 'Variant yo\'q'}
-                                        {option.is_correct && ' ✓'}
-                                      </Typography>
-                                    </Box>
-                                  ))}
+                                  {question.options.map((option, oIndex) => {
+                                    const optionImageField = ['option_a_image', 'option_b_image', 'option_c_image', 'option_d_image'][oIndex];
+                                    const optionImage = question[optionImageField];
+
+                                    return (
+                                      <Box
+                                        key={oIndex}
+                                        sx={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: 2,
+                                          p: 1,
+                                          borderRadius: '4px',
+                                          backgroundColor: option.is_correct ? '#ecfdf5' : '#ffffff',
+                                          border: option.is_correct ? '1px solid #10b981' : '1px solid #e2e8f0'
+                                        }}
+                                      >
+                                        <Typography sx={{
+                                          fontSize: '0.875rem',
+                                          fontWeight: option.is_correct ? 600 : 400,
+                                          color: option.is_correct ? '#059669' : '#374151'
+                                        }}>
+                                          {String.fromCharCode(65 + oIndex)}. {option.text || option.option_text || option.answer || 'Variant yo\'q'}
+                                          {option.is_correct && ' ✓'}
+                                        </Typography>
+                                        {optionImage && (
+                                          <img
+                                            src={optionImage}
+                                            alt={`Option ${String.fromCharCode(65 + oIndex)}`}
+                                            style={{
+                                              maxWidth: '60px',
+                                              maxHeight: '40px',
+                                              borderRadius: '4px',
+                                              border: '1px solid #e2e8f0',
+                                              objectFit: 'contain'
+                                            }}
+                                            onError={(e) => {
+                                              console.error('Option image failed to load:', optionImage);
+                                              e.target.style.display = 'none';
+                                            }}
+                                          />
+                                        )}
+                                      </Box>
+                                    );
+                                  })}
                                 </Box>
                               </Box>
                             )}

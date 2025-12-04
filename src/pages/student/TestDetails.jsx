@@ -488,7 +488,7 @@ const TestDetails = () => {
                   {currentQuestion.options?.map((option, index) => (
                     <FormControlLabel
                       key={index}
-                      value={option}
+                      value={option.text}
                       control={<Radio sx={{
                         cursor: 'pointer',
                         color: 'primary.main',
@@ -496,7 +496,7 @@ const TestDetails = () => {
                           color: 'primary.main',
                         }
                       }} />}
-                      label={option}
+                      label={option.text}
                       sx={{
                         cursor: 'pointer',
                         mb: 1,

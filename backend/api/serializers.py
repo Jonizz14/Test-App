@@ -110,28 +110,33 @@ class TestSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=False, allow_null=True)
+    option_a_image = serializers.ImageField(required=False, allow_null=True)
+    option_b_image = serializers.ImageField(required=False, allow_null=True)
+    option_c_image = serializers.ImageField(required=False, allow_null=True)
+    option_d_image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Question
         fields = ['id', 'test', 'question_text', 'question_type', 'options',
-                 'correct_answer', 'explanation', 'points', 'image']
+                  'correct_answer', 'explanation', 'points', 'image',
+                  'option_a_image', 'option_b_image', 'option_c_image', 'option_d_image']
         read_only_fields = ['id']
 
     def to_representation(self, instance):
         # Get the original representation
         data = super().to_representation(instance)
-        
-        # Convert image field to full URL
-        if instance.image:
-            # Get the request object from context
-            request = self.context.get('request')
-            if request:
-                # Build the full URL
-                data['image'] = request.build_absolute_uri(instance.image.url)
-            else:
-                # Fallback to relative URL if request is not available
-                data['image'] = instance.image.url
-        
+
+        # Convert image fields to full URLs
+        image_fields = ['image', 'option_a_image', 'option_b_image', 'option_c_image', 'option_d_image']
+        request = self.context.get('request')
+
+        for field_name in image_fields:
+            if getattr(instance, field_name, None):
+                if request:
+                    data[field_name] = request.build_absolute_uri(getattr(instance, field_name).url)
+                else:
+                    data[field_name] = getattr(instance, field_name).url
+
         return data
 
 class TestAttemptSerializer(serializers.ModelSerializer):

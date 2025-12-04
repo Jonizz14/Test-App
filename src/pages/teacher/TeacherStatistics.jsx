@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Box, Paper, Grid, Card, CardContent } from '@mui/material';
 import {
+  Assessment as AssessmentIcon,
+  People as PeopleIcon,
+  TrendingUp as TrendingUpIcon,
+  School as SchoolIcon,
+  Quiz as QuizIcon,
+  EmojiPeople as EmojiPeopleIcon,
+} from '@mui/icons-material';
+import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
@@ -215,42 +223,87 @@ const TeacherStatistics = () => {
     }
   };
 
-  const StatCard = ({ title, value, color, subtitle }) => (
+  const StatCard = ({ title, value, icon, color, subtitle }) => (
     <Card sx={{
-      backgroundColor: '#FFFFFF',
-      border: '1px solid #E5E7EB',
-      borderRadius: '10px',
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+      backgroundColor: '#ffffff',
+      border: '1px solid #e2e8f0',
+      borderRadius: '12px',
+      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+      transition: 'none',
+      '&:hover': {
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+      },
     }}>
-      <CardContent sx={{ p: 4 }}>
-        <Typography sx={{
-          fontSize: '0.75rem',
-          fontWeight: 600,
-          textTransform: 'uppercase',
-          letterSpacing: '0.5px',
-          color: '#1F2937',
-          mb: 1
-        }}>
-          {title}
-        </Typography>
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 600,
-          color: '#0A1F44',
-          lineHeight: 1.2,
-          mb: 1
-        }}>
-          {value}
-        </Typography>
-        {subtitle && (
-          <Typography sx={{
-            fontSize: '0.875rem',
-            color: '#1F2937',
-            fontWeight: 400
-          }}>
-            {subtitle}
-          </Typography>
-        )}
+      <CardContent sx={{ 
+        p: 4,
+        '&:last-child': { pb: 4 }
+      }}>
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Box flex={1}>
+            <Typography
+              sx={{
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                color: '#64748b',
+                mb: 1
+              }}
+            >
+              {title}
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: '2.5rem',
+                fontWeight: 700,
+                color: '#1e293b',
+                lineHeight: 1.2,
+                mb: 1
+              }}
+            >
+              {value}
+            </Typography>
+            {subtitle && (
+              <Typography
+                sx={{
+                  fontSize: '0.875rem',
+                  color: '#64748b',
+                  fontWeight: 500
+                }}
+              >
+                {subtitle}
+              </Typography>
+            )}
+          </Box>
+          <Box
+            sx={{
+              backgroundColor: color === 'primary.main' ? '#eff6ff' : 
+                               color === 'secondary.main' ? '#f0fdf4' :
+                               color === 'success.main' ? '#ecfdf5' :
+                               color === 'warning.main' ? '#fffbeb' :
+                               color === 'info.main' ? '#f0f9ff' :
+                               '#f8fafc',
+              borderRadius: '12px',
+              padding: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              ml: 2
+            }}
+          >
+            {React.cloneElement(icon, {
+              sx: { 
+                fontSize: '2rem', 
+                color: color === 'primary.main' ? '#2563eb' : 
+                       color === 'secondary.main' ? '#16a34a' :
+                       color === 'success.main' ? '#059669' :
+                       color === 'warning.main' ? '#d97706' :
+                       color === 'info.main' ? '#0ea5e9' :
+                       '#64748b'
+              }
+            })}
+          </Box>
+        </Box>
       </CardContent>
     </Card>
   );
@@ -283,19 +336,19 @@ const TeacherStatistics = () => {
       <Box sx={{
         mb: 6,
         pb: 4,
-        borderBottom: '1px solid #D1D5DB'
+        borderBottom: '1px solid #e2e8f0'
       }}>
         <Typography sx={{
           fontSize: '2.5rem',
-          fontWeight: 600,
-          color: '#1F2937',
+          fontWeight: 700,
+          color: '#1e293b',
           mb: 2
         }}>
           O'qituvchi statistikasi
         </Typography>
         <Typography sx={{
           fontSize: '1.125rem',
-          color: '#1F2937',
+          color: '#64748b',
           fontWeight: 400
         }}>
           Testlaringiz va o'quvchilaringizning batafsil statistikasi
@@ -303,46 +356,61 @@ const TeacherStatistics = () => {
       </Box>
 
       {/* Main Statistics Cards */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
+      <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={4}>
-          <StatCard
-            title="Jami yaratilgan testlar"
-            value={totalTestsCreated}
-            color="primary.main"
-            subtitle={`${activeTests} ta faol`}
-          />
+          <div>
+            <StatCard
+              title="Jami yaratilgan testlar"
+              value={totalTestsCreated}
+              icon={<AssessmentIcon />}
+              color="primary.main"
+              subtitle={`${activeTests} ta faol`}
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <StatCard
-            title="Jami urinishlar"
-            value={totalAttempts}
-            color="secondary.main"
-            subtitle={`${uniqueStudents} ta o'quvchi`}
-          />
+          <div>
+            <StatCard
+              title="Jami urinishlar"
+              value={totalAttempts}
+              icon={<EmojiPeopleIcon />}
+              color="secondary.main"
+              subtitle={`${uniqueStudents} ta o'quvchi`}
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <StatCard
-            title="O'rtacha ball"
-            value={`${averageScore}%`}
-            color="success.main"
-            subtitle="O'quvchilar tomonidan"
-          />
+          <div>
+            <StatCard
+              title="O'rtacha ball"
+              value={`${averageScore}%`}
+              icon={<TrendingUpIcon />}
+              color="info.main"
+              subtitle="O'quvchilar natijasi"
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <StatCard
-            title="Eng yuqori ball"
-            value={`${highestScore}%`}
-            color="success.main"
-            subtitle="O'quvchilar tomonidan"
-          />
+          <div>
+            <StatCard
+              title="Eng yuqori ball"
+              value={`${highestScore}%`}
+              icon={<TrendingUpIcon />}
+              color="success.main"
+              subtitle="O'quvchilar natijasi"
+            />
+          </div>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <StatCard
-            title="Eng past ball"
-            value={`${lowestScore}%`}
-            color="warning.main"
-            subtitle="O'quvchilar tomonidan"
-          />
+          <div>
+            <StatCard
+              title="Eng past ball"
+              value={`${lowestScore}%`}
+              icon={<TrendingUpIcon />}
+              color="warning.main"
+              subtitle="O'quvchilar natijasi"
+            />
+          </div>
         </Grid>
       </Grid>
 
@@ -350,10 +418,11 @@ const TeacherStatistics = () => {
         {/* Score Distribution Chart */}
         <Grid item xs={12} md={6}>
           <Card sx={{
-            backgroundColor: '#FFFFFF',
-            border: '1px solid #E5E7EB',
-            borderRadius: '10px',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            height: '400px',
             p: 3
           }}>
             <Typography sx={{
@@ -371,10 +440,11 @@ const TeacherStatistics = () => {
         {/* Subject Performance Chart */}
         <Grid item xs={12} md={6}>
           <Card sx={{
-            backgroundColor: '#FFFFFF',
-            border: '1px solid #E5E7EB',
-            borderRadius: '10px',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            height: '400px',
             p: 3
           }}>
             <Typography sx={{ 
@@ -406,6 +476,7 @@ const TeacherStatistics = () => {
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            height: '400px',
             p: 3
           }}>
             <Typography sx={{ 
@@ -417,97 +488,6 @@ const TeacherStatistics = () => {
               Test yaratish dinamikasi (oxirgi 6 oy)
             </Typography>
             <Line data={testCreationData} options={chartOptions} />
-          </Card>
-        </Grid>
-
-        {/* Performance Summary */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            p: 3
-          }}>
-            <Typography sx={{ 
-              fontWeight: 600, 
-              color: '#1e293b',
-              fontSize: '1.25rem',
-              mb: 3
-            }}>
-              Natija umumlashtiruvi
-            </Typography>
-            <Box sx={{ p: 2 }}>
-              <Typography sx={{ fontSize: '0.875rem', color: '#1e293b', mb: 1 }}>
-                <strong>Jami testlar:</strong> {totalTestsCreated}
-              </Typography>
-              <Typography sx={{ fontSize: '0.875rem', color: '#1e293b', mb: 1 }}>
-                <strong>Faol testlar:</strong> {activeTests}
-              </Typography>
-              <Typography sx={{ fontSize: '0.875rem', color: '#1e293b', mb: 1 }}>
-                <strong>Jami urinishlar:</strong> {totalAttempts}
-              </Typography>
-              <Typography sx={{ fontSize: '0.875rem', color: '#1e293b', mb: 1 }}>
-                <strong>O'quvchilar soni:</strong> {uniqueStudents}
-              </Typography>
-              <Typography sx={{ fontSize: '0.875rem', color: '#1e293b', mb: 1 }}>
-                <strong>O'rtacha ball:</strong> {averageScore}%
-              </Typography>
-              <Typography sx={{ fontSize: '0.875rem', color: '#1e293b', mb: 1 }}>
-                <strong>Eng yuqori ball:</strong> {highestScore}%
-              </Typography>
-              <Typography sx={{ fontSize: '0.875rem', color: '#1e293b', mb: 1 }}>
-                <strong>Eng past ball:</strong> {lowestScore}%
-              </Typography>
-              <Typography sx={{ fontSize: '0.875rem', color: '#64748b', mt: 2 }}>
-                {averageScore >= 80 ? 'Ajoyib natijalar! O\'quvchilaringiz yaxshi o\'rganmoqda.' :
-                 averageScore >= 60 ? 'Yaxshi natijalar! Davom eting va qo\'llab-quvvatlang.' :
-                 'O\'quvchilarga qo\'shimcha yordam kerak bo\'lishi mumkin.'}
-              </Typography>
-            </Box>
-          </Card>
-        </Grid>
-
-        {/* Recent Activity */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            p: 3
-          }}>
-            <Typography sx={{ 
-              fontWeight: 600, 
-              color: '#1e293b',
-              fontSize: '1.25rem',
-              mb: 3
-            }}>
-              So'nggi faoliyat
-            </Typography>
-            <Box sx={{ maxHeight: 300, overflowY: 'auto' }}>
-              {myTestAttempts
-                .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
-                .slice(0, 10)
-                .map((attempt, index) => {
-                  const test = myTests.find(t => t.id === attempt.test);
-                  return (
-                    <Box key={attempt.id} sx={{ mb: 2, pb: 1, borderBottom: '1px solid #e2e8f0' }}>
-                      <Typography sx={{ fontSize: '0.875rem', color: '#2563eb', fontWeight: 500 }}>
-                        {test?.title || 'Noma\'lum test'} - {attempt.score || 0}%
-                      </Typography>
-                      <Typography sx={{ fontSize: '0.75rem', color: '#64748b' }}>
-                        {new Date(attempt.submitted_at).toLocaleDateString('uz-UZ')}
-                      </Typography>
-                    </Box>
-                  );
-                })}
-              {myTestAttempts.length === 0 && (
-                <Typography sx={{ fontSize: '0.875rem', color: '#64748b' }}>
-                  Hali test topshirilmagan
-                </Typography>
-              )}
-            </Box>
           </Card>
         </Grid>
 

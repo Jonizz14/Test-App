@@ -38,6 +38,7 @@ import TeacherStatistics from './teacher/TeacherStatistics';
 import TestDetails from './teacher/TestDetails';
 import StudentResult from './teacher/StudentResult';
 import SentLessons from './teacher/SentLessons';
+import StudentProfileView from './student/StudentProfileView';
 
 const TeacherDashboard = () => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -79,8 +80,6 @@ const TeacherDashboard = () => {
         flexDirection: 'column',
         gap: 1
       }}
-      data-aos="fade-down"
-      data-aos-delay="100"
       >
         <Typography variant="h6" sx={{
           color: '#1e293b',
@@ -93,7 +92,7 @@ const TeacherDashboard = () => {
       <List sx={{ pt: 0 }}>
         {menuItems.map((item, index) => (
           <ListItem key={item.text} disablePadding sx={{ px: 1, py: 0.5 }}>
-            <div data-aos="fade-right" data-aos-delay={200 + index * 50} style={{ width: '100%' }}>
+            <div style={{ width: '100%' }}>
               <ListItemButton
                 onClick={() => {
                   navigate(item.path);
@@ -241,7 +240,7 @@ const TeacherDashboard = () => {
             ml: isMobile ? 0 : '280px',
           }}
         >
-          <Container maxWidth={false} data-aos="fade-in" data-aos-delay="300">
+          <Container maxWidth={false}>
             <Routes>
               <Route path="/" element={<TeacherOverview />} />
               <Route path="/create-test" element={<CreateTest />} />
@@ -249,6 +248,7 @@ const TeacherDashboard = () => {
               <Route path="/my-tests" element={<MyTests />} />
               <Route path="/test-details/:testId" element={<TestDetails />} />
               <Route path="/student-result/:attemptId" element={<StudentResult />} />
+              <Route path="/student-profile/:id" element={<StudentProfileView />} />
               <Route path="/sent-lessons" element={<SentLessons />} />
               <Route path="/statistics" element={<TeacherStatistics />} />
             </Routes>

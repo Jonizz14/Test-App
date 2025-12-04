@@ -753,18 +753,18 @@ const StudentOverview = () => {
                                         mb: 1,
                                         p: 1,
                                         borderRadius: '4px',
-                                        backgroundColor: option === question.correct_answer ? '#ecfdf5' :
-                                                      option === studentAnswer ? '#fef3c7' : 'transparent',
-                                        border: option === question.correct_answer ? '1px solid #10b981' :
-                                              option === studentAnswer ? '1px solid #f59e0b' : '1px solid #f1f5f9'
+                                        backgroundColor: option.text === question.correct_answer ? '#ecfdf5' :
+                                                      option.text === studentAnswer ? '#fef3c7' : 'transparent',
+                                        border: option.text === question.correct_answer ? '1px solid #10b981' :
+                                              option.text === studentAnswer ? '1px solid #f59e0b' : '1px solid #f1f5f9'
                                       }}>
                                         <Typography variant="body2" sx={{
-                                          color: option === question.correct_answer ? '#10b981' : '#334155',
-                                          fontWeight: option === studentAnswer ? 600 : 400
+                                          color: option.text === question.correct_answer ? '#10b981' : '#334155',
+                                          fontWeight: option.text === studentAnswer ? 600 : 400
                                         }}>
-                                          {option}
+                                          {option.text}
                                         </Typography>
-                                        {option === question.correct_answer && (
+                                        {option.text === question.correct_answer && (
                                           <Typography variant="caption" sx={{
                                             color: '#10b981',
                                             fontWeight: 600,
@@ -773,7 +773,7 @@ const StudentOverview = () => {
                                             (To'g'ri javob)
                                           </Typography>
                                         )}
-                                        {option === studentAnswer && option !== question.correct_answer && (
+                                        {option.text === studentAnswer && option.text !== question.correct_answer && (
                                           <Typography variant="caption" sx={{
                                             color: '#f59e0b',
                                             fontWeight: 600,

@@ -223,24 +223,30 @@ const TeacherOverview = () => {
       <Box sx={{
         mb: 6,
         pb: 4,
-        borderBottom: '1px solid #e2e8f0'
+        borderBottom: '1px solid #e2e8f0',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 2
       }}>
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          mb: 2
-        }}>
-          O'qituvchi paneli
-        </Typography>
-        <Typography sx={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400,
-          mb: 3
-        }}>
-          Testlaringizni boshqaring va o'quvchilarning natijalarini kuzating
-        </Typography>
+        <Box>
+          <Typography sx={{
+            fontSize: '2.5rem',
+            fontWeight: 700,
+            color: '#1e293b',
+            mb: 2
+          }}>
+            O'qituvchi paneli
+          </Typography>
+          <Typography sx={{
+            fontSize: '1.125rem',
+            color: '#64748b',
+            fontWeight: 400
+          }}>
+            Testlaringizni boshqaring va o'quvchilarning natijalarini kuzating
+          </Typography>
+        </Box>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
@@ -252,11 +258,11 @@ const TeacherOverview = () => {
             borderRadius: '8px',
             fontWeight: 600,
             textTransform: 'none',
+            minWidth: '200px',
             '&:hover': {
               backgroundColor: '#1d4ed8',
             }
           }}
-
         >
           Yangi test yaratish
         </Button>
