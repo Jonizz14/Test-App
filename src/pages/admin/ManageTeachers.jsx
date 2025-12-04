@@ -253,7 +253,6 @@ const ManageTeachers = () => {
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
       }}
-      data-aos="fade-down"
       >
         <Typography sx={{
           fontSize: '2.5rem',
@@ -277,8 +276,6 @@ const ManageTeachers = () => {
               backgroundColor: '#1d4ed8',
             }
           }}
-          data-aos="zoom-in"
-          data-aos-delay="200"
         >
           O'qituvchi qo'shish
         </Button>
@@ -291,7 +288,7 @@ const ManageTeachers = () => {
       )}
 
       {/* Search Input */}
-      <Box sx={{ mb: 4 }} data-aos="fade-up" data-aos-delay="300">
+      <Box sx={{ mb: 4 }}>
         <TextField
           fullWidth
           variant="outlined"
@@ -326,7 +323,7 @@ const ManageTeachers = () => {
         )}
       </Box>
 
-      <div data-aos="fade-up" data-aos-delay="400">
+      
         <TableContainer component={Paper} sx={{
           backgroundColor: '#ffffff',
           border: '1px solid #e2e8f0',
@@ -484,7 +481,6 @@ const ManageTeachers = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      </div>
 
       {/* Add Teacher Dialog */}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>

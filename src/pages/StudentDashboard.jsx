@@ -200,10 +200,6 @@ const StudentDashboard = () => {
             </IconButton>
           )}
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-            <ShieldIcon sx={{ mr: 1, color: '#2563eb', fontSize: '1.8rem' }} />
-            <Typography variant="h6" noWrap component="div">
-              STIM Test App
-            </Typography>
           </Box>
           <Typography variant="body1" sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
             Salom, {currentUser?.name}

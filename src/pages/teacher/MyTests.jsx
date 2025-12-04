@@ -337,7 +337,7 @@ const MyTests = () => {
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }} data-aos="fade-down">
+      }}>
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -354,7 +354,7 @@ const MyTests = () => {
         }}>
           Barcha testlaringizni boshqaring, o'quvchilarning natijalarini kuzating
         </Typography>
-        <Box display="flex" gap={1} data-aos="zoom-in" data-aos-delay="200">
+        <Box display="flex" gap={1}>
           <Tooltip title="Yangilash">
             <IconButton
               onClick={() => loadData(true)}
@@ -392,7 +392,7 @@ const MyTests = () => {
       </Box>
 
       {/* Filters and Sort */}
-      <Box display="flex" gap={2} mb={3} flexWrap="wrap" alignItems="center" data-aos="fade-up">
+      <Box display="flex" gap={2} mb={3} flexWrap="wrap" alignItems="center">
         <FormControl size="small" sx={{ minWidth: 140 }}>
           <InputLabel>Sort qilish</InputLabel>
           <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)} label="Sort qilish">
@@ -459,7 +459,7 @@ const MyTests = () => {
           boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
           p: 6,
           textAlign: 'center'
-        }} data-aos="fade-up">
+        }}>
           <Typography variant="h6" sx={{
             color: '#64748b',
             fontWeight: 600,
@@ -472,13 +472,13 @@ const MyTests = () => {
           </Typography>
         </Card>
       ) : (
-        <Grid container spacing={3} data-aos="fade-up">
+        <Grid container spacing={3}>
           {sortedTests.map((test, index) => {
             const stats = getTestStats(test.id);
 
             return (
               <Grid item xs={12} md={6} lg={4} key={test.id}>
-                <div data-aos="zoom-in" data-aos-delay={index * 100}>
+                <div>
                   <Card
                     onClick={() => handleOpenTestDetails(test)}
                     sx={{

@@ -197,7 +197,7 @@ const StudentResult = () => {
         borderBottom: '1px solid #e2e8f0',
         display: 'flex',
         alignItems: 'center'
-      }} data-aos="fade-down">
+      }}>
         <Button
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate(-1)}
@@ -224,7 +224,7 @@ const StudentResult = () => {
       </Box>
 
       {/* Student and Test Info */}
-      <Grid container spacing={3} sx={{ mb: 3 }} data-aos="fade-up">
+      <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} md={6}>
           <Card sx={{
             backgroundColor: '#ffffff',
@@ -304,7 +304,7 @@ const StudentResult = () => {
         p: 4,
         mb: 4,
         textAlign: 'center'
-      }} data-aos="zoom-in">
+      }}>
         <Typography sx={{ fontWeight: 600, color: '#1e293b', fontSize: '1.25rem', mb: 2 }}>
           Umumiy natija
         </Typography>
@@ -384,12 +384,12 @@ const StudentResult = () => {
       </Card>
 
       {/* Detailed Questions and Answers */}
-      <Typography variant="h5" gutterBottom sx={{ mt: 4 }} data-aos="fade-in">
+      <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
         Savollar va javoblar
       </Typography>
 
       {questions.length > 0 ? (
-        <TableContainer component={Paper} data-aos="fade-up">
+        <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>

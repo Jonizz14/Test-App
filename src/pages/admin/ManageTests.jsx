@@ -130,7 +130,6 @@ const ManageTests = () => {
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
       }}
-      data-aos="fade-down"
       >
         <Typography sx={{
           fontSize: '2.5rem',
@@ -157,8 +156,6 @@ const ManageTests = () => {
               backgroundColor: '#1d4ed8',
             }
           }}
-          data-aos="zoom-in"
-          data-aos-delay="200"
         >
           Test qo'shish
         </Button>
@@ -176,7 +173,7 @@ const ManageTests = () => {
         </Alert>
       )}
 
-      <div data-aos="fade-up" data-aos-delay="300">
+      
         <TableContainer component={Paper} sx={{
           backgroundColor: '#ffffff',
           border: '1px solid #e2e8f0',
@@ -329,19 +326,16 @@ const ManageTests = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      </div>
 
       {tests.length === 0 && (
-        <div data-aos="fade-up" data-aos-delay="400">
-          <Box sx={{ p: 4, textAlign: 'center', mt: 3 }}>
-            <Typography variant="h6" color="text.secondary" gutterBottom>
-              Hech qanday test topilmadi
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Yangi test yaratish uchun "Test qo'shish" tugmasini bosing
-            </Typography>
-          </Box>
-        </div>
+        <Box sx={{ p: 4, textAlign: 'center', mt: 3 }}>
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            Hech qanday test topilmadi
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Yangi test yaratish uchun "Test qo'shish" tugmasini bosing
+          </Typography>
+        </Box>
       )}
 
       {/* Delete Confirmation Dialog */}

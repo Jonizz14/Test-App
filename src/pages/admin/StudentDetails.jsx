@@ -35,12 +35,10 @@ const StudentDetails = () => {
   useEffect(() => {
     const loadStudentDetails = async () => {
       try {
-        // Get all users to find the student
         const users = await apiService.getUsers();
         const studentData = users.find(user => user.id === parseInt(id));
         setStudent(studentData);
 
-        // Get attempts by this student
         const allAttempts = await apiService.getAttempts({ student: id });
         setAttempts(allAttempts);
       } catch (error) {
@@ -101,9 +99,7 @@ const StudentDetails = () => {
         display: 'flex',
         alignItems: 'center',
         gap: 2
-      }}
-      data-aos="fade-down"
-      >
+      }}>
         <Button
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate('/admin/students')}
@@ -124,17 +120,13 @@ const StudentDetails = () => {
         </Typography>
       </Box>
 
-      {/* Student Info Card */}
       <Paper sx={{
         p: 4,
         mb: 4,
         backgroundColor: '#f8fafc',
         border: '1px solid #e2e8f0',
         borderRadius: '12px'
-      }}
-      data-aos="fade-up"
-      data-aos-delay="200"
-      >
+      }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 3 }}>
           <Avatar sx={{
             width: 80,
@@ -236,16 +228,12 @@ const StudentDetails = () => {
         </Grid>
       </Paper>
 
-      {/* Attempts Section */}
       <Paper sx={{
         p: 4,
         backgroundColor: '#ffffff',
         border: '1px solid #e2e8f0',
         borderRadius: '12px'
-      }}
-      data-aos="fade-up"
-      data-aos-delay="400"
-      >
+      }}>
         <Typography variant="h5" sx={{ mb: 3, fontWeight: 700, color: '#1e293b' }}>
           Test natijalari ({attempts.length})
         </Typography>
@@ -289,7 +277,7 @@ const StudentDetails = () => {
               </TableHead>
               <TableBody>
                 {attempts.map((attempt, index) => (
-                  <TableRow key={attempt.id} data-aos="fade-up" data-aos-delay={index * 50} sx={{
+                  <TableRow key={attempt.id} sx={{
                     '&:hover': {
                       backgroundColor: '#f8fafc',
                     },

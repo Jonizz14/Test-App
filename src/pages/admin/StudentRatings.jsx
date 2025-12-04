@@ -35,7 +35,6 @@ const StudentRatings = () => {
         const allUsers = await apiService.getUsers();
         const studentUsers = allUsers.filter((user) => user.role === "student");
         
-        // Load attempts data to calculate accurate test statistics
         const allAttempts = await apiService.getAttempts();
         setAttempts(allAttempts);
         
@@ -159,7 +158,6 @@ const StudentRatings = () => {
           pb: 4,
           borderBottom: "1px solid #e2e8f0",
         }}
-        data-aos="fade-down"
       >
         <Typography
           sx={{
@@ -172,7 +170,7 @@ const StudentRatings = () => {
         </Typography>
       </Box>
 
-      <div data-aos="fade-up" data-aos-delay="200">
+      <div>
         <TableContainer
           component={Paper}
           sx={{
@@ -471,7 +469,7 @@ const StudentRatings = () => {
       </div>
 
       {students.length === 0 && (
-        <div data-aos="fade-up" data-aos-delay="300">
+        <div>
           <Box sx={{ textAlign: "center", mt: 4 }}>
             <Typography variant="h6" color="textSecondary">
               O'quvchilar topilmadi

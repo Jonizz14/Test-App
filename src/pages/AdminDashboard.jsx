@@ -117,10 +117,7 @@ const AdminDashboard = () => {
         justifyContent: 'center',
         flexDirection: 'column',
         gap: 1
-      }}
-      data-aos="fade-down"
-      data-aos-delay="100"
-      >
+      }}>
         <Typography variant="h6" sx={{
           color: '#1e293b',
           fontWeight: 700,
@@ -132,7 +129,7 @@ const AdminDashboard = () => {
       <List sx={{ pt: 0 }}>
         {menuItems.map((item, index) => (
           <ListItem key={item.text} disablePadding sx={{ px: 1, py: 0.5 }}>
-            <div data-aos="fade-right" data-aos-delay={200 + index * 50} style={{ width: '100%' }}>
+            <div style={{ width: '100%' }}>
               <ListItemButton
                 onClick={() => {
                   navigate(item.path);
@@ -217,10 +214,6 @@ const AdminDashboard = () => {
             </IconButton>
           )}
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-            <ShieldIcon sx={{ mr: 1, color: '#2563eb', fontSize: '1.8rem' }} />
-            <Typography variant="h6" noWrap component="div">
-              STIM Anti-Cheat System
-            </Typography>
           </Box>
           {bannedStudents.length > 0 && (
             <IconButton
@@ -313,7 +306,7 @@ const AdminDashboard = () => {
             ml: isMobile ? 0 : '280px',
           }}
         >
-          <Container maxWidth={false} data-aos="fade-in" data-aos-delay="300">
+          <Container maxWidth={false}>
             <Routes>
               <Route path="/" element={<AdminOverview />} />
               <Route path="/teachers" element={<ManageTeachers />} />

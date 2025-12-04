@@ -124,9 +124,7 @@ const TestDetails = () => {
         display: 'flex',
         alignItems: 'center',
         gap: 2
-      }}
-      data-aos="fade-down"
-      >
+      }}>
         <Button
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate('/admin/test-stats')}
@@ -154,10 +152,7 @@ const TestDetails = () => {
         backgroundColor: '#f8fafc',
         border: '1px solid #e2e8f0',
         borderRadius: '12px'
-      }}
-      data-aos="fade-up"
-      data-aos-delay="200"
-      >
+      }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 3 }}>
           <Avatar sx={{
             width: 80,
@@ -244,10 +239,7 @@ const TestDetails = () => {
         backgroundColor: '#ffffff',
         border: '1px solid #e2e8f0',
         borderRadius: '12px'
-      }}
-      data-aos="fade-up"
-      data-aos-delay="400"
-      >
+      }}>
         <Typography variant="h5" sx={{ mb: 3, fontWeight: 700, color: '#1e293b' }}>
           Test topshirgan o'quvchilar ({studentDetails.length})
         </Typography>
@@ -294,7 +286,7 @@ const TestDetails = () => {
               </TableHead>
               <TableBody>
                 {studentDetails.map((student, index) => (
-                  <TableRow key={student.id} data-aos="fade-up" data-aos-delay={index * 50} sx={{
+                  <TableRow key={student.id} sx={{
                     '&:hover': {
                       backgroundColor: '#f8fafc',
                     },

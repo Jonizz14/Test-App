@@ -238,7 +238,6 @@ const AdminOverview = () => {
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
       }}
-      data-aos="fade-down"
       >
         <Typography
           sx={{
@@ -261,94 +260,76 @@ const AdminOverview = () => {
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
-          <div data-aos="fade-up" data-aos-delay="100">
-            <StatCard
-              title="Jami foydalanuvchilar"
-              value={stats.totalUsers}
-              icon={<AdminPanelSettingsIcon fontSize="large" />}
-              color="primary.main"
-            />
-          </div>
+          <StatCard
+            title="Jami foydalanuvchilar"
+            value={stats.totalUsers}
+            icon={<AdminPanelSettingsIcon fontSize="large" />}
+            color="primary.main"
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <div data-aos="fade-up" data-aos-delay="200">
-            <StatCard
-              title="O'qituvchilar"
-              value={stats.totalTeachers}
-              icon={<LocalLibraryIcon fontSize="large" />}
-              color="secondary.main"
-            />
-          </div>
+          <StatCard
+            title="O'qituvchilar"
+            value={stats.totalTeachers}
+            icon={<LocalLibraryIcon fontSize="large" />}
+            color="secondary.main"
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <div data-aos="fade-up" data-aos-delay="300">
-            <StatCard
-              title="O'quvchilar"
-              value={stats.totalStudents}
-              icon={<EmojiPeopleIcon fontSize="large" />}
-              color="success.main"
-            />
-          </div>
+          <StatCard
+            title="O'quvchilar"
+            value={stats.totalStudents}
+            icon={<EmojiPeopleIcon fontSize="large" />}
+            color="success.main"
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <div data-aos="fade-up" data-aos-delay="400">
-            <StatCard
-              title="Jami testlar"
-              value={stats.totalTests}
-              icon={<AssessmentIcon fontSize="large" />}
-              color="warning.main"
-            />
-          </div>
+          <StatCard
+            title="Jami testlar"
+            value={stats.totalTests}
+            icon={<AssessmentIcon fontSize="large" />}
+            color="warning.main"
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <div data-aos="fade-up" data-aos-delay="500">
-            <StatCard
-              title="Jami urinishlar"
-              value={stats.totalAttempts}
-              icon={<AssessmentIcon fontSize="large" />}
-              color="primary.main"
-            />
-          </div>
+          <StatCard
+            title="Jami urinishlar"
+            value={stats.totalAttempts}
+            icon={<AssessmentIcon fontSize="large" />}
+            color="primary.main"
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <div data-aos="fade-up" data-aos-delay="600">
-            <StatCard
-              title="Faol testlar"
-              value={stats.activeTests}
-              icon={<AssessmentIcon fontSize="large" />}
-              color="success.main"
-            />
-          </div>
+          <StatCard
+            title="Faol testlar"
+            value={stats.activeTests}
+            icon={<AssessmentIcon fontSize="large" />}
+            color="success.main"
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <div data-aos="fade-up" data-aos-delay="700">
-            <StatCard
-              title="O'rtacha ball"
-              value={`${stats.averageScore}%`}
-              icon={<TrendingUpIcon fontSize="large" />}
-              color="info.main"
-            />
-          </div>
+          <StatCard
+            title="O'rtacha ball"
+            value={`${stats.averageScore}%`}
+            icon={<TrendingUpIcon fontSize="large" />}
+            color="info.main"
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <div data-aos="fade-up" data-aos-delay="800">
-            <StatCard
-              title="Eng yuqori ball"
-              value={`${stats.highestScore}%`}
-              icon={<TrendingUpIcon fontSize="large" />}
-              color="success.main"
-            />
-          </div>
+          <StatCard
+            title="Eng yuqori ball"
+            value={`${stats.highestScore}%`}
+            icon={<TrendingUpIcon fontSize="large" />}
+            color="success.main"
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <div data-aos="fade-up" data-aos-delay="900">
-            <StatCard
-              title="Eng past ball"
-              value={`${stats.lowestScore}%`}
-              icon={<TrendingUpIcon fontSize="large" />}
-              color="warning.main"
-            />
-          </div>
+          <StatCard
+            title="Eng past ball"
+            value={`${stats.lowestScore}%`}
+            icon={<TrendingUpIcon fontSize="large" />}
+            color="warning.main"
+          />
         </Grid>
       </Grid>
 
@@ -821,7 +802,7 @@ const AdminOverview = () => {
 
       {/* Banned Users Section */}
       {stats.bannedUsers.length > 0 && (
-        <Box sx={{ mt: 4 }} data-aos="fade-up">
+        <Box sx={{ mt: 4 }}>
           <Box sx={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',

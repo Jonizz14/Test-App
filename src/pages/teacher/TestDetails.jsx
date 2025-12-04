@@ -219,7 +219,7 @@ const TestDetails = () => {
         borderBottom: '1px solid #e2e8f0',
         display: 'flex',
         alignItems: 'center'
-      }} data-aos="fade-down">
+      }}>
         <Button
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate('/teacher/my-tests')}
@@ -254,7 +254,7 @@ const TestDetails = () => {
         borderRadius: '12px',
         boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
         mb: 4
-      }} data-aos="fade-up">
+      }}>
         <CardContent sx={{ p: 4 }}>
           <Typography sx={{ 
             fontWeight: 600, 
@@ -348,7 +348,7 @@ const TestDetails = () => {
       </Card>
 
       {/* Statistics */}
-      <Grid container spacing={3} sx={{ mb: 4 }} data-aos="fade-up">
+      <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
           <Card sx={{
             backgroundColor: '#ffffff',
@@ -476,7 +476,7 @@ const TestDetails = () => {
       </Grid>
 
       {/* Students Who Took the Test */}
-      <Typography variant="h5" gutterBottom sx={{ mt: 4 }} data-aos="fade-in">
+      <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
         Test topshirgan o'quvchilar ({attempts.length})
       </Typography>
 
@@ -485,7 +485,7 @@ const TestDetails = () => {
           Hozircha hech kim bu testni topshirmagan.
         </Alert>
       ) : (
-        <TableContainer component={Paper} data-aos="fade-up">
+        <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>

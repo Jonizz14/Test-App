@@ -185,9 +185,7 @@ const TestStatistics = () => {
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}
-      data-aos="fade-down"
-      >
+      }}>
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -215,10 +213,7 @@ const TestStatistics = () => {
         flexWrap: 'wrap',
         gap: 3,
         alignItems: 'center'
-      }}
-      data-aos="fade-up"
-      data-aos-delay="200"
-      >
+      }}>
         <FormControl size="small" sx={{ 
           minWidth: 150,
           '& .MuiOutlinedInput-root': {
@@ -341,10 +336,7 @@ const TestStatistics = () => {
         border: '1px solid #e2e8f0',
         borderRadius: '12px',
         boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-      }}
-      data-aos="fade-up"
-      data-aos-delay="400"
-      >
+      }}>
         <Table>
           <TableHead>
             <TableRow sx={{

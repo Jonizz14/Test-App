@@ -282,30 +282,7 @@ const StudentOverview = () => {
         </Typography>
       </Box>
 
-      {/* Warning Count Alert - Only show if 3 or more warnings */}
-      {warningCount >= 3 && (
-        <div>
-          <Alert
-            severity="warning"
-            sx={{
-              mb: 4,
-              backgroundColor: '#fef3c7',
-              border: '1px solid #f59e0b',
-              color: '#92400e',
-              '& .MuiAlert-icon': {
-                color: '#f59e0b'
-              }
-            }}
-          >
-            <Typography sx={{ fontWeight: 600, mb: 1 }}>
-              ⚠️ Ogohlantirishlar: {warningCount} ta
-            </Typography>
-            <Typography variant="body2">
-              Siz test qoidalariga {warningCount} marta rioya qilmadingiz. Iltimos, test qoidalariga rioya qiling, aks holda profilingiz bloklanishi mumkin.
-            </Typography>
-          </Alert>
-        </div>
-      )}
+
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>

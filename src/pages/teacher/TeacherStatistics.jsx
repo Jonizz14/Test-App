@@ -278,13 +278,13 @@ const TeacherStatistics = () => {
   return (
     <Box sx={{
       p: 4,
-      backgroundColor: '#F4F6F9'
+      backgroundColor: '#ffffff'
     }}>
       <Box sx={{
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #D1D5DB'
-      }} data-aos="fade-down">
+      }}>
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 600,
@@ -303,7 +303,7 @@ const TeacherStatistics = () => {
       </Box>
 
       {/* Main Statistics Cards */}
-      <Grid container spacing={3} sx={{ mb: 3 }} data-aos="fade-up">
+      <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} sm={6} md={4}>
           <StatCard
             title="Jami yaratilgan testlar"
@@ -355,7 +355,7 @@ const TeacherStatistics = () => {
             borderRadius: '10px',
             boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
             p: 3
-          }} data-aos="fade-right">
+          }}>
             <Typography sx={{
               fontWeight: 600,
               color: '#1F2937',
@@ -376,7 +376,7 @@ const TeacherStatistics = () => {
             borderRadius: '10px',
             boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
             p: 3
-          }} data-aos="fade-left">
+          }}>
             <Typography sx={{ 
               fontWeight: 600, 
               color: '#1e293b',
@@ -407,7 +407,7 @@ const TeacherStatistics = () => {
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
             p: 3
-          }} data-aos="fade-up">
+          }}>
             <Typography sx={{ 
               fontWeight: 600, 
               color: '#1e293b',
@@ -428,7 +428,7 @@ const TeacherStatistics = () => {
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
             p: 3
-          }} data-aos="fade-right">
+          }}>
             <Typography sx={{ 
               fontWeight: 600, 
               color: '#1e293b',
@@ -476,7 +476,7 @@ const TeacherStatistics = () => {
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
             p: 3
-          }} data-aos="fade-left">
+          }}>
             <Typography sx={{ 
               fontWeight: 600, 
               color: '#1e293b',
@@ -519,7 +519,7 @@ const TeacherStatistics = () => {
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
             p: 3
-          }} data-aos="fade-up">
+          }}>
             <Typography sx={{ 
               fontWeight: 600, 
               color: '#1e293b',

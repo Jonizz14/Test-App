@@ -331,7 +331,6 @@ const ManageStudents = () => {
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
       }}
-      data-aos="fade-down"
       >
         <Typography sx={{
           fontSize: '2.5rem',
@@ -355,8 +354,6 @@ const ManageStudents = () => {
               backgroundColor: '#1d4ed8',
             }
           }}
-          data-aos="zoom-in"
-          data-aos-delay="200"
         >
           O'quvchi qo'shish
         </Button>
@@ -369,7 +366,7 @@ const ManageStudents = () => {
       )}
 
       {/* Search Input */}
-      <Box sx={{ mb: 4 }} data-aos="fade-up" data-aos-delay="300">
+      <Box sx={{ mb: 4 }}>
         <TextField
           fullWidth
           variant="outlined"
@@ -404,7 +401,7 @@ const ManageStudents = () => {
         )}
       </Box>
 
-      <div data-aos="fade-up" data-aos-delay="400">
+      
         <TableContainer component={Paper} sx={{
           backgroundColor: '#ffffff',
           border: '1px solid #e2e8f0',
@@ -646,32 +643,27 @@ const ManageStudents = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      </div>
 
       {filteredStudents.length === 0 && students.length > 0 && (
-        <div data-aos="fade-up" data-aos-delay="500">
-          <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
-            <Typography variant="h6" color="textSecondary">
-              Qidiruv natijasi bo'yicha o'quvchi topilmadi
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Qidiruv so'zini o'zgartirib ko'ring
-            </Typography>
-          </Paper>
-        </div>
+        <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
+          <Typography variant="h6" color="textSecondary">
+            Qidiruv natijasi bo'yicha o'quvchi topilmadi
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            Qidiruv so'zini o'zgartirib ko'ring
+          </Typography>
+        </Paper>
       )}
 
       {students.length === 0 && (
-        <div data-aos="fade-up" data-aos-delay="500">
-          <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
-            <Typography variant="h6" color="textSecondary">
-              Hali o'quvchilar qo'shilmagan
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Yuqoridagi "O'quvchi qo'shish" tugmasini bosing
-            </Typography>
-          </Paper>
-        </div>
+        <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
+          <Typography variant="h6" color="textSecondary">
+            Hali o'quvchilar qo'shilmagan
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            Yuqoridagi "O'quvchi qo'shish" tugmasini bosing
+          </Typography>
+        </Paper>
       )}
 
       {/* Add Student Dialog */}

@@ -224,7 +224,7 @@ const TeacherOverview = () => {
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }} data-aos="fade-down">
+      }}>
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -256,17 +256,16 @@ const TeacherOverview = () => {
               backgroundColor: '#1d4ed8',
             }
           }}
-          data-aos="zoom-in"
-          data-aos-delay="200"
+
         >
           Yangi test yaratish
         </Button>
       </Box>
 
       {/* Main Statistics Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }} data-aos="fade-up">
+      <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
-          <div data-aos="zoom-in" data-aos-delay="100">
+          <div>
             <StatCard
               title="Jami yaratilgan testlar"
               value={totalTests}
@@ -277,7 +276,7 @@ const TeacherOverview = () => {
           </div>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <div data-aos="zoom-in" data-aos-delay="200">
+          <div>
             <StatCard
               title="Faol testlar"
               value={activeTests}
@@ -288,7 +287,7 @@ const TeacherOverview = () => {
           </div>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <div data-aos="zoom-in" data-aos-delay="300">
+          <div>
             <StatCard
               title="Jami urinishlar"
               value={totalAttempts}
@@ -299,7 +298,7 @@ const TeacherOverview = () => {
           </div>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <div data-aos="zoom-in" data-aos-delay="400">
+          <div>
             <StatCard
               title="O'rtacha ball"
               value={`${averageScore}%`}
@@ -310,7 +309,7 @@ const TeacherOverview = () => {
           </div>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <div data-aos="zoom-in" data-aos-delay="500">
+          <div>
             <StatCard
               title="Eng yuqori ball"
               value={`${highestScore}%`}
@@ -321,7 +320,7 @@ const TeacherOverview = () => {
           </div>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <div data-aos="zoom-in" data-aos-delay="600">
+          <div>
             <StatCard
               title="Eng past ball"
               value={`${lowestScore}%`}
@@ -343,7 +342,7 @@ const TeacherOverview = () => {
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
             height: '400px',
             overflow: 'auto'
-          }} data-aos="fade-right">
+          }}>
             <CardContent sx={{ p: 4 }}>
               <Typography sx={{
                 fontWeight: 600,
@@ -411,7 +410,7 @@ const TeacherOverview = () => {
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
             height: '400px',
             overflow: 'auto'
-          }} data-aos="fade-left">
+          }}>
             <CardContent sx={{ p: 4 }}>
               <Typography sx={{
                 fontWeight: 600,

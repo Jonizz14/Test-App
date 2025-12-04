@@ -323,9 +323,7 @@ const Questions = () => {
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}
-      data-aos="fade-down"
-      >
+      }}>
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -354,10 +352,7 @@ const Questions = () => {
         flexWrap: 'wrap',
         gap: 3,
         alignItems: 'center'
-      }}
-      data-aos="fade-up"
-      data-aos-delay="200"
-      >
+      }}>
         <TextField
           placeholder="Qidirish..."
           value={searchQuery}
@@ -491,7 +486,7 @@ const Questions = () => {
       </Box>
 
       {/* Results Summary */}
-      <Box sx={{ mb: 4 }} data-aos="fade-up" data-aos-delay="300">
+      <Box sx={{ mb: 4 }}>
         <Typography sx={{ color: '#64748b' }}>
           Jami: {filteredAndSortedTests.length} ta test topildi
         </Typography>
@@ -512,8 +507,6 @@ const Questions = () => {
                 boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
                 overflow: 'visible'
               }}
-              data-aos="fade-up"
-              data-aos-delay={400 + index * 50}
             >
               <CardContent sx={{ p: 0 }}>
                 <Accordion
@@ -712,7 +705,7 @@ const Questions = () => {
       </Box>
 
       {filteredAndSortedTests.length === 0 && (
-        <Box sx={{ textAlign: 'center', mt: 4 }} data-aos="fade-up">
+        <Box sx={{ textAlign: 'center', mt: 4 }}>
           <Typography variant="h6" color="textSecondary">
             Testlar topilmadi
           </Typography>

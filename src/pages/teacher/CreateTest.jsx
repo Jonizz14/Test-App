@@ -337,7 +337,7 @@ const CreateTest = () => {
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }} data-aos="fade-down">
+      }}>
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -374,7 +374,7 @@ const CreateTest = () => {
           </Alert>
         )}
 
-        <Box sx={{ p: 4 }} component="form" onSubmit={handleSubmit} data-aos="fade-up">
+        <Box sx={{ p: 4 }} component="form" onSubmit={handleSubmit}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <TextField
@@ -492,7 +492,7 @@ const CreateTest = () => {
 
           <Divider sx={{ my: 3 }} />
 
-          <Typography variant="h5" gutterBottom data-aos="fade-in">
+          <Typography variant="h5" gutterBottom>
             Savollar ({questions.length})
           </Typography>
 

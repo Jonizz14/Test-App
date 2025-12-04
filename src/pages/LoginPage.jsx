@@ -119,7 +119,7 @@ const LoginPage = () => {
             borderColor: 'divider',
             overflow: 'hidden',
             height: 'fit-content'
-          }} data-aos="zoom-in">
+          }}>
             <Box sx={{
               background: 'linear-gradient(135deg, primary.main 0%, primary.dark 100%)',
               color: 'white',

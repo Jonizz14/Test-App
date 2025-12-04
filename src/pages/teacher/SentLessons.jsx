@@ -101,7 +101,7 @@ const SentLessons = () => {
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }} data-aos="fade-down">
+      }}>
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -120,7 +120,7 @@ const SentLessons = () => {
       </Box>
 
       {sentLessons.length === 0 ? (
-        <Paper sx={{ p: 4, textAlign: 'center', bgcolor: '#f8f9fa' }} data-aos="fade-up">
+        <Paper sx={{ p: 4, textAlign: 'center', bgcolor: '#f8f9fa' }}>
           <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
           <Typography variant="h6" color="textSecondary" gutterBottom>
             Hozircha darsga chaqirish yuborilmagan
@@ -135,7 +135,7 @@ const SentLessons = () => {
             Siz {sentLessons.length} ta darsga chaqirish yuborgansiz
           </Alert>
 
-          <Grid container spacing={3} data-aos="fade-up">
+          <Grid container spacing={3}>
             {sentLessons.map((lesson) => (
               <Grid item xs={12} key={lesson.id}>
                 <Card sx={{
