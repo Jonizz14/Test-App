@@ -16,6 +16,9 @@ import {
   IconButton,
   useMediaQuery,
   useTheme,
+  Avatar,
+  Menu,
+  MenuItem,
 } from '@mui/material';
 import {
   Dehaze as MenuIcon,
@@ -46,9 +49,11 @@ import ReceivedLessons from './student/ReceivedLessons';
 import StudentProfile from './student/StudentProfile';
 import StudentProfileView from './student/StudentProfileView';
 import TeacherDetails from './student/TeacherDetails';
+import PricingPage from './student/PricingPage';
 
 const StudentDashboard = () => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [profileMenuAnchor, setProfileMenuAnchor] = React.useState(null);
   const { currentUser, logout, isBanned } = useAuth();
   const { sessionStarted } = useServerTest();
   const navigate = useNavigate();
@@ -81,7 +86,6 @@ const StudentDashboard = () => {
     { text: 'Mening natijalarim', icon: <AssignmentTurnedInIcon />, path: '/student/results' },
     { text: 'Qabul qilingan darslar', icon: <SchoolIcon />, path: '/student/lessons' },
     { text: 'Statistika', icon: <BarChartIcon />, path: '/student/statistics' },
-    { text: 'Ma\'lumotlarim', icon: <PersonIcon />, path: '/student/profile' },
   ];
 
   const drawer = (
@@ -124,17 +128,7 @@ const StudentDashboard = () => {
                   py: 1.5,
                   display: 'flex',
                   alignItems: 'center',
-                  transition: 'background-color 0.4s ease, outline 0.4s ease, color 0.4s ease',
                   opacity: sessionStarted && item.path !== '/student/take-test' ? 0.5 : 1,
-                  '&:hover': {
-                    backgroundColor: sessionStarted && item.path !== '/student/take-test' ? 'transparent' : '#f1f5f9',
-                    '& .MuiListItemIcon-root': {
-                      color: sessionStarted && item.path !== '/student/take-test' ? '#64748b' : '#2563eb',
-                    },
-                    '& .MuiListItemText-primary': {
-                      color: sessionStarted && item.path !== '/student/take-test' ? '#64748b' : '#2563eb',
-                    }
-                  },
                   '&.Mui-selected': {
                     backgroundColor: '#e0f2fe',
                     color: '#0284c7',
@@ -222,29 +216,65 @@ const StudentDashboard = () => {
             </Typography>
           )}
           <NotificationCenter />
-          <Button
-            variant="outlined"
-            onClick={sessionStarted ? () => alert('Test topshirayotganingizda chiqa olmaysiz. Avval testni yakunlang!') : handleLogout}
-            disabled={sessionStarted}
-            startIcon={<LogoutIcon sx={{ fontSize: '1.4rem' }} />}
-            sx={{
-              border: 'none',
-              color: '#64748b',
-              opacity: sessionStarted ? 0.5 : 1,
-              '&:hover': {
-                backgroundColor: sessionStarted ? 'transparent' : '#f1f5f9',
-                border: 'none'
-              },
-              '&.Mui-disabled': {
-                opacity: 0.5,
-                cursor: 'not-allowed',
-              }
-            }}
+          <IconButton
+            onClick={(e) => setProfileMenuAnchor(e.currentTarget)}
+            sx={{ ml: 0.5 }}
           >
-            Chiqish
-          </Button>
+            <Avatar
+              src={currentUser?.profile_photo_url}
+              sx={{
+                width: 40,
+                height: 40,
+                border: '2px solid rgba(255, 255, 255, 0.8)',
+                backgroundColor: currentUser?.is_premium ? '#ffffff' : '#2563eb',
+                color: currentUser?.is_premium ? '#2563eb' : '#ffffff'
+              }}
+            >
+              {currentUser?.name.charAt(0).toUpperCase()}
+            </Avatar>
+          </IconButton>
         </Toolbar>
       </AppBar>
+
+      {/* Profile Menu */}
+      <Menu
+        anchorEl={profileMenuAnchor}
+        open={Boolean(profileMenuAnchor)}
+        onClose={() => setProfileMenuAnchor(null)}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        <MenuItem
+          onClick={() => {
+            handleNavigation('/student/profile');
+            setProfileMenuAnchor(null);
+          }}
+          sx={{ minWidth: 150 }}
+        >
+          <PersonIcon sx={{ mr: 1, fontSize: '1.2rem' }} />
+          Profil
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            if (sessionStarted) {
+              alert('Test topshirayotganingizda chiqa olmaysiz. Avval testni yakunlang!');
+            } else {
+              handleLogout();
+            }
+            setProfileMenuAnchor(null);
+          }}
+          sx={{ minWidth: 150 }}
+        >
+          <LogoutIcon sx={{ mr: 1, fontSize: '1.2rem' }} />
+          Chiqish
+        </MenuItem>
+      </Menu>
 
       {/* Sidebar Layout */}
       <Box sx={{ display: 'flex', width: '100%', mt: '64px', height: 'calc(100vh - 64px)' }}>
@@ -310,6 +340,7 @@ const StudentDashboard = () => {
               <Route path="/statistics" element={<StudentStatistics />} />
               <Route path="/profile" element={<StudentProfile />} />
               <Route path="/student-profile/:id" element={<StudentProfileView />} />
+              <Route path="/pricing" element={<PricingPage />} />
             </Routes>
           </Container>
         </Box>

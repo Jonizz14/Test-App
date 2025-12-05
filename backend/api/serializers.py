@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, WarningLog
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, WarningLog, Pricing
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -179,3 +179,12 @@ class WarningLogSerializer(serializers.ModelSerializer):
         fields = ['id', 'session', 'session_id', 'student', 'student_name', 'warning_type',
                   'warning_message', 'created_at']
         read_only_fields = ['id', 'created_at', 'student_name', 'session_id']
+
+class PricingSerializer(serializers.ModelSerializer):
+    plan_name = serializers.CharField(source='get_plan_type_display', read_only=True)
+
+    class Meta:
+        model = Pricing
+        fields = ['id', 'plan_type', 'plan_name', 'original_price', 'discounted_price',
+                  'discount_percentage', 'is_active', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'plan_name']

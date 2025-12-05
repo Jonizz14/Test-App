@@ -736,120 +736,26 @@ const StudentOverview = () => {
                                 </Box>
                               )}
 
-                              <Box sx={{ mt: 2 }}>
-                                {question.question_type === 'multiple_choice' && question.options && (
-                                  <Box>
-                                    <Typography variant="body2" sx={{
-                                      color: '#64748b',
-                                      fontWeight: 600,
-                                      mb: 1
-                                    }}>
-                                      Variantlar:
-                                    </Typography>
-                                    {question.options.map((option, optionIndex) => (
-                                      <Box key={optionIndex} sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        mb: 1,
-                                        p: 1,
-                                        borderRadius: '4px',
-                                        backgroundColor: option.text === question.correct_answer ? '#ecfdf5' :
-                                                      option.text === studentAnswer ? '#fef3c7' : 'transparent',
-                                        border: option.text === question.correct_answer ? '1px solid #10b981' :
-                                              option.text === studentAnswer ? '1px solid #f59e0b' : '1px solid #f1f5f9'
-                                      }}>
-                                        <Typography variant="body2" sx={{
-                                          color: option.text === question.correct_answer ? '#10b981' : '#334155',
-                                          fontWeight: option.text === studentAnswer ? 600 : 400
-                                        }}>
-                                          {option.text}
-                                        </Typography>
-                                        {option.text === question.correct_answer && (
-                                          <Typography variant="caption" sx={{
-                                            color: '#10b981',
-                                            fontWeight: 600,
-                                            ml: 1
-                                          }}>
-                                            (To'g'ri javob)
-                                          </Typography>
-                                        )}
-                                        {option.text === studentAnswer && option.text !== question.correct_answer && (
-                                          <Typography variant="caption" sx={{
-                                            color: '#f59e0b',
-                                            fontWeight: 600,
-                                            ml: 1
-                                          }}>
-                                            (Sizning javobingiz)
-                                          </Typography>
-                                        )}
-                                      </Box>
-                                    ))}
-                                  </Box>
-                                )}
-
+                              {question.explanation && (
                                 <Box sx={{ mt: 2 }}>
                                   <Typography variant="body2" sx={{
                                     color: '#64748b',
                                     fontWeight: 600,
                                     mb: 1
                                   }}>
-                                    Sizning javobingiz:
+                                    Tushuntirish:
                                   </Typography>
-                                  <Typography variant="body1" sx={{
-                                    color: '#1e293b',
-                                    fontWeight: 500,
+                                  <Typography variant="body2" sx={{
+                                    color: '#334155',
                                     backgroundColor: '#f8fafc',
                                     p: 2,
                                     borderRadius: '4px',
                                     border: '1px solid #e2e8f0'
                                   }}>
-                                    {studentAnswer || 'Javob berilmagan'}
+                                    {question.explanation}
                                   </Typography>
                                 </Box>
-
-                                {question.correct_answer && question.correct_answer !== studentAnswer && (
-                                  <Box sx={{ mt: 2 }}>
-                                    <Typography variant="body2" sx={{
-                                      color: '#64748b',
-                                      fontWeight: 600,
-                                      mb: 1
-                                    }}>
-                                      To'g'ri javob:
-                                    </Typography>
-                                    <Typography variant="body1" sx={{
-                                      color: '#10b981',
-                                      fontWeight: 500,
-                                      backgroundColor: '#ecfdf5',
-                                      p: 2,
-                                      borderRadius: '4px',
-                                      border: '1px solid #10b981'
-                                    }}>
-                                      {question.correct_answer}
-                                    </Typography>
-                                  </Box>
-                                )}
-
-                                {question.explanation && (
-                                  <Box sx={{ mt: 2 }}>
-                                    <Typography variant="body2" sx={{
-                                      color: '#64748b',
-                                      fontWeight: 600,
-                                      mb: 1
-                                    }}>
-                                      Tushuntirish:
-                                    </Typography>
-                                    <Typography variant="body2" sx={{
-                                      color: '#334155',
-                                      backgroundColor: '#f8fafc',
-                                      p: 2,
-                                      borderRadius: '4px',
-                                      border: '1px solid #e2e8f0'
-                                    }}>
-                                      {question.explanation}
-                                    </Typography>
-                                  </Box>
-                                )}
-                              </Box>
+                              )}
                             </CardContent>
                           </Card>
                         );

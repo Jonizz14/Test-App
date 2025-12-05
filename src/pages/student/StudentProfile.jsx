@@ -26,12 +26,14 @@ import {
   EmojiEmotions as EmojiIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
 import EmojiPicker from '../../components/EmojiPicker';
 import GradientPicker from '../../components/GradientPicker';
 
 const StudentProfile = () => {
-  const { currentUser, setCurrentUserData } = useAuth();
+  const { currentUser, setCurrentUserData, logout } = useAuth();
+  const navigate = useNavigate();
   const [testCount, setTestCount] = useState(0);
   const [averageScore, setAverageScore] = useState(0);
   const [highestScore, setHighestScore] = useState(0);
@@ -42,7 +44,7 @@ const StudentProfile = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  
+
   // Emoji and Gradient picker states
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [gradientPickerOpen, setGradientPickerOpen] = useState(false);
@@ -81,7 +83,7 @@ const StudentProfile = () => {
       setTestCount(attemptsList.length);
 
       // Calculate average and highest scores
-      const scores = attemptsList.map(attempt => attempt.score || 0).filter(score => score > 0);
+      const scores = attemptsList.map(attempt => attempt.score || 0);
       const avgScore = scores.length > 0
         ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
         : 0;
@@ -208,6 +210,7 @@ const StudentProfile = () => {
     }
   };
 
+
   return (
     <Box sx={{
       py: 4,
@@ -229,7 +232,7 @@ const StudentProfile = () => {
         }}>
           Mening ma'lumotlarim
         </Typography>
-        
+
         {/* Edit Button for Premium Users */}
         {currentUser?.is_premium && (
           <Button
@@ -333,20 +336,20 @@ const StudentProfile = () => {
           <style>{`
             ${Array.from({ length: 20 }).map((_, i) => `
               @keyframes swimAllEmojis-${i} {
-                0% { 
-                  transform: translateX(${(i % 4 - 2) * 25}%) translateY(0%) rotate(${i * 18}deg) scale(${0.7 + (i % 3) * 0.1}); 
+                0% {
+                  transform: translateX(${(i % 4 - 2) * 25}%) translateY(0%) rotate(${i * 18}deg) scale(${0.7 + (i % 3) * 0.1});
                 }
-                25% { 
-                  transform: translateX(${(i % 4 - 1) * 25}%) translateY(-20%) rotate(${i * 18 + 90}deg) scale(${0.7 + ((i + 1) % 3) * 0.1}); 
+                25% {
+                  transform: translateX(${(i % 4 - 1) * 25}%) translateY(-20%) rotate(${i * 18 + 90}deg) scale(${0.7 + ((i + 1) % 3) * 0.1});
                 }
-                50% { 
-                  transform: translateX(${(i % 4) * 25}%) translateY(-40%) rotate(${i * 18 + 180}deg) scale(${0.7 + ((i + 2) % 3) * 0.1}); 
+                50% {
+                  transform: translateX(${(i % 4) * 25}%) translateY(-40%) rotate(${i * 18 + 180}deg) scale(${0.7 + ((i + 2) % 3) * 0.1});
                 }
-                75% { 
-                  transform: translateX(${(i % 4 + 1) * 25}%) translateY(-20%) rotate(${i * 18 + 270}deg) scale(${0.7 + ((i + 1) % 3) * 0.1}); 
+                75% {
+                  transform: translateX(${(i % 4 + 1) * 25}%) translateY(-20%) rotate(${i * 18 + 270}deg) scale(${0.7 + ((i + 1) % 3) * 0.1});
                 }
-                100% { 
-                  transform: translateX(${(i % 4 - 2) * 25}%) translateY(0%) rotate(${i * 18 + 360}deg) scale(${0.7 + (i % 3) * 0.1}); 
+                100% {
+                  transform: translateX(${(i % 4 - 2) * 25}%) translateY(0%) rotate(${i * 18 + 360}deg) scale(${0.7 + (i % 3) * 0.1});
                 }
               }
             `).join('')}
@@ -382,7 +385,7 @@ const StudentProfile = () => {
                     scale: 0.7 + Math.random() * 0.6,
                     rotation: Math.random() * 360
                   };
-                  
+
                   return (
                     <Box
                       key={`emoji-${index}`}
@@ -404,7 +407,7 @@ const StudentProfile = () => {
                     </Box>
                   );
                 })}
-                
+
                 {/* Additional floating emojis for density */}
                 {Array.from({ length: Math.min(8, selectedEmojis.length * 2) }).map((_, index) => {
                   const originalIndex = index % selectedEmojis.length;
@@ -416,7 +419,7 @@ const StudentProfile = () => {
                     scale: 0.5 + Math.random() * 0.5,
                     rotation: Math.random() * 360
                   };
-                  
+
                   return (
                     <Box
                       key={`extra-emoji-${index}`}
@@ -439,7 +442,7 @@ const StudentProfile = () => {
                   );
                 })}
               </Box>
-              
+
               {/* Animated gradient overlay for depth */}
               <Box sx={{
                 position: 'absolute',
@@ -810,11 +813,34 @@ const StudentProfile = () => {
                       fontSize: '1.2rem',
                       fontWeight: 700,
                       color: currentUser?.is_premium ? '#d97706' : '#64748b',
-                      lineHeight: 1.2
+                      lineHeight: 1.2,
+                      mb: currentUser?.is_premium ? 0 : 2
                     }}
                   >
                     {currentUser?.is_premium ? 'Faol' : 'Yo\'q'}
                   </Typography>
+                  {!currentUser?.is_premium && (
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={() => navigate('/student/pricing')}
+                      sx={{
+                        backgroundColor: '#2563eb',
+                        color: '#ffffff',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        borderRadius: '8px',
+                        px: 2,
+                        py: 0.5,
+                        fontSize: '0.8rem',
+                        '&:hover': {
+                          backgroundColor: '#1d4ed8',
+                        }
+                      }}
+                    >
+                      Sotib olish
+                    </Button>
+                  )}
                 </Box>
                 <Box
                   sx={{
@@ -1116,6 +1142,7 @@ const StudentProfile = () => {
         selectedGradient={selectedGradient}
         onGradientSelect={handleGradientSelect}
       />
+
     </Box>
   );
 };

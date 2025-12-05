@@ -7,6 +7,7 @@ class User(AbstractUser):
         ('admin', 'Admin'),
         ('teacher', 'Teacher'),
         ('student', 'Student'),
+        ('seller', 'Seller'),
     ]
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
     name = models.CharField(max_length=100, blank=True)
@@ -41,6 +42,9 @@ class User(AbstractUser):
     # Premium profile system (for students)
     is_premium = models.BooleanField(default=False, help_text="Whether the student has premium status")
     premium_granted_date = models.DateTimeField(null=True, blank=True, help_text="When premium was granted")
+    premium_expiry_date = models.DateTimeField(null=True, blank=True, help_text="When premium expires")
+    premium_plan = models.CharField(max_length=10, blank=True, help_text="Premium plan type (week/month/year)")
+    premium_cost = models.DecimalField(max_digits=6, decimal_places=2, default=0, help_text="Cost of premium subscription in USD")
     profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True, help_text="Profile photo (can be GIF)")
     profile_status = models.CharField(max_length=100, blank=True, help_text="Custom status message")
     premium_emoji_count = models.IntegerField(default=0, help_text="Number of premium emojis available")
@@ -281,3 +285,25 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f"Feedback for {self.attempt}"
+
+class Pricing(models.Model):
+    """Model to manage premium subscription pricing"""
+    PLAN_CHOICES = [
+        ('week', '1 Hafta'),
+        ('month', '1 Oy'),
+        ('year', '1 Yil'),
+    ]
+
+    plan_type = models.CharField(max_length=10, choices=PLAN_CHOICES, unique=True)
+    original_price = models.DecimalField(max_digits=6, decimal_places=2, help_text="Original price in USD")
+    discounted_price = models.DecimalField(max_digits=6, decimal_places=2, help_text="Discounted price in USD")
+    discount_percentage = models.IntegerField(default=0, help_text="Discount percentage")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.get_plan_type_display()} - ${self.discounted_price}"
+
+    class Meta:
+        ordering = ['plan_type']

@@ -709,11 +709,34 @@ const StudentProfileView = () => {
                       fontSize: '1.2rem',
                       fontWeight: 700,
                       color: student.is_premium ? '#d97706' : '#64748b',
-                      lineHeight: 1.2
+                      lineHeight: 1.2,
+                      mb: student.is_premium ? 0 : 2
                     }}
                   >
                     {student.is_premium ? 'Faol' : 'Yo\'q'}
                   </Typography>
+                  {!student.is_premium && (
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={() => navigate('/student/pricing')}
+                      sx={{
+                        backgroundColor: '#2563eb',
+                        color: '#ffffff',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        borderRadius: '8px',
+                        px: 2,
+                        py: 0.5,
+                        fontSize: '0.8rem',
+                        '&:hover': {
+                          backgroundColor: '#1d4ed8',
+                        }
+                      }}
+                    >
+                      Sotib olish
+                    </Button>
+                  )}
                 </Box>
                 <Box
                   sx={{

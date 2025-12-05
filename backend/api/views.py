@@ -6,8 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.db import models
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, WarningLog
-from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, WarningLogSerializer
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, WarningLog, Pricing
+from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, WarningLogSerializer, PricingSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -347,6 +347,134 @@ class TestSessionViewSet(viewsets.ModelViewSet):
             
         except TestSession.DoesNotExist:
             return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True, methods=['post'])
+    def toggle_premium(self, request, pk=None):
+        """Toggle premium status for a student (admin and seller only)"""
+        if request.user.role not in ['admin', 'seller']:
+            return Response({'error': 'Only admin and seller can manage premium status'}, status=status.HTTP_403_FORBIDDEN)
+
+        user = self.get_object()
+        if user.role != 'student':
+            return Response({'error': 'Premium status can only be managed for students'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Toggle premium status
+        user.is_premium = not user.is_premium
+        if user.is_premium:
+            from django.utils import timezone
+            user.premium_granted_date = timezone.now()
+            user.premium_emoji_count = 50  # Grant premium emojis
+        else:
+            user.premium_granted_date = None
+            user.premium_emoji_count = 0
+
+        user.save()
+
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def grant_student_premium(self, request, pk=None):
+        """Grant premium status to a student (admin and seller only)"""
+        if request.user.role not in ['admin', 'seller']:
+            return Response({'error': 'Only admin and seller can grant premium status'}, status=status.HTTP_403_FORBIDDEN)
+
+        user = self.get_object()
+        if user.role != 'student':
+            return Response({'error': 'Premium status can only be granted to students'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Get pricing information from request
+        pricing_id = request.data.get('pricing_id')
+        if not pricing_id:
+            return Response({'error': 'pricing_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            pricing = Pricing.objects.get(id=pricing_id, is_active=True)
+        except Pricing.DoesNotExist:
+            return Response({'error': 'Invalid pricing plan'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Calculate expiry date based on plan type
+        from django.utils import timezone
+        now = timezone.now()
+        if pricing.plan_type == 'week':
+            expiry_date = now + timezone.timedelta(weeks=1)
+        elif pricing.plan_type == 'month':
+            expiry_date = now + timezone.timedelta(days=30)
+        elif pricing.plan_type == 'year':
+            expiry_date = now + timezone.timedelta(days=365)
+        else:
+            return Response({'error': 'Invalid plan type'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.is_premium = True
+        user.premium_granted_date = now
+        user.premium_expiry_date = expiry_date
+        user.premium_plan = pricing.plan_type
+        user.premium_cost = pricing.discounted_price
+        user.premium_emoji_count = 50  # Grant premium emojis
+        user.save()
+
+        serializer = self.get_serializer(user)
+        return Response({
+            'user': serializer.data,
+            'pricing': {
+                'plan_name': pricing.get_plan_type_display(),
+                'cost': pricing.discounted_price,
+                'expiry_date': expiry_date
+            }
+        })
+
+    @action(detail=True, methods=['post'])
+    def revoke_premium(self, request, pk=None):
+        """Revoke premium status from a student (admin and seller only)"""
+        if request.user.role not in ['admin', 'seller']:
+            return Response({'error': 'Only admin and seller can revoke premium status'}, status=status.HTTP_403_FORBIDDEN)
+
+        user = self.get_object()
+        if user.role != 'student':
+            return Response({'error': 'Premium status can only be revoked from students'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.is_premium = False
+        user.premium_granted_date = None
+        user.premium_emoji_count = 0
+        user.save()
+
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
+
+class PricingViewSet(viewsets.ModelViewSet):
+    queryset = Pricing.objects.all()
+    serializer_class = PricingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        """Only allow admin and seller to manage pricing"""
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [IsAuthenticated()]
+        return [AllowAny()]
+
+    def get_queryset(self):
+        """Only return active pricing for non-admin users"""
+        if self.request.user.role in ['admin', 'seller']:
+            return Pricing.objects.all()
+        return Pricing.objects.filter(is_active=True)
+
+    def perform_create(self, serializer):
+        if self.request.user.role not in ['admin', 'seller']:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Only admin and seller can manage pricing")
+        serializer.save()
+
+    def perform_update(self, serializer):
+        if self.request.user.role not in ['admin', 'seller']:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Only admin and seller can manage pricing")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if self.request.user.role not in ['admin', 'seller']:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Only admin and seller can manage pricing")
+        instance.delete()
 
     @action(detail=False, methods=['put'])
     def update_answers(self, request):

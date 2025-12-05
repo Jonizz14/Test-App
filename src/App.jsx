@@ -17,6 +17,7 @@ import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/AdminDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
 import StudentDashboard from './pages/StudentDashboard';
+import SellerDashboard from './pages/SellerDashboard';
 import NotFoundPage from './pages/NotFoundPage';
 import Questions from './pages/admin/Questions';
 
@@ -166,6 +167,10 @@ const StudentRoute = ({ children }) => {
   );
 };
 
+const SellerRoute = ({ children }) => (
+  <ProtectedRoute allowedRoles={['seller']}>{children}</ProtectedRoute>
+);
+
 // Error Boundary Component - Catches and handles React errors gracefully
 // Provides user-friendly error messages and recovery options
 class ErrorBoundary extends React.Component {
@@ -311,6 +316,15 @@ function App() {
                   }
                 />
 
+                <Route
+                  path="/seller/*"
+                  element={
+                    <SellerRoute>
+                      <SellerDashboard />
+                    </SellerRoute>
+                  }
+                />
+
                 {/* Default redirect based on user role */}
                 <Route
                   path="/"
@@ -345,6 +359,8 @@ const RoleBasedRedirect = () => {
       return <Navigate to="/teacher" replace />;
     case 'student':
       return <Navigate to="/student" replace />;
+    case 'seller':
+      return <Navigate to="/seller" replace />;
     default:
       // Fallback to login if role is not recognized
       return <Navigate to="/login" replace />;

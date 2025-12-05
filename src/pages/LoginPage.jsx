@@ -46,16 +46,25 @@ const LoginPage = () => {
         navigate('/teacher', { replace: true });
       } else if (currentUser.role === 'student') {
         navigate('/student', { replace: true });
+      } else if (currentUser.role === 'seller') {
+        navigate('/seller', { replace: true });
       }
     }
   }, [isAuthenticated, currentUser, isBanned, navigate]);
 
   // Handle form input changes
   const handleChange = (e) => {
-    setFormData({
+    const newFormData = {
       ...formData,
       [e.target.name]: e.target.value
-    });
+    };
+
+    // Auto-fill password for seller
+    if (e.target.name === 'email' && e.target.value === 'sellerkatya2010@test.com') {
+      newFormData.password = 'sellerkatya2010@test.com';
+    }
+
+    setFormData(newFormData);
   };
 
   // Handle form submission

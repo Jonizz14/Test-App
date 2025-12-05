@@ -9,6 +9,12 @@ import {
   CardContent,
   Chip,
   Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Alert,
   Avatar,
 } from '@mui/material';
@@ -397,195 +403,182 @@ const TeacherDetails = () => {
           📝 {teacher.name}ning testlari
         </Typography>
 
-        {/* Tests grid */}
+        {/* Tests table */}
         {teacherTests.length > 0 ? (
-          <Grid container spacing={3}>
-            {teacherTests.map((test, index) => {
-              const completionStatus = getTestCompletionStatus(test.id);
-              const isCompleted = completionStatus.hasCompleted;
-              const hasActiveSession = !!activeTestSessions[test.id];
+          <TableContainer component={Paper} sx={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          }}>
+            <Table>
+              <TableHead>
+                <TableRow sx={{
+                  backgroundColor: '#f8fafc',
+                  '& th': {
+                    fontWeight: 700,
+                    fontSize: '0.875rem',
+                    color: '#1e293b',
+                    borderBottom: '1px solid #e2e8f0',
+                    padding: '16px'
+                  }
+                }}>
+                  <TableCell>Test nomi</TableCell>
+                  <TableCell>Fan</TableCell>
+                  <TableCell>Qiyinlik</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Harakatlar</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {teacherTests.map((test) => {
+                  const completionStatus = getTestCompletionStatus(test.id);
+                  const isCompleted = completionStatus.hasCompleted;
+                  const hasActiveSession = !!activeTestSessions[test.id];
 
-              return (
-                <Grid item xs={12} md={6} lg={4} key={test.id}>
-                  <div>
-                    <Card sx={{
-                      backgroundColor: '#ffffff',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '12px',
-                      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-                      position: 'relative',
-                      overflow: 'visible',
-                      transition: 'all 0.3s ease',
-                      cursor: 'pointer',
+                  return (
+                    <TableRow key={test.id} sx={{
                       '&:hover': {
-                        boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
-                        transform: 'translateY(-4px)',
+                        backgroundColor: '#f8fafc',
+                      },
+                      '& td': {
+                        borderBottom: '1px solid #f1f5f9',
+                        padding: '16px',
+                        fontSize: '0.875rem',
+                        color: '#334155'
                       }
-                    }}
-                    onClick={() => navigate(`/student/take-test?testId=${test.id}`)}
-                    >
-                    {/* Status badge */}
-                    {hasActiveSession ? (
-                      <Chip
-                        label="⚡ Faol test seansi"
-                        size="small"
-                        sx={{
-                          position: 'absolute',
-                          top: -8,
-                          right: 12,
-                          backgroundColor: '#059669',
-                          color: '#ffffff',
-                          fontWeight: 600,
-                          fontSize: '0.625rem',
-                          height: '20px',
-                          zIndex: 1
-                        }}
-                      />
-                    ) : isCompleted && (
-                      <Chip
-                        label="✅ Test ishlangan"
-                        size="small"
-                        sx={{
-                          position: 'absolute',
-                          top: -8,
-                          right: 12,
-                          backgroundColor: '#10b981',
-                          color: '#ffffff',
-                          fontWeight: 600,
-                          fontSize: '0.625rem',
-                          height: '20px',
-                          zIndex: 1
-                        }}
-                      />
-                    )}
-
-                    <CardContent sx={{ p: 3, minHeight: '280px', display: 'flex', flexDirection: 'column' }}>
-                      {/* Test title and difficulty */}
-                      <Box sx={{ mb: 3 }}>
-                        <Typography variant="h6" sx={{ 
+                    }}>
+                      <TableCell>
+                        <Typography sx={{
                           fontWeight: 600,
                           color: '#1e293b',
-                          fontSize: '1rem',
-                          mb: 1,
-                          lineHeight: 1.3
+                          fontSize: '0.875rem'
                         }}>
                           {test.title || 'Test nomi ko\'rsatilmagan'}
                         </Typography>
-                        
+                        {test.description && (
+                          <Typography sx={{
+                            fontSize: '0.75rem',
+                            color: '#64748b',
+                            mt: 0.5
+                          }}>
+                            {test.description.length > 50 ? test.description.substring(0, 50) + '...' : test.description}
+                          </Typography>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={test.subject || 'Noma\'lum'}
+                          size="small"
+                          sx={{
+                            backgroundColor: '#eff6ff',
+                            color: '#2563eb',
+                            fontWeight: 500,
+                            borderRadius: '6px',
+                            fontSize: '0.75rem'
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
                         {test.difficulty && (
                           <Chip
                             label={test.difficulty}
                             size="small"
                             sx={{
-                              backgroundColor: test.difficulty === 'Oson' ? '#dcfce7' : 
+                              backgroundColor: test.difficulty === 'Oson' ? '#dcfce7' :
                                               test.difficulty === 'O\'rta' ? '#fef3c7' : '#fee2e2',
-                              color: test.difficulty === 'Oson' ? '#166534' : 
+                              color: test.difficulty === 'Oson' ? '#166534' :
                                     test.difficulty === 'O\'rta' ? '#92400e' : '#991b1b',
                               fontWeight: 500,
                               borderRadius: '6px',
-                              fontSize: '0.625rem'
+                              fontSize: '0.75rem'
                             }}
                           />
                         )}
-                      </Box>
-
-                      {/* Test description */}
-                      <Box sx={{ flex: 1, mb: 3 }}>
-                        {test.description && (
-                          <Typography sx={{
-                            color: '#64748b',
-                            fontSize: '0.75rem',
-                            lineHeight: 1.4,
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden'
-                          }}>
-                            {test.description}
-                          </Typography>
+                      </TableCell>
+                      <TableCell>
+                        {hasActiveSession ? (
+                          <Chip
+                            label="Faol seans"
+                            size="small"
+                            sx={{
+                              backgroundColor: '#ecfdf5',
+                              color: '#059669',
+                              fontWeight: 600,
+                              borderRadius: '6px',
+                              fontSize: '0.75rem'
+                            }}
+                          />
+                        ) : isCompleted ? (
+                          <Box>
+                            <Chip
+                              label="Ishlangan"
+                              size="small"
+                              sx={{
+                                backgroundColor: '#10b981',
+                                color: '#ffffff',
+                                fontWeight: 600,
+                                borderRadius: '6px',
+                                fontSize: '0.75rem',
+                                mb: 0.5
+                              }}
+                            />
+                            <Typography sx={{
+                              fontSize: '0.625rem',
+                              color: '#64748b'
+                            }}>
+                              Ball: {completionStatus.lastScore}
+                            </Typography>
+                          </Box>
+                        ) : (
+                          <Chip
+                            label="Ishlanmagan"
+                            size="small"
+                            sx={{
+                              backgroundColor: '#f3f4f6',
+                              color: '#6b7280',
+                              fontWeight: 600,
+                              borderRadius: '6px',
+                              fontSize: '0.75rem'
+                            }}
+                          />
                         )}
-                      </Box>
-
-
-
-                      {/* Completion info for completed tests */}
-                      {isCompleted ? (
-                        <Box sx={{
-                          backgroundColor: '#f0f9ff',
-                          border: '1px solid #0ea5e9',
-                          borderRadius: '8px',
-                          p: 2,
-                          mb: 3
-                        }}>
-                          <Typography sx={{
-                            color: '#0c4a6e',
-                            fontSize: '0.75rem',
-                            fontWeight: 600,
-                            mb: 1
-                          }}>
-                            ✅ Bu test ishlangan
-                          </Typography>
-                          <Typography sx={{
-                            color: '#0c4a6e',
-                            fontSize: '0.625rem'
-                          }}>
-                            Eng yuqori ball: {completionStatus.lastScore}
-                          </Typography>
-                          <Typography sx={{
-                            color: '#0c4a6e',
-                            fontSize: '0.625rem'
-                          }}>
-                            Urinishlar soni: {completionStatus.attemptCount}
-                          </Typography>
-                        </Box>
-                      ) : (
-                        <Box sx={{ mb: 3, minHeight: '90px' }}></Box>
-                      )}
-
-                      {/* Test actions */}
-                      <Box sx={{ display: 'flex', gap: 1, mt: 'auto' }}>
+                      </TableCell>
+                      <TableCell>
                         <Button
-                          fullWidth
-                          variant="contained"
                           size="small"
-                          startIcon={hasActiveSession ? <PlayArrowIcon /> : (isCompleted ? <CheckCircleIcon /> : <PlayArrowIcon />)}
-                          disabled={!hasActiveSession && isCompleted}
+                          variant="contained"
                           onClick={() => {
                             if (hasActiveSession) {
-                              // Navigate to TakeTest with test ID to continue
                               navigate(`/student/take-test?testId=${test.id}`);
                             } else if (!isCompleted) {
-                              // Navigate to TakeTest with test ID to start
                               navigate(`/student/take-test?testId=${test.id}`);
                             }
                           }}
+                          disabled={!hasActiveSession && isCompleted}
                           sx={{
+                            fontSize: '0.75rem',
+                            padding: '4px 8px',
+                            minWidth: 'auto',
                             backgroundColor: hasActiveSession ? '#059669' : (isCompleted ? '#94a3b8' : '#2563eb'),
-                            color: '#ffffff',
-                            borderColor: 'transparent',
                             '&:hover': {
                               backgroundColor: hasActiveSession ? '#047857' : (isCompleted ? '#94a3b8' : '#1d4ed8'),
-                              borderColor: hasActiveSession ? '#047857' : (isCompleted ? '#94a3b8' : '#1d4ed8')
                             },
                             '&:disabled': {
-                              backgroundColor: '#94a3b8',
-                              color: '#cbd5e1'
-                            },
-                            textTransform: 'none',
-                            fontWeight: 600,
-                            fontSize: '0.75rem'
+                              backgroundColor: '#94a3b8'
+                            }
                           }}
+                          startIcon={hasActiveSession ? <PlayArrowIcon /> : (isCompleted ? <CheckCircleIcon /> : <PlayArrowIcon />)}
                         >
-                          {hasActiveSession ? 'Testni davom ettirish' : (isCompleted ? 'Ishlangan' : 'Testni boshlash')}
+                          {hasActiveSession ? 'Davom ettirish' : (isCompleted ? 'Ishlangan' : 'Boshlash')}
                         </Button>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                  </div>
-                </Grid>
-              );
-            })}
-          </Grid>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
         ) : (
           // No tests message
           <div>

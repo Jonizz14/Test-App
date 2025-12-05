@@ -83,11 +83,11 @@ const NotificationCenter = () => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
         PaperProps={{
-          sx: { width: 400, maxHeight: 500 }
+          sx: { width: 450, maxHeight: 600, overflow: 'auto' }
         }}
       >
-        <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
-          <Typography variant="h6">
+        <Box sx={{ p: 1.5, borderBottom: 1, borderColor: 'divider' }}>
+          <Typography variant="h6" sx={{ fontSize: '1.1rem' }}>
             Bildirishnomalar
           </Typography>
         </Box>
@@ -103,27 +103,28 @@ const NotificationCenter = () => {
                 onClick={() => handleNotificationClick(notification)}
                 sx={{
                   backgroundColor: notification.isRead ? 'transparent' : 'action.hover',
-                  py: 2
+                  py: 1.5,
+                  px: 2
                 }}
               >
-                <Box sx={{ width: '100%' }}>
-                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={1}>
-                    <Box display="flex" alignItems="center">
-                      <SchoolIcon sx={{ mr: 1, color: 'primary.main' }} />
-                      <Typography variant="subtitle2" fontWeight="bold">
+                <Box sx={{ width: '100%', wordWrap: 'break-word' }}>
+                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={0.5}>
+                    <Box display="flex" alignItems="center" sx={{ minWidth: 0, flex: 1 }}>
+                      <SchoolIcon sx={{ mr: 1, color: 'primary.main', fontSize: '1.2rem' }} />
+                      <Typography variant="subtitle2" fontWeight="bold" sx={{ fontSize: '0.9rem', lineHeight: 1.2 }}>
                         {notification.title}
                       </Typography>
                     </Box>
                     {!notification.isRead && (
-                      <Chip label="Yangi" size="small" color="primary" />
+                      <Chip label="Yangi" size="small" color="primary" sx={{ ml: 1, fontSize: '0.7rem', height: '20px' }} />
                     )}
                   </Box>
 
-                  <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                  <Typography variant="body2" color="textSecondary" sx={{ mb: 0.5, fontSize: '0.85rem', lineHeight: 1.3 }}>
                     {notification.message}
                   </Typography>
 
-                  <Typography variant="caption" color="textSecondary">
+                  <Typography variant="caption" color="textSecondary" sx={{ fontSize: '0.75rem' }}>
                     {new Date(notification.createdAt).toLocaleDateString('uz-UZ')} • {notification.teacherName}
                   </Typography>
                 </Box>
