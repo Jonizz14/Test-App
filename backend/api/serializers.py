@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, WarningLog, Pricing
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, WarningLog, Pricing, StarPackage
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'display_id', 'email', 'password', 'role', 'name', 'first_name', 'last_name',
                   'created_at', 'last_login', 'class_group', 'direction', 'registration_date',
                   'seller_earnings', 'subjects', 'bio', 'total_tests_created', 'average_student_score', 'is_curator', 'curator_class',
-                  'total_tests_taken', 'average_score', 'completed_subjects',
+                  'total_tests_taken', 'average_score', 'completed_subjects', 'stars',
                   'is_banned', 'ban_reason', 'ban_date', 'unban_code',
                   'is_premium', 'premium_granted_date', 'premium_expiry_date', 'premium_plan', 'premium_cost', 'premium_type', 'premium_balance',
                   'profile_photo', 'profile_photo_url', 'profile_status', 'premium_emoji_count',
@@ -193,3 +193,17 @@ class PricingSerializer(serializers.ModelSerializer):
         fields = ['id', 'plan_type', 'plan_name', 'original_price', 'discounted_price',
                   'discount_percentage', 'is_active', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at', 'plan_name']
+
+class StarPackageSerializer(serializers.ModelSerializer):
+    discount_text = serializers.SerializerMethodField()
+
+    class Meta:
+        model = StarPackage
+        fields = ['id', 'stars', 'original_price', 'discounted_price', 'discount_percentage',
+                  'discount_text', 'is_popular', 'is_active', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'discount_text']
+
+    def get_discount_text(self, obj):
+        if obj.discount_percentage > 0:
+            return f"{obj.discount_percentage}% Chegirma"
+        return ""

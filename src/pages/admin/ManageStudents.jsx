@@ -24,6 +24,7 @@ import {
   IconButton,
   Tooltip,
   InputAdornment,
+  Avatar,
 } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon, Block as BlockIcon, CheckCircle as CheckCircleIcon, Edit as EditIcon, Search as SearchIcon, Info as InfoIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -420,6 +421,7 @@ const ManageStudents = () => {
                 padding: '16px'
               }
             }}>
+              <TableCell>Rasm</TableCell>
               <TableCell>ID</TableCell>
               <TableCell>To'liq ism</TableCell>
               <TableCell>Sinf</TableCell>
@@ -446,8 +448,42 @@ const ManageStudents = () => {
                 }
               }}>
                 <TableCell>
-                  <Typography sx={{ 
-                    fontFamily: 'monospace', 
+                  {student.is_premium && student.profile_photo_url ? (
+                    <Avatar
+                      src={student.profile_photo_url}
+                      sx={{
+                        width: 32,
+                        height: 32,
+                        border: '2px solid #e2e8f0'
+                      }}
+                      imgProps={{
+                        style: { objectFit: 'cover' }
+                      }}
+                    />
+                  ) : (
+                    <Box sx={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: '50%',
+                      backgroundColor: '#f1f5f9',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '2px solid #e2e8f0'
+                    }}>
+                      <Typography sx={{
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        color: '#64748b'
+                      }}>
+                        -
+                      </Typography>
+                    </Box>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Typography sx={{
+                    fontFamily: 'monospace',
                     fontWeight: 600,
                     fontSize: '0.75rem',
                     backgroundColor: '#f1f5f9',

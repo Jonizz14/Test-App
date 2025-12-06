@@ -50,6 +50,7 @@ class User(AbstractUser):
     premium_cost = models.DecimalField(max_digits=6, decimal_places=2, default=0, help_text="Cost of premium subscription in USD")
     premium_type = models.CharField(max_length=20, default='time_based', help_text="Type of premium: time_based or performance_based")
     premium_balance = models.IntegerField(default=0, help_text="Premium balance for performance-based premium (decreases with usage)")
+    stars = models.IntegerField(default=0, help_text="Number of stars the student has")
     profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True, help_text="Profile photo (can be GIF)")
     profile_status = models.CharField(max_length=100, blank=True, help_text="Custom status message")
     premium_emoji_count = models.IntegerField(default=0, help_text="Number of premium emojis available")
@@ -71,38 +72,11 @@ class User(AbstractUser):
             if self.display_id:
                 self.username = self.display_id
 
-        # Auto-manage premium status for students based on average score
-        if self.role == 'student':
-            self.update_premium_status()
+        # Premium status is managed manually or through purchases
 
         super().save(*args, **kwargs)
 
-    def update_premium_status(self):
-        """Update premium status based on average score >= 95%"""
-        if self.role != 'student':
-            return
-
-        # Calculate current average score
-        attempts = self.attempts.all()
-        if attempts.exists():
-            avg_score = sum(attempt.score for attempt in attempts) / attempts.count()
-        else:
-            avg_score = 0
-
-        # Grant performance-based premium if average score >= 95%
-        if avg_score >= 95 and not self.is_premium:
-            from django.utils import timezone
-            self.is_premium = True
-            self.premium_granted_date = timezone.now()
-            self.premium_type = 'performance_based'
-            self.premium_balance = 1000  # Start with 1000 premium points
-            self.premium_emoji_count = 50  # Grant 50 premium emojis
-        # Revoke premium if average score drops below 95% (only for performance-based)
-        elif avg_score < 95 and self.is_premium and self.premium_type == 'performance_based':
-            self.is_premium = False
-            self.premium_granted_date = None
-            self.premium_balance = 0
-            self.premium_emoji_count = 0
+    # Premium status is managed manually
 
     def get_premium_info(self):
         """Get premium information including remaining time/balance"""
@@ -398,3 +372,20 @@ class Pricing(models.Model):
 
     class Meta:
         ordering = ['plan_type']
+
+class StarPackage(models.Model):
+    """Model to manage star packages pricing"""
+    stars = models.IntegerField(help_text="Number of stars in this package")
+    original_price = models.DecimalField(max_digits=6, decimal_places=2, help_text="Original price in USD")
+    discounted_price = models.DecimalField(max_digits=6, decimal_places=2, help_text="Discounted price in USD")
+    discount_percentage = models.IntegerField(default=0, help_text="Discount percentage")
+    is_popular = models.BooleanField(default=False, help_text="Whether this package is marked as popular")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.stars} stars - ${self.discounted_price}"
+
+    class Meta:
+        ordering = ['stars']

@@ -24,6 +24,8 @@ import {
   Assessment as AssessmentIcon,
   Palette as PaletteIcon,
   EmojiEmotions as EmojiIcon,
+  Star as StarIcon,
+  ShoppingCart as MarketIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -233,32 +235,58 @@ const StudentProfile = () => {
           Mening ma'lumotlarim
         </Typography>
 
-        {/* Edit Button for Premium Users */}
-        {currentUser?.is_premium && (
+        <Box sx={{ display: 'flex', gap: 2 }}>
           <Button
-            variant="contained"
+            variant="outlined"
             size="large"
-            startIcon={<EditIcon />}
-            onClick={() => setEditDialogOpen(true)}
+            startIcon={<MarketIcon />}
+            onClick={() => navigate('/student/pricing')}
             sx={{
-              backgroundColor: '#2563eb',
-              color: 'white',
+              borderColor: '#f59e0b',
+              color: '#f59e0b',
               fontSize: '1.1rem',
               fontWeight: 600,
               px: 4,
               py: 1.5,
               borderRadius: '12px',
-              boxShadow: '0 4px 20px rgba(37, 99, 235, 0.3)',
               '&:hover': {
-                backgroundColor: '#1d4ed8',
-                boxShadow: '0 8px 30px rgba(37, 99, 235, 0.4)'
+                backgroundColor: '#fef3c7',
+                borderColor: '#d97706',
+                boxShadow: '0 4px 20px rgba(245, 158, 11, 0.3)'
               },
               transition: 'all 0.3s ease'
             }}
           >
-            Tahrirlash
+            Market
           </Button>
-        )}
+
+          {/* Edit Button for Premium Users */}
+          {currentUser?.is_premium && (
+            <Button
+              variant="contained"
+              size="large"
+              startIcon={<EditIcon />}
+              onClick={() => setEditDialogOpen(true)}
+              sx={{
+                backgroundColor: '#2563eb',
+                color: 'white',
+                fontSize: '1.1rem',
+                fontWeight: 600,
+                px: 4,
+                py: 1.5,
+                borderRadius: '12px',
+                boxShadow: '0 4px 20px rgba(37, 99, 235, 0.3)',
+                '&:hover': {
+                  backgroundColor: '#1d4ed8',
+                  boxShadow: '0 8px 30px rgba(37, 99, 235, 0.4)'
+                },
+                transition: 'all 0.3s ease'
+              }}
+            >
+              Tahrirlash
+            </Button>
+          )}
+        </Box>
       </Box>
 
       {/* Success Message */}
@@ -896,6 +924,93 @@ const StudentProfile = () => {
                       mb: 1
                     }}
                   >
+                    Yulduzlar
+                  </Typography>
+                  {currentUser?.stars > 0 ? (
+                    <Typography
+                      sx={{
+                        fontSize: '2rem',
+                        fontWeight: 700,
+                        color: '#f59e0b',
+                        lineHeight: 1.2
+                      }}
+                    >
+                      {currentUser.stars}
+                    </Typography>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={() => navigate('/student/pricing')}
+                      sx={{
+                        backgroundColor: '#f59e0b',
+                        color: '#ffffff',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        borderRadius: '8px',
+                        px: 2,
+                        py: 0.5,
+                        fontSize: '0.8rem',
+                        '&:hover': {
+                          backgroundColor: '#d97706',
+                        }
+                      }}
+                    >
+                      Sotib olish
+                    </Button>
+                  )}
+                </Box>
+                <Box
+                  sx={{
+                    backgroundColor: '#fef3c7',
+                    borderRadius: '12px',
+                    padding: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    ml: 2
+                  }}
+                >
+                  <StarIcon sx={{ fontSize: '1.5rem', color: '#f59e0b' }} />
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            transition: 'none',
+            minHeight: '140px',
+            display: 'flex',
+            flexDirection: 'column',
+            '&:hover': {
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            },
+          }}>
+            <CardContent sx={{
+              p: 3,
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              '&:last-child': { pb: 3 }
+            }}>
+              <Box display="flex" alignItems="center" justifyContent="space-between" flex={1}>
+                <Box flex={1}>
+                  <Typography
+                    sx={{
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      color: '#64748b',
+                      mb: 1
+                    }}
+                  >
                     Premium vaqti
                   </Typography>
                   <Typography
@@ -946,28 +1061,6 @@ const StudentProfile = () => {
       </Grid>
 
 
-      {/* Premium Status Info */}
-      {!currentUser?.is_premium && (
-        <Grid item xs={12}>
-          <Alert
-            severity="info"
-            sx={{
-              backgroundColor: '#eff6ff',
-              border: '1px solid #3b82f6',
-              color: '#1e40af',
-              borderRadius: '12px',
-              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.15)'
-            }}
-          >
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-              Premium rejimga ega bo'lish uchun
-            </Typography>
-            <Typography>
-              O'rtacha bahoyingiz 95% va undan yuqori bo'lsa, avtomatik ravishda premium rejim faollashadi va maxsus imkoniyatlarga ega bo'lasiz!
-            </Typography>
-          </Alert>
-        </Grid>
-      )}
 
       {/* Summary Card */}
       <Paper sx={{

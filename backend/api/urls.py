@@ -12,6 +12,7 @@ router.register(r'feedback', views.FeedbackViewSet)
 router.register(r'sessions', views.TestSessionViewSet, basename='testsession')
 router.register(r'warnings', views.WarningLogViewSet)
 router.register(r'pricing', views.PricingViewSet)
+router.register(r'star-packages', views.StarPackageViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

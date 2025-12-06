@@ -6,8 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.db import models
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, WarningLog, Pricing
-from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, WarningLogSerializer, PricingSerializer
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, WarningLog, Pricing, StarPackage
+from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, WarningLogSerializer, PricingSerializer, StarPackageSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -18,7 +18,6 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            # Password is already hashed in the serializer's create method
             return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -30,13 +29,10 @@ class UserViewSet(viewsets.ModelViewSet):
         if not username or not password:
             return Response({'error': 'Username and password are required'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Check if username is an ID (for students/teachers) or email (for admin)
         user = None
         if '@' in username:
-            # Email login (for admin)
             user = authenticate(username=username, password=password)
         else:
-            # ID login (for students/teachers)
             try:
                 user_obj = User.objects.filter(display_id=username).first()
                 if user_obj:
@@ -81,7 +77,6 @@ class UserViewSet(viewsets.ModelViewSet):
         user.ban_reason = request.data.get('reason', 'Admin tomonidan bloklandi')
         user.ban_date = timezone.now()
 
-        # Generate unban code
         import random
         user.unban_code = str(random.randint(1000, 9999))
         user.save()
@@ -133,7 +128,6 @@ class UserViewSet(viewsets.ModelViewSet):
         user.ban_reason = request.data.get('reason', 'Test qoidalariga rioya qilmaganligi uchun bloklandi')
         user.ban_date = timezone.now()
 
-        # Generate unban code
         import random
         user.unban_code = str(random.randint(1000, 9999))
         user.save()
@@ -151,12 +145,11 @@ class UserViewSet(viewsets.ModelViewSet):
         if user.role != 'student':
             return Response({'error': 'Premium status can only be managed for students'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Toggle premium status
         user.is_premium = not user.is_premium
         if user.is_premium:
             from django.utils import timezone
             user.premium_granted_date = timezone.now()
-            user.premium_emoji_count = 50  # Grant premium emojis
+            user.premium_emoji_count = 50 
         else:
             user.premium_granted_date = None
             user.premium_emoji_count = 0
@@ -523,6 +516,41 @@ class PricingViewSet(viewsets.ModelViewSet):
         if self.request.user.role not in ['admin', 'seller']:
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied("Only admin and seller can manage pricing")
+        instance.delete()
+
+class StarPackageViewSet(viewsets.ModelViewSet):
+    queryset = StarPackage.objects.all()
+    serializer_class = StarPackageSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        """Only allow admin and seller to manage star packages"""
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [IsAuthenticated()]
+        return [AllowAny()]
+
+    def get_queryset(self):
+        """Only return active star packages for non-admin users"""
+        if self.request.user.role in ['admin', 'seller']:
+            return StarPackage.objects.all()
+        return StarPackage.objects.filter(is_active=True)
+
+    def perform_create(self, serializer):
+        if self.request.user.role not in ['admin', 'seller']:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Only admin and seller can manage star packages")
+        serializer.save()
+
+    def perform_update(self, serializer):
+        if self.request.user.role not in ['admin', 'seller']:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Only admin and seller can manage star packages")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if self.request.user.role not in ['admin', 'seller']:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Only admin and seller can manage star packages")
         instance.delete()
 
     @action(detail=False, methods=['put'])
