@@ -141,6 +141,146 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
+    @action(detail=True, methods=['patch'], permission_classes=[IsAuthenticated])
+    def toggle_premium(self, request, pk=None):
+        """Toggle premium status for a student (admin and seller only)"""
+        if request.user.role not in ['admin', 'seller']:
+            return Response({'error': 'Only admin and seller can manage premium status'}, status=status.HTTP_403_FORBIDDEN)
+
+        user = self.get_object()
+        if user.role != 'student':
+            return Response({'error': 'Premium status can only be managed for students'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Toggle premium status
+        user.is_premium = not user.is_premium
+        if user.is_premium:
+            from django.utils import timezone
+            user.premium_granted_date = timezone.now()
+            user.premium_emoji_count = 50  # Grant premium emojis
+        else:
+            user.premium_granted_date = None
+            user.premium_emoji_count = 0
+
+        user.save()
+
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['patch'], permission_classes=[IsAuthenticated])
+    def grant_premium(self, request, pk=None):
+        """Grant premium status to a student (admin and seller only)"""
+        if request.user.role not in ['admin', 'seller']:
+            return Response({'error': 'Only admin and seller can grant premium status'}, status=status.HTTP_403_FORBIDDEN)
+
+        user = self.get_object()
+        if user.role != 'student':
+            return Response({'error': 'Premium status can only be granted to students'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Get premium type from request (default to time_based)
+        premium_type = request.data.get('premium_type', 'time_based')
+        
+        if premium_type == 'time_based':
+            # Time-based premium with pricing plan
+            pricing_id = request.data.get('pricing_id')
+            if not pricing_id:
+                return Response({'error': 'pricing_id is required for time-based premium'}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                pricing = Pricing.objects.get(id=pricing_id, is_active=True)
+            except Pricing.DoesNotExist:
+                return Response({'error': 'Invalid pricing plan'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Calculate expiry date based on plan type
+            from django.utils import timezone
+            now = timezone.now()
+            if pricing.plan_type == 'week':
+                expiry_date = now + timezone.timedelta(weeks=1)
+            elif pricing.plan_type == 'month':
+                expiry_date = now + timezone.timedelta(days=30)
+            elif pricing.plan_type == 'year':
+                expiry_date = now + timezone.timedelta(days=365)
+            else:
+                return Response({'error': 'Invalid plan type'}, status=status.HTTP_400_BAD_REQUEST)
+
+            user.is_premium = True
+            user.premium_type = 'time_based'
+            user.premium_granted_date = now
+            user.premium_expiry_date = expiry_date
+            user.premium_plan = pricing.plan_type
+            user.premium_cost = pricing.discounted_price
+            user.premium_balance = 0  # No balance for time-based premium
+            user.premium_emoji_count = 50  # Grant premium emojis
+            user.save()
+
+            # Add commission to seller earnings (10% of discounted price)
+            commission = pricing.discounted_price * 0.1
+            request.user.seller_earnings += commission
+            request.user.save()
+
+            serializer = UserSerializer(user)
+            return Response({
+                'user': serializer.data,
+                'premium_type': 'time_based',
+                'pricing': {
+                    'plan_name': pricing.get_plan_type_display(),
+                    'cost': pricing.discounted_price,
+                    'expiry_date': expiry_date,
+                    'seller_commission': commission
+                }
+            })
+        
+        elif premium_type == 'performance_based':
+            # Performance-based premium (granted automatically for high scores)
+            from django.utils import timezone
+            now = timezone.now()
+            
+            user.is_premium = True
+            user.premium_type = 'performance_based'
+            user.premium_granted_date = now
+            user.premium_expiry_date = None  # No expiry for performance-based
+            user.premium_plan = 'performance'
+            user.premium_cost = 0  # Free for performance
+            user.premium_balance = 1000  # Start with 1000 premium points
+            user.premium_emoji_count = 50  # Grant premium emojis
+            user.save()
+
+            serializer = UserSerializer(user)
+            return Response({
+                'user': serializer.data,
+                'premium_type': 'performance_based',
+                'message': 'Performance-based premium granted! Premium will be active while balance > 0 and average score >= 95%'
+            })
+        
+        else:
+            return Response({'error': 'Invalid premium type. Use "time_based" or "performance_based"'}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['patch'], permission_classes=[IsAuthenticated])
+    def revoke_premium(self, request, pk=None):
+        """Revoke premium status from a student (admin and seller only)"""
+        if request.user.role not in ['admin', 'seller']:
+            return Response({'error': 'Only admin and seller can revoke premium status'}, status=status.HTTP_403_FORBIDDEN)
+
+        user = self.get_object()
+        if user.role != 'student':
+            return Response({'error': 'Premium status can only be revoked from students'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Revoke all premium features
+        user.is_premium = False
+        user.premium_granted_date = None
+        user.premium_expiry_date = None
+        user.premium_plan = ''
+        user.premium_cost = 0
+        user.premium_type = 'time_based'  # Reset to default
+        user.premium_balance = 0
+        user.premium_emoji_count = 0
+        user.save()
+
+        serializer = UserSerializer(user)
+        return Response({
+            'user': serializer.data,
+            'message': 'Premium status revoked successfully'
+        })
+
 class TestViewSet(viewsets.ModelViewSet):
     queryset = Test.objects.all()
     serializer_class = TestSerializer
@@ -348,98 +488,7 @@ class TestSessionViewSet(viewsets.ModelViewSet):
         except TestSession.DoesNotExist:
             return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    @action(detail=True, methods=['post'])
-    def toggle_premium(self, request, pk=None):
-        """Toggle premium status for a student (admin and seller only)"""
-        if request.user.role not in ['admin', 'seller']:
-            return Response({'error': 'Only admin and seller can manage premium status'}, status=status.HTTP_403_FORBIDDEN)
 
-        user = self.get_object()
-        if user.role != 'student':
-            return Response({'error': 'Premium status can only be managed for students'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Toggle premium status
-        user.is_premium = not user.is_premium
-        if user.is_premium:
-            from django.utils import timezone
-            user.premium_granted_date = timezone.now()
-            user.premium_emoji_count = 50  # Grant premium emojis
-        else:
-            user.premium_granted_date = None
-            user.premium_emoji_count = 0
-
-        user.save()
-
-        serializer = self.get_serializer(user)
-        return Response(serializer.data)
-
-    @action(detail=True, methods=['post'])
-    def grant_student_premium(self, request, pk=None):
-        """Grant premium status to a student (admin and seller only)"""
-        if request.user.role not in ['admin', 'seller']:
-            return Response({'error': 'Only admin and seller can grant premium status'}, status=status.HTTP_403_FORBIDDEN)
-
-        user = self.get_object()
-        if user.role != 'student':
-            return Response({'error': 'Premium status can only be granted to students'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Get pricing information from request
-        pricing_id = request.data.get('pricing_id')
-        if not pricing_id:
-            return Response({'error': 'pricing_id is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            pricing = Pricing.objects.get(id=pricing_id, is_active=True)
-        except Pricing.DoesNotExist:
-            return Response({'error': 'Invalid pricing plan'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Calculate expiry date based on plan type
-        from django.utils import timezone
-        now = timezone.now()
-        if pricing.plan_type == 'week':
-            expiry_date = now + timezone.timedelta(weeks=1)
-        elif pricing.plan_type == 'month':
-            expiry_date = now + timezone.timedelta(days=30)
-        elif pricing.plan_type == 'year':
-            expiry_date = now + timezone.timedelta(days=365)
-        else:
-            return Response({'error': 'Invalid plan type'}, status=status.HTTP_400_BAD_REQUEST)
-
-        user.is_premium = True
-        user.premium_granted_date = now
-        user.premium_expiry_date = expiry_date
-        user.premium_plan = pricing.plan_type
-        user.premium_cost = pricing.discounted_price
-        user.premium_emoji_count = 50  # Grant premium emojis
-        user.save()
-
-        serializer = self.get_serializer(user)
-        return Response({
-            'user': serializer.data,
-            'pricing': {
-                'plan_name': pricing.get_plan_type_display(),
-                'cost': pricing.discounted_price,
-                'expiry_date': expiry_date
-            }
-        })
-
-    @action(detail=True, methods=['post'])
-    def revoke_premium(self, request, pk=None):
-        """Revoke premium status from a student (admin and seller only)"""
-        if request.user.role not in ['admin', 'seller']:
-            return Response({'error': 'Only admin and seller can revoke premium status'}, status=status.HTTP_403_FORBIDDEN)
-
-        user = self.get_object()
-        if user.role != 'student':
-            return Response({'error': 'Premium status can only be revoked from students'}, status=status.HTTP_400_BAD_REQUEST)
-
-        user.is_premium = False
-        user.premium_granted_date = None
-        user.premium_emoji_count = 0
-        user.save()
-
-        serializer = self.get_serializer(user)
-        return Response(serializer.data)
 
 class PricingViewSet(viewsets.ModelViewSet):
     queryset = Pricing.objects.all()

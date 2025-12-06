@@ -83,7 +83,7 @@ const ManageStudents = () => {
   const handleGrantPremium = async (studentId, pricingPlan) => {
     try {
       // Grant premium with pricing information
-      const response = await apiService.patch(`/users/${studentId}/grant_student_premium/`, {
+      const response = await apiService.patch(`/users/${studentId}/grant_premium/`, {
         pricing_id: pricingPlan.id
       });
 
@@ -197,19 +197,20 @@ const ManageStudents = () => {
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Sinf</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Yo'nalish</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Premium Status</TableCell>
+                <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Premium Ma'lumotlari</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Amallar</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} sx={{ textAlign: 'center', py: 4 }}>
+                  <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4 }}>
                     Yuklanmoqda...
                   </TableCell>
                 </TableRow>
               ) : filteredStudents.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} sx={{ textAlign: 'center', py: 4, color: '#64748b' }}>
+                  <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4, color: '#64748b' }}>
                     {searchTerm ? 'Hech narsa topilmadi' : 'O\'quvchilar yo\'q'}
                   </TableCell>
                 </TableRow>
@@ -245,6 +246,27 @@ const ManageStudents = () => {
                           fontWeight: 600
                         }}
                       />
+                    </TableCell>
+                    <TableCell sx={{ color: '#64748b' }}>
+                      {student.is_premium ? (
+                        <Box>
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            {student.premium_plan === 'week' ? '1 Hafta' :
+                             student.premium_plan === 'month' ? '1 Oy' :
+                             student.premium_plan === 'year' ? '1 Yil' :
+                             'Performance-based'}
+                          </Typography>
+                          {student.premium_info && (
+                            <Typography variant="caption" sx={{ color: '#059669', fontWeight: 500 }}>
+                              {student.premium_info.message}
+                            </Typography>
+                          )}
+                        </Box>
+                      ) : (
+                        <Typography variant="body2" sx={{ color: '#9ca3af' }}>
+                          Premium yo'q
+                        </Typography>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Button

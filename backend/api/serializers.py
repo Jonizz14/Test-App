@@ -7,16 +7,18 @@ class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(validators=[])  # Remove default email validators
 
     profile_photo_url = serializers.SerializerMethodField()
+    premium_info = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ['id', 'username', 'display_id', 'email', 'password', 'role', 'name', 'first_name', 'last_name',
                   'created_at', 'last_login', 'class_group', 'direction', 'registration_date',
-                  'subjects', 'bio', 'total_tests_created', 'average_student_score', 'is_curator', 'curator_class',
+                  'seller_earnings', 'subjects', 'bio', 'total_tests_created', 'average_student_score', 'is_curator', 'curator_class',
                   'total_tests_taken', 'average_score', 'completed_subjects',
                   'is_banned', 'ban_reason', 'ban_date', 'unban_code',
-                  'is_premium', 'premium_granted_date', 'profile_photo', 'profile_photo_url', 'profile_status', 'premium_emoji_count',
-                  'background_gradient', 'selected_emojis']
+                  'is_premium', 'premium_granted_date', 'premium_expiry_date', 'premium_plan', 'premium_cost', 'premium_type', 'premium_balance',
+                  'profile_photo', 'profile_photo_url', 'profile_status', 'premium_emoji_count',
+                  'background_gradient', 'selected_emojis', 'premium_info']
         read_only_fields = ['id', 'created_at', 'last_login', 'display_id']
 
     def get_profile_photo_url(self, obj):
@@ -27,6 +29,9 @@ class UserSerializer(serializers.ModelSerializer):
             else:
                 return obj.profile_photo.url
         return None
+
+    def get_premium_info(self, obj):
+        return obj.get_premium_info()
 
     def create(self, validated_data):
         # Check if username already exists

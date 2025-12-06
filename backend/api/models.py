@@ -20,6 +20,9 @@ class User(AbstractUser):
     class_group = models.CharField(max_length=10, blank=True, help_text="Class group like 5-01")
     direction = models.CharField(max_length=20, blank=True, help_text="Student direction (natural/exact)")
 
+    # For sellers
+    seller_earnings = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Total earnings from premium sales commission")
+
     # For teachers
     subjects = models.JSONField(default=list, blank=True)  # Array of subject names
     bio = models.TextField(blank=True)
@@ -45,6 +48,8 @@ class User(AbstractUser):
     premium_expiry_date = models.DateTimeField(null=True, blank=True, help_text="When premium expires")
     premium_plan = models.CharField(max_length=10, blank=True, help_text="Premium plan type (week/month/year)")
     premium_cost = models.DecimalField(max_digits=6, decimal_places=2, default=0, help_text="Cost of premium subscription in USD")
+    premium_type = models.CharField(max_length=20, default='time_based', help_text="Type of premium: time_based or performance_based")
+    premium_balance = models.IntegerField(default=0, help_text="Premium balance for performance-based premium (decreases with usage)")
     profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True, help_text="Profile photo (can be GIF)")
     profile_status = models.CharField(max_length=100, blank=True, help_text="Custom status message")
     premium_emoji_count = models.IntegerField(default=0, help_text="Number of premium emojis available")
@@ -84,17 +89,103 @@ class User(AbstractUser):
         else:
             avg_score = 0
 
-        # Grant premium if average score >= 95%
+        # Grant performance-based premium if average score >= 95%
         if avg_score >= 95 and not self.is_premium:
             from django.utils import timezone
             self.is_premium = True
             self.premium_granted_date = timezone.now()
+            self.premium_type = 'performance_based'
+            self.premium_balance = 1000  # Start with 1000 premium points
             self.premium_emoji_count = 50  # Grant 50 premium emojis
-        # Revoke premium if average score drops below 95%
-        elif avg_score < 95 and self.is_premium:
+        # Revoke premium if average score drops below 95% (only for performance-based)
+        elif avg_score < 95 and self.is_premium and self.premium_type == 'performance_based':
             self.is_premium = False
             self.premium_granted_date = None
+            self.premium_balance = 0
             self.premium_emoji_count = 0
+
+    def get_premium_info(self):
+        """Get premium information including remaining time/balance"""
+        if not self.is_premium:
+            return {
+                'is_premium': False,
+                'type': None,
+                'remaining': None,
+                'message': 'Premium yo\'q',
+                'granted_date': None,
+                'expiry_date': None
+            }
+
+        if self.premium_type == 'time_based' and self.premium_expiry_date:
+            from django.utils import timezone
+            now = timezone.now()
+            if now >= self.premium_expiry_date:
+                # Premium expired
+                return {
+                    'is_premium': False,
+                    'type': 'time_based',
+                    'remaining': 0,
+                    'message': 'Premium muddati tugagan',
+                    'granted_date': self.premium_granted_date,
+                    'expiry_date': self.premium_expiry_date
+                }
+
+            # Calculate remaining time
+            remaining_delta = self.premium_expiry_date - now
+            days = remaining_delta.days
+            hours = remaining_delta.seconds // 3600
+            minutes = (remaining_delta.seconds % 3600) // 60
+
+            remaining_text = []
+            if days > 0:
+                remaining_text.append(f'{days} kun')
+            if hours > 0:
+                remaining_text.append(f'{hours} soat')
+            if minutes > 0 and days == 0:
+                remaining_text.append(f'{minutes} daqiqa')
+
+            return {
+                'is_premium': True,
+                'type': 'time_based',
+                'remaining': remaining_delta.total_seconds(),
+                'message': f"{' '.join(remaining_text)} qoldi" if remaining_text else 'Tez orada tugaydi',
+                'granted_date': self.premium_granted_date,
+                'expiry_date': self.premium_expiry_date,
+                'plan': self.premium_plan,
+                'cost': self.premium_cost
+            }
+
+        elif self.premium_type == 'performance_based':
+            return {
+                'is_premium': True,
+                'type': 'performance_based',
+                'remaining': self.premium_balance,
+                'message': f'{self.premium_balance} premium ball qoldi',
+                'granted_date': self.premium_granted_date,
+                'expiry_date': None,
+                'plan': 'Performance-based',
+                'cost': 0
+            }
+
+        return {
+            'is_premium': True,
+            'type': self.premium_type,
+            'remaining': None,
+            'message': 'Premium faol',
+            'granted_date': self.premium_granted_date,
+            'expiry_date': self.premium_expiry_date
+        }
+
+    def use_premium_balance(self, amount=1):
+        """Use premium balance for performance-based premium"""
+        if self.premium_type == 'performance_based' and self.premium_balance >= amount:
+            self.premium_balance -= amount
+            if self.premium_balance <= 0:
+                self.is_premium = False
+                self.premium_balance = 0
+                self.premium_emoji_count = 0
+            return True
+        return False
 
     def generate_display_id(self):
         """Generate a display ID for student/teacher based on name and role"""

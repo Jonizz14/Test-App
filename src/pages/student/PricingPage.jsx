@@ -48,8 +48,8 @@ const PricingPage = () => {
   ];
 
   const handlePurchase = (planId) => {
-    // For now, just show an alert. In a real app, this would integrate with payment system
-    alert(`${planId} uchun to'lov jarayoni tez orada qo'shiladi!`);
+    // Redirect to Telegram for payment
+    window.open('https://t.me/jonizz_devvvv', '_blank');
   };
 
   return (

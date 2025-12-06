@@ -862,6 +862,87 @@ const StudentProfile = () => {
             </CardContent>
           </Card>
         </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            transition: 'none',
+            minHeight: '140px',
+            display: 'flex',
+            flexDirection: 'column',
+            '&:hover': {
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            },
+          }}>
+            <CardContent sx={{
+              p: 3,
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              '&:last-child': { pb: 3 }
+            }}>
+              <Box display="flex" alignItems="center" justifyContent="space-between" flex={1}>
+                <Box flex={1}>
+                  <Typography
+                    sx={{
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      color: '#64748b',
+                      mb: 1
+                    }}
+                  >
+                    Premium vaqti
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: '1.2rem',
+                      fontWeight: 700,
+                      color: currentUser?.is_premium ? '#d97706' : '#64748b',
+                      lineHeight: 1.2,
+                      mb: currentUser?.is_premium ? 0 : 2
+                    }}
+                  >
+                    {currentUser?.is_premium ? currentUser?.premium_info?.message || 'Faol' : 'Yo\'q'}
+                  </Typography>
+                  {currentUser?.is_premium && currentUser?.premium_plan && (
+                    <Typography
+                      sx={{
+                        fontSize: '0.75rem',
+                        color: '#64748b',
+                        fontWeight: 500
+                      }}
+                    >
+                      {currentUser.premium_plan === 'week' ? '1 Hafta' :
+                       currentUser.premium_plan === 'month' ? '1 Oy' :
+                       currentUser.premium_plan === 'year' ? '1 Yil' : 'Performance-based'}
+                    </Typography>
+                  )}
+                </Box>
+                <Box
+                  sx={{
+                    backgroundColor: currentUser?.is_premium ? '#fef3c7' : '#f3f4f6',
+                    borderRadius: '12px',
+                    padding: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    ml: 2
+                  }}
+                >
+                  <TrophyIcon sx={{
+                    fontSize: '1.5rem',
+                    color: currentUser?.is_premium ? '#d97706' : '#6b7280'
+                  }} />
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
 
 
