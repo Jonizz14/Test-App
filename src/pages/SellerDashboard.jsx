@@ -23,6 +23,8 @@ import {
   Group as GroupIcon,
   AttachMoney as MoneyIcon,
   PowerSettingsNew as LogoutIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 
@@ -30,9 +32,11 @@ import { useAuth } from '../context/AuthContext';
 import SellerOverview from './seller/SellerOverview';
 import ManageStudents from './seller/ManageStudents';
 import ManagePrices from './seller/ManagePrices';
+import ManageGifts from './seller/ManageGifts';
 
 const SellerDashboard = () => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -40,6 +44,10 @@ const SellerDashboard = () => {
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  const handleSidebarToggle = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
   };
 
   const handleLogout = () => {
@@ -51,6 +59,7 @@ const SellerDashboard = () => {
     { text: 'Umumiy', icon: <DashboardIcon />, path: '/seller' },
     { text: 'O\'quvchilarni boshqarish', icon: <GroupIcon />, path: '/seller/students' },
     { text: 'Narxlarni boshqarish', icon: <MoneyIcon />, path: '/seller/prices' },
+    { text: 'Sovg\'alar', icon: <DashboardIcon />, path: '/seller/gifts' },
   ];
 
   const drawer = (
@@ -61,23 +70,7 @@ const SellerDashboard = () => {
       display: 'flex',
       flexDirection: 'column'
     }}>
-      <Toolbar sx={{
-        backgroundColor: '#ffffff',
-        borderBottom: '1px solid #e2e8f0',
-        minHeight: '64px',
-        justifyContent: 'center',
-        flexDirection: 'column',
-        gap: 1
-      }}>
-        <Typography variant="h6" sx={{
-          color: '#1e293b',
-          fontWeight: 700,
-          fontSize: '1.1rem'
-        }}>
-          STIM Seller Panel
-        </Typography>
-      </Toolbar>
-      <List sx={{ pt: 0 }}>
+      <List sx={{ pt: 2 }}>
         {menuItems.map((item, index) => (
           <ListItem key={item.text} disablePadding sx={{ px: 1, py: 0.5 }}>
             <div style={{ width: '100%' }}>
@@ -90,10 +83,11 @@ const SellerDashboard = () => {
                   width: '100%',
                   height: '48px',
                   borderRadius: '12px',
-                  px: 2,
+                  px: sidebarCollapsed ? 1.5 : 2,
                   py: 1.5,
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
                   transition: 'background-color 0.4s ease, outline 0.4s ease, color 0.4s ease',
                   '&:hover': {
                     backgroundColor: '#f1f5f9',
@@ -118,18 +112,20 @@ const SellerDashboard = () => {
               >
                 <ListItemIcon sx={{
                   color: '#64748b',
-                  minWidth: '40px',
-                  mr: 2
+                  minWidth: sidebarCollapsed ? 'auto' : '40px',
+                  mr: sidebarCollapsed ? 0 : 2
                 }}>
                   {item.icon}
                 </ListItemIcon>
-                <ListItemText
-                  primary={item.text}
-                  primaryTypographyProps={{
-                    fontSize: '0.875rem',
-                    fontWeight: 500
-                  }}
-                />
+                {!sidebarCollapsed && (
+                  <ListItemText
+                    primary={item.text}
+                    primaryTypographyProps={{
+                      fontSize: '0.875rem',
+                      fontWeight: 500
+                    }}
+                  />
+                )}
               </ListItemButton>
             </div>
           </ListItem>
@@ -162,6 +158,29 @@ const SellerDashboard = () => {
               sx={{ mr: 4 }}
             >
               <MenuIcon sx={{ fontSize: '1.2rem' }} />
+            </IconButton>
+          )}
+          {!isMobile && (
+            <IconButton
+              color="inherit"
+              aria-label="toggle sidebar"
+              edge="start"
+              onClick={handleSidebarToggle}
+              sx={{
+                mr: 2,
+                backgroundColor: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                '&:hover': {
+                  backgroundColor: '#e2e8f0',
+                }
+              }}
+            >
+              {sidebarCollapsed ? (
+                <ChevronRightIcon sx={{ fontSize: '1.2rem' }} />
+              ) : (
+                <ChevronLeftIcon sx={{ fontSize: '1.2rem' }} />
+              )}
             </IconButton>
           )}
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
@@ -214,13 +233,14 @@ const SellerDashboard = () => {
         ) : (
           <Box
             sx={{
-              width: 280,
+              width: sidebarCollapsed ? 80 : 280,
               flexShrink: 0,
               backgroundColor: '#f8fafc',
               borderRight: '1px solid #e2e8f0',
               height: '100%',
               position: 'fixed',
               overflowY: 'auto',
+              transition: 'width 0.3s ease',
             }}
           >
             {drawer}
@@ -236,7 +256,8 @@ const SellerDashboard = () => {
             backgroundColor: '#ffffff',
             height: '100%',
             overflowY: 'auto',
-            ml: isMobile ? 0 : '280px',
+            ml: isMobile ? 0 : (sidebarCollapsed ? '80px' : '280px'),
+            transition: 'margin-left 0.3s ease',
           }}
         >
           <Container maxWidth={false}>
@@ -244,6 +265,7 @@ const SellerDashboard = () => {
               <Route path="/" element={<SellerOverview />} />
               <Route path="/students" element={<ManageStudents />} />
               <Route path="/prices" element={<ManagePrices />} />
+              <Route path="/gifts" element={<ManageGifts />} />
             </Routes>
           </Container>
         </Box>

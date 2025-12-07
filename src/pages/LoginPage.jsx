@@ -11,12 +11,16 @@ import {
   Grid,
   Card,
   CardContent,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
 import {
   School as SchoolIcon,
   Person as PersonIcon,
   AdminPanelSettings as AdminIcon,
   Login as LoginIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import UnbanModal from '../components/UnbanModal';
@@ -31,6 +35,7 @@ const LoginPage = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Authentication context and navigation hook
   const { login, logout, currentUser, isAuthenticated, isBanned } = useAuth();
@@ -65,6 +70,11 @@ const LoginPage = () => {
     }
 
     setFormData(newFormData);
+  };
+
+  // Handle password visibility toggle
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   // Handle form submission
@@ -220,7 +230,7 @@ const LoginPage = () => {
                   fullWidth
                   label="Parol"
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={handleChange}
                   autoComplete="current-password"
@@ -229,6 +239,23 @@ const LoginPage = () => {
                     '& .MuiOutlinedInput-root': {
                       borderRadius: '12px'
                     }
+                  }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleTogglePasswordVisibility}
+                          edge="end"
+                          sx={{
+                            color: '#64748b',
+                            mr: '-2.5px'
+                          }}
+                        >
+                          {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
                   }}
                 />
 

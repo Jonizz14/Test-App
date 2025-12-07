@@ -46,6 +46,8 @@ import { useServerTest } from '../../context/ServerTestContext';
 import apiService from '../../data/apiService';
 import useAntiCheating from '../../hooks/useAntiCheating';
 import WarningModal from '../../components/WarningModal';
+import LaTeXPreview from '../../components/LaTeXPreview';
+import MathSymbols from '../../components/MathSymbols';
 
 const TakeTest = () => {
   const { currentUser } = useAuth();
@@ -122,6 +124,7 @@ const TakeTest = () => {
   const [sessionRecovering, setSessionRecovering] = useState(false);
   const [activeTestSessions, setActiveTestSessions] = useState({}); // Track active sessions for each test
   const [searchTerm, setSearchTerm] = useState('');
+  const [mathSymbolsOpen, setMathSymbolsOpen] = useState(false);
 
   // Define handleTestComplete before using it in the hook
   const handleTestComplete = async () => {
@@ -544,6 +547,15 @@ const TakeTest = () => {
     setCurrentQuestionIndex(index);
   };
 
+  const handleSymbolSelect = (symbol) => {
+    if (selectedTest && currentQuestionIndex >= 0) {
+      const currentAnswer = answers[selectedTest.questions[currentQuestionIndex].id] || '';
+      const newAnswer = currentAnswer + symbol;
+      handleAnswerChange(selectedTest.questions[currentQuestionIndex].id, newAnswer);
+    }
+    setMathSymbolsOpen(false);
+  };
+
 
   const handleSubmitTest = () => {
     // Navigate to separate submission page
@@ -821,18 +833,28 @@ const TakeTest = () => {
             </Box>
           )}
 
-          <Typography
-            variant="h6"
-            gutterBottom
-            sx={{
-              fontSize: '1.25rem',
-              fontWeight: 600,
-              color: 'text.primary',
-              mb: 3
-            }}
-          >
-            {currentQuestion.question_text}
-          </Typography>
+          <Box sx={{ mb: 3 }}>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{
+                fontSize: '1.25rem',
+                fontWeight: 600,
+                color: 'text.primary',
+                mb: 2
+              }}
+            >
+              Savol:
+            </Typography>
+            <LaTeXPreview
+              text={currentQuestion.question_text}
+              sx={{
+                fontSize: '1.1rem',
+                lineHeight: 1.6,
+                color: '#1e293b'
+              }}
+            />
+          </Box>
 
           {currentQuestion.question_type === 'multiple_choice' && (
             <RadioGroup
@@ -857,7 +879,7 @@ const TakeTest = () => {
                     }} />}
                     label={
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
-                        <Typography>{option.text}</Typography>
+                        <LaTeXPreview text={option.text} />
                         {optionImage && (
                           <img
                             src={optionImage}
@@ -895,20 +917,53 @@ const TakeTest = () => {
           )}
 
           {currentQuestion.question_type === 'short_answer' && (
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="Javobingizni kiriting"
-              value={answers[currentQuestion.id] || ''}
-              onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
-              sx={{
-                mt: 3,
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                  backgroundColor: '#fafafa',
-                }
-              }}
-            />
+            <Box sx={{ mt: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Typography variant="body2" sx={{ flex: 1 }}>
+                  Javobingiz:
+                </Typography>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setMathSymbolsOpen(true)}
+                  sx={{
+                    minWidth: 'auto',
+                    px: 2,
+                    py: 0.5,
+                    fontSize: '0.75rem',
+                    textTransform: 'none'
+                  }}
+                >
+                  🧮 Belgilar
+                </Button>
+              </Box>
+              <TextField
+                fullWidth
+                variant="outlined"
+                placeholder="Javobingizni kiriting (LaTeX uchun $...$ dan foydalaning)"
+                value={answers[currentQuestion.id] || ''}
+                onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    backgroundColor: '#fafafa',
+                  }
+                }}
+              />
+              {(answers[currentQuestion.id] || '').trim() && (
+                <Paper sx={{
+                  p: 2,
+                  mt: 2,
+                  backgroundColor: '#f8fafc',
+                  border: '1px solid #e2e8f0'
+                }}>
+                  <Typography variant="body2" sx={{ mb: 1, color: '#64748b', fontWeight: 500 }}>
+                    Sizning javobingiz ko'rinishi:
+                  </Typography>
+                  <LaTeXPreview text={answers[currentQuestion.id]} />
+                </Paper>
+              )}
+            </Box>
           )}
 
           <Box sx={{
@@ -1734,6 +1789,13 @@ const TakeTest = () => {
             </DialogActions>
           </Dialog>
         )}
+
+        {/* Math Symbols Dialog */}
+        <MathSymbols
+          open={mathSymbolsOpen}
+          onClose={() => setMathSymbolsOpen(false)}
+          onSymbolSelect={handleSymbolSelect}
+        />
       </Box>
     </Box>
   );

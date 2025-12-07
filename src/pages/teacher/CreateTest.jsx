@@ -27,9 +27,13 @@ import {
   Delete as DeleteIcon,
   CheckCircle as CorrectIcon,
   ArrowBack as ArrowBackIcon,
+  PhotoCamera as PhotoCameraIcon,
+  Clear as ClearIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
+import MathSymbols from '../../components/MathSymbols';
+import LaTeXPreview from '../../components/LaTeXPreview';
 
 const CreateTest = () => {
   const { currentUser } = useAuth();
@@ -48,10 +52,10 @@ const CreateTest = () => {
     question_text: '',
     question_type: 'multiple_choice',
     options: [
-      { text: 'A)' },
-      { text: 'B)' },
-      { text: 'C)' },
-      { text: 'D)' }
+      { text: 'A)', image: null },
+      { text: 'B)', image: null },
+      { text: 'C)', image: null },
+      { text: 'D)', image: null }
     ],
     correct_answer: '',
     explanation: '',
@@ -61,6 +65,8 @@ const CreateTest = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [mathSymbolsOpen, setMathSymbolsOpen] = useState(false);
+  const [currentField, setCurrentField] = useState({ questionIndex: null, field: null });
 
   // Load test data if editing
   useEffect(() => {
@@ -166,10 +172,10 @@ const CreateTest = () => {
       question_text: '',
       question_type: 'multiple_choice',
       options: [
-        { text: 'A)' },
-        { text: 'B)' },
-        { text: 'C)' },
-        { text: 'D)' }
+        { text: 'A)', image: null },
+        { text: 'B)', image: null },
+        { text: 'C)', image: null },
+        { text: 'D)', image: null }
       ],
       correct_answer: '',
       explanation: '',
@@ -190,6 +196,18 @@ const CreateTest = () => {
     setQuestions(updatedQuestions);
   };
 
+  const handleOptionImageUpload = (questionIndex, optionIndex, file) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[questionIndex].options[optionIndex].image = file;
+    setQuestions(updatedQuestions);
+  };
+
+  const removeOptionImage = (questionIndex, optionIndex) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[questionIndex].options[optionIndex].image = null;
+    setQuestions(updatedQuestions);
+  };
+
 
   const toggleCorrectAnswer = (questionIndex, optionIndex) => {
     const updatedQuestions = [...questions];
@@ -204,6 +222,31 @@ const CreateTest = () => {
     if (questions.length > 1) {
       setQuestions(questions.filter((_, i) => i !== index));
     }
+  };
+
+  const handleOpenMathSymbols = (questionIndex, field) => {
+    setCurrentField({ questionIndex, field });
+    setMathSymbolsOpen(true);
+  };
+
+  const handleSymbolSelect = (symbol) => {
+    if (currentField.questionIndex !== null && currentField.field) {
+      if (currentField.questionIndex === 'form') {
+        // For form fields (title, description)
+        setFormData(prev => ({
+          ...prev,
+          [currentField.field]: prev[currentField.field] + symbol
+        }));
+      } else if (currentField.field.startsWith('option_')) {
+        // For option fields
+        const optionIndex = parseInt(currentField.field.split('_')[1]);
+        updateQuestionOption(currentField.questionIndex, optionIndex, questions[currentField.questionIndex].options[optionIndex].text + symbol);
+      } else {
+        // For question fields
+        updateQuestion(currentField.questionIndex, currentField.field, questions[currentField.questionIndex][currentField.field] + symbol);
+      }
+    }
+    setMathSymbolsOpen(false);
   };
 
   const handleSubmit = async (e) => {
@@ -287,12 +330,20 @@ const CreateTest = () => {
           questionData.append('question_text', question.question_text);
           questionData.append('question_type', question.question_type);
           questionData.append('options', JSON.stringify(question.options.map(opt =>
-            typeof opt === 'object' ? { text: opt.text, image: null } : { text: opt, image: null }
+            typeof opt === 'object' ? { text: opt.text } : { text: opt }
           )));
           questionData.append('correct_answer', question.correct_answer);
           questionData.append('explanation', question.explanation || '');
           if (question.formula) questionData.append('formula', question.formula);
           if (question.code) questionData.append('code', question.code);
+
+          // Add option images
+          question.options.forEach((option, index) => {
+            if (option.image) {
+              const imageFieldName = `option_${String.fromCharCode(97 + index)}_image`; // option_a_image, option_b_image, etc.
+              questionData.append(imageFieldName, option.image);
+            }
+          });
 
           await apiService.createQuestion(questionData);
         }
@@ -335,12 +386,20 @@ const CreateTest = () => {
           questionData.append('question_text', question.question_text);
           questionData.append('question_type', question.question_type);
           questionData.append('options', JSON.stringify(question.options.map(opt =>
-            typeof opt === 'object' ? { text: opt.text, image: null } : { text: opt, image: null }
+            typeof opt === 'object' ? { text: opt.text } : { text: opt }
           )));
           questionData.append('correct_answer', question.correct_answer);
           questionData.append('explanation', question.explanation || '');
           if (question.formula) questionData.append('formula', question.formula);
           if (question.code) questionData.append('code', question.code);
+
+          // Add option images
+          question.options.forEach((option, index) => {
+            if (option.image) {
+              const imageFieldName = `option_${String.fromCharCode(97 + index)}_image`; // option_a_image, option_b_image, etc.
+              questionData.append(imageFieldName, option.image);
+            }
+          });
 
           await apiService.createQuestion(questionData);
         }
@@ -547,15 +606,48 @@ const CreateTest = () => {
                   </IconButton>
                 </Box>
 
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={2}
-                  label="Savol matni"
-                  value={question.question_text}
-                  onChange={(e) => updateQuestion(index, 'question_text', e.target.value)}
-                  sx={{ mb: 2 }}
-                />
+                <Box sx={{ mb: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="body2" sx={{ flex: 1 }}>
+                      Savol matni
+                    </Typography>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => handleOpenMathSymbols(index, 'question_text')}
+                      sx={{
+                        minWidth: 'auto',
+                        px: 2,
+                        py: 0.5,
+                        fontSize: '0.75rem',
+                        textTransform: 'none'
+                      }}
+                    >
+                      🧮 Belgilar
+                    </Button>
+                  </Box>
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows={2}
+                    value={question.question_text}
+                    onChange={(e) => updateQuestion(index, 'question_text', e.target.value)}
+                    placeholder="Savol matnini kiriting... (LaTeX uchun $...$ yoki $$...$$ dan foydalaning)"
+                  />
+                  {question.question_text && (
+                    <Paper sx={{
+                      p: 2,
+                      mt: 1,
+                      backgroundColor: '#f8fafc',
+                      border: '1px solid #e2e8f0'
+                    }}>
+                      <Typography variant="body2" sx={{ mb: 1, color: '#64748b', fontWeight: 500 }}>
+                        LaTeX ko'rinishi:
+                      </Typography>
+                      <LaTeXPreview text={question.question_text} />
+                    </Paper>
+                  )}
+                </Box>
 
                 <Grid container spacing={2} sx={{ mb: 2 }}>
                   <Grid item xs={12}>
@@ -591,14 +683,82 @@ const CreateTest = () => {
                           >
                             <CorrectIcon />
                           </IconButton>
-                          <TextField
-                            size="small"
-                            value={option.text}
-                            onChange={(e) => updateQuestionOption(index, optionIndex, e.target.value)}
-                            placeholder={`Variant ${String.fromCharCode(65 + optionIndex)}`}
-                            sx={{ flex: 1 }}
-                          />
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+                            <TextField
+                              size="small"
+                              value={option.text}
+                              onChange={(e) => updateQuestionOption(index, optionIndex, e.target.value)}
+                              placeholder={`Variant ${String.fromCharCode(65 + optionIndex)} (LaTeX uchun $...$)`}
+                              sx={{ flex: 1 }}
+                            />
+                            <IconButton
+                              size="small"
+                              onClick={() => handleOpenMathSymbols(index, `option_${optionIndex}`)}
+                              sx={{ p: 0.5 }}
+                            >
+                              🧮
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              component="label"
+                              sx={{ p: 0.5 }}
+                            >
+                              <PhotoCameraIcon />
+                              <input
+                                type="file"
+                                accept="image/*"
+                                hidden
+                                onChange={(e) => {
+                                  const file = e.target.files[0];
+                                  if (file) {
+                                    handleOptionImageUpload(index, optionIndex, file);
+                                  }
+                                }}
+                              />
+                            </IconButton>
+                            {option.image && (
+                              <IconButton
+                                size="small"
+                                onClick={() => removeOptionImage(index, optionIndex)}
+                                sx={{ p: 0.5, color: 'error.main' }}
+                              >
+                                <ClearIcon />
+                              </IconButton>
+                            )}
+                          </Box>
                         </Box>
+
+                        {/* Image Preview */}
+                        {option.image && (
+                          <Box sx={{ mb: 1 }}>
+                            <img
+                              src={URL.createObjectURL(option.image)}
+                              alt={`Option ${String.fromCharCode(65 + optionIndex)}`}
+                              style={{
+                                maxWidth: '100px',
+                                maxHeight: '60px',
+                                borderRadius: '4px',
+                                border: '1px solid #e2e8f0',
+                                objectFit: 'contain'
+                              }}
+                            />
+                          </Box>
+                        )}
+
+                        {/* LaTeX Preview */}
+                        {option.text && option.text.trim() && (
+                          <Paper sx={{
+                            p: 1.5,
+                            backgroundColor: '#f8fafc',
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '4px'
+                          }}>
+                            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 500, mb: 0.5, display: 'block' }}>
+                              Ko'rinishi:
+                            </Typography>
+                            <LaTeXPreview text={option.text} sx={{ fontSize: '0.9rem' }} />
+                          </Paper>
+                        )}
                       </Box>
                     ))}
 
@@ -609,29 +769,93 @@ const CreateTest = () => {
                 )}
 
                 {question.question_type === 'short_answer' && (
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows={2}
-                    label="To'g'ri javob"
-                    value={question.correct_answer}
-                    onChange={(e) => updateQuestion(index, 'correct_answer', e.target.value)}
-                    placeholder="O'quvchi javob berishi kerak bo'lgan to'g'ri javob"
-                    sx={{ mb: 2 }}
-                  />
+                  <Box sx={{ mb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="body2" sx={{ flex: 1 }}>
+                        To'g'ri javob
+                      </Typography>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={() => handleOpenMathSymbols(index, 'correct_answer')}
+                        sx={{
+                          minWidth: 'auto',
+                          px: 2,
+                          py: 0.5,
+                          fontSize: '0.75rem',
+                          textTransform: 'none'
+                        }}
+                      >
+                        🧮 Belgilar
+                      </Button>
+                    </Box>
+                    <TextField
+                      fullWidth
+                      multiline
+                      rows={2}
+                      value={question.correct_answer}
+                      onChange={(e) => updateQuestion(index, 'correct_answer', e.target.value)}
+                      placeholder="O'quvchi javob berishi kerak bo'lgan to'g'ri javob (LaTeX uchun $...$ dan foydalaning)"
+                    />
+                    {question.correct_answer && (
+                      <Paper sx={{
+                        p: 2,
+                        mt: 1,
+                        backgroundColor: '#f8fafc',
+                        border: '1px solid #e2e8f0'
+                      }}>
+                        <Typography variant="body2" sx={{ mb: 1, color: '#64748b', fontWeight: 500 }}>
+                          Javob ko'rinishi:
+                        </Typography>
+                        <LaTeXPreview text={question.correct_answer} />
+                      </Paper>
+                    )}
+                  </Box>
                 )}
 
                 {question.question_type === 'formula' && (
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows={3}
-                    label="Formula"
-                    value={question.formula}
-                    onChange={(e) => updateQuestion(index, 'formula', e.target.value)}
-                    placeholder="Matematik formulani kiriting (LaTeX yoki oddiy matn)"
-                    sx={{ mb: 2 }}
-                  />
+                  <Box sx={{ mb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="body2" sx={{ flex: 1 }}>
+                        Formula
+                      </Typography>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={() => handleOpenMathSymbols(index, 'formula')}
+                        sx={{
+                          minWidth: 'auto',
+                          px: 2,
+                          py: 0.5,
+                          fontSize: '0.75rem',
+                          textTransform: 'none'
+                        }}
+                      >
+                        🧮 Belgilar
+                      </Button>
+                    </Box>
+                    <TextField
+                      fullWidth
+                      multiline
+                      rows={3}
+                      value={question.formula}
+                      onChange={(e) => updateQuestion(index, 'formula', e.target.value)}
+                      placeholder="Matematik formulani kiriting (LaTeX: \frac{a}{b}, x^2, \sqrt{x}, etc.)"
+                    />
+                    {question.formula && (
+                      <Paper sx={{
+                        p: 2,
+                        mt: 1,
+                        backgroundColor: '#f8fafc',
+                        border: '1px solid #e2e8f0'
+                      }}>
+                        <Typography variant="body2" sx={{ mb: 1, color: '#64748b', fontWeight: 500 }}>
+                          Formula ko'rinishi:
+                        </Typography>
+                        <LaTeXPreview text={question.formula} />
+                      </Paper>
+                    )}
+                  </Box>
                 )}
 
                 {question.question_type === 'code' && (
@@ -691,6 +915,13 @@ const CreateTest = () => {
           </Box>
         </Box>
       </Card>
+
+      {/* Math Symbols Dialog */}
+      <MathSymbols
+        open={mathSymbolsOpen}
+        onClose={() => setMathSymbolsOpen(false)}
+        onSymbolSelect={handleSymbolSelect}
+      />
     </Box>
   );
 };

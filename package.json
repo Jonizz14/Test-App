@@ -17,9 +17,11 @@
     "aos": "^2.3.4",
     "axios": "^1.13.2",
     "chart.js": "^4.5.1",
+    "katex": "^0.16.26",
     "react": "^19.2.0",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.0",
+    "react-katex": "^3.1.0",
     "react-router-dom": "^7.9.6"
   },
   "devDependencies": {

@@ -389,3 +389,34 @@ class StarPackage(models.Model):
 
     class Meta:
         ordering = ['stars']
+
+class Gift(models.Model):
+    """Model to manage gift items that students can purchase with stars"""
+    name = models.CharField(max_length=100, help_text="Name of the gift")
+    description = models.TextField(blank=True, help_text="Description of the gift")
+    image = models.ImageField(upload_to='gifts/', help_text="Gift image (should be 300x300px)")
+    star_cost = models.IntegerField(help_text="Number of stars required to purchase this gift")
+    is_active = models.BooleanField(default=True, help_text="Whether this gift is available for purchase")
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.star_cost} stars"
+
+    class Meta:
+        ordering = ['star_cost']
+
+class StudentGift(models.Model):
+    """Model to track gifts purchased by students"""
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='purchased_gifts')
+    gift = models.ForeignKey(Gift, on_delete=models.CASCADE, related_name='purchases')
+    purchased_at = models.DateTimeField(default=timezone.now)
+    is_placed = models.BooleanField(default=False, help_text="Whether this gift is placed on the student's profile")
+    placement_position = models.IntegerField(null=True, blank=True, help_text="Position on profile (1-3)")
+
+    def __str__(self):
+        return f"{self.student.name} - {self.gift.name}"
+
+    class Meta:
+        ordering = ['-purchased_at']
+        unique_together = ['student', 'placement_position']  # Only one gift per position

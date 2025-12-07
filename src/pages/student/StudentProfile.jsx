@@ -53,9 +53,15 @@ const StudentProfile = () => {
   const [selectedEmojis, setSelectedEmojis] = useState([]);
   const [selectedGradient, setSelectedGradient] = useState(null);
   const [emojiPositions, setEmojiPositions] = useState([]);
+  const [placedGifts, setPlacedGifts] = useState([]);
+  const [myGifts, setMyGifts] = useState([]);
+  const [giftPlacementDialogOpen, setGiftPlacementDialogOpen] = useState(false);
+  const [selectedPosition, setSelectedPosition] = useState(null);
+  const [giftPositions, setGiftPositions] = useState([]);
 
   useEffect(() => {
     loadStudentStats();
+    loadPlacedGifts();
   }, [currentUser]);
 
   useEffect(() => {
@@ -64,13 +70,20 @@ const StudentProfile = () => {
       const emojis = currentUser.selected_emojis || [];
       setSelectedEmojis(emojis);
       setSelectedGradient(currentUser.background_gradient || null);
-      
+
       // Generate random positions for the emojis
       if (emojis.length > 0) {
         setEmojiPositions(generateRandomPositions(emojis.length));
       }
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    // Generate random positions for the placed gifts
+    if (placedGifts.length > 0) {
+      setGiftPositions(generateRandomPositions(placedGifts.length));
+    }
+  }, [placedGifts]);
 
   const loadStudentStats = async () => {
     if (!currentUser) return;
@@ -106,6 +119,25 @@ const StudentProfile = () => {
       setCuratorTeacher(null);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadPlacedGifts = async () => {
+    if (!currentUser) return;
+
+    try {
+      const [placedResponse, myGiftsResponse] = await Promise.all([
+        apiService.get('/student-gifts/placed_gifts/'),
+        apiService.get('/student-gifts/my_gifts/')
+      ]);
+      const placedGifts = placedResponse.results || placedResponse;
+      const myGifts = myGiftsResponse.results || myGiftsResponse;
+      setPlacedGifts(placedGifts);
+      setMyGifts(myGifts);
+    } catch (error) {
+      console.error('Error loading gifts:', error);
+      setPlacedGifts([]);
+      setMyGifts([]);
     }
   };
 
@@ -209,6 +241,18 @@ const StudentProfile = () => {
       alert('Profilni saqlashda xatolik yuz berdi');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleGiftPlacement = async (giftId, position) => {
+    try {
+      await apiService.post(`/student-gifts/${giftId}/place_gift/`, {
+        position: position
+      });
+      await loadPlacedGifts(); // Reload placed gifts
+    } catch (error) {
+      console.error('Failed to place gift:', error);
+      alert('Sovg\'ani joylashtirishda xatolik yuz berdi');
     }
   };
 
@@ -466,6 +510,52 @@ const StudentProfile = () => {
                       }}
                     >
                       {selectedEmojis[originalIndex]}
+                    </Box>
+                  );
+                })}
+
+                {/* Floating Gifts around avatar */}
+                {placedGifts.map((giftItem, index) => {
+                  const position = giftPositions[index] || {
+                    left: Math.random() * 100,
+                    top: Math.random() * 100,
+                    delay: Math.random() * 5,
+                    duration: 20 + Math.random() * 15,
+                    scale: 0.8 + Math.random() * 0.4,
+                    rotation: Math.random() * 360
+                  };
+
+                  return (
+                    <Box
+                      key={`floating-gift-${giftItem.id}`}
+                      sx={{
+                        position: 'absolute',
+                        fontSize: '3.5rem',
+                        opacity: 0.9,
+                        filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))',
+                        left: `${position.left}%`,
+                        top: `${position.top}%`,
+                        transform: `rotate(${position.rotation}deg) scale(${position.scale})`,
+                        animation: `swimAllEmojis-${index % 20} ${position.duration}s infinite ease-in-out`,
+                        animationDelay: `${position.delay}s`,
+                        zIndex: 2,
+                        pointerEvents: 'none'
+                      }}
+                    >
+                      {giftItem.gift.image_url ? (
+                        <img
+                          src={giftItem.gift.image_url}
+                          alt={giftItem.gift.name}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'contain',
+                            borderRadius: '8px'
+                          }}
+                        />
+                      ) : (
+                        '🎁'
+                      )}
                     </Box>
                   );
                 })}
@@ -1060,7 +1150,220 @@ const StudentProfile = () => {
         </Grid>
       </Grid>
 
+      {/* Gifts Section */}
+      <Box sx={{ mt: 4, mb: 4 }}>
+        <Typography sx={{
+          fontSize: '1.5rem',
+          fontWeight: 700,
+          color: '#1e293b',
+          mb: 3,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1
+        }}>
+          🎁 Sovg'alarim
+        </Typography>
 
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={8}>
+            <Card sx={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            }}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography sx={{
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  fontSize: '1.25rem',
+                  mb: 3
+                }}>
+                  Sotib olingan sovg'alar
+                </Typography>
+
+                <Box sx={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 2,
+                  minHeight: '100px'
+                }}>
+                  {placedGifts.length > 0 ? (
+                    placedGifts.map((giftItem) => (
+                      <Box
+                        key={giftItem.id}
+                        sx={{
+                          backgroundColor: '#f8fafc',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px',
+                          p: 2,
+                          minWidth: '120px',
+                          textAlign: 'center',
+                          '&:hover': {
+                            backgroundColor: '#f1f5f9',
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+                          },
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <Box sx={{
+                          fontSize: '2rem',
+                          mb: 1
+                        }}>
+                          {giftItem.gift.image_url ? (
+                            <img
+                              src={giftItem.gift.image_url}
+                              alt={giftItem.gift.name}
+                              style={{
+                                width: '40px',
+                                height: '40px',
+                                objectFit: 'cover',
+                                borderRadius: '4px'
+                              }}
+                            />
+                          ) : (
+                            '🎁'
+                          )}
+                        </Box>
+                        <Typography sx={{
+                          fontWeight: 600,
+                          color: '#1e293b',
+                          fontSize: '0.9rem',
+                          mb: 0.5
+                        }}>
+                          {giftItem.gift.name}
+                        </Typography>
+                        <Chip
+                          label={`Joy ${giftItem.placement_position}`}
+                          size="small"
+                          sx={{
+                            backgroundColor: '#fef3c7',
+                            color: '#d97706',
+                            fontSize: '0.7rem',
+                            height: '20px'
+                          }}
+                        />
+                      </Box>
+                    ))
+                  ) : (
+                    <Typography sx={{ color: '#64748b', fontStyle: 'italic' }}>
+                      Hali sovg'alar joylashtirilmagan. Marketdan sovg'a sotib oling va joylashtiring!
+                    </Typography>
+                  )}
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <Card sx={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            }}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography sx={{
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  fontSize: '1.25rem',
+                  mb: 3
+                }}>
+                  Profil sovg'alari
+                </Typography>
+
+                <Typography sx={{
+                  color: '#64748b',
+                  fontSize: '0.9rem',
+                  mb: 3
+                }}>
+                  Profilingizda ko'rsatish uchun 3 tagacha sovg'ani joylashtirishingiz mumkin.
+                </Typography>
+
+                <Box sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2,
+                  minHeight: '100px'
+                }}>
+                  {/* Position slots for gifts */}
+                  {[1, 2, 3].map((position) => {
+                    const placedGift = placedGifts.find(gift => gift.placement_position === position);
+                    return (
+                      <Box
+                        key={position}
+                        onClick={() => {
+                          setSelectedPosition(position);
+                          setGiftPlacementDialogOpen(true);
+                        }}
+                        sx={{
+                          border: placedGift ? '2px solid #10b981' : '2px dashed #e2e8f0',
+                          borderRadius: '8px',
+                          p: 2,
+                          textAlign: 'center',
+                          backgroundColor: placedGift ? '#ecfdf5' : '#f8fafc',
+                          minHeight: '60px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'all 0.2s ease',
+                          cursor: 'pointer',
+                          '&:hover': {
+                            backgroundColor: placedGift ? '#d1fae5' : '#f1f5f9',
+                            transform: 'translateY(-1px)',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                          }
+                        }}
+                      >
+                        {placedGift ? (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Box sx={{ fontSize: '1.5rem' }}>
+                              {placedGift.gift.image_url ? (
+                                <img
+                                  src={placedGift.gift.image_url}
+                                  alt={placedGift.gift.name}
+                                  style={{
+                                    width: '30px',
+                                    height: '30px',
+                                    objectFit: 'cover',
+                                    borderRadius: '4px'
+                                  }}
+                                />
+                              ) : (
+                                '🎁'
+                              )}
+                            </Box>
+                            <Box sx={{ textAlign: 'left' }}>
+                              <Typography sx={{
+                                fontWeight: 600,
+                                color: '#059669',
+                                fontSize: '0.9rem'
+                              }}>
+                                {placedGift.gift.name}
+                              </Typography>
+                              <Typography sx={{
+                                color: '#047857',
+                                fontSize: '0.75rem'
+                              }}>
+                                Joy {position}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        ) : (
+                          <Typography sx={{ color: '#64748b', fontSize: '0.9rem' }}>
+                            Joy {position} - bo'sh
+                          </Typography>
+                        )}
+                      </Box>
+                    );
+                  })}
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      </Box>
 
       {/* Summary Card */}
       <Paper sx={{
@@ -1316,6 +1619,189 @@ const StudentProfile = () => {
         selectedGradient={selectedGradient}
         onGradientSelect={handleGradientSelect}
       />
+
+      {/* Gift Placement Dialog */}
+      <Dialog
+        open={giftPlacementDialogOpen}
+        onClose={() => {
+          setGiftPlacementDialogOpen(false);
+          setSelectedPosition(null);
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{
+          fontWeight: 600,
+          color: '#1e293b',
+          fontSize: '1.25rem',
+          textAlign: 'center'
+        }}>
+          🎁 Joy {selectedPosition} uchun sovg'a tanlang
+        </DialogTitle>
+        <DialogContent>
+          <Typography sx={{
+            color: '#64748b',
+            mb: 3,
+            textAlign: 'center'
+          }}>
+            Bu joyga qaysi sovg'ani qo'ymoqchisiz?
+          </Typography>
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {myGifts.map((giftItem) => {
+              const isPlaced = placedGifts.some(pg => pg.id === giftItem.id);
+              const isInCurrentPosition = placedGifts.some(pg => pg.id === giftItem.id && pg.placement_position === selectedPosition);
+
+              return (
+                <Box
+                  key={giftItem.id}
+                  onClick={() => {
+                    if (isInCurrentPosition) {
+                      // Remove from this position
+                      handleGiftPlacement(giftItem.id, null);
+                    } else {
+                      // Place in this position
+                      handleGiftPlacement(giftItem.id, selectedPosition);
+                    }
+                    setGiftPlacementDialogOpen(false);
+                    setSelectedPosition(null);
+                  }}
+                  sx={{
+                    border: isInCurrentPosition ? '2px solid #10b981' : '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    p: 2,
+                    cursor: isPlaced && !isInCurrentPosition ? 'not-allowed' : 'pointer',
+                    backgroundColor: isInCurrentPosition ? '#ecfdf5' : '#ffffff',
+                    opacity: isPlaced && !isInCurrentPosition ? 0.5 : 1,
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      backgroundColor: isPlaced && !isInCurrentPosition ? '#ffffff' : (isInCurrentPosition ? '#d1fae5' : '#f8fafc'),
+                      transform: isPlaced && !isInCurrentPosition ? 'none' : 'translateY(-1px)',
+                      boxShadow: isPlaced && !isInCurrentPosition ? 'none' : '0 2px 8px rgba(0,0,0,0.1)'
+                    }
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Box sx={{ fontSize: '2rem' }}>
+                      {giftItem.gift.image_url ? (
+                        <img
+                          src={giftItem.gift.image_url}
+                          alt={giftItem.gift.name}
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            objectFit: 'cover',
+                            borderRadius: '4px'
+                          }}
+                        />
+                      ) : (
+                        '🎁'
+                      )}
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography sx={{
+                        fontWeight: 600,
+                        color: '#1e293b',
+                        fontSize: '1rem'
+                      }}>
+                        {giftItem.gift.name}
+                      </Typography>
+                      {giftItem.gift.description && (
+                        <Typography sx={{
+                          color: '#64748b',
+                          fontSize: '0.85rem'
+                        }}>
+                          {giftItem.gift.description}
+                        </Typography>
+                      )}
+                    </Box>
+                    <Box sx={{ textAlign: 'right' }}>
+                      {isInCurrentPosition ? (
+                        <Chip
+                          label="Joylashtirilgan"
+                          size="small"
+                          sx={{
+                            backgroundColor: '#10b981',
+                            color: 'white',
+                            fontWeight: 600
+                          }}
+                        />
+                      ) : isPlaced ? (
+                        <Chip
+                          label="Boshqa joyda"
+                          size="small"
+                          sx={{
+                            backgroundColor: '#f59e0b',
+                            color: 'white',
+                            fontWeight: 600
+                          }}
+                        />
+                      ) : (
+                        <Chip
+                          label="Mavjud"
+                          size="small"
+                          sx={{
+                            backgroundColor: '#10b981',
+                            color: 'white',
+                            fontWeight: 600
+                          }}
+                        />
+                      )}
+                    </Box>
+                  </Box>
+                </Box>
+              );
+            })}
+
+            {myGifts.length === 0 && (
+              <Box sx={{ textAlign: 'center', py: 4 }}>
+                <Typography sx={{
+                  fontSize: '3rem',
+                  mb: 2
+                }}>
+                  🎁
+                </Typography>
+                <Typography sx={{
+                  color: '#64748b',
+                  mb: 2
+                }}>
+                  Sizda hali sovg'alar yo'q
+                </Typography>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setGiftPlacementDialogOpen(false);
+                    setSelectedPosition(null);
+                    navigate('/student/pricing');
+                  }}
+                  sx={{
+                    backgroundColor: '#f59e0b',
+                    color: '#ffffff',
+                    '&:hover': { backgroundColor: '#d97706' }
+                  }}
+                >
+                  Marketga o'tish
+                </Button>
+              </Box>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+          <Button
+            onClick={() => {
+              setGiftPlacementDialogOpen(false);
+              setSelectedPosition(null);
+            }}
+            sx={{
+              color: '#374151',
+              fontWeight: 600,
+              textTransform: 'none'
+            }}
+          >
+            Yopish
+          </Button>
+        </DialogActions>
+      </Dialog>
 
     </Box>
   );

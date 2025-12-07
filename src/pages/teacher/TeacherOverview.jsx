@@ -13,6 +13,12 @@ import {
   ListItemText,
   Chip,
   Avatar,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Divider,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
 import {
   Assessment as AssessmentIcon,
@@ -24,6 +30,9 @@ import {
   CheckCircle as CheckCircleIcon,
   LocalLibrary as LocalLibraryIcon,
   EmojiPeople as EmojiPeopleIcon,
+  BarChart as BarChartIcon,
+  Timeline as TimelineIcon,
+  ExpandMore as ExpandMoreIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
@@ -31,88 +40,102 @@ import apiService from '../../data/apiService';
 const TeacherOverview = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const [myTests, setMyTests] = useState([]);
-  const [myTestAttempts, setMyTestAttempts] = useState([]);
-  const [students, setStudents] = useState([]);
+  const [stats, setStats] = useState({
+    totalTests: 0,
+    activeTests: 0,
+    totalAttempts: 0,
+    uniqueStudents: 0,
+    averageScore: 0,
+    highestScore: 0,
+    lowestScore: 0,
+    recentActivity: [],
+    allRecentActivity: []
+  });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
 
+  // Fetch real statistics from the database
   useEffect(() => {
-    loadTeacherData();
-  }, [currentUser.id]);
+    const fetchStatistics = async () => {
+      try {
+        setLoading(true);
 
-  const loadTeacherData = async () => {
-    try {
-      setLoading(true);
-      
-      // Load teacher's tests from API
-      const testsResponse = await apiService.getTests({ teacher: currentUser.id });
-      const teacherTests = testsResponse.results || testsResponse;
-      setMyTests(teacherTests);
+        // Load teacher's tests from API
+        const testsResponse = await apiService.getTests({ teacher: currentUser.id });
+        const teacherTests = testsResponse.results || testsResponse;
 
-      // Load all test attempts and filter for teacher's tests
-      const attemptsResponse = await apiService.getAttempts();
-      const allAttempts = attemptsResponse.results || attemptsResponse;
-      const teacherAttempts = allAttempts.filter(attempt =>
-        teacherTests.some(test => test.id === attempt.test)
-      );
-      setMyTestAttempts(teacherAttempts);
+        // Load all test attempts and filter for teacher's tests
+        const attemptsResponse = await apiService.getAttempts();
+        const allAttempts = attemptsResponse.results || attemptsResponse;
+        const teacherAttempts = allAttempts.filter(attempt =>
+          teacherTests.some(test => test.id === attempt.test)
+        );
 
-      // Load all users to get student information
-      const usersResponse = await apiService.getUsers();
-      const allUsers = usersResponse.results || usersResponse;
-      const studentUsers = allUsers.filter(user => user.role === 'student');
-      setStudents(studentUsers);
+        // Load all users to get student information
+        const usersResponse = await apiService.getUsers();
+        const allUsers = usersResponse.results || usersResponse;
+        const studentUsers = allUsers.filter(user => user.role === 'student');
 
-    } catch (error) {
-      console.error('Error loading teacher data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+        // Calculate statistics
+        const totalTests = teacherTests.length;
+        const activeTests = teacherTests.filter(test => test.is_active !== false).length;
+        const totalAttempts = teacherAttempts.length;
+        const uniqueStudents = new Set(teacherAttempts.map(attempt => attempt.student)).size;
 
-  // Calculate comprehensive statistics
-  const totalTests = myTests.length;
-  const activeTests = myTests.filter(test => test.is_active).length;
-  const totalAttempts = myTestAttempts.length;
-  const uniqueStudents = new Set(myTestAttempts.map(attempt => attempt.student)).size;
+        // Calculate score statistics
+        const scores = teacherAttempts.map(attempt => attempt.score || 0);
+        const averageScore = scores.length > 0
+          ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
+          : 0;
+        const highestScore = scores.length > 0
+          ? Math.round(Math.max(...scores))
+          : 0;
+        const lowestScore = scores.length > 0
+          ? Math.round(Math.min(...scores))
+          : 0;
 
-  // Calculate score statistics
-  const scores = myTestAttempts.map(attempt => attempt.score || 0);
-  const averageScore = scores.length > 0
-    ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
-    : 0;
-  const highestScore = scores.length > 0
-    ? Math.round(Math.max(...scores))
-    : 0;
-  const lowestScore = scores.length > 0
-    ? Math.round(Math.min(...scores))
-    : 0;
+        // Get recent activity (last 10 attempts for modal, 3 for overview)
+        const allRecentActivity = teacherAttempts
+          .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
+          .slice(0, 10)
+          .map(attempt => {
+            const student = studentUsers.find(s => s.id === attempt.student);
+            const test = teacherTests.find(t => t.id === attempt.test);
+            return {
+              id: attempt.id,
+              action: `Test yakunlandi: ${test?.title || 'Noma\'lum test'}`,
+              user: student?.name || 'Noma\'lum o\'quvchi',
+              time: new Date(attempt.submitted_at).toLocaleDateString('uz-UZ'),
+              score: attempt.score
+            };
+          });
 
-  // Recent activity with student names and test details
-  const recentAttempts = myTestAttempts
-    .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
-    .slice(0, 8)
-    .map(attempt => {
-      const student = students.find(s => s.id === attempt.student);
-      const test = myTests.find(t => t.id === attempt.test);
+        const recentActivity = allRecentActivity.slice(0, 3);
 
-      return {
-        ...attempt,
-        studentName: student?.name || 'Noma\'lum o\'quvchi',
-        studentId: student?.display_id || student?.username || 'N/A',
-        testTitle: test?.title || 'Noma\'lum test'
-      };
-    });
+        setStats({
+          totalTests,
+          activeTests,
+          totalAttempts,
+          uniqueStudents,
+          averageScore,
+          highestScore,
+          lowestScore,
+          recentActivity,
+          allRecentActivity
+        });
 
-  // Test performance summary
-  const testPerformance = myTests.map(test => {
-    const testAttempts = myTestAttempts.filter(attempt => attempt.test === test.id);
-
-    return {
-      ...test,
-      attempts: testAttempts.length
+      } catch (error) {
+        console.error('Error fetching statistics:', error);
+        setError('Ma\'lumotlarni yuklashda xatolik yuz berdi');
+      } finally {
+        setLoading(false);
+      }
     };
-  }).sort((a, b) => b.attempts - a.attempts);
+
+    fetchStatistics();
+  }, [currentUser]);
+
 
   const StatCard = ({ title, value, icon, color, subtitle }) => (
     <Card sx={{
@@ -199,276 +222,563 @@ const TeacherOverview = () => {
 
   if (loading) {
     return (
-      <Box sx={{ 
-        p: 4,
-        backgroundColor: '#ffffff'
+      <Box sx={{
+        py: 4,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '400px'
       }}>
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b'
-        }}>
-          O'qituvchi paneli
+        <CircularProgress />
+        <Typography variant="body1" sx={{ ml: 2 }}>
+          Ma'lumotlar yuklanmoqda...
         </Typography>
-        <Typography sx={{ color: '#64748b', mt: 2 }}>Yuklanmoqda...</Typography>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 4 }}>
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {error}
+        </Alert>
       </Box>
     );
   }
 
   return (
     <Box sx={{
-      p: 4,
+      py: 4,
       backgroundColor: '#ffffff'
     }}>
       <Box sx={{
         mb: 6,
         pb: 4,
-        borderBottom: '1px solid #e2e8f0',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: 2
-      }}>
-        <Box>
-          <Typography sx={{
+        borderBottom: '1px solid #e2e8f0'
+      }}
+      >
+        <Typography
+          sx={{
             fontSize: '2.5rem',
             fontWeight: 700,
             color: '#1e293b',
             mb: 2
-          }}>
-            O'qituvchi paneli
-          </Typography>
-          <Typography sx={{
-            fontSize: '1.125rem',
-            color: '#64748b',
-            fontWeight: 400
-          }}>
-            Testlaringizni boshqaring va o'quvchilarning natijalarini kuzating
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => navigate('/teacher/create-test')}
-          sx={{
-            backgroundColor: '#2563eb',
-            color: '#ffffff',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            fontWeight: 600,
-            textTransform: 'none',
-            minWidth: '200px',
-            '&:hover': {
-              backgroundColor: '#1d4ed8',
-            }
           }}
         >
-          Yangi test yaratish
-        </Button>
+          O'qituvchi umumiy ko'rinishi
+        </Typography>
+        <Typography sx={{
+          fontSize: '1.125rem',
+          color: '#64748b',
+          fontWeight: 400
+        }}>
+          Testlaringiz va o'quvchilar faoliyati statistikasi
+        </Typography>
       </Box>
 
-      {/* Main Statistics Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
-          <div>
-            <StatCard
-              title="Jami yaratilgan testlar"
-              value={totalTests}
-              icon={<AssessmentIcon />}
-              color="primary.main"
-              subtitle={`${activeTests} ta faol`}
-            />
-          </div>
+          <StatCard
+            title="Jami testlar"
+            value={stats.totalTests}
+            icon={<AssessmentIcon fontSize="large" />}
+            color="primary.main"
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <div>
-            <StatCard
-              title="Faol testlar"
-              value={activeTests}
-              icon={<QuizIcon />}
-              color="success.main"
-              subtitle={`${totalTests - activeTests} ta nofaol`}
-            />
-          </div>
+          <StatCard
+            title="Faol testlar"
+            value={stats.activeTests}
+            icon={<QuizIcon fontSize="large" />}
+            color="success.main"
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <div>
-            <StatCard
-              title="Jami urinishlar"
-              value={totalAttempts}
-              icon={<EmojiPeopleIcon />}
-              color="secondary.main"
-              subtitle={`${uniqueStudents} ta o'quvchi`}
-            />
-          </div>
+          <StatCard
+            title="Jami urinishlar"
+            value={stats.totalAttempts}
+            icon={<SchoolIcon fontSize="large" />}
+            color="warning.main"
+          />
         </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <div>
-            <StatCard
-              title="O'rtacha ball"
-              value={`${averageScore}%`}
-              icon={<TrendingUpIcon />}
-              color="info.main"
-              subtitle="O'quvchilar natijasi"
-            />
-          </div>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Faol o'quvchilar"
+            value={stats.uniqueStudents}
+            icon={<EmojiPeopleIcon fontSize="large" />}
+            color="secondary.main"
+          />
         </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <div>
-            <StatCard
-              title="Eng yuqori ball"
-              value={`${highestScore}%`}
-              icon={<TrendingUpIcon />}
-              color="success.main"
-              subtitle="O'quvchilar natijasi"
-            />
-          </div>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="O'rtacha ball"
+            value={`${stats.averageScore}%`}
+            icon={<TrendingUpIcon fontSize="large" />}
+            color="info.main"
+          />
         </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <div>
-            <StatCard
-              title="Eng past ball"
-              value={`${lowestScore}%`}
-              icon={<TrendingUpIcon />}
-              color="warning.main"
-              subtitle="O'quvchilar natijasi"
-            />
-          </div>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Eng yuqori ball"
+            value={`${stats.highestScore}%`}
+            icon={<TrendingUpIcon fontSize="large" />}
+            color="success.main"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Eng past ball"
+            value={`${stats.lowestScore}%`}
+            icon={<TrendingUpIcon fontSize="large" />}
+            color="warning.main"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="O'quvchilar soni"
+            value={stats.uniqueStudents}
+            icon={<EmojiPeopleIcon fontSize="large" />}
+            color="secondary.main"
+          />
         </Grid>
       </Grid>
 
-      <Grid container spacing={3}>
-        {/* My Tests with Performance */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{
+      <Box sx={{ mt: 4 }}>
+        <Accordion
+          expanded={detailsExpanded}
+          onChange={() => setDetailsExpanded(!detailsExpanded)}
+          sx={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            height: '400px',
-            overflow: 'auto'
-          }}>
-            <CardContent sx={{ p: 4 }}>
+            borderRadius: '16px !important',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            '&:before': {
+              display: 'none',
+            },
+            '&.Mui-expanded': {
+              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+            }
+          }}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon sx={{ color: '#2563eb' }} />}
+            sx={{
+              backgroundColor: '#f8fafc',
+              borderBottom: detailsExpanded ? '1px solid #e2e8f0' : 'none',
+              borderRadius: detailsExpanded ? '16px 16px 0 0' : '16px',
+              py: 3,
+              px: 4,
+              '&:hover': {
+                backgroundColor: '#f1f5f9',
+              },
+              '& .MuiAccordionSummary-content': {
+                alignItems: 'center',
+                gap: 2,
+              }
+            }}
+          >
+            <Box sx={{
+              width: 48,
+              height: 48,
+              borderRadius: '12px',
+              backgroundColor: '#eff6ff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <LocalLibraryIcon sx={{ color: '#2563eb', fontSize: '1.5rem' }} />
+            </Box>
+            <Box>
               <Typography sx={{
-                fontWeight: 600,
-                color: '#1e293b',
                 fontSize: '1.25rem',
-                mb: 3
+                fontWeight: 700,
+                color: '#1e293b',
+                mb: 0.5
               }}>
-                Mening testlarim ({totalTests} ta)
+                📊 To'liq statistika va faoliyatni ko'rish
               </Typography>
-              <List sx={{ p: 0 }}>
-              {testPerformance.slice(0, 8).map((test) => (
-                <ListItem key={test.id} divider>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="center">
-                      <Typography variant="subtitle1" noWrap sx={{ maxWidth: '200px' }}>
-                        {test.title}
-                      </Typography>
-                      <Chip
-                        label={test.is_active ? 'Faol' : 'Nofaol'}
-                        color={test.is_active ? 'success' : 'default'}
-                        size="small"
-                      />
-                    </Box>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mt={1}>
-                      <Typography variant="body2" color="textSecondary">
-                        {test.subject} • {test.total_questions} ta savol
-                      </Typography>
-                      <Box display="flex" gap={1}>
-                        <Chip
-                          label={`${test.attempts} urinish`}
-                          size="small"
-                          variant="outlined"
-                        />
-                      </Box>
-                    </Box>
-                  </Box>
-                </ListItem>
-              ))}
-              {testPerformance.length === 0 && (
-                <ListItem>
-                  <ListItemText
-                    primary="Hali test yaratilmagan"
-                    secondary="Birinchi testni yaratib boshlang"
-                  />
-                </ListItem>
-              )}
-            </List>
-            {testPerformance.length > 8 && (
-              <Box sx={{ textAlign: 'center', mt: 2 }}>
-                <Button onClick={() => navigate('/teacher/my-tests')}>
-                  Barcha testlarni ko'rish
-                </Button>
-              </Box>
-            )}
-            </CardContent>
-          </Card>
-        </Grid>
+              <Typography sx={{
+                fontSize: '0.875rem',
+                color: '#64748b',
+                fontWeight: 400
+              }}>
+                Testlaringiz va o'quvchilar faoliyatining batafsil statistikasi
+              </Typography>
+            </Box>
+          </AccordionSummary>
 
-        {/* Recent Student Activity */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            height: '400px',
-            overflow: 'auto'
-          }}>
-            <CardContent sx={{ p: 4 }}>
-              <Typography sx={{
-                fontWeight: 600,
-                color: '#1e293b',
-                fontSize: '1.25rem',
-                mb: 3
+          <AccordionDetails sx={{ p: 0 }}>
+            <Box sx={{ p: 4 }}>
+            {/* Statistics Overview */}
+            <Box sx={{ mb: 4 }}>
+              <Box sx={{
+                backgroundColor: '#eff6ff',
+                borderRadius: '12px',
+                padding: '16px 20px',
+                mb: 3,
+                border: '1px solid #e2e8f0'
               }}>
-                O'quvchilarning so'nggi faoliyati
-              </Typography>
-              <List sx={{ p: 0 }}>
-              {recentAttempts.map((attempt) => (
-                <ListItem key={`${attempt.id}-${attempt.student}`} divider>
-                  <Box display="flex" alignItems="center" width="100%">
-                    <Avatar sx={{ mr: 2, bgcolor: 'primary.main' }}>
-                      {attempt.studentName.charAt(0).toUpperCase()}
-                    </Avatar>
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="subtitle2" noWrap>
-                        {attempt.studentName}
-                      </Typography>
-                      <Typography variant="caption" color="textSecondary" noWrap>
-                        {attempt.testTitle}
-                      </Typography>
-                      <Box display="flex" alignItems="center" mt={0.5} gap={1}>
-                        <Chip
-                          label={`${attempt.score}%`}
-                          size="small"
-                          color={attempt.score >= 80 ? 'success' : attempt.score >= 60 ? 'warning' : 'error'}
-                        />
-                         <Typography variant="caption" color="textSecondary">
-                           {new Date(attempt.submitted_at).toLocaleDateString('uz-UZ')}
-                         </Typography>
-                       </Box>
-                     </Box>
-                   </Box>
-                 </ListItem>
-               ))}
-               {recentAttempts.length === 0 && (
-                 <ListItem>
-                   <ListItemText
-                     primary="Hali urinishlar yo'q"
-                     secondary="O'quvchilar testlarni topshirganda bu yerda ko'rinadi"
-                   />
-                 </ListItem>
-               )}
-             </List>
-           </CardContent>
-         </Card>
-       </Grid>
-     </Grid>
-   </Box>
- );
+                <Typography sx={{
+                  fontSize: '1.25rem',
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1
+                }}>
+                  <BarChartIcon sx={{ color: '#2563eb' }} />
+                  Asosiy ko'rsatkichlar
+                </Typography>
+              </Box>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6} md={4}>
+                  <Card sx={{
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      transform: 'translateY(-2px)'
+                    }
+                  }}>
+                    <CardContent sx={{ p: 3, textAlign: 'center', '&:last-child': { pb: 3 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+                          <AssessmentIcon sx={{ fontSize: '2rem', color: '#2563eb' }} />
+                          <Typography sx={{
+                            fontSize: '2.5rem',
+                            fontWeight: 700,
+                            color: '#2563eb'
+                          }}>
+                            {stats.totalTests}
+                          </Typography>
+                        </Box>
+                        <Typography sx={{
+                          fontSize: '0.875rem',
+                          color: '#64748b',
+                          fontWeight: 500
+                        }}>
+                          Jami testlar
+                        </Typography>
+                      </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <Card sx={{
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      transform: 'translateY(-2px)'
+                    }
+                  }}>
+                    <CardContent sx={{ p: 3, textAlign: 'center', '&:last-child': { pb: 3 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+                          <QuizIcon sx={{ fontSize: '2rem', color: '#059669' }} />
+                          <Typography sx={{
+                            fontSize: '2.5rem',
+                            fontWeight: 700,
+                            color: '#059669'
+                          }}>
+                            {stats.activeTests}
+                          </Typography>
+                        </Box>
+                        <Typography sx={{
+                          fontSize: '0.875rem',
+                          color: '#64748b',
+                          fontWeight: 500
+                        }}>
+                          Faol testlar
+                        </Typography>
+                      </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <Card sx={{
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      transform: 'translateY(-2px)'
+                    }
+                  }}>
+                    <CardContent sx={{ p: 3, textAlign: 'center', '&:last-child': { pb: 3 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+                          <EmojiPeopleIcon sx={{ fontSize: '2rem', color: '#7c3aed' }} />
+                          <Typography sx={{
+                            fontSize: '2.5rem',
+                            fontWeight: 700,
+                            color: '#7c3aed'
+                          }}>
+                            {stats.uniqueStudents}
+                          </Typography>
+                        </Box>
+                        <Typography sx={{
+                          fontSize: '0.875rem',
+                          color: '#64748b',
+                          fontWeight: 500
+                        }}>
+                          Faol o'quvchilar
+                        </Typography>
+                      </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+            </Box>
+
+            {/* Test Statistics */}
+            <Box sx={{ mb: 4 }}>
+              <Box sx={{
+                backgroundColor: '#ecfdf5',
+                borderRadius: '12px',
+                padding: '16px 20px',
+                mb: 3,
+                border: '1px solid #e2e8f0'
+              }}>
+                <Typography sx={{
+                  fontSize: '1.25rem',
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1
+                }}>
+                  <QuizIcon sx={{ color: '#059669' }} />
+                  Test statistikasi
+                </Typography>
+              </Box>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6} md={3}>
+                  <Card sx={{
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      transform: 'translateY(-2px)'
+                    }
+                  }}>
+                    <CardContent sx={{ p: 3, textAlign: 'center', '&:last-child': { pb: 3 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+                          <SchoolIcon sx={{ fontSize: '1.75rem', color: '#2563eb' }} />
+                          <Typography sx={{
+                            fontSize: '2rem',
+                            fontWeight: 700,
+                            color: '#2563eb'
+                          }}>
+                            {stats.totalAttempts}
+                          </Typography>
+                        </Box>
+                        <Typography sx={{
+                          fontSize: '0.875rem',
+                          color: '#64748b',
+                          fontWeight: 500
+                        }}>
+                          Jami urinishlar
+                        </Typography>
+                      </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <Card sx={{
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      transform: 'translateY(-2px)'
+                    }
+                  }}>
+                    <CardContent sx={{ p: 3, textAlign: 'center', '&:last-child': { pb: 3 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+                          <TrendingUpIcon sx={{ fontSize: '1.75rem', color: '#059669' }} />
+                          <Typography sx={{
+                            fontSize: '2rem',
+                            fontWeight: 700,
+                            color: '#059669'
+                          }}>
+                            {stats.averageScore}%
+                          </Typography>
+                        </Box>
+                        <Typography sx={{
+                          fontSize: '0.875rem',
+                          color: '#64748b',
+                          fontWeight: 500
+                        }}>
+                          O'rtacha ball
+                        </Typography>
+                      </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <Card sx={{
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      transform: 'translateY(-2px)'
+                    }
+                  }}>
+                    <CardContent sx={{ p: 3, textAlign: 'center', '&:last-child': { pb: 3 } }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+                          <TrendingUpIcon sx={{ fontSize: '1.75rem', color: '#d97706' }} />
+                          <Typography sx={{
+                            fontSize: '2rem',
+                            fontWeight: 700,
+                            color: '#d97706'
+                          }}>
+                            {stats.highestScore}%
+                          </Typography>
+                        </Box>
+                        <Typography sx={{
+                          fontSize: '0.875rem',
+                          color: '#64748b',
+                          fontWeight: 500
+                        }}>
+                          Eng yuqori ball
+                        </Typography>
+                      </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+            </Box>
+
+            {/* Recent Activity */}
+            <Box>
+              <Box sx={{
+                backgroundColor: '#fffbeb',
+                borderRadius: '12px',
+                padding: '16px 20px',
+                mb: 3,
+                border: '1px solid #e2e8f0'
+              }}>
+                <Typography sx={{
+                  fontSize: '1.25rem',
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1
+                }}>
+                  <TimelineIcon sx={{ color: '#d97706' }} />
+                  So'nggi faoliyat
+                </Typography>
+              </Box>
+              <Card sx={{
+                backgroundColor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                maxHeight: '400px',
+                overflow: 'auto'
+              }}>
+                <List sx={{ p: 0 }}>
+                  {stats.allRecentActivity.length > 0 ? (
+                    stats.allRecentActivity.map((activity, index) => (
+                      <React.Fragment key={activity.id}>
+                        <ListItem sx={{
+                          px: 3,
+                          py: 2.5,
+                          '&:hover': {
+                            backgroundColor: '#f8fafc',
+                          },
+                          transition: 'background-color 0.2s ease'
+                        }}>
+                          <ListItemText
+                            primary={
+                              <Box sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                mb: 0.5
+                              }}>
+                                <Typography sx={{
+                                  fontSize: '0.875rem',
+                                  fontWeight: 600,
+                                  color: '#1e293b'
+                                }}>
+                                  {activity.action}
+                                </Typography>
+                                <Box sx={{
+                                  backgroundColor: activity.score >= 80 ? '#ecfdf5' :
+                                                  activity.score >= 60 ? '#fffbeb' : '#fef2f2',
+                                  color: activity.score >= 80 ? '#059669' :
+                                        activity.score >= 60 ? '#d97706' : '#dc2626',
+                                  px: 2,
+                                  py: 0.5,
+                                  borderRadius: '6px',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 600
+                                }}>
+                                  {activity.score}%
+                                </Box>
+                              </Box>
+                            }
+                            secondary={
+                              <Typography sx={{
+                                fontSize: '0.75rem',
+                                color: '#64748b',
+                                fontWeight: 400
+                              }}>
+                                {activity.user} • {activity.time}
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                        {index < stats.allRecentActivity.length - 1 && (
+                          <Divider sx={{ my: 0, mx: 3 }} />
+                        )}
+                      </React.Fragment>
+                    ))
+                  ) : (
+                    <ListItem sx={{ px: 3, py: 6 }}>
+                      <ListItemText
+                        primary={
+                          <Typography sx={{
+                            fontSize: '0.875rem',
+                            fontWeight: 500,
+                            color: '#64748b',
+                            textAlign: 'center'
+                          }}>
+                            Hozircha faoliyat yo'q
+                          </Typography>
+                        }
+                        secondary={
+                          <Typography sx={{
+                            fontSize: '0.75rem',
+                            color: '#94a3b8',
+                            textAlign: 'center'
+                          }}>
+                            O'quvchilar testlarni topshirganda bu yerda ko'rinadi
+                          </Typography>
+                        }
+                      />
+                    </ListItem>
+                  )}
+                </List>
+              </Card>
+            </Box>
+          </Box>
+        </AccordionDetails>
+        </Accordion>
+      </Box>
+    </Box>
+  );
 };
 
 export default TeacherOverview;

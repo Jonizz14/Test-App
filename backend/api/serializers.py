@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, WarningLog, Pricing, StarPackage
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, WarningLog, Pricing, StarPackage, Gift, StudentGift
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -207,3 +207,39 @@ class StarPackageSerializer(serializers.ModelSerializer):
         if obj.discount_percentage > 0:
             return f"{obj.discount_percentage}% Chegirma"
         return ""
+
+class GiftSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Gift
+        fields = ['id', 'name', 'description', 'image', 'image_url', 'star_cost', 'is_active', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'image_url']
+
+    def get_image_url(self, obj):
+        if obj.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+            else:
+                return obj.image.url
+        return None
+
+class StudentGiftSerializer(serializers.ModelSerializer):
+    gift_name = serializers.CharField(source='gift.name', read_only=True)
+    gift_image_url = serializers.SerializerMethodField()
+    student_name = serializers.CharField(source='student.name', read_only=True)
+
+    class Meta:
+        model = StudentGift
+        fields = ['id', 'student', 'student_name', 'gift', 'gift_name', 'gift_image_url', 'purchased_at', 'is_placed', 'placement_position']
+        read_only_fields = ['id', 'purchased_at', 'gift_name', 'gift_image_url', 'student_name']
+
+    def get_gift_image_url(self, obj):
+        if obj.gift.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.gift.image.url)
+            else:
+                return obj.gift.image.url
+        return None

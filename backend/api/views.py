@@ -6,8 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.db import models
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, WarningLog, Pricing, StarPackage
-from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, WarningLogSerializer, PricingSerializer, StarPackageSerializer
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, WarningLog, Pricing, StarPackage, Gift, StudentGift
+from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, WarningLogSerializer, PricingSerializer, StarPackageSerializer, GiftSerializer, StudentGiftSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -150,16 +150,24 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Invalid number of stars'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Calculate earnings: $0.10 per star
-        earnings_per_star = 0.10
+        from decimal import Decimal
+        earnings_per_star = Decimal('0.10')
         total_earnings = stars_to_give * earnings_per_star
 
         # Add stars to student
         student.stars += stars_to_give
-        student.save()
+        try:
+            student.save()
+        except Exception as e:
+            return Response({'error': 'Failed to save student stars'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Add earnings to teacher
         request.user.seller_earnings += total_earnings
-        request.user.save()
+        try:
+            request.user.save()
+        except Exception as e:
+            # Don't return error here, stars were already saved
+            pass
 
         serializer = UserSerializer(student)
         return Response({
@@ -513,6 +521,155 @@ class TestSessionViewSet(viewsets.ModelViewSet):
             
         except TestSession.DoesNotExist:
             return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
+
+class GiftViewSet(viewsets.ModelViewSet):
+    queryset = Gift.objects.all()
+    serializer_class = GiftSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        """Only allow admin and seller to manage gifts"""
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [IsAuthenticated()]
+        return [AllowAny()]
+
+    def get_queryset(self):
+        """Only return active gifts for non-admin users"""
+        if self.request.user.role in ['admin', 'seller']:
+            return Gift.objects.all()
+        return Gift.objects.filter(is_active=True)
+
+    def perform_create(self, serializer):
+        if self.request.user.role not in ['admin', 'seller']:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Only admin and seller can manage gifts")
+        serializer.save()
+
+    def perform_update(self, serializer):
+        if self.request.user.role not in ['admin', 'seller']:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Only admin and seller can manage gifts")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if self.request.user.role not in ['admin', 'seller']:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Only admin and seller can manage gifts")
+        instance.delete()
+
+class StudentGiftViewSet(viewsets.ModelViewSet):
+    queryset = StudentGift.objects.all()
+    serializer_class = StudentGiftSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = StudentGift.objects.all()
+        student = self.request.query_params.get('student', None)
+        if student:
+            queryset = queryset.filter(student_id=student)
+        return queryset
+
+    @action(detail=False, methods=['post'])
+    def purchase_gift(self, request):
+        """Student purchases a gift with stars"""
+        gift_id = request.data.get('gift_id')
+        if not gift_id:
+            return Response({'error': 'gift_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            gift = Gift.objects.get(id=gift_id, is_active=True)
+        except Gift.DoesNotExist:
+            return Response({'error': 'Gift not found or inactive'}, status=status.HTTP_404_NOT_FOUND)
+
+        student = request.user
+        if student.role != 'student':
+            return Response({'error': 'Only students can purchase gifts'}, status=status.HTTP_403_FORBIDDEN)
+
+        if student.stars < gift.star_cost:
+            return Response({'error': 'Not enough stars to purchase this gift'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Deduct stars and create purchase record
+        student.stars -= gift.star_cost
+        student.save()
+
+        # Find the first available position (1, 2, or 3)
+        placed_positions = StudentGift.objects.filter(
+            student=student,
+            is_placed=True
+        ).values_list('placement_position', flat=True)
+
+        available_position = None
+        for pos in [1, 2, 3]:
+            if pos not in placed_positions:
+                available_position = pos
+                break
+
+        # Create the gift and place it if there's an available position
+        student_gift = StudentGift.objects.create(
+            student=student,
+            gift=gift,
+            is_placed=available_position is not None,
+            placement_position=available_position
+        )
+
+        serializer = self.get_serializer(student_gift)
+        return Response({
+            'message': 'Gift purchased successfully',
+            'student_gift': serializer.data,
+            'remaining_stars': student.stars
+        })
+
+    @action(detail=True, methods=['post'])
+    def place_gift(self, request, pk=None):
+        """Place or remove a gift on student's profile"""
+        student_gift = self.get_object()
+        if student_gift.student != request.user:
+            return Response({'error': 'You can only manage your own gifts'}, status=status.HTTP_403_FORBIDDEN)
+
+        position = request.data.get('position')  # 1, 2, or 3, or null to remove
+
+        if position is not None:
+            if position not in [1, 2, 3]:
+                return Response({'error': 'Position must be 1, 2, or 3'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Check if position is already taken
+            existing = StudentGift.objects.filter(
+                student=request.user,
+                placement_position=position,
+                is_placed=True
+            ).exclude(id=student_gift.id).first()
+
+            if existing:
+                return Response({'error': f'Position {position} is already occupied'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update placement
+        student_gift.is_placed = position is not None
+        student_gift.placement_position = position
+        student_gift.save()
+
+        serializer = self.get_serializer(student_gift)
+        message = f'Gift placed at position {position}' if position is not None else 'Gift removed from profile'
+        return Response({
+            'message': message,
+            'student_gift': serializer.data
+        })
+
+    @action(detail=False, methods=['get'])
+    def my_gifts(self, request):
+        """Get current user's gifts"""
+        gifts = StudentGift.objects.filter(student=request.user)
+        serializer = self.get_serializer(gifts, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def placed_gifts(self, request):
+        """Get gifts placed on current user's profile"""
+        gifts = StudentGift.objects.filter(
+            student=request.user,
+            is_placed=True
+        ).order_by('placement_position')
+        serializer = self.get_serializer(gifts, many=True)
+        return Response(serializer.data)
 
 
 

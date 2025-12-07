@@ -134,10 +134,24 @@ const ManageStudents = () => {
     try {
       setGivingStars(true);
 
-      await apiService.giveStars(selectedStudent.id, { stars: packageData.stars });
+      const response = await apiService.giveStars(selectedStudent.id, { stars: packageData.stars });
 
-      // Reload students to show updated star counts
-      await loadStudents();
+      // Update the student in the local state with the response data
+      if (response && response.student) {
+        setStudents(prevStudents =>
+          prevStudents.map(student =>
+            student.id === selectedStudent.id ? response.student : student
+          )
+        );
+        setFilteredStudents(prevFiltered =>
+          prevFiltered.map(student =>
+            student.id === selectedStudent.id ? response.student : student
+          )
+        );
+      } else {
+        // Fallback to reloading if response doesn't contain student data
+        await loadStudents();
+      }
 
       setStarsDialogOpen(false);
       setSelectedStudent(null);
