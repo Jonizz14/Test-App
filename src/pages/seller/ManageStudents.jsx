@@ -14,6 +14,13 @@ import {
   TextField,
   InputAdornment,
   Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Grid,
+  Card,
+  CardContent,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -33,6 +40,9 @@ const ManageStudents = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [premiumModalOpen, setPremiumModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [starPackages, setStarPackages] = useState([]);
+  const [starsDialogOpen, setStarsDialogOpen] = useState(false);
+  const [givingStars, setGivingStars] = useState(false);
 
   useEffect(() => {
     loadStudents();
@@ -49,8 +59,12 @@ const ManageStudents = () => {
       const users = usersData.results || usersData;
       const studentUsers = users.filter(user => user.role === 'student');
       setStudents(studentUsers);
+
+      // Load star packages
+      const packagesResponse = await apiService.get('/star-packages/');
+      setStarPackages(packagesResponse);
     } catch (error) {
-      console.error('Failed to load students:', error);
+      console.error('Failed to load data:', error);
     } finally {
       setLoading(false);
     }
@@ -108,6 +122,32 @@ const ManageStudents = () => {
     } catch (error) {
       console.error('Failed to revoke premium:', error);
       alert('Premium olib tashlashda xatolik yuz berdi');
+    }
+  };
+
+  const handleGiveStars = (student) => {
+    setSelectedStudent(student);
+    setStarsDialogOpen(true);
+  };
+
+  const handleGiveStarsConfirm = async (packageData) => {
+    try {
+      setGivingStars(true);
+
+      await apiService.giveStars(selectedStudent.id, { stars: packageData.stars });
+
+      // Reload students to show updated star counts
+      await loadStudents();
+
+      setStarsDialogOpen(false);
+      setSelectedStudent(null);
+      setSuccessMessage(`${packageData.stars} yulduz ${selectedStudent.name}ga berildi!`);
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error) {
+      console.error('Failed to give stars:', error);
+      alert('Yulduz berishda xatolik yuz berdi');
+    } finally {
+      setGivingStars(false);
     }
   };
 
@@ -192,12 +232,12 @@ const ManageStudents = () => {
           <Table>
             <TableHead>
               <TableRow sx={{ backgroundColor: '#f8fafc' }}>
-                <TableCell sx={{ fontWeight: 600, color: '#1e293b', py: 3 }}>Ism</TableCell>
-                <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>ID</TableCell>
+                <TableCell sx={{ fontWeight: 600, color: '#1e293b', py: 3 }}>Ism Familiya</TableCell>
+                <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Login</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Sinf</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Yo'nalish</TableCell>
+                <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Yulduzlar</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Premium Status</TableCell>
-                <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Premium Ma'lumotlari</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Amallar</TableCell>
               </TableRow>
             </TableHead>
@@ -223,11 +263,21 @@ const ManageStudents = () => {
                   }}>
                     <TableCell sx={{ py: 3 }}>
                       <Typography sx={{ fontWeight: 500, color: '#1e293b' }}>
-                        {student.name}
+                        {student.name || 'Noma\'lum'}
                       </Typography>
                     </TableCell>
                     <TableCell sx={{ color: '#64748b' }}>
-                      {student.display_id}
+                      <Typography sx={{
+                        fontFamily: 'monospace',
+                        fontSize: '0.8rem',
+                        backgroundColor: '#f8fafc',
+                        px: 1,
+                        py: 0.5,
+                        borderRadius: '4px',
+                        display: 'inline-block'
+                      }}>
+                        {student.display_id || student.username}
+                      </Typography>
                     </TableCell>
                     <TableCell sx={{ color: '#64748b' }}>
                       {student.class_group || 'Noma\'lum'}
@@ -235,6 +285,17 @@ const ManageStudents = () => {
                     <TableCell sx={{ color: '#64748b' }}>
                       {student.direction === 'natural' ? 'Tabiiy fanlar' :
                        student.direction === 'exact' ? 'Aniq fanlar' : 'Yo\'nalish yo\'q'}
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <StarIcon sx={{ mr: 1, color: '#f59e0b' }} />
+                        <Typography sx={{
+                          fontWeight: 700,
+                          color: '#d97706'
+                        }}>
+                          {student.stars || 0}
+                        </Typography>
+                      </Box>
                     </TableCell>
                     <TableCell>
                       <Chip
@@ -247,43 +308,38 @@ const ManageStudents = () => {
                         }}
                       />
                     </TableCell>
-                    <TableCell sx={{ color: '#64748b' }}>
-                      {student.is_premium ? (
-                        <Box>
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                            {student.premium_plan === 'week' ? '1 Hafta' :
-                             student.premium_plan === 'month' ? '1 Oy' :
-                             student.premium_plan === 'year' ? '1 Yil' :
-                             'Performance-based'}
-                          </Typography>
-                          {student.premium_info && (
-                            <Typography variant="caption" sx={{ color: '#059669', fontWeight: 500 }}>
-                              {student.premium_info.message}
-                            </Typography>
-                          )}
-                        </Box>
-                      ) : (
-                        <Typography variant="body2" sx={{ color: '#9ca3af' }}>
-                          Premium yo'q
-                        </Typography>
-                      )}
-                    </TableCell>
                     <TableCell>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => handleTogglePremium(student, student.is_premium)}
-                        sx={{
-                          borderColor: student.is_premium ? '#d97706' : '#2563eb',
-                          color: student.is_premium ? '#d97706' : '#2563eb',
-                          '&:hover': {
-                            backgroundColor: student.is_premium ? '#fef3c7' : '#eff6ff',
-                            borderColor: student.is_premium ? '#d97706' : '#2563eb'
-                          }
-                        }}
-                      >
-                        {student.is_premium ? 'Premium olib tashlash' : 'Premium berish'}
-                      </Button>
+                      <Box sx={{ display: 'flex', gap: 1, flexDirection: 'column' }}>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => handleTogglePremium(student, student.is_premium)}
+                          sx={{
+                            borderColor: student.is_premium ? '#d97706' : '#2563eb',
+                            color: student.is_premium ? '#d97706' : '#2563eb',
+                            '&:hover': {
+                              backgroundColor: student.is_premium ? '#fef3c7' : '#eff6ff',
+                              borderColor: student.is_premium ? '#d97706' : '#2563eb'
+                            }
+                          }}
+                        >
+                          {student.is_premium ? 'Premium olib tashlash' : 'Premium berish'}
+                        </Button>
+                        <Button
+                          variant="contained"
+                          size="small"
+                          onClick={() => handleGiveStars(student)}
+                          sx={{
+                            backgroundColor: '#f59e0b',
+                            color: '#ffffff',
+                            '&:hover': {
+                              backgroundColor: '#d97706'
+                            }
+                          }}
+                        >
+                          Yulduz berish
+                        </Button>
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ))
@@ -303,6 +359,114 @@ const ManageStudents = () => {
         student={selectedStudent}
         onConfirm={handleGrantPremium}
       />
+
+      {/* Stars Dialog */}
+      <Dialog
+        open={starsDialogOpen}
+        onClose={() => {
+          setStarsDialogOpen(false);
+          setSelectedStudent(null);
+        }}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle sx={{
+          fontWeight: 600,
+          color: '#1e293b',
+          fontSize: '1.25rem'
+        }}>
+          {selectedStudent && `${selectedStudent.name}ga yulduz berish`}
+        </DialogTitle>
+        <DialogContent>
+          <Typography sx={{ mb: 3, color: '#64748b' }}>
+            Qaysi yulduz paketini tanlaysiz?
+          </Typography>
+
+          <Grid container spacing={2}>
+            {starPackages.map((pkg) => (
+              <Grid item xs={12} sm={6} md={4} key={pkg.id}>
+                <Card sx={{
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    borderColor: '#f59e0b',
+                    boxShadow: '0 4px 6px -1px rgba(245, 158, 11, 0.1)'
+                  }
+                }}>
+                  <CardContent sx={{ p: 3, textAlign: 'center' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+                      <StarIcon sx={{ fontSize: '2rem', color: '#f59e0b', mr: 1 }} />
+                      <Typography sx={{
+                        fontSize: '2rem',
+                        fontWeight: 700,
+                        color: '#d97706'
+                      }}>
+                        {pkg.stars}
+                      </Typography>
+                    </Box>
+
+                    <Typography sx={{
+                      fontWeight: 600,
+                      color: '#1e293b',
+                      mb: 1
+                    }}>
+                      ${pkg.discounted_price}
+                    </Typography>
+
+                    {pkg.discount_percentage > 0 && (
+                      <Typography sx={{
+                        fontSize: '0.75rem',
+                        color: '#059669',
+                        mb: 2
+                      }}>
+                        {pkg.discount_percentage}% chegirma
+                      </Typography>
+                    )}
+
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      onClick={() => handleGiveStarsConfirm(pkg)}
+                      disabled={givingStars}
+                      sx={{
+                        backgroundColor: '#f59e0b',
+                        color: '#ffffff',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        '&:hover': {
+                          backgroundColor: '#d97706'
+                        },
+                        '&:disabled': {
+                          backgroundColor: '#d1d5db'
+                        }
+                      }}
+                    >
+                      {givingStars ? 'Berilmoqda...' : 'Tanlash'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button
+            onClick={() => {
+              setStarsDialogOpen(false);
+              setSelectedStudent(null);
+            }}
+            sx={{
+              color: '#374151',
+              fontWeight: 600,
+              textTransform: 'none'
+            }}
+          >
+            Bekor qilish
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

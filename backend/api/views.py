@@ -135,6 +135,39 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
+    @action(detail=True, methods=['post'])
+    def give_stars(self, request, pk=None):
+        """Teacher or seller gives stars to a student (adds to earnings)"""
+        if request.user.role not in ['teacher', 'seller']:
+            return Response({'error': 'Only teachers and sellers can give stars'}, status=status.HTTP_403_FORBIDDEN)
+
+        student = self.get_object()
+        if student.role != 'student':
+            return Response({'error': 'Stars can only be given to students'}, status=status.HTTP_400_BAD_REQUEST)
+
+        stars_to_give = request.data.get('stars', 1)
+        if not isinstance(stars_to_give, int) or stars_to_give <= 0:
+            return Response({'error': 'Invalid number of stars'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Calculate earnings: $0.10 per star
+        earnings_per_star = 0.10
+        total_earnings = stars_to_give * earnings_per_star
+
+        # Add stars to student
+        student.stars += stars_to_give
+        student.save()
+
+        # Add earnings to teacher
+        request.user.seller_earnings += total_earnings
+        request.user.save()
+
+        serializer = UserSerializer(student)
+        return Response({
+            'student': serializer.data,
+            'stars_given': stars_to_give,
+            'teacher_earnings_added': total_earnings
+        })
+
     @action(detail=True, methods=['patch'], permission_classes=[IsAuthenticated])
     def toggle_premium(self, request, pk=None):
         """Toggle premium status for a student (admin and seller only)"""

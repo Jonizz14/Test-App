@@ -22,6 +22,7 @@ import {
   Person as PersonIcon,
   Assessment as AssessmentIcon,
   School as SchoolIcon,
+  Star as StarIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
@@ -39,6 +40,7 @@ const StudentResult = () => {
   const [error, setError] = useState('');
   const [lessonModalOpen, setLessonModalOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [givingStars, setGivingStars] = useState(false);
 
   useEffect(() => {
     const loadStudentResult = async () => {
@@ -120,6 +122,34 @@ const StudentResult = () => {
     if (score >= 70) return 'Qoniqarli';
     if (score >= 60) return 'Qoniqarsiz';
     return 'Yomon';
+  };
+
+  const handleGiveStars = async () => {
+    if (!student) return;
+
+    try {
+      setGivingStars(true);
+      // Determine stars based on score
+      let starsToGive = 1; // default
+      if (attempt.score >= 90) starsToGive = 5;
+      else if (attempt.score >= 80) starsToGive = 3;
+      else if (attempt.score >= 70) starsToGive = 2;
+
+      await apiService.giveStars(student.id, { stars: starsToGive });
+
+      // Reload student data to show updated stars
+      const usersResponse = await apiService.getUsers();
+      const allUsers = usersResponse.results || usersResponse;
+      const updatedStudent = allUsers.find(user => user.id === student.id);
+      setStudent(updatedStudent);
+
+      alert(`${starsToGive} yulduz berildi!`);
+    } catch (error) {
+      console.error('Failed to give stars:', error);
+      alert('Yulduz berishda xatolik yuz berdi');
+    } finally {
+      setGivingStars(false);
+    }
   };
 
 
@@ -327,60 +357,84 @@ const StudentResult = () => {
           {questions.length} ta savoldan {Object.keys(attempt.answers || {}).length} ta javob berilgan
         </Typography>
 
-        {/* Send Additional Lesson Button - Only show if score < 60 */}
-        {(() => {
-          const hasInvitation = notifications.length > 0;
-          if (hasInvitation) {
-            return (
-              <Chip
-                label="Darsga chaqirilgan"
-                color="warning"
-                size="large"
-                variant="outlined"
-                sx={{
-                  px: 3,
-                  py: 1,
-                  fontSize: '1rem',
-                  fontWeight: 600
-                }}
-              />
-            );
-          } else if (attempt.score < 60) {
-            return (
-              <Button
-                variant="contained"
-                startIcon={<SchoolIcon />}
-                onClick={() => setLessonModalOpen(true)}
-                sx={{
-                  cursor: 'pointer',
-                  borderRadius: 2,
-                  px: 4,
-                  py: 1.5,
-                  fontWeight: 600,
-                  backgroundColor: 'error.main',
-                  '&:hover': { backgroundColor: 'error.main' }
-                }}
-              >
-                Qo'shimcha dars yuborish
-              </Button>
-            );
-          } else {
-            return (
-              <Chip
-                label="Qo'chimcha dars kerak emas"
-                color="success"
-                size="large"
-                variant="outlined"
-                sx={{
-                  px: 3,
-                  py: 1,
-                  fontSize: '1rem',
-                  fontWeight: 600
-                }}
-              />
-            );
-          }
-        })()}
+        {/* Action Buttons */}
+        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+          {/* Give Stars Button */}
+          <Button
+            variant="contained"
+            startIcon={<StarIcon />}
+            onClick={handleGiveStars}
+            disabled={givingStars}
+            sx={{
+              cursor: 'pointer',
+              borderRadius: 2,
+              px: 4,
+              py: 1.5,
+              fontWeight: 600,
+              backgroundColor: '#f59e0b',
+              color: '#ffffff',
+              '&:hover': { backgroundColor: '#d97706' },
+              '&:disabled': { backgroundColor: '#d1d5db' }
+            }}
+          >
+            {givingStars ? 'Berilmoqda...' : 'Yulduz berish'}
+          </Button>
+
+          {/* Send Additional Lesson Button - Only show if score < 60 */}
+          {(() => {
+            const hasInvitation = notifications.length > 0;
+            if (hasInvitation) {
+              return (
+                <Chip
+                  label="Darsga chaqirilgan"
+                  color="warning"
+                  size="large"
+                  variant="outlined"
+                  sx={{
+                    px: 3,
+                    py: 1,
+                    fontSize: '1rem',
+                    fontWeight: 600
+                  }}
+                />
+              );
+            } else if (attempt.score < 60) {
+              return (
+                <Button
+                  variant="contained"
+                  startIcon={<SchoolIcon />}
+                  onClick={() => setLessonModalOpen(true)}
+                  sx={{
+                    cursor: 'pointer',
+                    borderRadius: 2,
+                    px: 4,
+                    py: 1.5,
+                    fontWeight: 600,
+                    backgroundColor: 'error.main',
+                    '&:hover': { backgroundColor: 'error.main' }
+                  }}
+                >
+                  Qo'shimcha dars yuborish
+                </Button>
+              );
+            } else {
+              return (
+                <Chip
+                  label="Qo'chimcha dars kerak emas"
+                  color="success"
+                  size="large"
+                  variant="outlined"
+                  sx={{
+                    px: 3,
+                    py: 1,
+                    fontSize: '1rem',
+                    fontWeight: 600
+                  }}
+                />
+              );
+            }
+          })()}
+        </Box>
       </Card>
 
       {/* Detailed Questions and Answers */}

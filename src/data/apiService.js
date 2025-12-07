@@ -324,6 +324,10 @@ class ApiService {
   async banCurrentUser(reason) {
     return this.post('/users/ban_current_user/', { reason });
   }
+
+  async giveStars(userId, data) {
+    return this.post(`/users/${userId}/give_stars/`, data);
+  }
 }
 
 const apiService = new ApiService();

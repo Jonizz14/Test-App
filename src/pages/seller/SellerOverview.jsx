@@ -9,7 +9,6 @@ import {
 } from '@mui/material';
 import {
   Group as GroupIcon,
-  AttachMoney as MoneyIcon,
   Star as StarIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
@@ -20,7 +19,6 @@ const SellerOverview = () => {
   const [stats, setStats] = useState({
     totalStudents: 0,
     premiumStudents: 0,
-    totalRevenue: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -38,13 +36,9 @@ const SellerOverview = () => {
       const totalStudents = students.length;
       const premiumStudents = students.filter(student => student.is_premium).length;
 
-      // Calculate potential revenue (simplified)
-      const premiumRevenue = premiumStudents * 9.99; // Assuming average price
-
       setStats({
         totalStudents,
         premiumStudents,
-        totalRevenue: premiumRevenue,
       });
     } catch (error) {
       console.error('Failed to load stats:', error);
@@ -167,14 +161,6 @@ const SellerOverview = () => {
             value={stats.premiumStudents}
             icon={<StarIcon fontSize="large" />}
             color="warning.main"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <StatCard
-            title="Potensial daromad"
-            value={`$${stats.totalRevenue.toFixed(2)}`}
-            icon={<MoneyIcon fontSize="large" />}
-            color="success.main"
           />
         </Grid>
       </Grid>
