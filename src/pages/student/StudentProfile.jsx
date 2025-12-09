@@ -15,6 +15,7 @@ import {
   DialogContent,
   DialogActions,
   Alert,
+  Checkbox,
 } from '@mui/material';
 import {
   PhotoCamera as PhotoIcon,
@@ -55,9 +56,12 @@ const StudentProfile = () => {
   const [emojiPositions, setEmojiPositions] = useState([]);
   const [placedGifts, setPlacedGifts] = useState([]);
   const [myGifts, setMyGifts] = useState([]);
+  const [displayGift, setDisplayGift] = useState(null);
+  const [selectedDisplayGifts, setSelectedDisplayGifts] = useState([]);
   const [giftPlacementDialogOpen, setGiftPlacementDialogOpen] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState(null);
   const [giftPositions, setGiftPositions] = useState([]);
+  const [displayGiftDialogOpen, setDisplayGiftDialogOpen] = useState(false);
 
   useEffect(() => {
     loadStudentStats();
@@ -134,10 +138,26 @@ const StudentProfile = () => {
       const myGifts = myGiftsResponse.results || myGiftsResponse;
       setPlacedGifts(placedGifts);
       setMyGifts(myGifts);
+      setSelectedDisplayGifts(placedGifts.map(g => g.id));
+
+      // Debug: Log the display gift structure
+      console.log('currentUser.display_gift:', currentUser.display_gift);
+      console.log('myGifts:', myGifts);
+
+      // Set display gift - try to find the full gift object from myGifts
+      if (currentUser.display_gift) {
+        const giftId = typeof currentUser.display_gift === 'object' ? currentUser.display_gift.id : currentUser.display_gift;
+        const fullGift = myGifts.find(g => g.id === giftId);
+        console.log('Found full gift for display:', fullGift);
+        setDisplayGift(fullGift || currentUser.display_gift);
+      } else {
+        setDisplayGift(null);
+      }
     } catch (error) {
       console.error('Error loading gifts:', error);
       setPlacedGifts([]);
       setMyGifts([]);
+      setDisplayGift(null);
     }
   };
 
@@ -238,7 +258,12 @@ const StudentProfile = () => {
       setTimeout(() => setSaveSuccess(false), 3000); // Hide success message after 3 seconds
     } catch (error) {
       console.error('Failed to update profile:', error);
-      alert('Profilni saqlashda xatolik yuz berdi');
+      if (error.message.includes('401')) {
+        alert('Sessiya muddati tugagan. Iltimos, qaytadan kiriting.');
+        logout();
+      } else {
+        alert('Profilni saqlashda xatolik yuz berdi');
+      }
     } finally {
       setSaving(false);
     }
@@ -252,7 +277,45 @@ const StudentProfile = () => {
       await loadPlacedGifts(); // Reload placed gifts
     } catch (error) {
       console.error('Failed to place gift:', error);
-      alert('Sovg\'ani joylashtirishda xatolik yuz berdi');
+      if (error.message.includes('401')) {
+        alert('Sessiya muddati tugagan. Iltimos, qaytadan kiriting.');
+        logout();
+      } else {
+        alert('Sovg\'ani joylashtirishda xatolik yuz berdi');
+      }
+    }
+  };
+
+  const handleDisplayGiftToggle = async (giftId) => {
+    const isSelected = selectedDisplayGifts.includes(giftId);
+    if (isSelected) {
+      // Remove
+      const position = placedGifts.find(g => g.id === giftId)?.placement_position;
+      await handleGiftPlacement(giftId, null);
+    } else {
+      if (selectedDisplayGifts.length >= 3) return;
+      // Add to next position
+      const nextPosition = [1,2,3].find(pos => !placedGifts.some(g => g.placement_position === pos)) || 1;
+      await handleGiftPlacement(giftId, nextPosition);
+    }
+  };
+
+  const handleDisplayGiftSelect = async (giftId) => {
+    try {
+      const updatedUser = await apiService.patch(`/users/${currentUser.id}/`, {
+        display_gift: giftId || null
+      });
+      setCurrentUserData(updatedUser);
+      setDisplayGift(giftId ? myGifts.find(g => g.id === giftId) : null);
+      setDisplayGiftDialogOpen(false);
+    } catch (error) {
+      console.error('Failed to set display gift:', error);
+      if (error.message.includes('401')) {
+        alert('Sessiya muddati tugagan. Iltimos, qaytadan kiriting.');
+        logout();
+      } else {
+        alert('Displey sovg\'asini o\'rnatishda xatolik yuz berdi');
+      }
     }
   };
 
@@ -641,13 +704,67 @@ const StudentProfile = () => {
             position: 'relative',
             zIndex: 2
           }}>
-            <Typography variant="h3" sx={{
-              fontWeight: 700,
-              mb: 2,
-              textShadow: currentUser?.is_premium ? '0 2px 4px rgba(0,0,0,0.3)' : 'none'
-            }}>
-              {currentUser?.name}
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, flexWrap: 'wrap', justifyContent: { xs: 'center', md: 'flex-start' } }}>
+              {displayGift && (
+                <Box
+                  onClick={() => setDisplayGiftDialogOpen(true)}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    px: 2,
+                    py: 1,
+                    borderRadius: '20px',
+                    backgroundColor: displayGift.gift_rarity === 'common' ? 'rgba(255, 255, 255, 0.2)' :
+                                   displayGift.gift_rarity === 'rare' ? 'rgba(59, 130, 246, 0.3)' :
+                                   displayGift.gift_rarity === 'epic' ? 'rgba(147, 51, 234, 0.3)' :
+                                   displayGift.gift_rarity === 'legendary' ? 'rgba(245, 158, 11, 0.3)' : 'rgba(255, 255, 255, 0.2)',
+                    border: `2px solid ${displayGift.gift_rarity === 'common' ? 'rgba(255, 255, 255, 0.3)' :
+                                         displayGift.gift_rarity === 'rare' ? 'rgba(59, 130, 246, 0.5)' :
+                                         displayGift.gift_rarity === 'epic' ? 'rgba(147, 51, 234, 0.5)' :
+                                         displayGift.gift_rarity === 'legendary' ? 'rgba(245, 158, 11, 0.5)' : 'rgba(255, 255, 255, 0.3)'}`,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                    }
+                  }}
+                >
+                  {displayGift?.gift_image_url && (
+                    <img
+                      src={displayGift.gift_image_url}
+                      alt={displayGift.gift_name || 'Sovg\'a'}
+                      style={{
+                        width: '24px',
+                        height: '24px',
+                        borderRadius: '4px',
+                        objectFit: 'cover'
+                      }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        console.warn('Failed to load gift image:', displayGift.gift_image_url);
+                      }}
+                    />
+                  )}
+                  <Typography sx={{
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    color: currentUser?.is_premium ? '#ffffff' : '#1e293b'
+                  }}>
+                    #{displayGift.gift_number}
+                  </Typography>
+                </Box>
+              )}
+              <Typography variant="h3" sx={{
+                fontWeight: 700,
+                textShadow: currentUser?.is_premium ? '0 2px 4px rgba(0,0,0,0.3)' : 'none',
+                cursor: !displayGift ? 'pointer' : 'default',
+                '&:hover': !displayGift ? { textDecoration: 'underline' } : {}
+              }} onClick={!displayGift ? () => setDisplayGiftDialogOpen(true) : undefined}>
+                {currentUser?.name}
+              </Typography>
+            </Box>
 
             {currentUser?.profile_status && (
               <Typography variant="h6" sx={{
@@ -1164,205 +1281,113 @@ const StudentProfile = () => {
           🎁 Sovg'alarim
         </Typography>
 
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={8}>
-            <Card sx={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        <Card sx={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        }}>
+          <CardContent sx={{ p: 4 }}>
+            <Typography sx={{
+              fontWeight: 600,
+              color: '#1e293b',
+              fontSize: '1.25rem',
+              mb: 1
             }}>
-              <CardContent sx={{ p: 4 }}>
-                <Typography sx={{
-                  fontWeight: 600,
-                  color: '#1e293b',
-                  fontSize: '1.25rem',
-                  mb: 3
-                }}>
-                  Sotib olingan sovg'alar
-                </Typography>
+              Sotib olingan sovg'alar
+            </Typography>
 
-                <Box sx={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: 2,
-                  minHeight: '100px'
-                }}>
-                  {placedGifts.length > 0 ? (
-                    placedGifts.map((giftItem) => (
-                      <Box
-                        key={giftItem.id}
-                        sx={{
-                          backgroundColor: '#f8fafc',
-                          border: '1px solid #e2e8f0',
-                          borderRadius: '8px',
-                          p: 2,
-                          minWidth: '120px',
-                          textAlign: 'center',
-                          '&:hover': {
-                            backgroundColor: '#f1f5f9',
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-                          },
-                          transition: 'all 0.2s ease'
-                        }}
-                      >
-                        <Box sx={{
-                          fontSize: '2rem',
-                          mb: 1
-                        }}>
-                          {giftItem.gift.image_url ? (
-                            <img
-                              src={giftItem.gift.image_url}
-                              alt={giftItem.gift.name}
-                              style={{
-                                width: '40px',
-                                height: '40px',
-                                objectFit: 'cover',
-                                borderRadius: '4px'
-                              }}
-                            />
-                          ) : (
-                            '🎁'
-                          )}
-                        </Box>
-                        <Typography sx={{
-                          fontWeight: 600,
-                          color: '#1e293b',
-                          fontSize: '0.9rem',
-                          mb: 0.5
-                        }}>
-                          {giftItem.gift.name}
-                        </Typography>
-                        <Chip
-                          label={`Joy ${giftItem.placement_position}`}
-                          size="small"
-                          sx={{
-                            backgroundColor: '#fef3c7',
-                            color: '#d97706',
-                            fontSize: '0.7rem',
-                            height: '20px'
-                          }}
-                        />
-                      </Box>
-                    ))
-                  ) : (
-                    <Typography sx={{ color: '#64748b', fontStyle: 'italic' }}>
-                      Hali sovg'alar joylashtirilmagan. Marketdan sovg'a sotib oling va joylashtiring!
-                    </Typography>
-                  )}
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <Card sx={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            <Typography sx={{
+              color: '#64748b',
+              fontSize: '0.9rem',
+              mb: 3
             }}>
-              <CardContent sx={{ p: 4 }}>
-                <Typography sx={{
-                  fontWeight: 600,
-                  color: '#1e293b',
-                  fontSize: '1.25rem',
-                  mb: 3
-                }}>
-                  Profil sovg'alari
-                </Typography>
+              Profilingizda ko'rsatish uchun 3 tagacha sovg'ani belgilashingiz mumkin.
+            </Typography>
 
-                <Typography sx={{
-                  color: '#64748b',
-                  fontSize: '0.9rem',
-                  mb: 3
-                }}>
-                  Profilingizda ko'rsatish uchun 3 tagacha sovg'ani joylashtirishingiz mumkin.
+            <Box sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 2,
+              minHeight: '100px',
+              mb: 4
+            }}>
+              {myGifts.length > 0 ? (
+                myGifts.map((giftItem) => (
+                  <Box
+                    key={giftItem.id}
+                    sx={{
+                      backgroundImage: giftItem.gift_image_url ? `url(${giftItem.gift_image_url})` : 'none',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundColor: giftItem.gift_rarity === 'common' ? '#f3f4f6' :
+                                      giftItem.gift_rarity === 'rare' ? '#dbeafe' :
+                                      giftItem.gift_rarity === 'epic' ? '#f3e8ff' :
+                                      giftItem.gift_rarity === 'legendary' ? '#fef3c7' : '#f8fafc',
+                      border: `2px solid ${giftItem.gift_rarity === 'common' ? '#e5e7eb' :
+                                         giftItem.gift_rarity === 'rare' ? '#93c5fd' :
+                                         giftItem.gift_rarity === 'epic' ? '#c4b5fd' :
+                                         giftItem.gift_rarity === 'legendary' ? '#fcd34d' : '#e2e8f0'}`,
+                      borderRadius: '8px',
+                      p: 2,
+                      minWidth: '120px',
+                      minHeight: '120px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      position: 'relative',
+                      '&:hover': {
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                      },
+                      transition: 'all 0.2s ease',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        borderRadius: '6px'
+                      }
+                    }}
+                  >
+                    <Checkbox
+                      checked={selectedDisplayGifts.includes(giftItem.id)}
+                      onChange={() => handleDisplayGiftToggle(giftItem.id)}
+                      disabled={!selectedDisplayGifts.includes(giftItem.id) && selectedDisplayGifts.length >= 3}
+                      sx={{
+                        position: 'absolute',
+                        top: 4,
+                        right: 4,
+                        zIndex: 2,
+                        borderRadius: '4px',
+                        '& .MuiCheckbox-root': {
+                          padding: '4px'
+                        }
+                      }}
+                    />
+                    {!giftItem.gift_image_url && (
+                      <Typography sx={{ fontSize: '3rem', position: 'relative', zIndex: 1 }}>🎁</Typography>
+                    )}
+                    <Box sx={{
+                      position: 'relative',
+                      zIndex: 1,
+                      textAlign: 'center',
+                      mt: '30px'
+                    }}>
+                    </Box>
+                  </Box>
+                ))
+              ) : (
+                <Typography sx={{ color: '#64748b', fontStyle: 'italic' }}>
+                  Hali sovg'alar yo'q. Marketdan sovg'a sotib oling!
                 </Typography>
+              )}
+            </Box>
 
-                <Box sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 2,
-                  minHeight: '100px'
-                }}>
-                  {/* Position slots for gifts */}
-                  {[1, 2, 3].map((position) => {
-                    const placedGift = placedGifts.find(gift => gift.placement_position === position);
-                    return (
-                      <Box
-                        key={position}
-                        onClick={() => {
-                          setSelectedPosition(position);
-                          setGiftPlacementDialogOpen(true);
-                        }}
-                        sx={{
-                          border: placedGift ? '2px solid #10b981' : '2px dashed #e2e8f0',
-                          borderRadius: '8px',
-                          p: 2,
-                          textAlign: 'center',
-                          backgroundColor: placedGift ? '#ecfdf5' : '#f8fafc',
-                          minHeight: '60px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          transition: 'all 0.2s ease',
-                          cursor: 'pointer',
-                          '&:hover': {
-                            backgroundColor: placedGift ? '#d1fae5' : '#f1f5f9',
-                            transform: 'translateY(-1px)',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                          }
-                        }}
-                      >
-                        {placedGift ? (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <Box sx={{ fontSize: '1.5rem' }}>
-                              {placedGift.gift.image_url ? (
-                                <img
-                                  src={placedGift.gift.image_url}
-                                  alt={placedGift.gift.name}
-                                  style={{
-                                    width: '30px',
-                                    height: '30px',
-                                    objectFit: 'cover',
-                                    borderRadius: '4px'
-                                  }}
-                                />
-                              ) : (
-                                '🎁'
-                              )}
-                            </Box>
-                            <Box sx={{ textAlign: 'left' }}>
-                              <Typography sx={{
-                                fontWeight: 600,
-                                color: '#059669',
-                                fontSize: '0.9rem'
-                              }}>
-                                {placedGift.gift.name}
-                              </Typography>
-                              <Typography sx={{
-                                color: '#047857',
-                                fontSize: '0.75rem'
-                              }}>
-                                Joy {position}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        ) : (
-                          <Typography sx={{ color: '#64748b', fontSize: '0.9rem' }}>
-                            Joy {position} - bo'sh
-                          </Typography>
-                        )}
-                      </Box>
-                    );
-                  })}
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+          </CardContent>
+        </Card>
       </Box>
 
       {/* Summary Card */}
@@ -1792,6 +1817,214 @@ const StudentProfile = () => {
               setGiftPlacementDialogOpen(false);
               setSelectedPosition(null);
             }}
+            sx={{
+              color: '#374151',
+              fontWeight: 600,
+              textTransform: 'none'
+            }}
+          >
+            Yopish
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Display Gift Selection Dialog */}
+      <Dialog
+        open={displayGiftDialogOpen}
+        onClose={() => setDisplayGiftDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{
+          fontWeight: 600,
+          color: '#1e293b',
+          fontSize: '1.25rem',
+          textAlign: 'center'
+        }}>
+          🎁 Displey uchun sovg'a tanlang
+        </DialogTitle>
+        <DialogContent>
+          <Typography sx={{
+            color: '#64748b',
+            mb: 3,
+            textAlign: 'center'
+          }}>
+            Ismingiz oldida ko'rsatiladigan sovg'ani tanlang. Faqat bitta sovg'ani tanlashingiz mumkin.
+          </Typography>
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {/* Option to remove display gift */}
+            <Box
+              onClick={() => handleDisplayGiftSelect(null)}
+              sx={{
+                border: displayGift ? '1px solid #e2e8f0' : '2px solid #10b981',
+                borderRadius: '8px',
+                p: 2,
+                cursor: 'pointer',
+                backgroundColor: displayGift ? '#ffffff' : '#ecfdf5',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  backgroundColor: displayGift ? '#f8fafc' : '#d1fae5',
+                  transform: 'translateY(-1px)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                }
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{ fontSize: '2rem' }}>
+                  ❌
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                  <Typography sx={{
+                    fontWeight: 600,
+                    color: '#1e293b',
+                    fontSize: '1rem'
+                  }}>
+                    Sovg'asiz ko'rsatish
+                  </Typography>
+                  <Typography sx={{
+                    color: '#64748b',
+                    fontSize: '0.85rem'
+                  }}>
+                    Ismingiz oddiy ko'rinishda bo'ladi
+                  </Typography>
+                </Box>
+                {!displayGift && (
+                  <Chip
+                    label="Tanlangan"
+                    size="small"
+                    sx={{
+                      backgroundColor: '#10b981',
+                      color: 'white',
+                      fontWeight: 600
+                    }}
+                  />
+                )}
+              </Box>
+            </Box>
+
+            {myGifts.map((giftItem) => {
+              const isSelected = displayGift && displayGift.id === giftItem.id;
+
+              return (
+                <Box
+                  key={giftItem.id}
+                  onClick={() => handleDisplayGiftSelect(giftItem.id)}
+                  sx={{
+                    border: isSelected ? '2px solid #10b981' : '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    p: 2,
+                    cursor: 'pointer',
+                    backgroundColor: isSelected ? '#ecfdf5' : '#ffffff',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      backgroundColor: isSelected ? '#d1fae5' : '#f8fafc',
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                    }
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Box sx={{ fontSize: '2rem' }}>
+                      {giftItem.gift_image_url ? (
+                        <img
+                          src={giftItem.gift_image_url}
+                          alt={giftItem.gift_name}
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            objectFit: 'cover',
+                            borderRadius: '4px'
+                          }}
+                        />
+                      ) : (
+                        '🎁'
+                      )}
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography sx={{
+                        fontWeight: 600,
+                        color: '#1e293b',
+                        fontSize: '1rem'
+                      }}>
+                        {giftItem.gift_name}
+                      </Typography>
+                      <Typography sx={{
+                        color: '#64748b',
+                        fontSize: '0.85rem'
+                      }}>
+                        #{giftItem.gift_number} • {giftItem.gift_rarity_display}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ textAlign: 'right' }}>
+                      {isSelected ? (
+                        <Chip
+                          label="Tanlangan"
+                          size="small"
+                          sx={{
+                            backgroundColor: '#10b981',
+                            color: 'white',
+                            fontWeight: 600
+                          }}
+                        />
+                      ) : (
+                        <Chip
+                          label={giftItem.gift_rarity_display}
+                          size="small"
+                          sx={{
+                            backgroundColor: giftItem.gift_rarity === 'common' ? '#f3f4f6' :
+                                           giftItem.gift_rarity === 'rare' ? '#dbeafe' :
+                                           giftItem.gift_rarity === 'epic' ? '#f3e8ff' :
+                                           giftItem.gift_rarity === 'legendary' ? '#fef3c7' : '#f3f4f6',
+                            color: giftItem.gift_rarity === 'common' ? '#374151' :
+                                 giftItem.gift_rarity === 'rare' ? '#1e40af' :
+                                 giftItem.gift_rarity === 'epic' ? '#7c3aed' :
+                                 giftItem.gift_rarity === 'legendary' ? '#d97706' : '#374151',
+                            fontWeight: 600
+                          }}
+                        />
+                      )}
+                    </Box>
+                  </Box>
+                </Box>
+              );
+            })}
+
+            {myGifts.length === 0 && (
+              <Box sx={{ textAlign: 'center', py: 4 }}>
+                <Typography sx={{
+                  fontSize: '3rem',
+                  mb: 2
+                }}>
+                  🎁
+                </Typography>
+                <Typography sx={{
+                  color: '#64748b',
+                  mb: 2
+                }}>
+                  Sizda hali sovg'alar yo'q
+                </Typography>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setDisplayGiftDialogOpen(false);
+                    navigate('/student/pricing');
+                  }}
+                  sx={{
+                    backgroundColor: '#f59e0b',
+                    color: '#ffffff',
+                    '&:hover': { backgroundColor: '#d97706' }
+                  }}
+                >
+                  Marketga o'tish
+                </Button>
+              </Box>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+          <Button
+            onClick={() => setDisplayGiftDialogOpen(false)}
             sx={{
               color: '#374151',
               fontWeight: 600,

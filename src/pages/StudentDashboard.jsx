@@ -52,7 +52,6 @@ import StudentProfile from './student/StudentProfile';
 import StudentProfileView from './student/StudentProfileView';
 import TeacherDetails from './student/TeacherDetails';
 import PricingPage from './student/PricingPage';
-import StudentGifts from './student/StudentGifts';
 
 const StudentDashboard = () => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -360,7 +359,6 @@ const StudentDashboard = () => {
               <Route path="/profile" element={<StudentProfile />} />
               <Route path="/student-profile/:id" element={<StudentProfileView />} />
               <Route path="/pricing" element={<PricingPage />} />
-              <Route path="/gifts" element={<StudentGifts />} />
             </Routes>
           </Container>
         </Box>

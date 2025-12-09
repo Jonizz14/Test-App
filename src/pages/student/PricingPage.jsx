@@ -32,7 +32,7 @@ import apiService from '../../data/apiService';
 
 const PricingPage = () => {
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { currentUser, setCurrentUserData } = useAuth();
   const [pricingPlans, setPricingPlans] = useState([]);
   const [starPackages, setStarPackages] = useState([]);
   const [gifts, setGifts] = useState([]);
@@ -547,31 +547,35 @@ const PricingPage = () => {
               {gifts.map((gift) => {
                 const alreadyPurchased = hasPurchasedGift(gift.id);
                 const canAfford = userStars >= gift.star_cost;
+                const isSoldOut = gift.gift_count === 0;
 
                 return (
                   <Grid item xs={12} sm={6} md={4} lg={3} key={gift.id}>
-                    <Card sx={{
-                      backgroundColor: '#ffffff',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '12px',
-                      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-                      transition: 'all 0.2s ease',
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      '&:hover': {
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                        transform: 'translateY(-2px)'
-                      }
-                    }}>
+                    <Card
+                      sx={{
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '12px',
+                        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                        transition: 'all 0.2s ease',
+                        aspectRatio: '1/1',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        '&:hover': {
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                          transform: 'translateY(-2px)'
+                        }
+                      }}
+                    >
                       <Box sx={{
-                        height: '200px',
+                        height: '50%',
                         backgroundColor: '#f8fafc',
                         borderRadius: '12px 12px 0 0',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        overflow: 'hidden'
+                        overflow: 'hidden',
+                        position: 'relative'
                       }}>
                         {gift.image_url ? (
                           <img
@@ -588,19 +592,44 @@ const PricingPage = () => {
                             🎁
                           </Typography>
                         )}
+
+                        {/* Rarity badge */}
+                        <Chip
+                          label={gift.rarity_display || 'Oddiy'}
+                          size="small"
+                          sx={{
+                            position: 'absolute',
+                            top: 8,
+                            right: 8,
+                            backgroundColor: gift.rarity === 'common' ? '#f3f4f6' :
+                                           gift.rarity === 'rare' ? '#dbeafe' :
+                                           gift.rarity === 'epic' ? '#f3e8ff' :
+                                           gift.rarity === 'legendary' ? '#fef3c7' : '#f3f4f6',
+                            color: gift.rarity === 'common' ? '#374151' :
+                                  gift.rarity === 'rare' ? '#1e40af' :
+                                  gift.rarity === 'epic' ? '#7c3aed' :
+                                  gift.rarity === 'legendary' ? '#d97706' : '#374151',
+                            fontWeight: 600,
+                            fontSize: '0.7rem',
+                            backdropFilter: 'blur(4px)'
+                          }}
+                        />
                       </Box>
 
                       <CardContent sx={{
                         flexGrow: 1,
                         display: 'flex',
                         flexDirection: 'column',
-                        p: 3
+                        p: 2.5
                       }}>
                         <Typography sx={{
                           fontWeight: 600,
                           color: '#1e293b',
-                          fontSize: '1.1rem',
-                          mb: 1
+                          fontSize: '1rem',
+                          mb: 1,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
                         }}>
                           {gift.name}
                         </Typography>
@@ -608,9 +637,13 @@ const PricingPage = () => {
                         {gift.description && (
                           <Typography sx={{
                             color: '#64748b',
-                            fontSize: '0.9rem',
+                            fontSize: '0.85rem',
                             mb: 2,
-                            flexGrow: 1
+                            flexGrow: 1,
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden'
                           }}>
                             {gift.description}
                           </Typography>
@@ -623,11 +656,11 @@ const PricingPage = () => {
                           mb: 2
                         }}>
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <StarIcon sx={{ mr: 0.5, color: '#f59e0b' }} />
+                            <StarIcon sx={{ mr: 0.5, color: '#f59e0b', fontSize: '1.1rem' }} />
                             <Typography sx={{
                               fontWeight: 700,
                               color: '#d97706',
-                              fontSize: '1.1rem'
+                              fontSize: '1rem'
                             }}>
                               {gift.star_cost}
                             </Typography>
@@ -641,24 +674,41 @@ const PricingPage = () => {
                                 backgroundColor: '#ecfdf5',
                                 color: '#059669',
                                 fontWeight: 600,
-                                fontSize: '0.75rem'
+                                fontSize: '0.7rem'
                               }}
                             />
                           )}
+                        </Box>
+
+                        {/* Quantity display */}
+                        <Box sx={{ mb: 2 }}>
+                            <Typography sx={{
+                              color: '#dc2626',
+                              fontSize: '0.875rem',
+                              fontWeight: 600,
+                              textAlign: 'center'
+                            }}>
+                              Tugadi
+                            </Typography>
                         </Box>
 
                         <Button
                           variant="contained"
                           fullWidth
                           startIcon={<ShoppingCartIcon />}
-                          onClick={() => handleGiftPurchaseClick(gift)}
-                          disabled={alreadyPurchased || !canAfford}
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent card click
+                            handleGiftPurchaseClick(gift);
+                          }}
+                          disabled={alreadyPurchased || !canAfford || isSoldOut}
                           sx={{
                             backgroundColor: alreadyPurchased ? '#10b981' : '#f59e0b',
                             color: '#ffffff',
                             fontWeight: 600,
                             textTransform: 'none',
                             borderRadius: '8px',
+                            fontSize: '0.85rem',
+                            py: 1,
                             '&:hover': {
                               backgroundColor: alreadyPurchased ? '#059669' : '#d97706'
                             },
@@ -668,7 +718,9 @@ const PricingPage = () => {
                             }
                           }}
                         >
-                          {alreadyPurchased ? 'Sotib olingan' : canAfford ? 'Sotib olish' : 'Yulduz yetmaydi'}
+                          {alreadyPurchased ? 'Qolmadi' :
+                           !canAfford ? 'Yulduz yetmaydi' :
+                           isSoldOut ? 'Tugadi' : 'Sotib olish'}
                         </Button>
                       </CardContent>
                     </Card>
@@ -748,14 +800,31 @@ const PricingPage = () => {
                 )}
               </Box>
 
-              <Typography sx={{
-                fontWeight: 600,
-                color: '#1e293b',
-                fontSize: '1.2rem',
-                mb: 1
-              }}>
-                {selectedGift.name}
-              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography sx={{
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  fontSize: '1.2rem'
+                }}>
+                  {selectedGift.name}
+                </Typography>
+                <Chip
+                  label={selectedGift.rarity_display || 'Oddiy'}
+                  size="small"
+                  sx={{
+                    backgroundColor: selectedGift.rarity === 'common' ? '#f3f4f6' :
+                                   selectedGift.rarity === 'rare' ? '#dbeafe' :
+                                   selectedGift.rarity === 'epic' ? '#f3e8ff' :
+                                   selectedGift.rarity === 'legendary' ? '#fef3c7' : '#f3f4f6',
+                    color: selectedGift.rarity === 'common' ? '#374151' :
+                          selectedGift.rarity === 'rare' ? '#1e40af' :
+                          selectedGift.rarity === 'epic' ? '#7c3aed' :
+                          selectedGift.rarity === 'legendary' ? '#d97706' : '#374151',
+                    fontWeight: 600,
+                    fontSize: '0.75rem'
+                  }}
+                />
+              </Box>
 
               {selectedGift.description && (
                 <Typography sx={{

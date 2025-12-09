@@ -328,6 +328,45 @@ class ApiService {
   async giveStars(userId, data) {
     return this.post(`/users/${userId}/give_stars/`, data);
   }
+
+  // Gift methods
+  async getGifts() {
+    return this.get('/gifts/');
+  }
+
+  async createGift(data) {
+    return this.post('/gifts/', data);
+  }
+
+  async updateGift(id, data) {
+    return this.patch(`/gifts/${id}/`, data);
+  }
+
+  async deleteGift(id) {
+    return this.delete(`/gifts/${id}/`);
+  }
+
+  // Student gift methods
+  async getStudentGifts(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    return this.get(`/student-gifts/${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getMyGifts() {
+    return this.get('/student-gifts/my_gifts/');
+  }
+
+  async getPlacedGifts() {
+    return this.get('/student-gifts/placed_gifts/');
+  }
+
+  async purchaseGift(giftId) {
+    return this.post('/student-gifts/purchase_gift/', { gift_id: giftId });
+  }
+
+  async placeGift(studentGiftId, position) {
+    return this.post(`/student-gifts/${studentGiftId}/place_gift/`, { position });
+  }
 }
 
 const apiService = new ApiService();

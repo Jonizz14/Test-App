@@ -56,6 +56,7 @@ class User(AbstractUser):
     premium_emoji_count = models.IntegerField(default=0, help_text="Number of premium emojis available")
     background_gradient = models.JSONField(default=dict, blank=True, help_text="Background gradient settings for premium profile")
     selected_emojis = models.JSONField(default=list, blank=True, help_text="List of selected premium emojis")
+    display_gift = models.ForeignKey('StudentGift', on_delete=models.SET_NULL, null=True, blank=True, related_name='displayed_by', help_text="Gift selected for display next to name")
 
     def save(self, *args, **kwargs):
         # Auto-generate display_id if not set and user is student/teacher
@@ -392,10 +393,18 @@ class StarPackage(models.Model):
 
 class Gift(models.Model):
     """Model to manage gift items that students can purchase with stars"""
+    RARITY_CHOICES = [
+        ('common', 'Oddiy'),
+        ('rare', 'Nodirkor'),
+        ('epic', 'Epik'),
+        ('legendary', 'Afsonaviy'),
+    ]
     name = models.CharField(max_length=100, help_text="Name of the gift")
     description = models.TextField(blank=True, help_text="Description of the gift")
     image = models.ImageField(upload_to='gifts/', help_text="Gift image (should be 300x300px)")
     star_cost = models.IntegerField(help_text="Number of stars required to purchase this gift")
+    rarity = models.CharField(max_length=20, choices=RARITY_CHOICES, default='common', help_text="Rarity level of the gift")
+    gift_count = models.IntegerField(default=0, help_text="Total available quantity of this gift (0 = unlimited)")
     is_active = models.BooleanField(default=True, help_text="Whether this gift is available for purchase")
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)

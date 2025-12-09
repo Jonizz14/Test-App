@@ -543,13 +543,13 @@ class GiftViewSet(viewsets.ModelViewSet):
         if self.request.user.role not in ['admin', 'seller']:
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied("Only admin and seller can manage gifts")
-        serializer.save()
+        return serializer.save()
 
     def perform_update(self, serializer):
         if self.request.user.role not in ['admin', 'seller']:
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied("Only admin and seller can manage gifts")
-        serializer.save()
+        return serializer.save()
 
     def perform_destroy(self, instance):
         if self.request.user.role not in ['admin', 'seller']:

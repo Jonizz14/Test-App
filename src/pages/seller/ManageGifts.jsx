@@ -29,6 +29,12 @@ import {
   Star as StarIcon,
   PhotoCamera as PhotoCameraIcon,
 } from '@mui/icons-material';
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
 
@@ -43,6 +49,8 @@ const ManageGifts = () => {
     name: '',
     description: '',
     star_cost: '',
+    rarity: 'common',
+    gift_count: 0,
     image: null,
     is_active: true
   });
@@ -67,11 +75,13 @@ const ManageGifts = () => {
     if (gift) {
       setEditingGift(gift);
       setFormData({
-        name: gift.name,
-        description: gift.description,
-        star_cost: gift.star_cost,
+        name: gift.name || '',
+        description: gift.description || '',
+        star_cost: gift.star_cost || '',
+        rarity: gift.rarity || 'common',
+        gift_count: gift.gift_count != null ? gift.gift_count : 0, // Handle null/undefined properly
         image: null, // Don't pre-fill image
-        is_active: gift.is_active
+        is_active: gift.is_active !== undefined ? gift.is_active : true
       });
     } else {
       setEditingGift(null);
@@ -79,6 +89,8 @@ const ManageGifts = () => {
         name: '',
         description: '',
         star_cost: '',
+        rarity: 'common',
+        gift_count: 0,
         image: null,
         is_active: true
       });
@@ -93,6 +105,8 @@ const ManageGifts = () => {
       name: '',
       description: '',
       star_cost: '',
+      rarity: 'common',
+      gift_count: 0,
       image: null,
       is_active: true
     });
@@ -100,9 +114,18 @@ const ManageGifts = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+    let newValue = value;
+    
+    // Convert to appropriate type
+    if (type === 'number') {
+      newValue = value === '' ? '' : parseInt(value, 10);
+    } else if (type === 'checkbox') {
+      newValue = checked;
+    }
+    
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: newValue
     }));
   };
 
@@ -122,11 +145,18 @@ const ManageGifts = () => {
       submitData.append('name', formData.name);
       submitData.append('description', formData.description);
       submitData.append('star_cost', formData.star_cost);
+      submitData.append('rarity', formData.rarity);
       submitData.append('is_active', formData.is_active);
 
       if (formData.image) {
         submitData.append('image', formData.image);
       }
+
+      // Always ensure gift_count is included, even if 0
+      const giftCountValue = formData.gift_count === '' || formData.gift_count === undefined ? '0' : String(formData.gift_count);
+      submitData.append('gift_count', giftCountValue);
+
+      console.log('Submitting gift with gift_count:', giftCountValue);
 
       if (editingGift) {
         await apiService.patch(`/gifts/${editingGift.id}/`, submitData);
@@ -141,7 +171,7 @@ const ManageGifts = () => {
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       console.error('Failed to save gift:', error);
-      alert('Sovg\'ani saqlashda xatolik yuz berdi');
+      alert('Sovg\'ani saqlashda xatolik yuz berdi: ' + error.message);
     }
   };
 
@@ -243,6 +273,8 @@ const ManageGifts = () => {
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Nomi</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Tavsif</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Yulduz narxi</TableCell>
+                <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Nadirlik</TableCell>
+                <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Soni</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Status</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Amallar</TableCell>
               </TableRow>
@@ -256,7 +288,7 @@ const ManageGifts = () => {
                 </TableRow>
               ) : gifts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} sx={{ textAlign: 'center', py: 4, color: '#64748b' }}>
+                  <TableCell colSpan={8} sx={{ textAlign: 'center', py: 4, color: '#64748b' }}>
                     Hali sovg'alar yo'q
                   </TableCell>
                 </TableRow>
@@ -319,6 +351,30 @@ const ManageGifts = () => {
                           {gift.star_cost}
                         </Typography>
                       </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={gift.rarity_display || gift.rarity}
+                        sx={{
+                          backgroundColor: gift.rarity === 'common' ? '#f3f4f6' :
+                                          gift.rarity === 'rare' ? '#dbeafe' :
+                                          gift.rarity === 'epic' ? '#f3e8ff' :
+                                          gift.rarity === 'legendary' ? '#fef3c7' : '#f3f4f6',
+                          color: gift.rarity === 'common' ? '#374151' :
+                                gift.rarity === 'rare' ? '#1e40af' :
+                                gift.rarity === 'epic' ? '#7c3aed' :
+                                gift.rarity === 'legendary' ? '#d97706' : '#374151',
+                          fontWeight: 600
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Typography sx={{
+                        fontWeight: 600,
+                        color: '#1e293b'
+                      }}>
+                        {gift.gift_count || 0}
+                      </Typography>
                     </TableCell>
                     <TableCell>
                       <Chip
@@ -402,6 +458,34 @@ const ManageGifts = () => {
                 onChange={handleInputChange}
                 required
                 inputProps={{ min: 1 }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel>Nadirlik darajasi</InputLabel>
+                <Select
+                  name="rarity"
+                  value={formData.rarity}
+                  onChange={handleInputChange}
+                  label="Nadirlik darajasi"
+                >
+                  <MenuItem value="common">Oddiy</MenuItem>
+                  <MenuItem value="rare">Nodirkor</MenuItem>
+                  <MenuItem value="epic">Epik</MenuItem>
+                  <MenuItem value="legendary">Afsonaviy</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Mavjud soni (0 = cheksiz)"
+                name="gift_count"
+                type="number"
+                value={formData.gift_count || 0}
+                onChange={handleInputChange}
+                inputProps={{ min: 0 }}
+                helperText="0 kiriting agar cheksiz bo'lsa"
               />
             </Grid>
             <Grid item xs={12}>
