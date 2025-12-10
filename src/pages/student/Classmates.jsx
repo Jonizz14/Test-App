@@ -9,18 +9,23 @@ import {
   Chip,
   InputAdornment,
   Alert,
-  Table,
-  TableBody,
-  TableCell,
+  Grid,
+  Card,
+  CardContent,
+  Avatar,
   TableContainer,
+  Table,
   TableHead,
   TableRow,
+  TableBody,
+  TableCell,
 } from '@mui/material';
 import {
   Group as GroupIcon,
   Person as PersonIcon,
   CheckCircle as CheckCircleIcon,
   Search as SearchIcon,
+  EmojiEvents as TrophyIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
@@ -90,6 +95,14 @@ const Classmates = () => {
     purple: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
   };
 
+  // Mini float animation for card emojis
+  const miniFloatKeyframes = `
+    @keyframes miniFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-5px) rotate(5deg); }
+    }
+  `;
+
   if (loading) {
     return (
       <Box sx={{
@@ -142,70 +155,15 @@ const Classmates = () => {
   return (
     <Box sx={{
       py: 4,
-      background: currentUser?.is_premium
-        ? GRADIENT_PRESETS[currentUser.background_gradient?.id || 'default'] || GRADIENT_PRESETS.default
-        : '#ffffff',
-      minHeight: '100vh',
-      position: 'relative'
+      backgroundColor: '#ffffff',
+      minHeight: '100vh'
     }}>
-      {/* Floating Emojis Background */}
-      {currentUser?.is_premium && currentUser?.selected_emojis && currentUser.selected_emojis.length > 0 && (
-        <Box sx={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          pointerEvents: 'none',
-          zIndex: 1
-        }}>
-          {currentUser.selected_emojis.map((emoji, index) => (
-            <Box
-              key={index}
-              sx={{
-                position: 'absolute',
-                fontSize: `${Math.random() * 20 + 20}px`, // Random size between 20-40px
-                opacity: 0.6,
-                animation: `float${index % 3} ${Math.random() * 10 + 15}s linear infinite`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                transform: `rotate(${Math.random() * 360}deg)`,
-                '@keyframes float0': {
-                  '0%': { transform: 'translateY(0px) rotate(0deg)' },
-                  '33%': { transform: 'translateY(-20px) rotate(120deg)' },
-                  '66%': { transform: 'translateY(10px) rotate(240deg)' },
-                  '100%': { transform: 'translateY(0px) rotate(360deg)' }
-                },
-                '@keyframes float1': {
-                  '0%': { transform: 'translateX(0px) translateY(0px) rotate(0deg)' },
-                  '25%': { transform: 'translateX(30px) translateY(-15px) rotate(90deg)' },
-                  '50%': { transform: 'translateX(-20px) translateY(25px) rotate(180deg)' },
-                  '75%': { transform: 'translateX(40px) translateY(-10px) rotate(270deg)' },
-                  '100%': { transform: 'translateX(0px) translateY(0px) rotate(360deg)' }
-                },
-                '@keyframes float2': {
-                  '0%': { transform: 'translateX(0px) translateY(0px) scale(1) rotate(0deg)' },
-                  '50%': { transform: 'translateX(50px) translateY(-30px) scale(1.2) rotate(180deg)' },
-                  '100%': { transform: 'translateX(0px) translateY(0px) scale(1) rotate(360deg)' }
-                }
-              }}
-            >
-              {emoji}
-            </Box>
-          ))}
-        </Box>
-      )}
-
       {/* Header */}
       <Box sx={{
         mb: 6,
         pb: 4,
-        borderBottom: '1px solid #e2e8f0',
-        position: 'relative',
-        zIndex: 2
-      }}
-     
-      >
+        borderBottom: '1px solid #e2e8f0'
+      }}>
         <Typography sx={{
           fontSize: '2.5rem',
           fontWeight: 700,
@@ -224,7 +182,7 @@ const Classmates = () => {
       </Box>
 
       {/* Search section */}
-      <Box sx={{ mb: 6, position: 'relative', zIndex: 2 }}>
+      <Box sx={{ mb: 6 }}>
         <Box>
           <Typography sx={{
             fontWeight: 600,
@@ -265,7 +223,7 @@ const Classmates = () => {
       </Box>
 
       {/* Classmates section */}
-      <Box sx={{ mb: 6, position: 'relative', zIndex: 2 }}>
+      <Box sx={{ mb: 6 }}>
         <Typography sx={{
           fontSize: '1.25rem',
           fontWeight: 700,
@@ -275,7 +233,6 @@ const Classmates = () => {
           👥 {filteredClassmates.length} ta sinfdosh topildi
         </Typography>
 
-        <div>
           <TableContainer component={Paper} sx={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
@@ -351,9 +308,26 @@ const Classmates = () => {
                           <Typography sx={{
                             fontWeight: 600,
                             color: '#1e293b',
-                            fontSize: '0.875rem'
+                            fontSize: '0.875rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1
                           }}>
                             {classmate.name}
+                            {classmate.display_gift && classmate.display_gift.gift && classmate.display_gift.gift.image && (
+                              <Box
+                                component="img"
+                                src={classmate.display_gift.gift.image}
+                                sx={{
+                                  width: 24,
+                                  height: 24,
+                                  borderRadius: '4px',
+                                  objectFit: 'cover'
+                                }}
+                                alt={classmate.display_gift.gift.name || 'Gift'}
+                                title={classmate.display_gift.gift.name || 'Gift'}
+                              />
+                            )}
                           </Typography>
                           {classmate.is_premium && (
                             <Typography sx={{
@@ -443,62 +417,53 @@ const Classmates = () => {
               </TableBody>
             </Table>
           </TableContainer>
-        
       </Box>
 
       {/* No results message */}
       {filteredClassmates.length === 0 && classmates.length > 0 && (
-        <div>
-          <Paper sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            p: 6,
-            textAlign: 'center',
-            position: 'relative',
-            zIndex: 2
+        <Paper sx={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          p: 6,
+          textAlign: 'center'
+        }}>
+          <Typography variant="h6" sx={{
+            color: '#64748b',
+            fontWeight: 600,
+            mb: 2
           }}>
-            <Typography variant="h6" sx={{
-              color: '#64748b',
-              fontWeight: 600,
-              mb: 2
-            }}>
-              Sizning qidiruvingizga mos sinfdosh topilmadi
-            </Typography>
-            <Typography sx={{ color: '#94a3b8' }}>
-              Qidiruv so'zini o'zgartirib ko'ring
-            </Typography>
-          </Paper>
-        
+            Sizning qidiruvingizga mos sinfdosh topilmadi
+          </Typography>
+          <Typography sx={{ color: '#94a3b8' }}>
+            Qidiruv so'zini o'zgartirib ko'ring
+          </Typography>
+        </Paper>
       )}
 
       {/* No classmates message */}
       {classmates.length === 0 && (
-        <div>
-          <Paper sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            p: 6,
-            textAlign: 'center',
-            position: 'relative',
-            zIndex: 2
+        <Paper sx={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          p: 6,
+          textAlign: 'center'
+        }}>
+          <GroupIcon sx={{ fontSize: '4rem', color: '#cbd5e1', mb: 2 }} />
+          <Typography variant="h6" sx={{
+            color: '#64748b',
+            fontWeight: 600,
+            mb: 2
           }}>
-            <GroupIcon sx={{ fontSize: '4rem', color: '#cbd5e1', mb: 2 }} />
-            <Typography variant="h6" sx={{
-              color: '#64748b',
-              fontWeight: 600,
-              mb: 2
-            }}>
-              Sinfdoshlar topilmadi
-            </Typography>
-            <Typography sx={{ color: '#94a3b8' }}>
-              Sizning sinfingizda boshqa o'quvchilar yo'q
-            </Typography>
-          </Paper>
-        
+            Sinfdoshlar topilmadi
+          </Typography>
+          <Typography sx={{ color: '#94a3b8' }}>
+            Sizning sinfingizda boshqa o'quvchilar yo'q
+          </Typography>
+        </Paper>
       )}
     </Box>
   );

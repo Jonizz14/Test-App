@@ -50,7 +50,6 @@ const ManageGifts = () => {
     description: '',
     star_cost: '',
     rarity: 'common',
-    gift_count: 0,
     image: null,
     is_active: true
   });
@@ -79,7 +78,6 @@ const ManageGifts = () => {
         description: gift.description || '',
         star_cost: gift.star_cost || '',
         rarity: gift.rarity || 'common',
-        gift_count: gift.gift_count != null ? gift.gift_count : 0, // Handle null/undefined properly
         image: null, // Don't pre-fill image
         is_active: gift.is_active !== undefined ? gift.is_active : true
       });
@@ -106,7 +104,6 @@ const ManageGifts = () => {
       description: '',
       star_cost: '',
       rarity: 'common',
-      gift_count: 0,
       image: null,
       is_active: true
     });
@@ -274,7 +271,6 @@ const ManageGifts = () => {
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Tavsif</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Yulduz narxi</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Nadirlik</TableCell>
-                <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Soni</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Status</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Amallar</TableCell>
               </TableRow>
@@ -288,7 +284,7 @@ const ManageGifts = () => {
                 </TableRow>
               ) : gifts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} sx={{ textAlign: 'center', py: 4, color: '#64748b' }}>
+                  <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4, color: '#64748b' }}>
                     Hali sovg'alar yo'q
                   </TableCell>
                 </TableRow>
@@ -367,14 +363,6 @@ const ManageGifts = () => {
                           fontWeight: 600
                         }}
                       />
-                    </TableCell>
-                    <TableCell>
-                      <Typography sx={{
-                        fontWeight: 600,
-                        color: '#1e293b'
-                      }}>
-                        {gift.gift_count || 0}
-                      </Typography>
                     </TableCell>
                     <TableCell>
                       <Chip
@@ -475,18 +463,6 @@ const ManageGifts = () => {
                   <MenuItem value="legendary">Afsonaviy</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Mavjud soni (0 = cheksiz)"
-                name="gift_count"
-                type="number"
-                value={formData.gift_count || 0}
-                onChange={handleInputChange}
-                inputProps={{ min: 0 }}
-                helperText="0 kiriting agar cheksiz bo'lsa"
-              />
             </Grid>
             <Grid item xs={12}>
               <TextField

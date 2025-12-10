@@ -52,6 +52,7 @@ import StudentProfile from './student/StudentProfile';
 import StudentProfileView from './student/StudentProfileView';
 import TeacherDetails from './student/TeacherDetails';
 import PricingPage from './student/PricingPage';
+import Classmates from './student/Classmates';
 
 const StudentDashboard = () => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -89,6 +90,7 @@ const StudentDashboard = () => {
   const menuItems = [
     { text: 'Asosiy', icon: <DashboardIcon />, path: '/student' },
     { text: 'O\'qituvchilarni izlash', icon: <SearchIcon />, path: '/student/search' },
+    { text: 'Sinfdoshlar', icon: <PersonIcon />, path: '/student/classmates' },
     { text: 'Test topshirish', icon: <PlayArrowIcon />, path: '/student/take-test' },
     { text: 'Mening natijalarim', icon: <AssignmentTurnedInIcon />, path: '/student/results' },
     { text: 'Qabul qilingan darslar', icon: <SchoolIcon />, path: '/student/lessons' },
@@ -350,6 +352,7 @@ const StudentDashboard = () => {
             <Routes>
               <Route path="/" element={<StudentOverview />} />
               <Route path="/search" element={<SearchTeachers />} />
+              <Route path="/classmates" element={<Classmates />} />
               <Route path="/teacher-details/:teacherId" element={<TeacherDetails />} />
               <Route path="/take-test" element={<TakeTest />} />
               <Route path="/submit-test" element={<SubmitTest />} />
