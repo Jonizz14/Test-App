@@ -27,6 +27,7 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
+import { shouldShowPremiumFeatures } from '../../utils/premiumVisibility';
 
 const StudentProfileView = () => {
   const { id } = useParams();
@@ -178,11 +179,11 @@ const StudentProfileView = () => {
       <Paper sx={{
         p: 0,
         mb: 4,
-        background: student.is_premium && student.background_gradient
-          ? (typeof student.background_gradient === 'string' 
-              ? JSON.parse(student.background_gradient).css 
+        background: shouldShowPremiumFeatures(student, currentUser) && student.background_gradient
+          ? (typeof student.background_gradient === 'string'
+              ? JSON.parse(student.background_gradient).css
               : student.background_gradient.css)
-          : student.is_premium
+          : shouldShowPremiumFeatures(student, currentUser)
             ? `
               radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
               radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
@@ -198,7 +199,7 @@ const StudentProfileView = () => {
       }}
       >
         {/* Premium Badge */}
-        {student.is_premium && (
+        {shouldShowPremiumFeatures(student, currentUser) && (
           <Box sx={{
             position: 'absolute',
             top: 20,
@@ -255,7 +256,7 @@ const StudentProfileView = () => {
           `}</style>
           
           {/* Emoji Background for Premium Users */}
-          {student.is_premium && student.selected_emojis && student.selected_emojis.length > 0 && (
+          {shouldShowPremiumFeatures(student, currentUser) && student.selected_emojis && student.selected_emojis.length > 0 && (
             <Box sx={{
               position: 'absolute',
               top: 0,
@@ -371,7 +372,7 @@ const StudentProfileView = () => {
                   height: 150,
                   border: '4px solid rgba(255, 255, 255, 0.8)',
                   boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                  backgroundColor: student.is_premium ? '#ffffff' : '#2563eb'
+                  backgroundColor: shouldShowPremiumFeatures(student, currentUser) ? '#ffffff' : '#2563eb'
                 }}
                 imgProps={{
                   style: { objectFit: 'cover' }
@@ -387,15 +388,15 @@ const StudentProfileView = () => {
                 fontWeight: 'bold',
                 border: '4px solid rgba(255, 255, 255, 0.8)',
                 boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                backgroundColor: student.is_premium ? '#ffffff' : '#2563eb',
-                color: student.is_premium ? '#2563eb' : '#ffffff'
+                backgroundColor: shouldShowPremiumFeatures(student, currentUser) ? '#ffffff' : '#2563eb',
+                color: shouldShowPremiumFeatures(student, currentUser) ? '#2563eb' : '#ffffff'
               }}>
                 {student.name.charAt(0).toUpperCase()}
               </Avatar>
             )}
 
             {/* Premium Checkmark */}
-            {student.is_premium && (
+            {shouldShowPremiumFeatures(student, currentUser) && (
               <Box sx={{
                 position: 'absolute',
                 bottom: 10,

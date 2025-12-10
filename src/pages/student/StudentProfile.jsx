@@ -33,6 +33,7 @@ import { useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
 import EmojiPicker from '../../components/EmojiPicker';
 import GradientPicker from '../../components/GradientPicker';
+import { shouldShowPremiumFeatures } from '../../utils/premiumVisibility';
 
 const StudentProfile = () => {
   const { currentUser, setCurrentUserData, logout } = useAuth();
@@ -368,7 +369,7 @@ const StudentProfile = () => {
           </Button>
 
           {/* Edit Button for Premium Users */}
-          {currentUser?.is_premium && (
+          {shouldShowPremiumFeatures(currentUser, currentUser) && (
             <Button
               variant="contained"
               size="large"
@@ -417,9 +418,9 @@ const StudentProfile = () => {
       <Paper sx={{
         p: 0,
         mb: 4,
-        background: currentUser?.is_premium && selectedGradient?.css
+        background: shouldShowPremiumFeatures(currentUser, currentUser) && selectedGradient?.css
           ? selectedGradient.css
-          : currentUser?.is_premium
+          : shouldShowPremiumFeatures(currentUser, currentUser)
             ? `
               radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
               radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
@@ -434,7 +435,7 @@ const StudentProfile = () => {
         border: '1px solid rgba(255, 255, 255, 0.1)'
       }}>
         {/* Premium Badge */}
-        {currentUser?.is_premium && (
+        {shouldShowPremiumFeatures(currentUser, currentUser) && (
           <Box sx={{
             position: 'absolute',
             top: 20,
@@ -490,7 +491,7 @@ const StudentProfile = () => {
             `).join('')}
           `}</style>
           {/* Emoji Background for Premium Users */}
-          {currentUser?.is_premium && selectedEmojis.length > 0 && (
+          {shouldShowPremiumFeatures(currentUser, currentUser) && selectedEmojis.length > 0 && (
             <Box sx={{
               position: 'absolute',
               top: 0,
@@ -652,7 +653,7 @@ const StudentProfile = () => {
                   height: 150,
                   border: '4px solid rgba(255, 255, 255, 0.8)',
                   boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                  backgroundColor: currentUser?.is_premium ? '#ffffff' : '#2563eb'
+                  backgroundColor: shouldShowPremiumFeatures(currentUser, currentUser) ? '#ffffff' : '#2563eb'
                 }}
                 imgProps={{
                   style: { objectFit: 'cover' }
@@ -668,15 +669,15 @@ const StudentProfile = () => {
                 fontWeight: 'bold',
                 border: '4px solid rgba(255, 255, 255, 0.8)',
                 boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                backgroundColor: currentUser?.is_premium ? '#ffffff' : '#2563eb',
-                color: currentUser?.is_premium ? '#2563eb' : '#ffffff'
+                backgroundColor: shouldShowPremiumFeatures(currentUser, currentUser) ? '#ffffff' : '#2563eb',
+                color: shouldShowPremiumFeatures(currentUser, currentUser) ? '#2563eb' : '#ffffff'
               }}>
                 {currentUser?.name.charAt(0).toUpperCase()}
               </Avatar>
             )}
 
             {/* Premium Checkmark */}
-            {currentUser?.is_premium && (
+            {shouldShowPremiumFeatures(currentUser, currentUser) && (
               <Box sx={{
                 position: 'absolute',
                 bottom: 10,
@@ -700,7 +701,7 @@ const StudentProfile = () => {
           <Box sx={{
             textAlign: { xs: 'center', md: 'left' },
             flex: 1,
-            color: currentUser?.is_premium ? '#ffffff' : '#1e293b',
+            color: shouldShowPremiumFeatures(currentUser, currentUser) ? '#ffffff' : '#1e293b',
             position: 'relative',
             zIndex: 2
           }}>
@@ -758,7 +759,7 @@ const StudentProfile = () => {
               )}
               <Typography variant="h3" sx={{
                 fontWeight: 700,
-                textShadow: currentUser?.is_premium ? '0 2px 4px rgba(0,0,0,0.3)' : 'none',
+                textShadow: shouldShowPremiumFeatures(currentUser, currentUser) ? '0 2px 4px rgba(0,0,0,0.3)' : 'none',
                 cursor: !displayGift ? 'pointer' : 'default',
                 '&:hover': !displayGift ? { textDecoration: 'underline' } : {}
               }} onClick={!displayGift ? () => setDisplayGiftDialogOpen(true) : undefined}>
@@ -771,7 +772,7 @@ const StudentProfile = () => {
                 mb: 3,
                 fontStyle: 'italic',
                 opacity: 0.9,
-                textShadow: currentUser?.is_premium ? '0 1px 2px rgba(0,0,0,0.3)' : 'none'
+                textShadow: shouldShowPremiumFeatures(currentUser, currentUser) ? '0 1px 2px rgba(0,0,0,0.3)' : 'none'
               }}>
                 "{currentUser.profile_status}"
               </Typography>
@@ -781,27 +782,27 @@ const StudentProfile = () => {
               <Chip
                 label="O'quvchi"
                 sx={{
-                  backgroundColor: currentUser?.is_premium ? 'rgba(255, 255, 255, 0.2)' : '#ecfdf5',
-                  color: currentUser?.is_premium ? '#ffffff' : '#059669',
-                  border: currentUser?.is_premium ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
+                  backgroundColor: shouldShowPremiumFeatures(currentUser, currentUser) ? 'rgba(255, 255, 255, 0.2)' : '#ecfdf5',
+                  color: shouldShowPremiumFeatures(currentUser, currentUser) ? '#ffffff' : '#059669',
+                  border: shouldShowPremiumFeatures(currentUser, currentUser) ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
                   fontWeight: 600
                 }}
               />
               <Chip
                 label={`${currentUser?.class_group || 'Noma\'lum'} sinf`}
                 sx={{
-                  backgroundColor: currentUser?.is_premium ? 'rgba(255, 255, 255, 0.2)' : '#eff6ff',
-                  color: currentUser?.is_premium ? '#ffffff' : '#2563eb',
-                  border: currentUser?.is_premium ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
+                  backgroundColor: shouldShowPremiumFeatures(currentUser, currentUser) ? 'rgba(255, 255, 255, 0.2)' : '#eff6ff',
+                  color: shouldShowPremiumFeatures(currentUser, currentUser) ? '#ffffff' : '#2563eb',
+                  border: shouldShowPremiumFeatures(currentUser, currentUser) ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
                   fontWeight: 600
                 }}
               />
               <Chip
                 label={currentUser?.direction === 'natural' ? 'Tabiiy fanlar' : currentUser?.direction === 'exact' ? 'Aniq fanlar' : 'Yo\'nalish yo\'q'}
                 sx={{
-                  backgroundColor: currentUser?.is_premium ? 'rgba(255, 255, 255, 0.2)' : '#f3f4f6',
-                  color: currentUser?.is_premium ? '#ffffff' : '#374151',
-                  border: currentUser?.is_premium ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
+                  backgroundColor: shouldShowPremiumFeatures(currentUser, currentUser) ? 'rgba(255, 255, 255, 0.2)' : '#f3f4f6',
+                  color: shouldShowPremiumFeatures(currentUser, currentUser) ? '#ffffff' : '#374151',
+                  border: shouldShowPremiumFeatures(currentUser, currentUser) ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
                   fontWeight: 600
                 }}
               />
@@ -1441,7 +1442,7 @@ const StudentProfile = () => {
         <DialogContent>
           <Box sx={{ pt: 2 }}>
             {/* Gradient Selection - Prominent Button */}
-            {currentUser?.is_premium && (
+            {shouldShowPremiumFeatures(currentUser, currentUser) && (
               <Box sx={{ mb: 4 }}>
                 <Button
                   fullWidth
@@ -1547,7 +1548,7 @@ const StudentProfile = () => {
             </Box>
 
             {/* Emoji Selection for Premium Users */}
-            {currentUser?.is_premium && (
+            {shouldShowPremiumFeatures(currentUser, currentUser) && (
               <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: '#1e293b' }}>
                   😊 Emojilar

@@ -57,6 +57,8 @@ class User(AbstractUser):
     background_gradient = models.JSONField(default=dict, blank=True, help_text="Background gradient settings for premium profile")
     selected_emojis = models.JSONField(default=list, blank=True, help_text="List of selected premium emojis")
     display_gift = models.ForeignKey('StudentGift', on_delete=models.SET_NULL, null=True, blank=True, related_name='displayed_by', help_text="Gift selected for display next to name")
+    hide_premium_from_others = models.BooleanField(default=False, help_text="Hide premium status from other users")
+    hide_premium_from_self = models.BooleanField(default=False, help_text="Hide premium status from self")
 
     def save(self, *args, **kwargs):
         # Auto-generate display_id if not set and user is student/teacher
@@ -150,6 +152,21 @@ class User(AbstractUser):
             'granted_date': self.premium_granted_date,
             'expiry_date': self.premium_expiry_date
         }
+
+    def should_show_premium_features(self, viewer_user=None):
+        """
+        Check if premium features should be visible to a viewer.
+        If viewer_user is None, it means the user is viewing their own profile.
+        """
+        if not self.is_premium:
+            return False
+
+        # If viewing self
+        if viewer_user is None:
+            return not self.hide_premium_from_self
+
+        # If viewing others
+        return not self.hide_premium_from_others
 
     def use_premium_balance(self, amount=1):
         """Use premium balance for performance-based premium"""

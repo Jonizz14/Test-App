@@ -26,6 +26,7 @@ import {
   CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material';
 import apiService from '../../data/apiService';
+import { shouldShowPremiumFeatures } from '../../utils/premiumVisibility';
 
 const StudentDetails = () => {
   const { id } = useParams();
@@ -159,9 +160,9 @@ const StudentDetails = () => {
       <Paper sx={{
         p: 0,
         mb: 4,
-        background: student.is_premium && student.background_gradient?.css
+        background: shouldShowPremiumFeatures(student, null) && student.background_gradient?.css
           ? student.background_gradient.css
-          : student.is_premium
+          : shouldShowPremiumFeatures(student, null)
             ? `
               radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
               radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
@@ -176,7 +177,7 @@ const StudentDetails = () => {
         border: '1px solid rgba(255, 255, 255, 0.1)'
       }}>
         {/* Premium Badge */}
-        {student.is_premium && (
+        {shouldShowPremiumFeatures(student, null) && (
           <Box sx={{
             position: 'absolute',
             top: 20,
@@ -232,7 +233,7 @@ const StudentDetails = () => {
             `).join('')}
           `}</style>
           {/* Emoji Background for Premium Users */}
-          {student.is_premium && student.selected_emojis && student.selected_emojis.length > 0 && (
+          {shouldShowPremiumFeatures(student, null) && student.selected_emojis && student.selected_emojis.length > 0 && (
             <Box sx={{
               position: 'absolute',
               top: 0,
@@ -336,7 +337,7 @@ const StudentDetails = () => {
                   height: 150,
                   border: '4px solid rgba(255, 255, 255, 0.8)',
                   boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                  backgroundColor: student.is_premium ? '#ffffff' : '#2563eb'
+                  backgroundColor: shouldShowPremiumFeatures(student, null) ? '#ffffff' : '#2563eb'
                 }}
                 imgProps={{
                   style: { objectFit: 'cover' }
@@ -352,15 +353,15 @@ const StudentDetails = () => {
                 fontWeight: 'bold',
                 border: '4px solid rgba(255, 255, 255, 0.8)',
                 boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                backgroundColor: student.is_premium ? '#ffffff' : '#2563eb',
-                color: student.is_premium ? '#2563eb' : '#ffffff'
+                backgroundColor: shouldShowPremiumFeatures(student, null) ? '#ffffff' : '#2563eb',
+                color: shouldShowPremiumFeatures(student, null) ? '#2563eb' : '#ffffff'
               }}>
                 {student.name.charAt(0).toUpperCase()}
               </Avatar>
             )}
 
             {/* Premium Checkmark */}
-            {student.is_premium && (
+            {shouldShowPremiumFeatures(student, null) && (
               <Box sx={{
                 position: 'absolute',
                 bottom: 10,
