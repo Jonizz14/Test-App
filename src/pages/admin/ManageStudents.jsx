@@ -25,20 +25,29 @@ import {
   Tooltip,
   InputAdornment,
   Avatar,
+  Tabs,
+  Tab,
+  Switch,
+  FormControlLabel,
 } from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon, Block as BlockIcon, CheckCircle as CheckCircleIcon, Edit as EditIcon, Search as SearchIcon, Info as InfoIcon } from '@mui/icons-material';
+import { Add as AddIcon, Delete as DeleteIcon, Block as BlockIcon, CheckCircle as CheckCircleIcon, Edit as EditIcon, Search as SearchIcon, Info as InfoIcon, Save as SaveIcon, Cancel as CancelIcon, Group as GroupIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
 
 const ManageStudents = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState(0);
   const [students, setStudents] = useState([]);
+  const [teachers, setTeachers] = useState([]);
   const [attempts, setAttempts] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState(null);
   const [studentToEdit, setStudentToEdit] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [editData, setEditData] = useState({});
+  const [expandedClasses, setExpandedClasses] = useState(new Set());
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -51,21 +60,23 @@ const ManageStudents = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    const loadStudents = async () => {
+    const loadData = async () => {
       try {
         const [allUsers, allAttempts] = await Promise.all([
           apiService.getUsers(),
           apiService.getAttempts()
         ]);
         const allStudents = allUsers.filter(user => user.role === 'student');
+        const allTeachers = allUsers.filter(user => user.role === 'teacher');
         setStudents(allStudents);
+        setTeachers(allTeachers);
         setAttempts(allAttempts.results || allAttempts);
       } catch (error) {
-        console.error('Failed to load students:', error);
+        console.error('Failed to load data:', error);
       }
     };
 
-    loadStudents();
+    loadData();
   }, []);
 
   const generateStudentId = (firstName, lastName, classGroup, direction, randomDigits) => {
@@ -203,7 +214,6 @@ const ManageStudents = () => {
     setEditDialogOpen(true);
   };
 
-
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -255,7 +265,9 @@ const ManageStudents = () => {
         apiService.getAttempts()
       ]);
       const allStudents = allUsers.filter(user => user.role === 'student');
+      const allTeachers = allUsers.filter(user => user.role === 'teacher');
       setStudents(allStudents);
+      setTeachers(allTeachers);
       setAttempts(allAttempts.results || allAttempts);
       setSuccess('O\'quvchi muvaffaqiyatli bloklandi!');
     } catch (error) {
@@ -273,7 +285,9 @@ const ManageStudents = () => {
         apiService.getAttempts()
       ]);
       const allStudents = allUsers.filter(user => user.role === 'student');
+      const allTeachers = allUsers.filter(user => user.role === 'teacher');
       setStudents(allStudents);
+      setTeachers(allTeachers);
       setAttempts(allAttempts.results || allAttempts);
       setSuccess('O\'quvchi muvaffaqiyatli blokdan chiqarildi!');
     } catch (error) {
@@ -282,10 +296,51 @@ const ManageStudents = () => {
     }
   };
 
+  const handleEdit = (item) => {
+    setEditingId(item.id);
+    setEditData({
+      class_group: item.class_group || '',
+      direction: item.direction || 'natural',
+      is_banned: item.is_banned || false,
+    });
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setEditData({});
+  };
+
+  const handleSave = async () => {
+    try {
+      await apiService.put(`/users/${editingId}/`, editData);
+      // Reload data
+      const [allUsers, allAttempts] = await Promise.all([
+        apiService.getUsers(),
+        apiService.getAttempts()
+      ]);
+      const allStudents = allUsers.filter(user => user.role === 'student');
+      setStudents(allStudents);
+      setAttempts(allAttempts.results || allAttempts);
+      setEditingId(null);
+      setEditData({});
+      setSuccess('Ma\'lumotlar muvaffaqiyatli saqlandi');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error) {
+      console.error('Failed to save:', error);
+      setError('Saqlashda xatolik yuz berdi');
+    }
+  };
+
+  const handleInputChange = (field, value) => {
+    setEditData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const getDirectionLabel = (direction) => {
     return direction === 'natural' ? 'Tabiiy fanlar' : 'Aniq fanlar';
   };
-
 
   const getStudentAttemptCount = (studentId) => {
     return attempts.filter(attempt => attempt.student === studentId).length;
@@ -307,7 +362,65 @@ const ManageStudents = () => {
     return new Date(lastAttempt.completed_at).toLocaleString('uz-UZ');
   };
 
-  // Filter students based on search term
+  // Group students by class
+  const groupStudentsByClass = () => {
+    const classGroups = {};
+    students.forEach(student => {
+      const classGroup = student.class_group || 'Noma\'lum';
+      if (!classGroups[classGroup]) {
+        classGroups[classGroup] = [];
+      }
+      classGroups[classGroup].push(student);
+    });
+    return classGroups;
+  };
+
+  // Get class statistics
+  const getClassStatistics = (classStudents) => {
+    if (classStudents.length === 0) return { totalStudents: 0, averageScore: 0, totalAttempts: 0 };
+
+    let totalScore = 0;
+    let totalAttempts = 0;
+    let studentsWithAttempts = 0;
+
+    classStudents.forEach(student => {
+      const studentAttempts = attempts.filter(attempt => attempt.student === student.id);
+      totalAttempts += studentAttempts.length;
+
+      if (studentAttempts.length > 0) {
+        const studentAverage = studentAttempts.reduce((sum, attempt) => sum + (attempt.score || 0), 0) / studentAttempts.length;
+        totalScore += studentAverage;
+        studentsWithAttempts++;
+      }
+    });
+
+    return {
+      totalStudents: classStudents.length,
+      averageScore: studentsWithAttempts > 0 ? Math.round(totalScore / studentsWithAttempts) : 0,
+      totalAttempts: totalAttempts
+    };
+  };
+
+  // Get class curator
+  const getClassCurator = (classGroup) => {
+    return teachers.find(teacher => teacher.curator_class === classGroup);
+  };
+
+  // Toggle class expansion
+  const toggleClassExpansion = (classGroup) => {
+    const newExpanded = new Set(expandedClasses);
+    if (newExpanded.has(classGroup)) {
+      newExpanded.delete(classGroup);
+    } else {
+      newExpanded.add(classGroup);
+    }
+    setExpandedClasses(newExpanded);
+  };
+
+  const classGroups = groupStudentsByClass();
+  const sortedClasses = Object.keys(classGroups).sort();
+
+  // Filter students and classes based on search term
   const filteredStudents = students.filter(student => {
     if (!searchTerm) return true;
 
@@ -319,59 +432,85 @@ const ManageStudents = () => {
            displayId.toLowerCase().includes(searchLower);
   });
 
+  const filteredClasses = sortedClasses.filter(classGroup => {
+    if (!searchTerm) return true;
+
+    const searchLower = searchTerm.toLowerCase();
+    const classStudents = classGroups[classGroup];
+
+    // Check class name
+    if (classGroup.toLowerCase().includes(searchLower)) return true;
+
+    // Check curator name
+    const curator = getClassCurator(classGroup);
+    if (curator && curator.name && curator.name.toLowerCase().includes(searchLower)) return true;
+
+    // Check student names
+    return classStudents.some(student => {
+      const name = student.name || '';
+      const displayId = student.display_id || student.username || '';
+      return name.toLowerCase().includes(searchLower) || displayId.toLowerCase().includes(searchLower);
+    });
+  });
+
   return (
-    <Box sx={{
-      py: 4,
-      backgroundColor: '#ffffff'
-    }}>
+    <Box sx={{ py: 4 }}>
+      {/* Header */}
       <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}
-      >
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b'
-        }}>
+      }}>
+        <Typography
+          sx={{
+            fontSize: '2.5rem',
+            fontWeight: 700,
+            color: '#1e293b',
+            mb: 2
+          }}
+        >
           O'quvchilarni boshqarish
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setDialogOpen(true)}
+        <Typography sx={{
+          fontSize: '1.125rem',
+          color: '#64748b',
+          fontWeight: 400
+        }}>
+          O'quvchilar va sinflar ma'lumotlarini boshqaring
+        </Typography>
+      </Box>
+
+      {/* Tabs */}
+      <Box sx={{ mb: 4 }}>
+        <Tabs
+          value={activeTab}
+          onChange={(e, newValue) => setActiveTab(newValue)}
           sx={{
-            backgroundColor: '#2563eb',
-            color: '#ffffff',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            fontWeight: 600,
-            textTransform: 'none',
-            '&:hover': {
-              backgroundColor: '#1d4ed8',
+            borderBottom: 1,
+            borderColor: 'divider',
+            '& .MuiTab-root': {
+              textTransform: 'none',
+              fontSize: '1rem',
+              fontWeight: 500,
+              minHeight: 48,
+              color: '#64748b',
+              '&.Mui-selected': {
+                color: '#2563eb',
+              }
             }
           }}
         >
-          O'quvchi qo'shish
-        </Button>
+          <Tab label="👥 O'quvchilar" />
+          <Tab label="🏫 Sinflar" />
+        </Tabs>
       </Box>
 
-      {success && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          {success}
-        </Alert>
-      )}
-
-      {/* Search Input */}
-      <Box sx={{ mb: 4 }}>
+      {/* Search and Add Button */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <TextField
           fullWidth
           variant="outlined"
-          placeholder="O'quvchi nomini yoki ID sini qidirish..."
+          placeholder="O'quvchi yoki sinf nomini qidirish..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           InputProps={{
@@ -382,6 +521,7 @@ const ManageStudents = () => {
             ),
           }}
           sx={{
+            mr: 2,
             '& .MuiOutlinedInput-root': {
               borderRadius: '8px',
               backgroundColor: '#ffffff',
@@ -395,312 +535,342 @@ const ManageStudents = () => {
             }
           }}
         />
-        {searchTerm && (
-          <Typography sx={{ mt: 1, color: '#64748b', fontSize: '0.875rem' }}>
-            {filteredStudents.length} ta o'quvchi topildi
-          </Typography>
-        )}
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => setDialogOpen(true)}
+          sx={{
+            backgroundColor: '#2563eb',
+            color: '#ffffff',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            fontWeight: 600,
+            textTransform: 'none',
+            whiteSpace: 'nowrap',
+            '&:hover': {
+              backgroundColor: '#1d4ed8',
+            }
+          }}
+        >
+          O'quvchi qo'shish
+        </Button>
       </Box>
 
-      
-        <TableContainer component={Paper} sx={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-        }}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{
-              backgroundColor: '#f8fafc',
-              '& th': {
-                fontWeight: 700,
-                fontSize: '0.875rem',
-                color: '#1e293b',
-                borderBottom: '1px solid #e2e8f0',
-                padding: '16px'
-              }
-            }}>
-              <TableCell>Rasm</TableCell>
-              <TableCell>ID</TableCell>
-              <TableCell>To'liq ism</TableCell>
-              <TableCell>Sinf</TableCell>
-              <TableCell>Yo'nalish</TableCell>
-              <TableCell>Test urinishlari</TableCell>
-              <TableCell>O'rtacha ball</TableCell>
-              <TableCell>Oxirgi kirish</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Unban kodi</TableCell>
-              <TableCell>Harakatlar</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredStudents.map((student) => (
-              <TableRow key={student.id} sx={{
-                '&:hover': {
-                  backgroundColor: '#f8fafc',
-                },
-                '& td': {
-                  borderBottom: '1px solid #f1f5f9',
-                  padding: '16px',
-                  fontSize: '0.875rem',
-                  color: '#334155'
-                }
-              }}>
-                <TableCell>
-                  {student.is_premium && student.profile_photo_url ? (
-                    <Avatar
-                      src={student.profile_photo_url}
-                      sx={{
-                        width: 32,
-                        height: 32,
-                        border: '2px solid #e2e8f0'
-                      }}
-                      imgProps={{
-                        style: { objectFit: 'cover' }
-                      }}
-                    />
-                  ) : (
-                    <Box sx={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: '50%',
-                      backgroundColor: '#f1f5f9',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      border: '2px solid #e2e8f0'
-                    }}>
-                      <Typography sx={{
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
-                        color: '#64748b'
-                      }}>
-                        -
-                      </Typography>
-                    </Box>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Typography sx={{
-                    fontFamily: 'monospace',
-                    fontWeight: 600,
-                    fontSize: '0.75rem',
-                    backgroundColor: '#f1f5f9',
-                    padding: '4px 8px',
-                    borderRadius: '6px',
-                    color: '#475569',
-                    display: 'inline-block'
-                  }}>
-                    {student.display_id || student.username}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography sx={{ 
-                    fontWeight: 600, 
-                    color: '#1e293b',
-                    fontSize: '0.875rem'
-                  }}>
-                    {student.name}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography sx={{ 
-                    fontWeight: 600,
-                    color: '#1e293b',
-                    fontSize: '0.875rem'
-                  }}>
-                    {student.class_group}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={getDirectionLabel(student.direction)}
-                    size="small"
-                    sx={{
-                      backgroundColor: student.direction === 'natural' ? '#ecfdf5' : '#eff6ff',
-                      color: student.direction === 'natural' ? '#059669' : '#2563eb',
-                      fontWeight: 600,
-                      borderRadius: '6px',
-                      fontSize: '0.75rem'
-                    }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Typography sx={{ 
-                    fontWeight: 700,
-                    color: '#2563eb',
-                    fontSize: '1.125rem'
-                  }}>
-                    {getStudentAttemptCount(student.id)}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography sx={{
-                    fontWeight: 700,
-                    color: '#059669',
-                    fontSize: '1.125rem'
-                  }}>
-                    {getStudentAverageScore(student.id)}%
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography sx={{
-                    fontWeight: 500,
-                    color: '#1e293b',
-                    fontSize: '0.875rem'
-                  }}>
-                    {student.last_login ? new Date(student.last_login).toLocaleString('uz-UZ') : '-'}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={student.is_banned ? 'Bloklangan' : 'Faol'}
-                    size="small"
-                    sx={{
-                      backgroundColor: student.is_banned ? '#fef2f2' : '#ecfdf5',
-                      color: student.is_banned ? '#dc2626' : '#059669',
-                      fontWeight: 600,
-                      borderRadius: '6px',
-                      fontSize: '0.75rem'
-                    }}
-                  />
-                </TableCell>
-                <TableCell>
-                  {student.is_banned && student.unban_code ? (
-                    <Tooltip title="Bu kod o'quvchi uchun unikal">
-                      <Typography sx={{
-                        fontFamily: 'monospace',
-                        fontWeight: 700,
-                        fontSize: '0.875rem',
-                        backgroundColor: '#fef2f2',
-                        color: '#dc2626',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        display: 'inline-block',
-                        letterSpacing: '1px'
-                      }}>
-                        {student.unban_code}
-                      </Typography>
-                    </Tooltip>
-                  ) : (
-                    <Typography sx={{
-                      fontSize: '0.75rem',
-                      color: '#94a3b8'
-                    }}>
-                      -
-                    </Typography>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => navigate(`/admin/student-details/${student.id}`)}
-                      startIcon={<InfoIcon />}
-                      sx={{
-                        fontSize: '0.75rem',
-                        padding: '4px 8px',
-                        minWidth: 'auto',
-                        borderColor: '#2563eb',
-                        color: '#2563eb',
-                        '&:hover': {
-                          backgroundColor: '#eff6ff',
-                          borderColor: '#1d4ed8',
-                        }
-                      }}
-                    >
-                      Batafsil
-                    </Button>
-                    <Tooltip title="Tahrirlash">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleEditClick(student)}
-                        sx={{
-                          color: '#059669',
-                          '&:hover': {
-                            backgroundColor: '#ecfdf5',
-                          }
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>
-                    {student.is_banned ? (
-                      <Tooltip title="Blokdan chiqarish">
-                        <IconButton
-                          size="small"
-                          onClick={() => handleUnbanStudent(student.id)}
-                          sx={{
-                            color: '#059669',
-                            '&:hover': {
-                              backgroundColor: '#ecfdf5',
-                            }
-                          }}
-                        >
-                          <CheckCircleIcon />
-                        </IconButton>
-                      </Tooltip>
-                    ) : (
-                      <Tooltip title="Bloklash">
-                        <IconButton
-                          size="small"
-                          onClick={() => handleBanStudent(student.id)}
-                          sx={{
-                            color: '#dc2626',
-                            '&:hover': {
-                              backgroundColor: '#fef2f2',
-                            }
-                          }}
-                        >
-                          <BlockIcon />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                    <Tooltip title="O'chirish">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleDeleteClick(student)}
-                        sx={{
-                          color: '#dc2626',
-                          '&:hover': {
-                            backgroundColor: '#fef2f2',
-                          }
-                        }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                </TableCell>
+      {/* Success Message */}
+      {success && (
+        <Alert
+          severity="success"
+          sx={{
+            mb: 4,
+            backgroundColor: '#ecfdf5',
+            border: '1px solid #10b981',
+            color: '#059669',
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.15)'
+          }}
+        >
+          ✅ {success}
+        </Alert>
+      )}
+
+      {/* Data Table */}
+      <Paper sx={{
+        backgroundColor: '#ffffff',
+        border: '1px solid #e2e8f0',
+        borderRadius: '12px',
+        overflow: 'hidden'
+      }}>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: '#f8fafc' }}>
+                {activeTab === 0 ? (
+                  // Students tab columns
+                  <>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b', py: 3 }}>O'quvchi</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Sinf</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Yo'nalish</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Test urinishlari</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>O'rtacha ball</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Status</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Amallar</TableCell>
+                  </>
+                ) : (
+                  // Classes tab columns
+                  <>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b', py: 3 }}>Sinf</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Sinf rahbari</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>O'quvchilar soni</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Jami testlar</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>O'rtacha ball</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Amallar</TableCell>
+                  </>
+                )}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {activeTab === 0 ? (
+                // Students tab content
+                filteredStudents.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4, color: '#64748b' }}>
+                      O'quvchilar mavjud emas
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredStudents.map((student) => (
+                    <TableRow key={student.id} sx={{
+                      '&:hover': {
+                        backgroundColor: '#f8fafc'
+                      }
+                    }}>
+                      <TableCell sx={{ py: 3 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          {student.is_premium && student.profile_photo_url ? (
+                            <Avatar
+                              src={student.profile_photo_url}
+                              sx={{
+                                width: 40,
+                                height: 40,
+                                border: '2px solid #e2e8f0',
+                                mr: 2
+                              }}
+                              imgProps={{
+                                style: { objectFit: 'cover' }
+                              }}
+                            />
+                          ) : (
+                            <Box sx={{
+                              width: 40,
+                              height: 40,
+                              borderRadius: '50%',
+                              backgroundColor: '#f1f5f9',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              border: '2px solid #e2e8f0',
+                              mr: 2
+                            }}>
+                              <Typography sx={{
+                                fontSize: '0.875rem',
+                                fontWeight: 600,
+                                color: '#64748b'
+                              }}>
+                                {student.name ? student.name.charAt(0) : 'S'}
+                              </Typography>
+                            </Box>
+                          )}
+                          <Box>
+                            <Typography sx={{ fontWeight: 600, color: '#1e293b' }}>
+                              {student.name}
+                            </Typography>
+                            <Typography sx={{ 
+                              color: '#64748b', 
+                              fontSize: '0.75rem',
+                              fontFamily: 'monospace'
+                            }}>
+                              {student.display_id || student.username}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Typography sx={{ color: '#64748b', fontWeight: 600 }}>
+                          {student.class_group || '-'}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={getDirectionLabel(student.direction)}
+                          size="small"
+                          sx={{
+                            backgroundColor: student.direction === 'natural' ? '#ecfdf5' : '#eff6ff',
+                            color: student.direction === 'natural' ? '#059669' : '#2563eb',
+                            fontWeight: 600
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Typography sx={{ color: '#64748b', fontWeight: 600 }}>
+                          {getStudentAttemptCount(student.id)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography sx={{ color: '#64748b', fontWeight: 600 }}>
+                          {getStudentAverageScore(student.id)}%
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography sx={{
+                          color: student.is_banned ? '#dc2626' : '#059669',
+                          fontWeight: 600
+                        }}>
+                          {student.is_banned ? 'Bloklangan' : 'Faol'}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() => navigate(`/admin/student-details/${student.id}`)}
+                            startIcon={<InfoIcon />}
+                            sx={{
+                              borderColor: '#2563eb',
+                              color: '#2563eb',
+                              '&:hover': {
+                                backgroundColor: '#eff6ff',
+                                borderColor: '#2563eb'
+                              }
+                            }}
+                          >
+                            Batafsil
+                          </Button>
+                          <Tooltip title="Tahrirlash">
+                            <IconButton
+                              size="small"
+                              onClick={() => handleEditClick(student)}
+                              sx={{
+                                color: '#059669',
+                                '&:hover': {
+                                  backgroundColor: '#ecfdf5',
+                                }
+                              }}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          </Tooltip>
+                          {student.is_banned ? (
+                            <Tooltip title="Blokdan chiqarish">
+                              <IconButton
+                                size="small"
+                                onClick={() => handleUnbanStudent(student.id)}
+                                sx={{
+                                  color: '#059669',
+                                  '&:hover': {
+                                    backgroundColor: '#ecfdf5',
+                                  }
+                                }}
+                              >
+                                <CheckCircleIcon />
+                              </IconButton>
+                            </Tooltip>
+                          ) : (
+                            <Tooltip title="Bloklash">
+                              <IconButton
+                                size="small"
+                                onClick={() => handleBanStudent(student.id)}
+                                sx={{
+                                  color: '#dc2626',
+                                  '&:hover': {
+                                    backgroundColor: '#fef2f2',
+                                  }
+                                }}
+                              >
+                                <BlockIcon />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                          <Tooltip title="O'chirish">
+                            <IconButton
+                              size="small"
+                              onClick={() => handleDeleteClick(student)}
+                              sx={{
+                                color: '#dc2626',
+                                '&:hover': {
+                                  backgroundColor: '#fef2f2',
+                                }
+                              }}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )
+              ) : (
+                // Classes tab content
+                filteredClasses.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} sx={{ textAlign: 'center', py: 4, color: '#64748b' }}>
+                      Sinflar mavjud emas
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredClasses.map((classGroup) => {
+                    const classStudents = classGroups[classGroup];
+                    const stats = getClassStatistics(classStudents);
+                    const curator = getClassCurator(classGroup);
 
-      {filteredStudents.length === 0 && students.length > 0 && (
-        <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
-          <Typography variant="h6" color="textSecondary">
-            Qidiruv natijasi bo'yicha o'quvchi topilmadi
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Qidiruv so'zini o'zgartirib ko'ring
-          </Typography>
-        </Paper>
-      )}
-
-      {students.length === 0 && (
-        <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
-          <Typography variant="h6" color="textSecondary">
-            Hali o'quvchilar qo'shilmagan
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Yuqoridagi "O'quvchi qo'shish" tugmasini bosing
-          </Typography>
-        </Paper>
-      )}
+                    return (
+                      <TableRow key={classGroup} sx={{
+                        '&:hover': {
+                          backgroundColor: '#f8fafc'
+                        }
+                      }}>
+                        <TableCell sx={{ py: 3 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <GroupIcon sx={{ color: '#64748b', mr: 1 }} />
+                            <Typography sx={{ fontWeight: 600, color: '#1e293b' }}>
+                              {classGroup}
+                            </Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          {curator ? (
+                            <Typography sx={{ color: '#64748b', fontWeight: 600 }}>
+                              {curator.name}
+                            </Typography>
+                          ) : (
+                            <Typography sx={{ color: '#94a3b8', fontStyle: 'italic' }}>
+                              Rahbar yo'q
+                            </Typography>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Typography sx={{ color: '#64748b', fontWeight: 600 }}>
+                            {stats.totalStudents}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography sx={{ color: '#64748b', fontWeight: 600 }}>
+                            {stats.totalAttempts}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography sx={{ color: '#64748b', fontWeight: 600 }}>
+                            {stats.averageScore}%
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() => navigate(`/admin/class-details/${classGroup}`)}
+                            startIcon={<InfoIcon />}
+                            sx={{
+                              borderColor: '#2563eb',
+                              color: '#2563eb',
+                              '&:hover': {
+                                backgroundColor: '#eff6ff',
+                                borderColor: '#2563eb'
+                              }
+                            }}
+                          >
+                            Batafsil
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
 
       {/* Add Student Dialog */}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>

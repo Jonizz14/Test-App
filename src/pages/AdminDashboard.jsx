@@ -44,6 +44,7 @@ import StudentProfileView from '../pages/student/StudentProfileView';
 import TestDetails from './admin/TestDetails';
 import TestStatistics from './admin/TestStatistics';
 import StudentRatings from './admin/StudentRatings';
+import ClassDetails from './admin/ClassDetails';
 
 // Import components
 import BannedStudentsModal from '../components/BannedStudentsModal';
@@ -331,6 +332,7 @@ const AdminDashboard = () => {
               <Route path="/teachers" element={<ManageTeachers />} />
               <Route path="/teacher-details/:id" element={<TeacherDetails />} />
               <Route path="/students" element={<ManageStudents />} />
+              <Route path="/class-details/:classGroup" element={<ClassDetails />} />
               <Route path="/student-details/:id" element={<StudentDetails />} />
               <Route path="/student-profile/:id" element={<StudentProfileView />} />
               <Route path="/test-stats" element={<TestStatistics />} />

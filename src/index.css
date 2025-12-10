@@ -61,6 +61,24 @@ body {
 *:focus {
   outline: 2px solid var(--blue-500);
   outline-offset: 2px;
+  /* Text selection styles for better visibility */
+  ::selection {
+    background-color: var(--blue-300);
+    color: #1e293b;
+  }
+
+  ::-moz-selection {
+    background-color: var(--blue-300);
+    color: #1e293b;
+  }
+
+  /* Ensure text is selectable in tables and text elements */
+  table, td, th, p, span, div, h1, h2, h3, h4, h5, h6, li, label {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
 }
 
 /* Alternating blue backgrounds */
