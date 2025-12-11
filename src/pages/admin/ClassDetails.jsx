@@ -113,17 +113,6 @@ const ClassDetails = () => {
     };
   };
 
-  const getTopPerformers = () => {
-    return students
-      .map(student => ({
-        ...student,
-        averageScore: getStudentAverageScore(student.id),
-        attemptCount: getStudentAttemptCount(student.id)
-      }))
-      .filter(student => student.attemptCount > 0)
-      .sort((a, b) => b.averageScore - a.averageScore)
-      .slice(0, 5);
-  };
 
   const getRecentActivity = () => {
     const classAttempts = attempts.filter(attempt => 
@@ -140,7 +129,6 @@ const ClassDetails = () => {
   };
 
   const statistics = getClassStatistics();
-  const topPerformers = getTopPerformers();
   const recentActivity = getRecentActivity();
   const curator = getClassCurator();
 
@@ -279,157 +267,75 @@ const ClassDetails = () => {
         </Grid>
       </Grid>
 
-      <Grid container spacing={3}>
-        {/* Class Curator */}
-        {curator && (
-          <Grid item xs={12} md={4}>
-            <Card sx={{ 
-              borderRadius: '12px',
-              border: '1px solid #e2e8f0'
+      {/* Class Curator */}
+      {curator && (
+        <Card sx={{
+          borderRadius: '12px',
+          border: '1px solid #e2e8f0',
+          mb: 4
+        }}>
+          <CardContent sx={{ p: 3 }}>
+            <Typography sx={{
+              fontSize: '1.25rem',
+              fontWeight: 700,
+              color: '#1e293b',
+              mb: 3
             }}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography sx={{ 
-                  fontSize: '1.25rem', 
-                  fontWeight: 700, 
-                  color: '#1e293b',
-                  mb: 3 
-                }}>
-                  Sinf rahbari
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  {curator.is_premium && curator.profile_photo_url ? (
-                    <Avatar
-                      src={curator.profile_photo_url}
-                      sx={{
-                        width: 64,
-                        height: 64,
-                        border: '3px solid #e2e8f0',
-                        mr: 2
-                      }}
-                      imgProps={{
-                        style: { objectFit: 'cover' }
-                      }}
-                    />
-                  ) : (
-                    <Avatar sx={{
-                      width: 64,
-                      height: 64,
-                      backgroundColor: '#f1f5f9',
-                      color: '#64748b',
-                      fontSize: '1.5rem',
-                      fontWeight: 600,
-                      mr: 2
-                    }}>
-                      {curator.name ? curator.name.charAt(0) : 'R'}
-                    </Avatar>
-                  )}
-                  <Box>
-                    <Typography sx={{ 
-                      fontWeight: 700, 
-                      color: '#1e293b',
-                      fontSize: '1.125rem'
-                    }}>
-                      {curator.name}
-                    </Typography>
-                    <Typography sx={{ color: '#64748b', fontSize: '0.875rem' }}>
-                      {curator.display_id || curator.username}
-                    </Typography>
-                  </Box>
-                </Box>
-                {curator.bio && (
-                  <Typography sx={{ 
-                    color: '#64748b', 
-                    fontSize: '0.875rem',
-                    fontStyle: 'italic',
-                    mt: 2
-                  }}>
-                    "{curator.bio}"
-                  </Typography>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
-        )}
-
-        {/* Top Performers */}
-        <Grid item xs={12} md={curator ? 8 : 12}>
-          <Card sx={{ 
-            borderRadius: '12px',
-            border: '1px solid #e2e8f0'
-          }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography sx={{ 
-                fontSize: '1.25rem', 
-                fontWeight: 700, 
-                color: '#1e293b',
-                mb: 3 
-              }}>
-                Eng yaxshi natijalar
-              </Typography>
-              {topPerformers.length > 0 ? (
-                <Box>
-                  {topPerformers.map((student, index) => (
-                    <Box 
-                      key={student.id}
-                      sx={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'space-between',
-                        py: 2,
-                        borderBottom: index < topPerformers.length - 1 ? '1px solid #f1f5f9' : 'none'
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Box sx={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: '50%',
-                          backgroundColor: index === 0 ? '#fbbf24' : index === 1 ? '#e5e7eb' : index === 2 ? '#cd7f32' : '#f3f4f6',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 700,
-                          fontSize: '0.875rem',
-                          color: index < 3 ? '#ffffff' : '#64748b',
-                          mr: 2
-                        }}>
-                          {index + 1}
-                        </Box>
-                        <Box>
-                          <Typography sx={{ 
-                            fontWeight: 600, 
-                            color: '#1e293b',
-                            fontSize: '0.875rem'
-                          }}>
-                            {student.name}
-                          </Typography>
-                          <Typography sx={{ 
-                            color: '#64748b', 
-                            fontSize: '0.75rem'
-                          }}>
-                            {getStudentAttemptCount(student.id)} ta test
-                          </Typography>
-                        </Box>
-                      </Box>
-                      <Typography sx={{ 
-                        fontWeight: 700, 
-                        color: '#059669',
-                        fontSize: '1.125rem'
-                      }}>
-                        {student.averageScore}%
-                      </Typography>
-                    </Box>
-                  ))}
-                </Box>
+              Sinf rahbari
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              {curator.is_premium && curator.profile_photo_url ? (
+                <Avatar
+                  src={curator.profile_photo_url}
+                  sx={{
+                    width: 64,
+                    height: 64,
+                    border: '3px solid #e2e8f0',
+                    mr: 2
+                  }}
+                  imgProps={{
+                    style: { objectFit: 'cover' }
+                  }}
+                />
               ) : (
-                <Typography sx={{ color: '#64748b', textAlign: 'center', py: 4 }}>
-                  Hali test natijalari yo'q
-                </Typography>
+                <Avatar sx={{
+                  width: 64,
+                  height: 64,
+                  backgroundColor: '#f1f5f9',
+                  color: '#64748b',
+                  fontSize: '1.5rem',
+                  fontWeight: 600,
+                  mr: 2
+                }}>
+                  {curator.name ? curator.name.charAt(0) : 'R'}
+                </Avatar>
               )}
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+              <Box>
+                <Typography sx={{
+                  fontWeight: 700,
+                  color: '#1e293b',
+                  fontSize: '1.125rem'
+                }}>
+                  {curator.name}
+                </Typography>
+                <Typography sx={{ color: '#64748b', fontSize: '0.875rem' }}>
+                  {curator.display_id || curator.username}
+                </Typography>
+              </Box>
+            </Box>
+            {curator.bio && (
+              <Typography sx={{
+                color: '#64748b',
+                fontSize: '0.875rem',
+                fontStyle: 'italic',
+                mt: 2
+              }}>
+                "{curator.bio}"
+              </Typography>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Students List */}
       <Card sx={{ 

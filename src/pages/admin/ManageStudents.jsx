@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Typography,
+import {Typography,
   Box,
   Table,
   TableBody,
@@ -16,10 +15,6 @@ import {
   DialogActions,
   TextField,
   Alert,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Chip,
   IconButton,
   Tooltip,
@@ -27,12 +22,12 @@ import {
   Avatar,
   Tabs,
   Tab,
-  Switch,
-  FormControlLabel,
+  Collapse,
 } from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon, Block as BlockIcon, CheckCircle as CheckCircleIcon, Edit as EditIcon, Search as SearchIcon, Info as InfoIcon, Save as SaveIcon, Cancel as CancelIcon, Group as GroupIcon } from '@mui/icons-material';
+import { Add as AddIcon, Delete as DeleteIcon, Block as BlockIcon, CheckCircle as CheckCircleIcon, Search as SearchIcon, Info as InfoIcon, Group as GroupIcon, KeyboardArrowUp as KeyboardArrowUpIcon, KeyboardArrowDown as KeyboardArrowDownIcon, FileDownload as FileDownloadIcon, FileUpload as FileUploadIcon, Edit as EditIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
+import * as XLSX from 'xlsx';
 
 const ManageStudents = () => {
   const navigate = useNavigate();
@@ -40,24 +35,38 @@ const ManageStudents = () => {
   const [students, setStudents] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [attempts, setAttempts] = useState([]);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState(null);
-  const [studentToEdit, setStudentToEdit] = useState(null);
-  const [editingId, setEditingId] = useState(null);
-  const [editData, setEditData] = useState({});
   const [expandedClasses, setExpandedClasses] = useState(new Set());
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    classGroup: '',
-    direction: 'natural', // 'natural' or 'exact'
-    registrationDate: new Date().toISOString().split('T')[0], // Default to today
-  });
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+
+  const generateStudentId = (firstName, lastName, classGroup, direction, randomDigits) => {
+    // Create ID like: TO'XTAYEVJT9-03N478@test (LASTNAMEFIRSTINITIALTGRADE_DIRECTION_RANDOM@test)
+    const lastNameUpper = lastName.toUpperCase().replace("'", '');
+    const firstNameInitial = firstName.charAt(0).toUpperCase();
+    // Extract grade from class like "9-01-A" -> "901"
+    const grade = classGroup.split('-').slice(0, 2).join('');
+    const directionCode = direction === 'natural' ? 'N' : 'E';
+    return `${lastNameUpper}${firstNameInitial}T${grade}${directionCode}${randomDigits}@test`;
+  };
+
+  const generateStudentUsername = (firstName, lastName, classGroup, direction) => {
+    // Create valid username: ahmedova501n (lowercase, replace - with empty)
+    const lastNameLower = lastName.toLowerCase();
+    const firstNameInitial = firstName.charAt(0).toLowerCase();
+    // Extract class code from class like "9-01-A" -> "901"
+    const classCode = classGroup.split('-').slice(0, 2).join('');
+    const directionCode = direction === 'natural' ? 'n' : 'e';
+    return `${lastNameLower}${firstNameInitial}${classCode}${directionCode}`;
+  };
+
+  const generateStudentEmail = (firstName, lastName, classGroup, direction) => {
+    // Create valid email: ahmedova501n@student.testplatform.com
+    const username = generateStudentUsername(firstName, lastName, classGroup, direction);
+    return `${username}@student.testplatform.com`;
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -79,121 +88,23 @@ const ManageStudents = () => {
     loadData();
   }, []);
 
-  const generateStudentId = (firstName, lastName, classGroup, direction, randomDigits) => {
-    // Create ID like: TO'XTAYEVJT9-03N478@test (LASTNAMEFIRSTINITIALTGRADE_DIRECTION_RANDOM@test)
-    const lastNameUpper = lastName.toUpperCase().replace("'", '');
-    const firstNameInitial = firstName.charAt(0).toUpperCase();
-    const grade = classGroup.replace('-', '');
-    const directionCode = direction === 'natural' ? 'N' : 'E';
-    return `${lastNameUpper}${firstNameInitial}T${grade}${directionCode}${randomDigits}@test`;
-  };
-
-  const generateStudentUsername = (firstName, lastName, classGroup, direction) => {
-    // Create valid username: ahmedova501n (lowercase, replace - with empty)
-    const lastNameLower = lastName.toLowerCase();
-    const firstNameInitial = firstName.charAt(0).toLowerCase();
-    const classCode = classGroup.replace('-', '');
-    const directionCode = direction === 'natural' ? 'n' : 'e';
-    return `${lastNameLower}${firstNameInitial}${classCode}${directionCode}`;
-  };
-
-  const generateStudentEmail = (firstName, lastName, classGroup, direction) => {
-    // Create valid email: ahmedova501n@student.testplatform.com
-    const username = generateStudentUsername(firstName, lastName, classGroup, direction);
-    return `${username}@student.testplatform.com`;
-  };
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-
-    if (!formData.firstName || !formData.lastName || !formData.classGroup || !formData.direction) {
-      setError('Barcha maydonlarni to\'ldiring');
-      return;
-    }
-
-    try {
-      // Generate display ID and valid credentials
-      const randomDigits = Math.floor(Math.random() * 900) + 100; // Random 3 digits
-      const displayId = generateStudentId(
-        formData.firstName,
-        formData.lastName,
-        formData.classGroup,
-        formData.direction,
-        randomDigits
-      );
-      const username = generateStudentUsername(
-        formData.firstName,
-        formData.lastName,
-        formData.classGroup,
-        formData.direction
-      );
-      const email = generateStudentEmail(
-        formData.firstName,
-        formData.lastName,
-        formData.classGroup,
-        formData.direction
-      );
-
-      // Check if username already exists
-      const existingStudent = students.find(s => s.username === username);
-      if (existingStudent) {
-        setError('Bu ma\'lumotlar bilan o\'quvchi allaqachon mavjud');
-        return;
-      }
-
-      // Create new student via API
-      const studentData = {
-        username: displayId, // Use display ID as username (will be stored as-is)
-        email: email, // Valid email format
-        password: displayId, // Use display ID as password
-        name: `${formData.firstName} ${formData.lastName}`,
-        role: 'student',
-        class_group: formData.classGroup,
-        direction: formData.direction, // Add direction field
-        registration_date: formData.registrationDate,
-      };
-
-      const savedStudent = await apiService.post('/users/', studentData);
-
-      // Update local state
-      setStudents([...students, savedStudent]);
-
-      setSuccess(`O'quvchi muvaffaqiyatli qo'shildi! ID: ${displayId}`);
-      setFormData({
-        firstName: '',
-        lastName: '',
-        classGroup: '',
-        direction: 'natural',
-        registrationDate: new Date().toISOString().split('T')[0],
-      });
-      setDialogOpen(false);
-
-    } catch (err) {
-      console.error('Failed to create student:', err);
-      setError('Xatolik yuz berdi: ' + (err.message || 'Noma\'lum xatolik'));
-    }
-  };
-
   const handleDelete = async (studentId) => {
     try {
       await apiService.deleteUser(studentId);
       // Remove from local state
       setStudents(students.filter(student => student.id !== studentId));
-      setSuccess('O\'quvchi muvaffaqiyatli o\'chirildi!');
-      setDeleteDialogOpen(false);
-      setStudentToDelete(null);
+      // Reload data to refresh the view
+      const [allUsers, allAttempts] = await Promise.all([
+        apiService.getUsers(),
+        apiService.getAttempts()
+      ]);
+      const allStudents = allUsers.filter(user => user.role === 'student');
+      const allTeachers = allUsers.filter(user => user.role === 'teacher');
+      setStudents(allStudents);
+      setTeachers(allTeachers);
+      setAttempts(allAttempts.results || allAttempts);
     } catch (error) {
       console.error('Failed to delete student:', error);
-      setError('O\'quvchini o\'chirishda xatolik yuz berdi');
     }
   };
 
@@ -203,57 +114,8 @@ const ManageStudents = () => {
   };
 
   const handleEditClick = (student) => {
-    setStudentToEdit(student);
-    setFormData({
-      firstName: student.name ? student.name.split(' ')[0] : '',
-      lastName: student.name ? student.name.split(' ').slice(1).join(' ') : '',
-      classGroup: student.class_group || '',
-      direction: student.direction || 'natural',
-      registrationDate: student.registration_date ? new Date(student.registration_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-    });
-    setEditDialogOpen(true);
-  };
-
-  const handleEditSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-
-    if (!formData.firstName || !formData.lastName || !formData.classGroup || !formData.direction) {
-      setError('Barcha maydonlarni to\'ldiring');
-      return;
-    }
-
-    try {
-      const updatedData = {
-        name: `${formData.firstName} ${formData.lastName}`,
-        class_group: formData.classGroup,
-        direction: formData.direction,
-        registration_date: formData.registrationDate,
-      };
-
-      const updatedStudent = await apiService.put(`/users/${studentToEdit.id}/`, updatedData);
-
-      // Update local state
-      setStudents(students.map(student =>
-        student.id === studentToEdit.id ? updatedStudent : student
-      ));
-
-      setSuccess(`O'quvchi ma'lumotlari muvaffaqiyatli yangilandi!`);
-      setEditDialogOpen(false);
-      setStudentToEdit(null);
-      setFormData({
-        firstName: '',
-        lastName: '',
-        classGroup: '',
-        direction: 'natural',
-        registrationDate: new Date().toISOString().split('T')[0],
-      });
-
-    } catch (err) {
-      console.error('Failed to update student:', err);
-      setError('Xatolik yuz berdi: ' + (err.message || 'Noma\'lum xatolik'));
-    }
+    // Navigate to edit student page (we'll create this later)
+    navigate(`/admin/edit-student/${student.id}`);
   };
 
   const handleBanStudent = async (studentId) => {
@@ -269,10 +131,8 @@ const ManageStudents = () => {
       setStudents(allStudents);
       setTeachers(allTeachers);
       setAttempts(allAttempts.results || allAttempts);
-      setSuccess('O\'quvchi muvaffaqiyatli bloklandi!');
     } catch (error) {
       console.error('Failed to ban student:', error);
-      setError('O\'quvchini bloklashda xatolik yuz berdi');
     }
   };
 
@@ -289,30 +149,146 @@ const ManageStudents = () => {
       setStudents(allStudents);
       setTeachers(allTeachers);
       setAttempts(allAttempts.results || allAttempts);
-      setSuccess('O\'quvchi muvaffaqiyatli blokdan chiqarildi!');
     } catch (error) {
       console.error('Failed to unban student:', error);
-      setError('O\'quvchini blokdan chiqarishda xatolik yuz berdi');
     }
   };
 
-  const handleEdit = (item) => {
-    setEditingId(item.id);
-    setEditData({
-      class_group: item.class_group || '',
-      direction: item.direction || 'natural',
-      is_banned: item.is_banned || false,
-    });
+  const handleExportToExcel = () => {
+    // Prepare data for export
+    const exportData = students.map((student, index) => ({
+      '№': index + 1,
+      'Ism': student.name || '',
+      'Familiya': student.name ? student.name.split(' ').slice(1).join(' ') : '',
+      'Sinf': student.class_group || '',
+      'Yo\'nalish': getDirectionLabel(student.direction),
+      'Testlar soni': getStudentAttemptCount(student.id),
+      'O\'rtacha ball': getStudentAverageScore(student.id),
+      'Status': student.is_banned ? 'Bloklangan' : 'Faol',
+      'Ro\'yxatdan o\'tgan sana': student.registration_date ? new Date(student.registration_date).toLocaleDateString('uz-UZ') : '',
+      'Oxirgi faollik': getStudentLastActivity(student.id) || '',
+      'Display ID': student.display_id || student.username || ''
+    }));
+
+    // Create worksheet
+    const ws = XLSX.utils.json_to_sheet(exportData);
+
+    // Set column widths
+    const colWidths = [
+      { wch: 5 },  // №
+      { wch: 15 }, // Ism
+      { wch: 15 }, // Familiya
+      { wch: 10 }, // Sinf
+      { wch: 15 }, // Yo'nalish
+      { wch: 12 }, // Testlar soni
+      { wch: 12 }, // O'rtacha ball
+      { wch: 10 }, // Status
+      { wch: 15 }, // Ro'yxatdan o'tgan sana
+      { wch: 15 }, // Oxirgi faollik
+      { wch: 20 }  // Display ID
+    ];
+    ws['!cols'] = colWidths;
+
+    // Create workbook
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'O\'quvchilar');
+
+    // Generate filename with current date
+    const currentDate = new Date().toISOString().split('T')[0];
+    const filename = `oquvchilar_${currentDate}.xlsx`;
+
+    // Save file
+    XLSX.writeFile(wb, filename);
   };
 
-  const handleCancel = () => {
-    setEditingId(null);
-    setEditData({});
-  };
+  const handleImportFromExcel = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
 
-  const handleSave = async () => {
     try {
-      await apiService.put(`/users/${editingId}/`, editData);
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+      if (jsonData.length === 0) {
+        alert('Excel faylda ma\'lumotlar topilmadi');
+        return;
+      }
+
+      let successCount = 0;
+      let errorCount = 0;
+      const errors = [];
+
+      for (const row of jsonData) {
+        try {
+          // Handle simple 4-column format: №, Ism, Familiya, Sinf
+          const rowIndex = jsonData.indexOf(row) + 2; // +2 because Excel rows start at 1 and we skip header
+
+          // Get values - could be by column name or by position
+          let firstName, lastName, classGroup;
+
+          if (row.Ism && row.Familiya && row.Sinf) {
+            // Named columns
+            firstName = row.Ism;
+            lastName = row.Familiya;
+            classGroup = row.Sinf;
+          } else {
+            // Try positional access (assuming order: №, Ism, Familiya, Sinf)
+            const values = Object.values(row);
+            if (values.length >= 4) {
+              firstName = values[1]; // Index 1 = Ism
+              lastName = values[2];  // Index 2 = Familiya
+              classGroup = values[3]; // Index 3 = Sinf
+            }
+          }
+
+          // Validate required fields
+          if (!firstName || !lastName || !classGroup) {
+            errors.push(`Qator ${rowIndex}: Ism, Familiya va Sinf maydonlari majburiy`);
+            errorCount++;
+            continue;
+          }
+
+          const fullName = `${firstName} ${lastName}`;
+          const direction = classGroup.endsWith('-A') ? 'exact' : classGroup.endsWith('-T') ? 'natural' : 'natural';
+
+          // Generate credentials
+          const randomDigits = Math.floor(Math.random() * 900) + 100;
+          const displayId = generateStudentId(firstName, lastName, classGroup, direction, randomDigits);
+          const username = generateStudentUsername(firstName, lastName, classGroup, direction);
+          const email = generateStudentEmail(firstName, lastName, classGroup, direction);
+
+          // Check if student already exists
+          const existingStudent = students.find(s => s.username === username);
+          if (existingStudent) {
+            errors.push(`Qator ${rowIndex}: ${fullName} - bu o'quvchi allaqachon mavjud`);
+            errorCount++;
+            continue;
+          }
+
+          // Create student
+          const studentData = {
+            username: displayId,
+            email: email,
+            password: displayId,
+            name: fullName,
+            role: 'student',
+            class_group: classGroup,
+            direction: direction,
+            registration_date: row['Ro\'yxatdan o\'tgan sana'] ? new Date(row['Ro\'yxatdan o\'tgan sana']).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          };
+
+          await apiService.post('/users/', studentData);
+          successCount++;
+
+        } catch (error) {
+          errors.push(`Qator ${jsonData.indexOf(row) + 2}: ${error.message || 'Xatolik'}`);
+          errorCount++;
+        }
+      }
+
       // Reload data
       const [allUsers, allAttempts] = await Promise.all([
         apiService.getUsers(),
@@ -321,21 +297,24 @@ const ManageStudents = () => {
       const allStudents = allUsers.filter(user => user.role === 'student');
       setStudents(allStudents);
       setAttempts(allAttempts.results || allAttempts);
-      setEditingId(null);
-      setEditData({});
-      setSuccess('Ma\'lumotlar muvaffaqiyatli saqlandi');
-      setTimeout(() => setSuccessMessage(''), 3000);
-    } catch (error) {
-      console.error('Failed to save:', error);
-      setError('Saqlashda xatolik yuz berdi');
-    }
-  };
 
-  const handleInputChange = (field, value) => {
-    setEditData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+      // Show results
+      let message = `Import yakunlandi!\nMuvaffaqiyatli: ${successCount}\nXatoliklar: ${errorCount}`;
+      if (errors.length > 0) {
+        message += '\n\nXatoliklar:\n' + errors.slice(0, 5).join('\n');
+        if (errors.length > 5) {
+          message += `\n...va yana ${errors.length - 5} ta xatolik`;
+        }
+      }
+      alert(message);
+
+    } catch (error) {
+      console.error('Import error:', error);
+      alert('Excel faylini o\'qishda xatolik yuz berdi: ' + error.message);
+    }
+
+    // Clear file input
+    event.target.value = '';
   };
 
   const getDirectionLabel = (direction) => {
@@ -535,43 +514,69 @@ const ManageStudents = () => {
             }
           }}
         />
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setDialogOpen(true)}
-          sx={{
-            backgroundColor: '#2563eb',
-            color: '#ffffff',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            fontWeight: 600,
-            textTransform: 'none',
-            whiteSpace: 'nowrap',
-            '&:hover': {
-              backgroundColor: '#1d4ed8',
-            }
-          }}
-        >
-          O'quvchi qo'shish
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/admin/add-student')}
+            sx={{
+              backgroundColor: '#2563eb',
+              color: '#ffffff',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontWeight: 600,
+              textTransform: 'none',
+              whiteSpace: 'nowrap',
+              '&:hover': {
+                backgroundColor: '#1d4ed8',
+              }
+            }}
+          >
+            O'quvchi qo'shish
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<FileDownloadIcon />}
+            onClick={() => setImportDialogOpen(true)}
+            sx={{
+              borderColor: '#7c3aed',
+              color: '#7c3aed',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontWeight: 600,
+              textTransform: 'none',
+              whiteSpace: 'nowrap',
+              '&:hover': {
+                backgroundColor: '#faf5ff',
+                borderColor: '#7c3aed'
+              }
+            }}
+          >
+            Excel fayldan import
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<FileUploadIcon />}
+            onClick={() => setExportDialogOpen(true)}
+            sx={{
+              borderColor: '#059669',
+              color: '#059669',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontWeight: 600,
+              textTransform: 'none',
+              whiteSpace: 'nowrap',
+              '&:hover': {
+                backgroundColor: '#ecfdf5',
+                borderColor: '#059669'
+              }
+            }}
+          >
+            Excel faylga export
+          </Button>
+        </Box>
       </Box>
 
-      {/* Success Message */}
-      {success && (
-        <Alert
-          severity="success"
-          sx={{
-            mb: 4,
-            backgroundColor: '#ecfdf5',
-            border: '1px solid #10b981',
-            color: '#059669',
-            borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.15)'
-          }}
-        >
-          ✅ {success}
-        </Alert>
-      )}
 
       {/* Data Table */}
       <Paper sx={{
@@ -585,25 +590,25 @@ const ManageStudents = () => {
             <TableHead>
               <TableRow sx={{ backgroundColor: '#f8fafc' }}>
                 {activeTab === 0 ? (
-                  // Students tab columns
+                  // Students tab columns with fixed widths
                   <>
-                    <TableCell sx={{ fontWeight: 600, color: '#1e293b', py: 3 }}>O'quvchi</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Sinf</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Yo'nalish</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Test urinishlari</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>O'rtacha ball</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Status</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Amallar</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b', py: 3, width: '30%' }}>O'quvchi</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b', width: '12%' }}>Sinf</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b', width: '15%' }}>Yo'nalish</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b', width: '12%' }}>Test urinishlari</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b', width: '12%' }}>O'rtacha ball</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b', width: '10%' }}>Status</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b', width: '9%' }}>Amallar</TableCell>
                   </>
                 ) : (
-                  // Classes tab columns
+                  // Classes tab columns with fixed widths
                   <>
-                    <TableCell sx={{ fontWeight: 600, color: '#1e293b', py: 3 }}>Sinf</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Sinf rahbari</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>O'quvchilar soni</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Jami testlar</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>O'rtacha ball</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Amallar</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b', py: 3, width: '25%' }}>Sinf</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b', width: '20%' }}>Sinf rahbari</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b', width: '15%' }}>O'quvchilar soni</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b', width: '15%' }}>Jami testlar</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b', width: '15%' }}>O'rtacha ball</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#1e293b', width: '10%' }}>Amallar</TableCell>
                   </>
                 )}
               </TableRow>
@@ -661,13 +666,24 @@ const ManageStudents = () => {
                             </Box>
                           )}
                           <Box>
-                            <Typography sx={{ fontWeight: 600, color: '#1e293b' }}>
+                            <Typography sx={{
+                              fontWeight: 600,
+                              color: '#1e293b',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              maxWidth: '200px'
+                            }}>
                               {student.name}
                             </Typography>
-                            <Typography sx={{ 
-                              color: '#64748b', 
+                            <Typography sx={{
+                              color: '#64748b',
                               fontSize: '0.75rem',
-                              fontFamily: 'monospace'
+                              fontFamily: 'monospace',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              maxWidth: '200px'
                             }}>
                               {student.display_id || student.username}
                             </Typography>
@@ -710,22 +726,20 @@ const ManageStudents = () => {
                       </TableCell>
                       <TableCell>
                         <Box sx={{ display: 'flex', gap: 1 }}>
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            onClick={() => navigate(`/admin/student-details/${student.id}`)}
-                            startIcon={<InfoIcon />}
-                            sx={{
-                              borderColor: '#2563eb',
-                              color: '#2563eb',
-                              '&:hover': {
-                                backgroundColor: '#eff6ff',
-                                borderColor: '#2563eb'
-                              }
-                            }}
-                          >
-                            Batafsil
-                          </Button>
+                          <Tooltip title="Batafsil">
+                            <IconButton
+                              size="small"
+                              onClick={() => navigate(`/admin/student-details/${student.id}`)}
+                              sx={{
+                                color: '#2563eb',
+                                '&:hover': {
+                                  backgroundColor: '#eff6ff',
+                                }
+                              }}
+                            >
+                              <InfoIcon />
+                            </IconButton>
+                          </Tooltip>
                           <Tooltip title="Tahrirlash">
                             <IconButton
                               size="small"
@@ -803,66 +817,300 @@ const ManageStudents = () => {
                     const classStudents = classGroups[classGroup];
                     const stats = getClassStatistics(classStudents);
                     const curator = getClassCurator(classGroup);
+                    const isExpanded = expandedClasses.has(classGroup);
 
                     return (
-                      <TableRow key={classGroup} sx={{
-                        '&:hover': {
-                          backgroundColor: '#f8fafc'
-                        }
-                      }}>
-                        <TableCell sx={{ py: 3 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <GroupIcon sx={{ color: '#64748b', mr: 1 }} />
-                            <Typography sx={{ fontWeight: 600, color: '#1e293b' }}>
-                              {classGroup}
+                      <React.Fragment key={classGroup}>
+                        <TableRow sx={{
+                          '&:hover': {
+                            backgroundColor: '#f8fafc'
+                          }
+                        }}>
+                          <TableCell sx={{ py: 3 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                                <GroupIcon sx={{ color: '#64748b', mr: 1 }} />
+                                <Typography sx={{ fontWeight: 600, color: '#1e293b', fontSize: '0.875rem' }}>
+                                  {classGroup}
+                                </Typography>
+                              </Box>
+                              <IconButton
+                                size="small"
+                                onClick={() => toggleClassExpansion(classGroup)}
+                                sx={{
+                                  ml: 1,
+                                  transition: 'transform 0.3s ease-in-out',
+                                  transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                  '&:hover': {
+                                    backgroundColor: '#f1f5f9'
+                                  }
+                                }}
+                              >
+                                <KeyboardArrowDownIcon />
+                              </IconButton>
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            {curator ? (
+                              <Typography sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.875rem' }}>
+                                {curator.name}
+                              </Typography>
+                            ) : (
+                              <Typography sx={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.875rem' }}>
+                                Rahbar yo'q
+                              </Typography>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Typography sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.875rem' }}>
+                              {stats.totalStudents}
                             </Typography>
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          {curator ? (
-                            <Typography sx={{ color: '#64748b', fontWeight: 600 }}>
-                              {curator.name}
+                          </TableCell>
+                          <TableCell>
+                            <Typography sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.875rem' }}>
+                              {stats.totalAttempts}
                             </Typography>
-                          ) : (
-                            <Typography sx={{ color: '#94a3b8', fontStyle: 'italic' }}>
-                              Rahbar yo'q
+                          </TableCell>
+                          <TableCell>
+                            <Typography sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.875rem' }}>
+                              {stats.averageScore}%
                             </Typography>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Typography sx={{ color: '#64748b', fontWeight: 600 }}>
-                            {stats.totalStudents}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography sx={{ color: '#64748b', fontWeight: 600 }}>
-                            {stats.totalAttempts}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography sx={{ color: '#64748b', fontWeight: 600 }}>
-                            {stats.averageScore}%
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            onClick={() => navigate(`/admin/class-details/${classGroup}`)}
-                            startIcon={<InfoIcon />}
-                            sx={{
-                              borderColor: '#2563eb',
-                              color: '#2563eb',
-                              '&:hover': {
-                                backgroundColor: '#eff6ff',
-                                borderColor: '#2563eb'
-                              }
-                            }}
-                          >
-                            Batafsil
-                          </Button>
-                        </TableCell>
-                      </TableRow>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={() => navigate(`/admin/class-details/${classGroup}`)}
+                              startIcon={<InfoIcon />}
+                              sx={{
+                                borderColor: '#2563eb',
+                                color: '#2563eb',
+                                '&:hover': {
+                                  backgroundColor: '#eff6ff',
+                                  borderColor: '#2563eb'
+                                }
+                              }}
+                            >
+                              Batafsil
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+
+                        {/* Expanded students list with smooth animation */}
+                        <TableRow>
+                          <TableCell colSpan={6} sx={{ p: 0 }}>
+                            <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                              <Box sx={{
+                                backgroundColor: '#f8fafc',
+                                borderLeft: '4px solid #2563eb',
+                                borderRadius: '0 0 8px 8px',
+                                overflow: 'hidden'
+                              }}>
+                                <Table size="small" sx={{ minWidth: '100%' }}>
+                                  <TableHead>
+                                    <TableRow sx={{ backgroundColor: '#e2e8f0' }}>
+                                      <TableCell sx={{ fontWeight: 600, color: '#1e293b', py: 2, fontSize: '0.875rem' }}>O'quvchi</TableCell>
+                                      <TableCell sx={{ fontWeight: 600, color: '#1e293b', fontSize: '0.875rem' }}>Yo'nalish</TableCell>
+                                      <TableCell sx={{ fontWeight: 600, color: '#1e293b', fontSize: '0.875rem' }}>Testlar</TableCell>
+                                      <TableCell sx={{ fontWeight: 600, color: '#1e293b', fontSize: '0.875rem' }}>O'rtacha ball</TableCell>
+                                      <TableCell sx={{ fontWeight: 600, color: '#1e293b', fontSize: '0.875rem' }}>Status</TableCell>
+                                      <TableCell sx={{ fontWeight: 600, color: '#1e293b', fontSize: '0.875rem' }}>Amallar</TableCell>
+                                    </TableRow>
+                                  </TableHead>
+                                  <TableBody>
+                                    {classStudents.length === 0 ? (
+                                      <TableRow>
+                                        <TableCell colSpan={6} sx={{ textAlign: 'center', py: 2, color: '#64748b' }}>
+                                          Bu sinfda o'quvchilar mavjud emas
+                                        </TableCell>
+                                      </TableRow>
+                                    ) : (
+                                      classStudents.map((student) => (
+                                        <TableRow key={student.id} sx={{
+                                          '&:hover': {
+                                            backgroundColor: '#e2e8f0'
+                                          }
+                                        }}>
+                                          <TableCell>
+                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                              {student.is_premium && student.profile_photo_url ? (
+                                                <Avatar
+                                                  src={student.profile_photo_url}
+                                                  sx={{
+                                                    width: 32,
+                                                    height: 32,
+                                                    border: '2px solid #e2e8f0',
+                                                    mr: 1
+                                                  }}
+                                                  imgProps={{
+                                                    style: { objectFit: 'cover' }
+                                                  }}
+                                                />
+                                              ) : (
+                                                <Box sx={{
+                                                  width: 32,
+                                                  height: 32,
+                                                  borderRadius: '50%',
+                                                  backgroundColor: '#f1f5f9',
+                                                  display: 'flex',
+                                                  alignItems: 'center',
+                                                  justifyContent: 'center',
+                                                  border: '2px solid #e2e8f0',
+                                                  mr: 1
+                                                }}>
+                                                  <Typography sx={{
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: 600,
+                                                    color: '#64748b'
+                                                  }}>
+                                                    {student.name ? student.name.charAt(0) : 'S'}
+                                                  </Typography>
+                                                </Box>
+                                              )}
+                                              <Box>
+                                                <Typography sx={{
+                                                  fontWeight: 600,
+                                                  color: '#1e293b',
+                                                  fontSize: '0.875rem',
+                                                  overflow: 'hidden',
+                                                  textOverflow: 'ellipsis',
+                                                  whiteSpace: 'nowrap',
+                                                  maxWidth: '150px'
+                                                }}>
+                                                  {student.name}
+                                                </Typography>
+                                                <Typography sx={{
+                                                  color: '#64748b',
+                                                  fontSize: '0.75rem',
+                                                  fontFamily: 'monospace',
+                                                  overflow: 'hidden',
+                                                  textOverflow: 'ellipsis',
+                                                  whiteSpace: 'nowrap',
+                                                  maxWidth: '150px'
+                                                }}>
+                                                  {student.display_id || student.username}
+                                                </Typography>
+                                              </Box>
+                                            </Box>
+                                          </TableCell>
+                                          <TableCell>
+                                            <Chip
+                                              label={getDirectionLabel(student.direction)}
+                                              size="small"
+                                              sx={{
+                                                backgroundColor: student.direction === 'natural' ? '#ecfdf5' : '#eff6ff',
+                                                color: student.direction === 'natural' ? '#059669' : '#2563eb',
+                                                fontWeight: 600,
+                                                fontSize: '0.75rem'
+                                              }}
+                                            />
+                                          </TableCell>
+                                          <TableCell>
+                                            <Typography sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.875rem' }}>
+                                              {getStudentAttemptCount(student.id)}
+                                            </Typography>
+                                          </TableCell>
+                                          <TableCell>
+                                            <Typography sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.875rem' }}>
+                                              {getStudentAverageScore(student.id)}%
+                                            </Typography>
+                                          </TableCell>
+                                          <TableCell>
+                                            <Typography sx={{
+                                              color: student.is_banned ? '#dc2626' : '#059669',
+                                              fontWeight: 600,
+                                              fontSize: '0.875rem'
+                                            }}>
+                                              {student.is_banned ? 'Bloklangan' : 'Faol'}
+                                            </Typography>
+                                          </TableCell>
+                                          <TableCell>
+                                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                              <Tooltip title="Batafsil">
+                                                <IconButton
+                                                  size="small"
+                                                  onClick={() => navigate(`/admin/student-details/${student.id}`)}
+                                                  sx={{
+                                                    color: '#2563eb',
+                                                    '&:hover': {
+                                                      backgroundColor: '#eff6ff',
+                                                    }
+                                                  }}
+                                                >
+                                                  <InfoIcon />
+                                                </IconButton>
+                                              </Tooltip>
+                                              <Tooltip title="Tahrirlash">
+                                                <IconButton
+                                                  size="small"
+                                                  onClick={() => handleEditClick(student)}
+                                                  sx={{
+                                                    color: '#059669',
+                                                    '&:hover': {
+                                                      backgroundColor: '#ecfdf5',
+                                                    }
+                                                  }}
+                                                >
+                                                  <EditIcon />
+                                                </IconButton>
+                                              </Tooltip>
+                                              {student.is_banned ? (
+                                                <Tooltip title="Blokdan chiqarish">
+                                                  <IconButton
+                                                    size="small"
+                                                    onClick={() => handleUnbanStudent(student.id)}
+                                                    sx={{
+                                                      color: '#059669',
+                                                      '&:hover': {
+                                                        backgroundColor: '#ecfdf5',
+                                                      }
+                                                    }}
+                                                  >
+                                                    <CheckCircleIcon />
+                                                  </IconButton>
+                                                </Tooltip>
+                                              ) : (
+                                                <Tooltip title="Bloklash">
+                                                  <IconButton
+                                                    size="small"
+                                                    onClick={() => handleBanStudent(student.id)}
+                                                    sx={{
+                                                      color: '#dc2626',
+                                                      '&:hover': {
+                                                        backgroundColor: '#fef2f2',
+                                                      }
+                                                    }}
+                                                  >
+                                                    <BlockIcon />
+                                                  </IconButton>
+                                                </Tooltip>
+                                              )}
+                                              <Tooltip title="O'chirish">
+                                                <IconButton
+                                                  size="small"
+                                                  onClick={() => handleDeleteClick(student)}
+                                                  sx={{
+                                                    color: '#dc2626',
+                                                    '&:hover': {
+                                                      backgroundColor: '#fef2f2',
+                                                    }
+                                                  }}
+                                                >
+                                                  <DeleteIcon />
+                                                </IconButton>
+                                              </Tooltip>
+                                            </Box>
+                                          </TableCell>
+                                        </TableRow>
+                                      ))
+                                    )}
+                                  </TableBody>
+                                </Table>
+                              </Box>
+                            </Collapse>
+                          </TableCell>
+                        </TableRow>
+                      </React.Fragment>
                     );
                   })
                 )
@@ -872,186 +1120,6 @@ const ManageStudents = () => {
         </TableContainer>
       </Paper>
 
-      {/* Add Student Dialog */}
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          Yangi o'quvchi qo'shish
-        </DialogTitle>
-        <DialogContent>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Ism"
-            name="firstName"
-            fullWidth
-            variant="outlined"
-            value={formData.firstName}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-          />
-
-          <TextField
-            margin="dense"
-            label="Familiya"
-            name="lastName"
-            fullWidth
-            variant="outlined"
-            value={formData.lastName}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-          />
-
-          <FormControl fullWidth margin="dense" sx={{ mb: 2 }}>
-            <InputLabel>Sinf</InputLabel>
-            <Select
-              name="classGroup"
-              value={formData.classGroup}
-              label="Sinf"
-              onChange={handleChange}
-            >
-              {[5,6,7,8,9,10,11].flatMap(grade =>
-                [1,2,3,4].map(num => {
-                  const classGroup = `${grade}-${String(num).padStart(2,'0')}`;
-                  return <MenuItem key={classGroup} value={classGroup}>{classGroup}</MenuItem>;
-                })
-              )}
-            </Select>
-          </FormControl>
-
-          <FormControl fullWidth margin="dense" sx={{ mb: 2 }}>
-            <InputLabel>Yo'nalish</InputLabel>
-            <Select
-              name="direction"
-              value={formData.direction}
-              label="Yo'nalish"
-              onChange={handleChange}
-            >
-              <MenuItem value="natural">Tabiiy fanlar</MenuItem>
-              <MenuItem value="exact">Aniq fanlar</MenuItem>
-            </Select>
-          </FormControl>
-  
-          <TextField
-            margin="dense"
-            label="Ro'yxatdan o'tgan sana"
-            name="registrationDate"
-            type="date"
-            fullWidth
-            variant="outlined"
-            value={formData.registrationDate}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-            InputLabelProps={{ shrink: true }}
-          />
-
-          {formData.firstName && formData.lastName && formData.classGroup && formData.direction && (
-            <Alert severity="info" sx={{ mt: 2 }}>
-              <strong>Generatsiya qilingan ID:</strong> {generateStudentId(formData.firstName, formData.lastName, formData.classGroup, formData.direction, 123)}
-              <br />
-              <strong>Parol:</strong> Yuqoridagi ID (ID parol sifatida ishlatiladi)
-            </Alert>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Bekor qilish</Button>
-          <Button onClick={handleSubmit} variant="contained">
-            O'quvchi qo'shish
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Edit Student Dialog */}
-      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          O'quvchi ma'lumotlarini tahrirlash
-        </DialogTitle>
-        <DialogContent>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Ism"
-            name="firstName"
-            fullWidth
-            variant="outlined"
-            value={formData.firstName}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-          />
-
-          <TextField
-            margin="dense"
-            label="Familiya"
-            name="lastName"
-            fullWidth
-            variant="outlined"
-            value={formData.lastName}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-          />
-
-          <FormControl fullWidth margin="dense" sx={{ mb: 2 }}>
-            <InputLabel>Sinf</InputLabel>
-            <Select
-              name="classGroup"
-              value={formData.classGroup}
-              label="Sinf"
-              onChange={handleChange}
-            >
-              {[5,6,7,8,9,10,11].flatMap(grade =>
-                [1,2,3,4].map(num => {
-                  const classGroup = `${grade}-${String(num).padStart(2,'0')}`;
-                  return <MenuItem key={classGroup} value={classGroup}>{classGroup}</MenuItem>;
-                })
-              )}
-            </Select>
-          </FormControl>
-
-          <FormControl fullWidth margin="dense" sx={{ mb: 2 }}>
-            <InputLabel>Yo'nalish</InputLabel>
-            <Select
-              name="direction"
-              value={formData.direction}
-              label="Yo'nalish"
-              onChange={handleChange}
-            >
-              <MenuItem value="natural">Tabiiy fanlar</MenuItem>
-              <MenuItem value="exact">Aniq fanlar</MenuItem>
-            </Select>
-          </FormControl>
-
-          <TextField
-            margin="dense"
-            label="Ro'yxatdan o'tgan sana"
-            name="registrationDate"
-            type="date"
-            fullWidth
-            variant="outlined"
-            value={formData.registrationDate}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-            InputLabelProps={{ shrink: true }}
-          />
-
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditDialogOpen(false)}>Bekor qilish</Button>
-          <Button onClick={handleEditSubmit} variant="contained">
-            Saqlash
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog
@@ -1090,6 +1158,207 @@ const ManageStudents = () => {
             sx={{ cursor: 'pointer' }}
           >
             O'chirish
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Import Instructions Dialog */}
+      <Dialog
+        open={importDialogOpen}
+        onClose={() => setImportDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle sx={{ color: '#7c3aed', fontWeight: 700 }}>
+          Excel fayldan import qilish
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" sx={{ mb: 3 }}>
+            O'quvchilarni Excel fayldan import qilish uchun fayl quyidagi formatda bo'lishi kerak:
+          </Typography>
+
+          <Alert severity="info" sx={{ mb: 3 }}>
+            <strong>Fayl formati:</strong> .xlsx (Excel 2007 va undan keyingi versiyalar)
+          </Alert>
+
+          <Typography variant="h6" sx={{ mb: 2, color: '#1e293b' }}>
+            Excel fayl namunasi:
+          </Typography>
+
+          <Paper sx={{ p: 2, backgroundColor: '#f8fafc', mb: 3 }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ backgroundColor: '#e2e8f0' }}>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>№</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Ism</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Familiya</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Sinf</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Ro'yxatdan o'tgan sana (ixtiyoriy)</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>1</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>Ahmad</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>Karimov</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>9-01-A</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>2024-09-01</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>2</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>Malika</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>Toshmatova</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>9-01-T</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>2024-09-01</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>3</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>Jasur</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>Rahimov</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>10-02-A</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}></TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </Paper>
+
+          <Typography variant="body2" sx={{ mb: 2, color: '#64748b' }}>
+            <strong>Izohlar:</strong>
+          </Typography>
+          <Box component="ul" sx={{ pl: 3, mb: 3, color: '#64748b' }}>
+            <li>Sinf formati: "9-01-A" (9-sinf, 01-sinf raqami, A-aniq fanlar) yoki "9-01-T" (T-tabiiy fanlar)</li>
+            <li>Sana formati: YYYY-MM-DD (masalan: 2024-09-01)</li>
+            <li>Sana maydoni ixtiyoriy, agar bo'lmasa bugungi sana qo'yiladi</li>
+            <li>Har bir qator uchun o'quvchi yaratiladi va avtomatik ID beriladi</li>
+          </Box>
+
+          <Alert severity="warning" sx={{ mb: 3 }}>
+            <strong>E'tibor:</strong> Import jarayonida mavjud o'quvchilar tekshiriladi. Agar o'quvchi allaqachon mavjud bo'lsa, u o'tkazib yuboriladi.
+          </Alert>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setImportDialogOpen(false)}>
+            Bekor qilish
+          </Button>
+          <Button
+            variant="contained"
+            component="label"
+            sx={{
+              backgroundColor: '#7c3aed',
+              '&:hover': {
+                backgroundColor: '#6d28d9'
+              }
+            }}
+          >
+            Fayl tanlash (.xlsx)
+            <input
+              type="file"
+              accept=".xlsx"
+              hidden
+              onChange={(event) => {
+                setImportDialogOpen(false);
+                handleImportFromExcel(event);
+              }}
+            />
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Export Preview Dialog */}
+      <Dialog
+        open={exportDialogOpen}
+        onClose={() => setExportDialogOpen(false)}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle sx={{ color: '#059669', fontWeight: 700 }}>
+          Excel faylga export qilish
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" sx={{ mb: 3 }}>
+            Quyidagi ma'lumotlar Excel faylga export qilinadi. Jami {students.length} ta o'quvchi.
+          </Typography>
+
+          <Typography variant="h6" sx={{ mb: 2, color: '#1e293b' }}>
+            Export qilinadigan ma'lumotlar namunasi:
+          </Typography>
+
+          <Paper sx={{ p: 2, backgroundColor: '#f8fafc', mb: 3 }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ backgroundColor: '#e2e8f0' }}>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>№</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Ism</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Familiya</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Sinf</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Yo'nalish</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Testlar soni</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>O'rtacha ball</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Status</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Ro'yxatdan o'tgan sana</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Oxirgi faollik</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Display ID</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {students.slice(0, 5).map((student, index) => (
+                  <TableRow key={student.id}>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>{index + 1}</TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>{student.name || ''}</TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>{student.name ? student.name.split(' ').slice(1).join(' ') : ''}</TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>{student.class_group || ''}</TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>{getDirectionLabel(student.direction)}</TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>{getStudentAttemptCount(student.id)}</TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>{getStudentAverageScore(student.id)}%</TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>{student.is_banned ? 'Bloklangan' : 'Faol'}</TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>{student.registration_date ? new Date(student.registration_date).toLocaleDateString('uz-UZ') : ''}</TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>{getStudentLastActivity(student.id) || ''}</TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem', fontFamily: 'monospace' }}>{student.display_id || student.username || ''}</TableCell>
+                  </TableRow>
+                ))}
+                {students.length > 5 && (
+                  <TableRow>
+                    <TableCell colSpan={11} sx={{ textAlign: 'center', fontStyle: 'italic', color: '#64748b', fontSize: '0.875rem' }}>
+                      ...va yana {students.length - 5} ta o'quvchi
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </Paper>
+
+          <Typography variant="body2" sx={{ mb: 2, color: '#64748b' }}>
+            <strong>Export fayl haqida:</strong>
+          </Typography>
+          <Box component="ul" sx={{ pl: 3, mb: 3, color: '#64748b' }}>
+            <li>Fayl nomi: oquvchilar_[bugungi_sana].xlsx</li>
+            <li>Barcha o'quvchilar ma'lumotlari kiritiladi</li>
+            <li>Sana format: DD.MM.YYYY (masalan: 01.09.2024)</li>
+            <li>Ballar foizda ko'rsatiladi</li>
+          </Box>
+
+          <Alert severity="info" sx={{ mb: 3 }}>
+            <strong>Eslatma:</strong> Export qilish uchun "Export qilish" tugmasini bosing. Fayl avtomatik tarzda yuklab olinadi.
+          </Alert>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setExportDialogOpen(false)}>
+            Bekor qilish
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setExportDialogOpen(false);
+              handleExportToExcel();
+            }}
+            sx={{
+              backgroundColor: '#059669',
+              '&:hover': {
+                backgroundColor: '#047857'
+              }
+            }}
+          >
+            Export qilish
           </Button>
         </DialogActions>
       </Dialog>

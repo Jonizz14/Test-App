@@ -25,6 +25,7 @@ import {
   Home as DashboardIcon,
   SupervisorAccount as SupervisorAccountIcon,
   Group as GroupIcon,
+  School as SchoolIcon,
   TrendingUp as TrendingUpIcon,
   Leaderboard as LeaderboardIcon,
   PowerSettingsNew as LogoutIcon,
@@ -38,6 +39,8 @@ import apiService from '../data/apiService';
 import AdminOverview from './admin/AdminOverview';
 import ManageTeachers from './admin/ManageTeachers';
 import ManageStudents from './admin/ManageStudents';
+import AddStudent from './admin/AddStudent';
+import AddTeacher from './admin/AddTeacher';
 import TeacherDetails from './admin/TeacherDetails';
 import StudentDetails from './admin/StudentDetails';
 import StudentProfileView from '../pages/student/StudentProfileView';
@@ -45,6 +48,7 @@ import TestDetails from './admin/TestDetails';
 import TestStatistics from './admin/TestStatistics';
 import StudentRatings from './admin/StudentRatings';
 import ClassDetails from './admin/ClassDetails';
+import ClassStatistics from './admin/ClassStatistics';
 
 // Import components
 import BannedStudentsModal from '../components/BannedStudentsModal';
@@ -106,6 +110,7 @@ const AdminDashboard = () => {
     { text: 'Umumiy', icon: <DashboardIcon />, path: '/admin' },
     { text: 'O\'qituvchilarni boshqarish', icon: <SupervisorAccountIcon />, path: '/admin/teachers' },
     { text: 'O\'quvchilarni boshqarish', icon: <GroupIcon />, path: '/admin/students' },
+    { text: 'Sinflar reytingi', icon: <SchoolIcon />, path: '/admin/class-stats' },
     { text: 'Testlar statistikasi', icon: <TrendingUpIcon />, path: '/admin/test-stats' },
     { text: 'O\'quvchilar reytingi', icon: <LeaderboardIcon />, path: '/admin/student-ratings' },
   ];
@@ -331,7 +336,13 @@ const AdminDashboard = () => {
               <Route path="/" element={<AdminOverview />} />
               <Route path="/teachers" element={<ManageTeachers />} />
               <Route path="/teacher-details/:id" element={<TeacherDetails />} />
+              <Route path="/teachers" element={<ManageTeachers />} />
+              <Route path="/add-teacher" element={<AddTeacher />} />
+              <Route path="/edit-teacher/:id" element={<AddTeacher />} />
               <Route path="/students" element={<ManageStudents />} />
+              <Route path="/add-student" element={<AddStudent />} />
+              <Route path="/edit-student/:id" element={<AddStudent />} />
+              <Route path="/class-stats" element={<ClassStatistics />} />
               <Route path="/class-details/:classGroup" element={<ClassDetails />} />
               <Route path="/student-details/:id" element={<StudentDetails />} />
               <Route path="/student-profile/:id" element={<StudentProfileView />} />

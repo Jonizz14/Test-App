@@ -26,26 +26,19 @@ import {
   MenuItem,
   InputAdornment,
 } from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon, Search as SearchIcon, Info as InfoIcon } from '@mui/icons-material';
+import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon, Search as SearchIcon, Info as InfoIcon, FileDownload as FileDownloadIcon, FileUpload as FileUploadIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
+import * as XLSX from 'xlsx';
 
 const ManageTeachers = () => {
   const navigate = useNavigate();
   const [teachers, setTeachers] = useState([]);
   const [tests, setTests] = useState([]);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [teacherToDelete, setTeacherToDelete] = useState(null);
-  const [teacherToEdit, setTeacherToEdit] = useState(null);
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    subjects: '',
-    isCurator: false,
-    curatorClass: '',
-  });
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -89,111 +82,164 @@ const ManageTeachers = () => {
     return `${username}@teacher.testplatform.com`;
   };
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value
-    });
+  const handleExportToExcel = () => {
+    // Prepare data for export
+    const exportData = teachers.map((teacher, index) => ({
+      '№': index + 1,
+      'Ism': teacher.name || '',
+      'Familiya': teacher.name ? teacher.name.split(' ').slice(1).join(' ') : '',
+      'Fanlar': teacher.subjects ? teacher.subjects.join(', ') : '',
+      'Kurator': teacher.is_curator ? 'Ha' : 'Yo\'q',
+      'Kurator sinfi': teacher.curator_class || '',
+      'Testlar soni': tests.filter(test => test.teacher === teacher.id).length,
+      'Display ID': teacher.display_id || teacher.username || ''
+    }));
+
+    // Create worksheet
+    const ws = XLSX.utils.json_to_sheet(exportData);
+
+    // Set column widths
+    const colWidths = [
+      { wch: 5 },  // №
+      { wch: 15 }, // Ism
+      { wch: 15 }, // Familiya
+      { wch: 20 }, // Fanlar
+      { wch: 10 }, // Kurator
+      { wch: 15 }, // Kurator sinfi
+      { wch: 12 }, // Testlar soni
+      { wch: 20 }  // Display ID
+    ];
+    ws['!cols'] = colWidths;
+
+    // Create workbook
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'O\'qituvchilar');
+
+    // Generate filename with current date
+    const currentDate = new Date().toISOString().split('T')[0];
+    const filename = `oqituvchilar_${currentDate}.xlsx`;
+
+    // Save file
+    XLSX.writeFile(wb, filename);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-
-    if (!formData.firstName || !formData.lastName || !formData.subjects) {
-      setError('Barcha maydonlarni to\'ldiring');
-      return;
-    }
+  const handleImportFromExcel = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
 
     try {
-      // Generate display ID and valid credentials
-      const randomDigits = Math.floor(Math.random() * 900) + 100; // Random 3 digits
-      const displayId = generateTeacherId(formData.firstName, formData.lastName, randomDigits);
-      const username = generateTeacherUsername(formData.firstName, formData.lastName);
-      const email = generateTeacherEmail(formData.firstName, formData.lastName);
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-      // Check if username already exists
-      const existingTeacher = teachers.find(t => t.username === username);
-      if (existingTeacher) {
-        setError('Bu ma\'lumotlar bilan o\'qituvchi allaqachon mavjud');
+      if (jsonData.length === 0) {
+        alert('Excel faylda ma\'lumotlar topilmadi');
         return;
       }
 
-      // Create new teacher via API
-      const teacherData = {
-        username: displayId, // Use display ID as username (will be stored as-is)
-        email: email, // Valid email format
-        password: displayId, // Use display ID as password
-        name: `${formData.firstName} ${formData.lastName}`,
-        role: 'teacher',
-        subjects: formData.subjects.split(',').map(s => s.trim()),
-        is_curator: formData.isCurator,
-        curator_class: formData.isCurator ? formData.curatorClass : null,
-      };
+      let successCount = 0;
+      let errorCount = 0;
+      const errors = [];
 
-      const savedTeacher = await apiService.post('/users/', teacherData);
+      for (const row of jsonData) {
+        try {
+          // Handle simple format: №, Ism, Familiya, Fanlar, Kurator, Kurator sinfi
+          const rowIndex = jsonData.indexOf(row) + 2; // +2 because Excel rows start at 1 and we skip header
 
-      // Update local state
-      setTeachers([...teachers, savedTeacher]);
+          // Get values - could be by column name or by position
+          let firstName, lastName, subjects, isCurator, curatorClass;
 
-      setSuccess(`O'qituvchi muvaffaqiyatli qo'shildi! ID: ${displayId}`);
-      setFormData({
-        firstName: '',
-        lastName: '',
-        subjects: '',
-        isCurator: false,
-        curatorClass: ''
-      });
-      setDialogOpen(false);
+          if (row.Ism && row.Familiya && row.Fanlar) {
+            // Named columns
+            firstName = row.Ism;
+            lastName = row.Familiya;
+            subjects = row.Fanlar;
+            isCurator = row.Kurator === 'Ha';
+            curatorClass = row['Kurator sinfi'] || '';
+          } else {
+            // Try positional access
+            const values = Object.values(row);
+            if (values.length >= 4) {
+              firstName = values[1]; // Index 1 = Ism
+              lastName = values[2];  // Index 2 = Familiya
+              subjects = values[3];  // Index 3 = Fanlar
+              isCurator = values[4] === 'Ha'; // Index 4 = Kurator
+              curatorClass = values[5] || ''; // Index 5 = Kurator sinfi
+            }
+          }
 
-    } catch (err) {
-      console.error('Failed to create teacher:', err);
-      setError('Xatolik yuz berdi: ' + (err.message || 'Noma\'lum xatolik'));
+          // Validate required fields
+          if (!firstName || !lastName || !subjects) {
+            errors.push(`Qator ${rowIndex}: Ism, Familiya va Fanlar maydonlari majburiy`);
+            errorCount++;
+            continue;
+          }
+
+          const fullName = `${firstName} ${lastName}`;
+
+          // Generate credentials
+          const randomDigits = Math.floor(Math.random() * 900) + 100;
+          const displayId = generateTeacherId(firstName, lastName, randomDigits);
+          const username = generateTeacherUsername(firstName, lastName);
+          const email = generateTeacherEmail(firstName, lastName);
+
+          // Check if teacher already exists
+          const existingTeacher = teachers.find(t => t.username === username);
+          if (existingTeacher) {
+            errors.push(`Qator ${rowIndex}: ${fullName} - bu o'qituvchi allaqachon mavjud`);
+            errorCount++;
+            continue;
+          }
+
+          // Create teacher
+          const teacherData = {
+            username: displayId,
+            email: email,
+            password: displayId,
+            name: fullName,
+            role: 'teacher',
+            subjects: subjects.split(',').map(s => s.trim()),
+            is_curator: isCurator,
+            curator_class: isCurator ? curatorClass : null,
+          };
+
+          await apiService.post('/users/', teacherData);
+          successCount++;
+
+        } catch (error) {
+          errors.push(`Qator ${jsonData.indexOf(row) + 2}: ${error.message || 'Xatolik'}`);
+          errorCount++;
+        }
+      }
+
+      // Reload data
+      const [allUsers, allTests] = await Promise.all([
+        apiService.getUsers(),
+        apiService.getTests()
+      ]);
+      const allTeachers = allUsers.filter(user => user.role === 'teacher');
+      setTeachers(allTeachers);
+      setTests(allTests);
+
+      // Show results
+      let message = `Import yakunlandi!\nMuvaffaqiyatli: ${successCount}\nXatoliklar: ${errorCount}`;
+      if (errors.length > 0) {
+        message += '\n\nXatoliklar:\n' + errors.slice(0, 5).join('\n');
+        if (errors.length > 5) {
+          message += `\n...va yana ${errors.length - 5} ta xatolik`;
+        }
+      }
+      alert(message);
+
+    } catch (error) {
+      console.error('Import error:', error);
+      alert('Excel faylini o\'qishda xatolik yuz berdi: ' + error.message);
     }
-  };
 
-  const handleEditSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-
-    if (!formData.firstName || !formData.lastName || !formData.subjects) {
-      setError('Barcha maydonlarni to\'ldiring');
-      return;
-    }
-
-    try {
-      const updatedData = {
-        name: `${formData.firstName} ${formData.lastName}`,
-        subjects: formData.subjects.split(',').map(s => s.trim()),
-        is_curator: formData.isCurator,
-        curator_class: formData.isCurator ? formData.curatorClass : null,
-      };
-
-      const updatedTeacher = await apiService.put(`/users/${teacherToEdit.id}/`, updatedData);
-
-      // Update local state
-      setTeachers(teachers.map(teacher => 
-        teacher.id === teacherToEdit.id ? updatedTeacher : teacher
-      ));
-
-      setSuccess(`O'qituvchi ma'lumotlari muvaffaqiyatli yangilandi!`);
-      setEditDialogOpen(false);
-      setTeacherToEdit(null);
-      setFormData({
-        firstName: '',
-        lastName: '',
-        subjects: '',
-        isCurator: false,
-        curatorClass: ''
-      });
-
-    } catch (err) {
-      console.error('Failed to update teacher:', err);
-      setError('Xatolik yuz berdi: ' + (err.message || 'Noma\'lum xatolik'));
-    }
+    // Clear file input
+    event.target.value = '';
   };
 
   const handleDelete = async (teacherId) => {
@@ -216,15 +262,7 @@ const ManageTeachers = () => {
   };
 
   const handleEditClick = (teacher) => {
-    setTeacherToEdit(teacher);
-    setFormData({
-      firstName: teacher.name ? teacher.name.split(' ')[0] : '',
-      lastName: teacher.name ? teacher.name.split(' ').slice(1).join(' ') : '',
-      subjects: teacher.subjects ? teacher.subjects.join(', ') : '',
-      isCurator: teacher.is_curator || false,
-      curatorClass: teacher.curator_class || '',
-    });
-    setEditDialogOpen(true);
+    navigate(`/admin/edit-teacher/${teacher.id}`);
   };
 
 
@@ -245,54 +283,37 @@ const ManageTeachers = () => {
       py: 4,
       backgroundColor: '#ffffff'
     }}>
+      {/* Header */}
       <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         mb: 6,
         pb: 4,
         borderBottom: '1px solid #e2e8f0'
-      }}
-      >
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b'
-        }}>
-          O'qituvchilarni boshqarish
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setDialogOpen(true)}
+      }}>
+        <Typography
           sx={{
-            backgroundColor: '#2563eb',
-            color: '#ffffff',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            fontWeight: 600,
-            textTransform: 'none',
-            '&:hover': {
-              backgroundColor: '#1d4ed8',
-            }
+            fontSize: '2.5rem',
+            fontWeight: 700,
+            color: '#1e293b',
+            mb: 2
           }}
         >
-          O'qituvchi qo'shish
-        </Button>
+          O'qituvchilarni boshqarish
+        </Typography>
+        <Typography sx={{
+          fontSize: '1.125rem',
+          color: '#64748b',
+          fontWeight: 400
+        }}>
+          O'qituvchilar ma'lumotlarini boshqaring
+        </Typography>
       </Box>
 
-      {success && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          {success}
-        </Alert>
-      )}
-
-      {/* Search Input */}
-      <Box sx={{ mb: 4 }}>
+      {/* Search and Add Button */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <TextField
           fullWidth
           variant="outlined"
-          placeholder="O'qituvchi nomini yoki ID sini qidirish..."
+          placeholder="O'qituvchi nomini qidirish..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           InputProps={{
@@ -303,6 +324,7 @@ const ManageTeachers = () => {
             ),
           }}
           sx={{
+            mr: 2,
             '& .MuiOutlinedInput-root': {
               borderRadius: '8px',
               backgroundColor: '#ffffff',
@@ -316,12 +338,86 @@ const ManageTeachers = () => {
             }
           }}
         />
-        {searchTerm && (
-          <Typography sx={{ mt: 1, color: '#64748b', fontSize: '0.875rem' }}>
-            {filteredTeachers.length} ta o'qituvchi topildi
-          </Typography>
-        )}
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/admin/add-teacher')}
+            sx={{
+              backgroundColor: '#2563eb',
+              color: '#ffffff',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontWeight: 600,
+              textTransform: 'none',
+              whiteSpace: 'nowrap',
+              '&:hover': {
+                backgroundColor: '#1d4ed8',
+              }
+            }}
+          >
+            O'qituvchi qo'shish
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<FileDownloadIcon />}
+            onClick={() => setExportDialogOpen(true)}
+            sx={{
+              borderColor: '#059669',
+              color: '#059669',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontWeight: 600,
+              textTransform: 'none',
+              whiteSpace: 'nowrap',
+              '&:hover': {
+                backgroundColor: '#ecfdf5',
+                borderColor: '#059669'
+              }
+            }}
+          >
+            Excel faylga export
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<FileUploadIcon />}
+            onClick={() => setImportDialogOpen(true)}
+            sx={{
+              borderColor: '#7c3aed',
+              color: '#7c3aed',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontWeight: 600,
+              textTransform: 'none',
+              whiteSpace: 'nowrap',
+              '&:hover': {
+                backgroundColor: '#faf5ff',
+                borderColor: '#7c3aed'
+              }
+            }}
+          >
+            Excel fayldan import
+          </Button>
+        </Box>
       </Box>
+
+      {success && (
+        <Alert severity="success" sx={{ mb: 4 }}>
+          {success}
+        </Alert>
+      )}
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 4 }}>
+          {error}
+        </Alert>
+      )}
+
+      {searchTerm && (
+        <Typography sx={{ mb: 2, color: '#64748b', fontSize: '0.875rem' }}>
+          {filteredTeachers.length} ta o'qituvchi topildi
+        </Typography>
+      )}
 
       
         <TableContainer component={Paper} sx={{
@@ -482,174 +578,192 @@ const ManageTeachers = () => {
         </Table>
       </TableContainer>
 
-      {/* Add Teacher Dialog */}
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          O'qituvchi qo'shish
+      {/* Import Instructions Dialog */}
+      <Dialog
+        open={importDialogOpen}
+        onClose={() => setImportDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle sx={{ color: '#7c3aed', fontWeight: 700 }}>
+          Excel fayldan import qilish
         </DialogTitle>
         <DialogContent>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
+          <Typography variant="body1" sx={{ mb: 3 }}>
+            O'qituvchilarni Excel fayldan import qilish uchun fayl quyidagi formatda bo'lishi kerak:
+          </Typography>
 
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Ism"
-            name="firstName"
-            fullWidth
-            variant="outlined"
-            value={formData.firstName}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            label="Familiya"
-            name="lastName"
-            fullWidth
-            variant="outlined"
-            value={formData.lastName}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            label="Fanlar (vergul bilan ajratilgan)"
-            name="subjects"
-            fullWidth
-            variant="outlined"
-            value={formData.subjects}
-            onChange={handleChange}
-            placeholder="Masalan: Matematika, Fizika, Kimyo"
-            sx={{ mb: 2 }}
-          />
+          <Alert severity="info" sx={{ mb: 3 }}>
+            <strong>Fayl formati:</strong> .xlsx (Excel 2007 va undan keyingi versiyalar)
+          </Alert>
 
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={formData.isCurator}
-                onChange={handleChange}
-                name="isCurator"
-              />
-            }
-            label="Kurator"
-            sx={{ mb: 2 }}
-          />
+          <Typography variant="h6" sx={{ mb: 2, color: '#1e293b' }}>
+            Excel fayl namunasi:
+          </Typography>
 
-          {formData.isCurator && (
-            <FormControl fullWidth margin="dense" sx={{ mb: 2 }}>
-              <InputLabel>Kurator sinfi</InputLabel>
-              <Select
-                name="curatorClass"
-                value={formData.curatorClass}
-                label="Kurator sinfi"
-                onChange={handleChange}
-              >
-                {[5,6,7,8,9,10,11].flatMap(grade =>
-                  [1,2,3,4].map(num => {
-                    const classGroup = `${grade}-${String(num).padStart(2,'0')}`;
-                    return <MenuItem key={classGroup} value={classGroup}>{classGroup}</MenuItem>;
-                  })
-                )}
-              </Select>
-            </FormControl>
-          )}
+          <Paper sx={{ p: 2, backgroundColor: '#f8fafc', mb: 3 }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ backgroundColor: '#e2e8f0' }}>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>№</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Ism</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Familiya</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Fanlar</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Kurator</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Kurator sinfi (ixtiyoriy)</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>1</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>Ahmad</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>Karimov</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>Matematika, Fizika</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>Ha</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>9-01-A</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>2</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>Malika</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>Toshmatova</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>Kimyo, Biologiya</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}>Yo'q</TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem' }}></TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </Paper>
+
+          <Typography variant="body2" sx={{ mb: 2, color: '#64748b' }}>
+            <strong>Izohlar:</strong>
+          </Typography>
+          <Box component="ul" sx={{ pl: 3, mb: 3, color: '#64748b' }}>
+            <li>Fanlar vergul bilan ajratilgan bo'lishi kerak</li>
+            <li>Kurator maydoni: "Ha" yoki "Yo'q"</li>
+            <li>Kurator sinfi faqat kurator bo'lsa to'ldiriladi</li>
+            <li>Har bir qator uchun o'qituvchi yaratiladi va avtomatik ID beriladi</li>
+          </Box>
+
+          <Alert severity="warning" sx={{ mb: 3 }}>
+            <strong>E'tibor:</strong> Import jarayonida mavjud o'qituvchilar tekshiriladi. Agar o'qituvchi allaqachon mavjud bo'lsa, u o'tkazib yuboriladi.
+          </Alert>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)} sx={{ cursor: 'pointer' }}>
+          <Button onClick={() => setImportDialogOpen(false)}>
             Bekor qilish
           </Button>
-          <Button onClick={handleSubmit} variant="contained" sx={{ cursor: 'pointer' }}>
-            O'qituvchi qo'shish
+          <Button
+            variant="contained"
+            component="label"
+            sx={{
+              backgroundColor: '#7c3aed',
+              '&:hover': {
+                backgroundColor: '#6d28d9'
+              }
+            }}
+          >
+            Fayl tanlash (.xlsx)
+            <input
+              type="file"
+              accept=".xlsx"
+              hidden
+              onChange={(event) => {
+                setImportDialogOpen(false);
+                handleImportFromExcel(event);
+              }}
+            />
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Edit Teacher Dialog */}
-      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          O'qituvchi ma'lumotlarini tahrirlash
+      {/* Export Preview Dialog */}
+      <Dialog
+        open={exportDialogOpen}
+        onClose={() => setExportDialogOpen(false)}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle sx={{ color: '#059669', fontWeight: 700 }}>
+          Excel faylga export qilish
         </DialogTitle>
         <DialogContent>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
+          <Typography variant="body1" sx={{ mb: 3 }}>
+            Quyidagi ma'lumotlar Excel faylga export qilinadi. Jami {teachers.length} ta o'qituvchi.
+          </Typography>
 
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Ism"
-            name="firstName"
-            fullWidth
-            variant="outlined"
-            value={formData.firstName}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            label="Familiya"
-            name="lastName"
-            fullWidth
-            variant="outlined"
-            value={formData.lastName}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            label="Fanlar (vergul bilan ajratilgan)"
-            name="subjects"
-            fullWidth
-            variant="outlined"
-            value={formData.subjects}
-            onChange={handleChange}
-            placeholder="Masalan: Matematika, Fizika, Kimyo"
-            sx={{ mb: 2 }}
-          />
+          <Typography variant="h6" sx={{ mb: 2, color: '#1e293b' }}>
+            Export qilinadigan ma'lumotlar namunasi:
+          </Typography>
 
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={formData.isCurator}
-                onChange={handleChange}
-                name="isCurator"
-              />
-            }
-            label="Kurator"
-            sx={{ mb: 2 }}
-          />
-
-          {formData.isCurator && (
-            <FormControl fullWidth margin="dense" sx={{ mb: 2 }}>
-              <InputLabel>Kurator sinfi</InputLabel>
-              <Select
-                name="curatorClass"
-                value={formData.curatorClass}
-                label="Kurator sinfi"
-                onChange={handleChange}
-              >
-                {[5,6,7,8,9,10,11].flatMap(grade =>
-                  [1,2,3,4].map(num => {
-                    const classGroup = `${grade}-${String(num).padStart(2,'0')}`;
-                    return <MenuItem key={classGroup} value={classGroup}>{classGroup}</MenuItem>;
-                  })
+          <Paper sx={{ p: 2, backgroundColor: '#f8fafc', mb: 3 }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ backgroundColor: '#e2e8f0' }}>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>№</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Ism</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Familiya</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Fanlar</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Kurator</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Kurator sinfi</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Testlar soni</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Display ID</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {teachers.slice(0, 5).map((teacher, index) => (
+                  <TableRow key={teacher.id}>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>{index + 1}</TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>{teacher.name || ''}</TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>{teacher.name ? teacher.name.split(' ').slice(1).join(' ') : ''}</TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>{teacher.subjects ? teacher.subjects.join(', ') : ''}</TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>{teacher.is_curator ? 'Ha' : 'Yo\'q'}</TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>{teacher.curator_class || ''}</TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem' }}>{tests.filter(test => test.teacher === teacher.id).length}</TableCell>
+                    <TableCell sx={{ fontSize: '0.875rem', fontFamily: 'monospace' }}>{teacher.display_id || teacher.username || ''}</TableCell>
+                  </TableRow>
+                ))}
+                {teachers.length > 5 && (
+                  <TableRow>
+                    <TableCell colSpan={8} sx={{ textAlign: 'center', fontStyle: 'italic', color: '#64748b', fontSize: '0.875rem' }}>
+                      ...va yana {teachers.length - 5} ta o'qituvchi
+                    </TableCell>
+                  </TableRow>
                 )}
-              </Select>
-            </FormControl>
-          )}
+              </TableBody>
+            </Table>
+          </Paper>
+
+          <Typography variant="body2" sx={{ mb: 2, color: '#64748b' }}>
+            <strong>Export fayl haqida:</strong>
+          </Typography>
+          <Box component="ul" sx={{ pl: 3, mb: 3, color: '#64748b' }}>
+            <li>Fayl nomi: oqituvchilar_[bugungi_sana].xlsx</li>
+            <li>Barcha o'qituvchilar ma'lumotlari kiritiladi</li>
+            <li>Fanlar vergul bilan ajratilgan</li>
+          </Box>
+
+          <Alert severity="info" sx={{ mb: 3 }}>
+            <strong>Eslatma:</strong> Export qilish uchun "Export qilish" tugmasini bosing. Fayl avtomatik tarzda yuklab olinadi.
+          </Alert>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setEditDialogOpen(false)} sx={{ cursor: 'pointer' }}>
+          <Button onClick={() => setExportDialogOpen(false)}>
             Bekor qilish
           </Button>
-          <Button onClick={handleEditSubmit} variant="contained" sx={{ cursor: 'pointer' }}>
-            Saqlash
+          <Button
+            variant="contained"
+            onClick={() => {
+              setExportDialogOpen(false);
+              handleExportToExcel();
+            }}
+            sx={{
+              backgroundColor: '#059669',
+              '&:hover': {
+                backgroundColor: '#047857'
+              }
+            }}
+          >
+            Export qilish
           </Button>
         </DialogActions>
       </Dialog>
