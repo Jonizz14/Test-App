@@ -2,9 +2,10 @@ from rest_framework import serializers
 from .models import User, Test, Question, TestAttempt, Feedback, TestSession, WarningLog, Pricing, StarPackage, Gift, StudentGift
 
 class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-    username = serializers.CharField(validators=[])  # Remove default username validators
-    email = serializers.EmailField(validators=[])  # Remove default email validators
+    password = serializers.CharField(write_only=True, required=False)
+    username = serializers.CharField(validators=[], required=False)  # Remove default username validators
+    email = serializers.EmailField(validators=[], required=False)  # Remove default email validators
+    role = serializers.ChoiceField(choices=User.ROLE_CHOICES, required=False)
 
     profile_photo_url = serializers.SerializerMethodField()
     premium_info = serializers.SerializerMethodField()
@@ -39,11 +40,22 @@ class UserSerializer(serializers.ModelSerializer):
         username = validated_data.get('username')
         if User.objects.filter(username=username).exists():
             raise serializers.ValidationError({"username": "A user with this username already exists."})
-        
+
         password = validated_data.pop('password')
         user = super().create(validated_data)
         user.set_password(password)
         user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        # Handle password updates - only update if provided
+        password = validated_data.pop('password', None)
+        user = super().update(instance, validated_data)
+
+        if password:
+            user.set_password(password)
+            user.save()
+
         return user
 
     def to_representation(self, instance):

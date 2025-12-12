@@ -79,9 +79,11 @@ const ClassStatistics = () => {
           classGroups[classGroup].students.push(student);
         });
 
-        // Assign curators
+        // Assign curators - match base class name (without suffix like -A, -B)
         Object.keys(classGroups).forEach(className => {
-          const curator = teachers.find(teacher => teacher.curator_class === className);
+          // Extract base class name (e.g., "9-03-A" -> "9-03")
+          const baseClassName = className.split('-').slice(0, 2).join('-');
+          const curator = teachers.find(teacher => teacher.curator_class === baseClassName);
           if (curator) {
             classGroups[className].curator = curator;
           }
