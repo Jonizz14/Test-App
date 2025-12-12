@@ -1,11 +1,12 @@
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.db import models
+from django.db.models import Count, Avg, Sum, Q
 from .models import User, Test, Question, TestAttempt, Feedback, TestSession, WarningLog, Pricing, StarPackage, Gift, StudentGift
 from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, WarningLogSerializer, PricingSerializer, StarPackageSerializer, GiftSerializer, StudentGiftSerializer
 
@@ -521,6 +522,305 @@ class TestSessionViewSet(viewsets.ModelViewSet):
             
         except TestSession.DoesNotExist:
             return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def api_root(request):
+    """
+    API Root - Public endpoint showing available API endpoints
+    """
+    base_url = request.build_absolute_uri('/api/')
+    return Response({
+        'message': 'Test Platform API',
+        'version': '1.0',
+        'documentation': 'Visit any endpoint to see interactive API documentation',
+        'authentication': {
+            'login': f'{base_url}users/login/',
+            'register': f'{base_url}users/register/',
+            'token_refresh': f'{base_url}token/refresh/',
+        },
+        'endpoints': {
+            'users': f'{base_url}users/',
+            'tests': f'{base_url}tests/',
+            'questions': f'{base_url}questions/',
+            'attempts': f'{base_url}attempts/',
+            'sessions': f'{base_url}sessions/',
+            'gifts': f'{base_url}gifts/',
+            'pricing': f'{base_url}pricing/',
+            'statistics': f'{base_url}statistics/',
+        },
+        'public_endpoints': {
+            'tests_public': f'{base_url}tests/public_list/',
+            'questions_public': f'{base_url}questions/public_list/',
+        },
+        'admin_panel': request.build_absolute_uri('/admin/'),
+        'frontend_app': 'http://localhost:5173/',
+    })
+
+
+class StatisticsViewSet(viewsets.ViewSet):
+    """Statistics and analytics endpoints for admin dashboard"""
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['get'])
+    def overview(self, request):
+        """Get overall platform statistics"""
+        if request.user.role != 'admin':
+            return Response({'error': 'Only admin can access statistics'}, status=status.HTTP_403_FORBIDDEN)
+
+        # User statistics
+        total_users = User.objects.count()
+        total_students = User.objects.filter(role='student').count()
+        total_teachers = User.objects.filter(role='teacher').count()
+        total_admins = User.objects.filter(role='admin').count()
+        total_sellers = User.objects.filter(role='seller').count()
+
+        # Premium statistics
+        premium_students = User.objects.filter(role='student', is_premium=True).count()
+        premium_percentage = (premium_students / total_students * 100) if total_students > 0 else 0
+
+        # Test statistics
+        total_tests = Test.objects.count()
+        active_tests = Test.objects.filter(is_active=True).count()
+        total_questions = Question.objects.count()
+
+        # Attempt statistics
+        total_attempts = TestAttempt.objects.count()
+        avg_score = TestAttempt.objects.aggregate(avg=Avg('score'))['avg'] or 0
+
+        # Recent activity (last 7 days)
+        seven_days_ago = timezone.now() - timezone.timedelta(days=7)
+        recent_attempts = TestAttempt.objects.filter(completed_at__gte=seven_days_ago).count()
+        recent_registrations = User.objects.filter(registration_date__gte=seven_days_ago).count()
+
+        # Class statistics
+        classes = {}
+        students_by_class = User.objects.filter(role='student').values('class_group').annotate(
+            count=Count('id')
+        ).order_by('-count')
+
+        for class_data in students_by_class:
+            class_name = class_data['class_group'] or 'Noma\'lum'
+            classes[class_name] = class_data['count']
+
+        return Response({
+            'users': {
+                'total': total_users,
+                'students': total_students,
+                'teachers': total_teachers,
+                'admins': total_admins,
+                'sellers': total_sellers,
+                'premium_students': premium_students,
+                'premium_percentage': round(premium_percentage, 1)
+            },
+            'tests': {
+                'total': total_tests,
+                'active': active_tests,
+                'questions': total_questions
+            },
+            'attempts': {
+                'total': total_attempts,
+                'average_score': round(avg_score, 1)
+            },
+            'activity': {
+                'recent_attempts': recent_attempts,
+                'recent_registrations': recent_registrations
+            },
+            'classes': classes
+        })
+
+    @action(detail=False, methods=['get'])
+    def class_statistics(self, request):
+        """Get detailed class statistics"""
+        if request.user.role != 'admin':
+            return Response({'error': 'Only admin can access statistics'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Group students by class
+        class_stats = []
+        students_by_class = User.objects.filter(role='student').values('class_group').annotate(
+            student_count=Count('id')
+        ).order_by('class_group')
+
+        for class_data in students_by_class:
+            class_name = class_data['class_group'] or 'Noma\'lum'
+
+            # Get students in this class
+            class_students = User.objects.filter(role='student', class_group=class_name)
+
+            # Calculate statistics
+            total_attempts = TestAttempt.objects.filter(student__in=class_students).count()
+            avg_score = TestAttempt.objects.filter(student__in=class_students).aggregate(
+                avg=Avg('score')
+            )['avg'] or 0
+
+            # Active students (logged in within last 30 days)
+            thirty_days_ago = timezone.now() - timezone.timedelta(days=30)
+            active_students = class_students.filter(last_login__gte=thirty_days_ago).count()
+
+            # Premium students in class
+            premium_students = class_students.filter(is_premium=True).count()
+
+            # Curator
+            curator = User.objects.filter(role='teacher', curator_class=class_name).first()
+
+            class_stats.append({
+                'name': class_name,
+                'total_students': class_data['student_count'],
+                'active_students': active_students,
+                'premium_students': premium_students,
+                'total_attempts': total_attempts,
+                'average_score': round(avg_score, 1),
+                'curator': curator.name if curator else None
+            })
+
+        return Response({'classes': class_stats})
+
+    @action(detail=False, methods=['get'])
+    def teacher_performance(self, request):
+        """Get teacher performance statistics"""
+        if request.user.role != 'admin':
+            return Response({'error': 'Only admin can access statistics'}, status=status.HTTP_403_FORBIDDEN)
+
+        teachers = User.objects.filter(role='teacher')
+        teacher_stats = []
+
+        for teacher in teachers:
+            # Tests created by teacher
+            tests_count = Test.objects.filter(teacher=teacher).count()
+
+            # Attempts on teacher's tests
+            teacher_tests = Test.objects.filter(teacher=teacher)
+            attempts_count = TestAttempt.objects.filter(test__in=teacher_tests).count()
+
+            # Average score on teacher's tests
+            avg_score = TestAttempt.objects.filter(test__in=teacher_tests).aggregate(
+                avg=Avg('score')
+            )['avg'] or 0
+
+            # Students in curator's class
+            curator_students = User.objects.filter(role='student', class_group=teacher.curator_class).count()
+
+            teacher_stats.append({
+                'id': teacher.id,
+                'name': teacher.name,
+                'display_id': teacher.display_id,
+                'tests_created': tests_count,
+                'total_attempts': attempts_count,
+                'average_score': round(avg_score, 1),
+                'curator_class': teacher.curator_class,
+                'curator_students': curator_students,
+                'subjects': teacher.subjects or []
+            })
+
+        return Response({'teachers': teacher_stats})
+
+    @action(detail=False, methods=['get'])
+    def revenue_stats(self, request):
+        """Get revenue and earnings statistics"""
+        if request.user.role not in ['admin', 'seller']:
+            return Response({'error': 'Only admin and seller can access revenue stats'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Premium revenue
+        premium_revenue = User.objects.filter(is_premium=True, premium_cost__gt=0).aggregate(
+            total=Sum('premium_cost')
+        )['total'] or 0
+
+        # Teacher earnings
+        teacher_earnings = User.objects.filter(role='teacher').aggregate(
+            total=Sum('seller_earnings')
+        )['total'] or 0
+
+        # Seller earnings
+        seller_earnings = User.objects.filter(role='seller').aggregate(
+            total=Sum('seller_earnings')
+        )['total'] or 0
+
+        # Gift purchases
+        gift_revenue = StudentGift.objects.aggregate(
+            total=Sum('gift__star_cost')
+        )['total'] or 0
+
+        # Monthly breakdown (last 6 months)
+        monthly_stats = []
+        for i in range(5, -1, -1):
+            month_start = timezone.now().replace(day=1) - timezone.timedelta(days=i*30)
+            month_end = month_start + timezone.timedelta(days=30)
+
+            monthly_premium = User.objects.filter(
+                is_premium=True,
+                premium_granted_date__gte=month_start,
+                premium_granted_date__lt=month_end,
+                premium_cost__gt=0
+            ).aggregate(total=Sum('premium_cost'))['total'] or 0
+
+            monthly_gifts = StudentGift.objects.filter(
+                purchased_at__gte=month_start,
+                purchased_at__lt=month_end
+            ).aggregate(total=Sum('gift__star_cost'))['total'] or 0
+
+            monthly_stats.append({
+                'month': month_start.strftime('%Y-%m'),
+                'premium_revenue': monthly_premium,
+                'gift_revenue': monthly_gifts,
+                'total': monthly_premium + monthly_gifts
+            })
+
+        return Response({
+            'total_revenue': premium_revenue + gift_revenue,
+            'premium_revenue': premium_revenue,
+            'gift_revenue': gift_revenue,
+            'teacher_earnings': teacher_earnings,
+            'seller_earnings': seller_earnings,
+            'monthly_breakdown': monthly_stats
+        })
+
+    @action(detail=False, methods=['get'])
+    def system_health(self, request):
+        """Get system health and performance metrics"""
+        if request.user.role != 'admin':
+            return Response({'error': 'Only admin can access system health'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Active sessions
+        active_sessions = TestSession.objects.filter(
+            is_completed=False,
+            is_expired=False,
+            expires_at__gt=timezone.now()
+        ).count()
+
+        # Expired sessions in last 24 hours
+        yesterday = timezone.now() - timezone.timedelta(days=1)
+        expired_sessions = TestSession.objects.filter(
+            is_expired=True,
+            expires_at__gte=yesterday
+        ).count()
+
+        # Warning statistics
+        total_warnings = WarningLog.objects.count()
+        recent_warnings = WarningLog.objects.filter(
+            created_at__gte=yesterday
+        ).count()
+
+        # Banned users
+        banned_users = User.objects.filter(is_banned=True).count()
+
+        # Database sizes (approximate)
+        users_count = User.objects.count()
+        tests_count = Test.objects.count()
+        attempts_count = TestAttempt.objects.count()
+
+        return Response({
+            'active_sessions': active_sessions,
+            'expired_sessions_24h': expired_sessions,
+            'total_warnings': total_warnings,
+            'recent_warnings': recent_warnings,
+            'banned_users': banned_users,
+            'database_stats': {
+                'users': users_count,
+                'tests': tests_count,
+                'attempts': attempts_count
+            }
+        })
 
 class GiftViewSet(viewsets.ModelViewSet):
     queryset = Gift.objects.all()
