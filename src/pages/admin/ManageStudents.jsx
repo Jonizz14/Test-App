@@ -382,7 +382,10 @@ const ManageStudents = () => {
 
   // Get class curator
   const getClassCurator = (classGroup) => {
-    return teachers.find(teacher => teacher.curator_class === classGroup);
+    // Match curator class with student class (ignoring direction suffix)
+    // e.g., curator_class "9-03" should match "9-03-A", "9-03-T", etc.
+    const baseClass = classGroup.split('-').slice(0, 2).join('-'); // Extract "9-03" from "9-03-A"
+    return teachers.find(teacher => teacher.curator_class === baseClass);
   };
 
   // Toggle class expansion

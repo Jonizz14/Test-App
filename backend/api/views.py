@@ -135,6 +135,7 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
+
     @action(detail=True, methods=['post'])
     def give_stars(self, request, pk=None):
         """Teacher or seller gives stars to a student (adds to earnings)"""
