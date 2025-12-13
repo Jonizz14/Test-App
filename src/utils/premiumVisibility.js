@@ -9,8 +9,8 @@
  * @returns {boolean} - Whether premium features should be visible
  */
 export function shouldShowPremiumFeatures(user, currentUser) {
-  // If user is not premium, don't show premium features
-  if (!user?.is_premium) {
+  // If user is not premium (check both database field and premium_info for real-time expiration)
+  if (!user?.is_premium || !user?.premium_info?.is_premium) {
     return false;
   }
 
@@ -37,6 +37,7 @@ export function getUserWithPremiumVisibility(user, currentUser) {
     return {
       ...user,
       is_premium: false,
+      premium_info: { ...user.premium_info, is_premium: false },
       background_gradient: null,
       selected_emojis: [],
       premium_emoji_count: 0,

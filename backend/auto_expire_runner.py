@@ -17,7 +17,7 @@ import subprocess
 from datetime import datetime
 
 def run_auto_expire():
-    """Run the Django management command to auto-expire sessions"""
+    """Run the Django management commands to auto-expire sessions and premium subscriptions"""
     try:
         # Set up Django environment
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'testplatform.settings')
@@ -29,14 +29,17 @@ def run_auto_expire():
         import django
         django.setup()
 
-        # Run the management command
+        # Run the session auto-expire command
         from django.core.management import execute_from_command_line
         execute_from_command_line(['manage.py', 'auto_expire_sessions'])
 
-        print(f"[{datetime.now()}] Auto-expire command executed successfully")
+        # Run the premium expiration command
+        execute_from_command_line(['manage.py', 'expire_premium'])
+
+        print(f"[{datetime.now()}] Auto-expire commands executed successfully")
 
     except Exception as e:
-        print(f"[{datetime.now()}] Error running auto-expire command: {e}")
+        print(f"[{datetime.now()}] Error running auto-expire commands: {e}")
         return False
 
     return True

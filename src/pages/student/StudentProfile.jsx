@@ -34,6 +34,7 @@ import apiService from '../../data/apiService';
 import EmojiPicker from '../../components/EmojiPicker';
 import GradientPicker from '../../components/GradientPicker';
 import { shouldShowPremiumFeatures } from '../../utils/premiumVisibility';
+import { useCountdown } from '../../hooks/useCountdown';
 
 const StudentProfile = () => {
   const { currentUser, setCurrentUserData, logout } = useAuth();
@@ -89,6 +90,9 @@ const StudentProfile = () => {
       setGiftPositions(generateRandomPositions(placedGifts.length));
     }
   }, [placedGifts]);
+
+  // Countdown timer for premium expiry
+  const { formattedTime, isExpired } = useCountdown(currentUser?.premium_expiry_date);
 
   const loadStudentStats = async () => {
     if (!currentUser) return;
@@ -1048,14 +1052,14 @@ const StudentProfile = () => {
                     sx={{
                       fontSize: '1.2rem',
                       fontWeight: 700,
-                      color: currentUser?.is_premium ? '#d97706' : '#64748b',
+                      color: currentUser?.premium_info?.is_premium ? '#d97706' : '#64748b',
                       lineHeight: 1.2,
-                      mb: currentUser?.is_premium ? 0 : 2
+                      mb: currentUser?.premium_info?.is_premium ? 0 : 2
                     }}
                   >
-                    {currentUser?.is_premium ? 'Faol' : 'Yo\'q'}
+                    {currentUser?.premium_info?.is_premium ? 'Faol' : 'Yo\'q'}
                   </Typography>
-                  {!currentUser?.is_premium && (
+                  {!currentUser?.premium_info?.is_premium && (
                     <Button
                       variant="contained"
                       size="small"
@@ -1080,7 +1084,7 @@ const StudentProfile = () => {
                 </Box>
                 <Box
                   sx={{
-                    backgroundColor: currentUser?.is_premium ? '#fef3c7' : '#f3f4f6',
+                    backgroundColor: currentUser?.premium_info?.is_premium ? '#fef3c7' : '#f3f4f6',
                     borderRadius: '12px',
                     padding: '12px',
                     display: 'flex',
@@ -1091,7 +1095,7 @@ const StudentProfile = () => {
                 >
                   <TrophyIcon sx={{
                     fontSize: '1.5rem',
-                    color: currentUser?.is_premium ? '#d97706' : '#6b7280'
+                    color: currentUser?.premium_info?.is_premium ? '#d97706' : '#6b7280'
                   }} />
                 </Box>
               </Box>
@@ -1225,14 +1229,14 @@ const StudentProfile = () => {
                     sx={{
                       fontSize: '1.2rem',
                       fontWeight: 700,
-                      color: currentUser?.is_premium ? '#d97706' : '#64748b',
+                      color: currentUser?.premium_info?.is_premium && !isExpired ? '#d97706' : '#64748b',
                       lineHeight: 1.2,
-                      mb: currentUser?.is_premium ? 0 : 2
+                      mb: (currentUser?.premium_info?.is_premium && !isExpired) ? 0 : 2
                     }}
                   >
-                    {currentUser?.is_premium ? currentUser?.premium_info?.message || 'Faol' : 'Yo\'q'}
+                    {currentUser?.premium_info?.is_premium && !isExpired ? formattedTime : 'Yo\'q'}
                   </Typography>
-                  {currentUser?.is_premium && currentUser?.premium_plan && (
+                  {currentUser?.premium_info?.is_premium && currentUser?.premium_plan && (
                     <Typography
                       sx={{
                         fontSize: '0.75rem',
@@ -1248,7 +1252,7 @@ const StudentProfile = () => {
                 </Box>
                 <Box
                   sx={{
-                    backgroundColor: currentUser?.is_premium ? '#fef3c7' : '#f3f4f6',
+                    backgroundColor: currentUser?.premium_info?.is_premium ? '#fef3c7' : '#f3f4f6',
                     borderRadius: '12px',
                     padding: '12px',
                     display: 'flex',
@@ -1259,7 +1263,7 @@ const StudentProfile = () => {
                 >
                   <TrophyIcon sx={{
                     fontSize: '1.5rem',
-                    color: currentUser?.is_premium ? '#d97706' : '#6b7280'
+                    color: currentUser?.premium_info?.is_premium ? '#d97706' : '#6b7280'
                   }} />
                 </Box>
               </Box>
