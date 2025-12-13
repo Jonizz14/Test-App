@@ -30,6 +30,26 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
 import PremiumModal from '../../components/PremiumModal';
+import { useCountdown } from '../../hooks/useCountdown';
+
+// Component for countdown timer
+const StudentCountdown = ({ expiryDate }) => {
+  const { formattedTime, isExpired } = useCountdown(expiryDate);
+
+  if (isExpired) {
+    return <Typography sx={{ color: '#ef4444', fontWeight: 600 }}>Tugagan</Typography>;
+  }
+
+  return (
+    <Typography sx={{
+      color: '#059669',
+      fontWeight: 600,
+      fontFamily: 'monospace'
+    }}>
+      {formattedTime}
+    </Typography>
+  );
+};
 
 const ManageStudents = () => {
   const { currentUser } = useAuth();
@@ -252,6 +272,7 @@ const ManageStudents = () => {
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Yo'nalish</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Yulduzlar</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Premium Status</TableCell>
+                <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Premium vaqti</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Amallar</TableCell>
               </TableRow>
             </TableHead>
@@ -264,7 +285,7 @@ const ManageStudents = () => {
                 </TableRow>
               ) : filteredStudents.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4, color: '#64748b' }}>
+                  <TableCell colSpan={8} sx={{ textAlign: 'center', py: 4, color: '#64748b' }}>
                     {searchTerm ? 'Hech narsa topilmadi' : 'O\'quvchilar yo\'q'}
                   </TableCell>
                 </TableRow>
@@ -321,6 +342,13 @@ const ManageStudents = () => {
                           fontWeight: 600
                         }}
                       />
+                    </TableCell>
+                    <TableCell sx={{ color: '#64748b' }}>
+                      {student.is_premium && student.premium_expiry_date ? (
+                        <StudentCountdown expiryDate={student.premium_expiry_date} />
+                      ) : (
+                        '-'
+                      )}
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 1, flexDirection: 'column' }}>
