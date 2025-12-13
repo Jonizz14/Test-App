@@ -92,7 +92,17 @@ const StudentProfile = () => {
   }, [placedGifts]);
 
   // Countdown timer for premium expiry
-  const { formattedTime, isExpired } = useCountdown(currentUser?.premium_expiry_date);
+  const handlePremiumExpire = async () => {
+    try {
+      // Refresh user data when premium expires
+      const updatedUser = await apiService.getUser(currentUser.id);
+      setCurrentUserData(updatedUser);
+    } catch (error) {
+      console.error('Failed to refresh user data on premium expiry:', error);
+    }
+  };
+
+  const { formattedTime, isExpired } = useCountdown(currentUser?.premium_expiry_date, handlePremiumExpire);
 
   const loadStudentStats = async () => {
     if (!currentUser) return;
@@ -752,13 +762,6 @@ const StudentProfile = () => {
                       }}
                     />
                   )}
-                  <Typography sx={{
-                    fontSize: '0.9rem',
-                    fontWeight: 600,
-                    color: currentUser?.is_premium ? '#ffffff' : '#1e293b'
-                  }}>
-                    #{displayGift.gift_number}
-                  </Typography>
                 </Box>
               )}
               <Typography variant="h3" sx={{

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export const useCountdown = (expiryDate) => {
+export const useCountdown = (expiryDate, onExpire) => {
   const [timeLeft, setTimeLeft] = useState(null);
   const [isExpired, setIsExpired] = useState(false);
 
@@ -17,8 +17,14 @@ export const useCountdown = (expiryDate) => {
       const difference = expiry - now;
 
       if (difference <= 0) {
-        setTimeLeft(0);
-        setIsExpired(true);
+        if (!isExpired) {
+          setIsExpired(true);
+          setTimeLeft(0);
+          // Call onExpire callback when premium expires
+          if (onExpire) {
+            onExpire();
+          }
+        }
         return;
       }
 
@@ -33,7 +39,7 @@ export const useCountdown = (expiryDate) => {
     const timer = setInterval(calculateTimeLeft, 1000);
 
     return () => clearInterval(timer);
-  }, [expiryDate]);
+  }, [expiryDate, onExpire, isExpired]);
 
   const formatTime = (seconds) => {
     if (seconds === null || seconds <= 0) {
