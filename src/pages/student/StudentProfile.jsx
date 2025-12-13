@@ -1278,46 +1278,79 @@ const StudentProfile = () => {
       {/* Gifts Section */}
       <Box sx={{ mt: 4, mb: 4 }}>
         <Typography sx={{
-          fontSize: '1.5rem',
-          fontWeight: 700,
+          fontSize: '1.8rem',
+          fontWeight: 800,
           color: '#1e293b',
           mb: 3,
           display: 'flex',
           alignItems: 'center',
-          gap: 1
+          gap: 1,
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text'
         }}>
-          🎁 Sovg'alarim
+          🎁 Mening sovg'alarim
         </Typography>
 
         <Card sx={{
           backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          border: '3px solid transparent',
+          borderRadius: '16px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+          position: 'relative',
+          overflow: 'hidden',
+          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: '13px',
+            padding: '3px',
+            background: 'linear-gradient(135deg, #f59e0b, #ef4444, #8b5cf6, #06b6d4, #10b981)',
+            backgroundSize: '300% 300%',
+            animation: 'gradientBorder 4s ease infinite',
+            mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+            maskComposite: 'exclude',
+            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+            WebkitMaskComposite: 'xor'
+          }
         }}>
+          <style>{`
+            @keyframes gradientBorder {
+              0% { background-position: 0% 50%; }
+              25% { background-position: 100% 50%; }
+              50% { background-position: 100% 100%; }
+              75% { background-position: 0% 100%; }
+              100% { background-position: 0% 50%; }
+            }
+          `}</style>
           <CardContent sx={{ p: 4 }}>
-            <Typography sx={{
-              fontWeight: 600,
-              color: '#1e293b',
-              fontSize: '1.25rem',
-              mb: 1
-            }}>
-              Sotib olingan sovg'alar
-            </Typography>
-
-            <Typography sx={{
-              color: '#64748b',
-              fontSize: '0.9rem',
-              mb: 3
-            }}>
-              Profilingizda ko'rsatish uchun 3 tagacha sovg'ani belgilashingiz mumkin.
-            </Typography>
+            <Box sx={{ mb: 3 }}>
+              <Typography sx={{
+                fontWeight: 700,
+                color: '#1e293b',
+                fontSize: '1.3rem',
+                mb: 1
+              }}>
+                Sotib olingan sovg'alar
+              </Typography>
+              <Typography sx={{
+                color: '#64748b',
+                fontSize: '0.9rem'
+              }}>
+                Profilingizda ko'rsatish uchun 3 tagacha sovg'ani belgilashingiz mumkin.
+              </Typography>
+            </Box>
 
             <Box sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 2,
-              minHeight: '100px',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+              gap: 3,
+              minHeight: '120px',
               mb: 4
             }}>
               {myGifts.length > 0 ? (
@@ -1325,30 +1358,40 @@ const StudentProfile = () => {
                   <Box
                     key={giftItem.id}
                     sx={{
-                      backgroundImage: giftItem.gift_image_url ? `url(${giftItem.gift_image_url})` : 'none',
-                      backgroundSize: 'cover',
+                      background: giftItem.gift_image_url
+                        ? `url(${giftItem.gift_image_url})`
+                        : `linear-gradient(135deg, ${giftItem.gift_rarity === 'common' ? '#f3f4f6' :
+                                                  giftItem.gift_rarity === 'rare' ? '#dbeafe' :
+                                                  giftItem.gift_rarity === 'epic' ? '#f3e8ff' :
+                                                  giftItem.gift_rarity === 'legendary' ? '#fef3c7' : '#f8fafc'} 0%, #ffffff 100%)`,
+                      backgroundSize: '60%',
                       backgroundPosition: 'center',
-                      backgroundColor: giftItem.gift_rarity === 'common' ? '#f3f4f6' :
-                                      giftItem.gift_rarity === 'rare' ? '#dbeafe' :
-                                      giftItem.gift_rarity === 'epic' ? '#f3e8ff' :
-                                      giftItem.gift_rarity === 'legendary' ? '#fef3c7' : '#f8fafc',
-                      border: `2px solid ${giftItem.gift_rarity === 'common' ? '#e5e7eb' :
-                                         giftItem.gift_rarity === 'rare' ? '#93c5fd' :
-                                         giftItem.gift_rarity === 'epic' ? '#c4b5fd' :
-                                         giftItem.gift_rarity === 'legendary' ? '#fcd34d' : '#e2e8f0'}`,
-                      borderRadius: '8px',
-                      p: 2,
-                      minWidth: '120px',
+                      backgroundRepeat: 'no-repeat',
+                      border: `3px solid ${giftItem.gift_rarity === 'common' ? '#e5e7eb' :
+                                          giftItem.gift_rarity === 'rare' ? '#3b82f6' :
+                                          giftItem.gift_rarity === 'epic' ? '#8b5cf6' :
+                                          giftItem.gift_rarity === 'legendary' ? '#f59e0b' : '#e2e8f0'}`,
+                      borderRadius: '16px',
+                      p: 3,
                       minHeight: '120px',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
                       position: 'relative',
-                      '&:hover': {
-                        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                      },
+                      cursor: 'pointer',
                       transition: 'all 0.2s ease',
+                      boxShadow: selectedDisplayGifts.includes(giftItem.id)
+                        ? '0 4px 15px rgba(16, 185, 129, 0.2)'
+                        : '0 2px 8px rgba(0,0,0,0.05)',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 6px 20px rgba(0,0,0,0.1)',
+                        borderColor: giftItem.gift_rarity === 'common' ? '#9ca3af' :
+                                    giftItem.gift_rarity === 'rare' ? '#2563eb' :
+                                    giftItem.gift_rarity === 'epic' ? '#7c3aed' :
+                                    giftItem.gift_rarity === 'legendary' ? '#d97706' : '#64748b'
+                      },
                       '&::before': {
                         content: '""',
                         position: 'absolute',
@@ -1356,7 +1399,15 @@ const StudentProfile = () => {
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        borderRadius: '6px'
+                        borderRadius: '13px',
+                        padding: '2px',
+                        background: selectedDisplayGifts.includes(giftItem.id)
+                          ? 'linear-gradient(135deg, #10b981, #059669)'
+                          : 'transparent',
+                        mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                        maskComposite: 'exclude',
+                        WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                        WebkitMaskComposite: 'xor'
                       }
                     }}
                   >
@@ -1366,31 +1417,115 @@ const StudentProfile = () => {
                       disabled={!selectedDisplayGifts.includes(giftItem.id) && selectedDisplayGifts.length >= 3}
                       sx={{
                         position: 'absolute',
-                        top: 4,
-                        right: 4,
-                        zIndex: 2,
-                        borderRadius: '4px',
+                        top: 8,
+                        right: 8,
+                        zIndex: 3,
+                        backgroundColor: 'rgba(255,255,255,0.9)',
+                        borderRadius: '50%',
+                        padding: '4px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                         '& .MuiCheckbox-root': {
                           padding: '4px'
+                        },
+                        '&:hover': {
+                          backgroundColor: 'white'
                         }
                       }}
                     />
-                    {!giftItem.gift_image_url && (
-                      <Typography sx={{ fontSize: '3rem', position: 'relative', zIndex: 1 }}>🎁</Typography>
-                    )}
+
+                    {/* Rarity indicator */}
                     <Box sx={{
-                      position: 'relative',
-                      zIndex: 1,
-                      textAlign: 'center',
-                      mt: '30px'
+                      position: 'absolute',
+                      top: 8,
+                      left: 8,
+                      zIndex: 3,
+                      backgroundColor: giftItem.gift_rarity === 'common' ? 'rgba(107, 114, 128, 0.9)' :
+                                      giftItem.gift_rarity === 'rare' ? 'rgba(59, 130, 246, 0.9)' :
+                                      giftItem.gift_rarity === 'epic' ? 'rgba(139, 92, 246, 0.9)' :
+                                      giftItem.gift_rarity === 'legendary' ? 'rgba(245, 158, 11, 0.9)' : 'rgba(107, 114, 128, 0.9)',
+                      color: 'white',
+                      px: 1.5,
+                      py: 0.5,
+                      borderRadius: '12px',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                     }}>
+                      {giftItem.gift_rarity === 'common' ? 'Oddiy' :
+                       giftItem.gift_rarity === 'rare' ? 'Nodiy' :
+                       giftItem.gift_rarity === 'epic' ? 'Epik' :
+                       giftItem.gift_rarity === 'legendary' ? 'Afsonaviy' : 'Oddiy'}
                     </Box>
+
+                    {!giftItem.gift_image_url && (
+                      <Typography sx={{
+                        fontSize: '3.5rem',
+                        position: 'relative',
+                        zIndex: 2,
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                      }}>
+                        🎁
+                      </Typography>
+                    )}
+
                   </Box>
                 ))
               ) : (
-                <Typography sx={{ color: '#64748b', fontStyle: 'italic' }}>
-                  Hali sovg'alar yo'q. Marketdan sovg'a sotib oling!
-                </Typography>
+                <Box sx={{
+                  gridColumn: '1 / -1',
+                  textAlign: 'center',
+                  py: 6,
+                  px: 4,
+                  background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                  borderRadius: '16px',
+                  border: '2px dashed #cbd5e1'
+                }}>
+                  <Typography sx={{
+                    fontSize: '4rem',
+                    mb: 2,
+                    opacity: 0.6
+                  }}>
+                    🎁
+                  </Typography>
+                  <Typography sx={{
+                    color: '#64748b',
+                    fontSize: '1.1rem',
+                    fontWeight: 600,
+                    mb: 1
+                  }}>
+                    Hali sovg'alar yo'q
+                  </Typography>
+                  <Typography sx={{
+                    color: '#94a3b8',
+                    fontSize: '0.9rem',
+                    mb: 3
+                  }}>
+                    Marketdan qiziqarli sovg'alar sotib oling va profilingizni bezang!
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    onClick={() => navigate('/student/pricing')}
+                    sx={{
+                      background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                      color: 'white',
+                      fontWeight: 700,
+                      px: 4,
+                      py: 1.5,
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 15px rgba(245, 158, 11, 0.3)',
+                      '&:hover': {
+                        background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 6px 20px rgba(245, 158, 11, 0.4)'
+                      },
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    🎁 Marketga o'tish
+                  </Button>
+                </Box>
               )}
             </Box>
 
