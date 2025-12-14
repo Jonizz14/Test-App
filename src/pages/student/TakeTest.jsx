@@ -116,7 +116,7 @@ const TakeTest = () => {
   const [answers, setAnswers] = useState({});
   const [testCompleted, setTestCompleted] = useState(false);
   const [score, setScore] = useState(0);
-  const [sortBy, setSortBy] = useState('name'); // 'name', 'easy', 'medium', 'hard', 'difficulty'
+  const [sortBy, setSortBy] = useState('date'); // 'date', 'name', 'easy', 'medium', 'hard', 'difficulty'
   const [exitDialogOpen, setExitDialogOpen] = useState(false);
   const [urgentSubmitDialogOpen, setUrgentSubmitDialogOpen] = useState(false);
   const [sessionRecovering, setSessionRecovering] = useState(false);
@@ -165,9 +165,12 @@ const TakeTest = () => {
     if (sortBy === 'difficulty') {
       const difficultyOrder = { easy: 1, medium: 2, hard: 3 };
       filteredTests.sort((a, b) => (difficultyOrder[a.difficulty] || 0) - (difficultyOrder[b.difficulty] || 0));
-    } else {
-      // Default sort by title
+    } else if (sortBy === 'name') {
+      // Sort by title alphabetically
       filteredTests.sort((a, b) => a.title.localeCompare(b.title));
+    } else {
+      // Default sort by creation date (newest first)
+      filteredTests.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     }
     
     return filteredTests;
@@ -1151,6 +1154,7 @@ const TakeTest = () => {
                 }
               }}
             >
+              <MenuItem value="date">Sana bo'yicha</MenuItem>
               <MenuItem value="name">Nomi bo'yicha</MenuItem>
               <MenuItem value="difficulty">Qiyinchilik bo'yicha</MenuItem>
               <MenuItem value="easy">Oson</MenuItem>
