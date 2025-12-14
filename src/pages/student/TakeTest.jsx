@@ -1221,6 +1221,7 @@ const TakeTest = () => {
                 }}>
                   <TableCell>Test nomi</TableCell>
                   <TableCell>Fan</TableCell>
+                  <TableCell>Sana</TableCell>
                   <TableCell>Qiyinchilik</TableCell>
                   <TableCell>O'qituvchi</TableCell>
                   <TableCell>Vaqt</TableCell>
@@ -1292,6 +1293,15 @@ const TakeTest = () => {
                           fontSize: '0.875rem'
                         }}>
                           {test.subject}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography sx={{
+                          fontWeight: 600,
+                          color: '#2563eb',
+                          fontSize: '0.875rem'
+                        }}>
+                          {new Date(test.created_at).toLocaleDateString('uz-UZ')}
                         </Typography>
                       </TableCell>
                       <TableCell>
