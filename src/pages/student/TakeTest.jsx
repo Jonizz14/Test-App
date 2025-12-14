@@ -250,8 +250,8 @@ const TakeTest = () => {
             // Load test and show anti-cheat modal before starting
             const test = await apiService.getTest(testIdFromParams);
             if (test && test.is_active) {
-              // Show anti-cheat modal before auto-starting the test
-              handleStartTestWithAntiCheat(test);
+              // Start test directly
+              startTest(test);
             }
           }
         } catch (error) {
@@ -383,43 +383,7 @@ const TakeTest = () => {
     return takenTests.has(testId);
   };
 
-  // Check if browser is in fullscreen mode
-  const isFullscreen = () => {
-    // Check standard fullscreen APIs
-    const standardFullscreen = !!(
-      document.fullscreenElement ||
-      document.webkitFullscreenElement ||
-      document.mozFullScreenElement ||
-      document.msFullscreenElement
-    );
 
-    // On Mac, also check if window is maximized or in presentation mode
-    const isMacFullscreen = window.innerWidth === screen.width && window.innerHeight === screen.height;
-
-    // Accept either standard fullscreen or Mac-style fullscreen
-    return standardFullscreen || isMacFullscreen;
-  };
-
-  // Handle anti-cheat modal and test start
-  const handleStartTestWithAntiCheat = (test) => {
-    setPendingTest(test);
-    setAntiCheatModalOpen(true);
-  };
-
-  // Confirm test start after anti-cheat check
-  const confirmStartTest = () => {
-    if (!modalConfirmed) {
-      alert('Iltimos, barcha talablarni bajarilganligini tasdiqlang!');
-      return;
-    }
-
-    if (pendingTest) {
-      startTest(pendingTest);
-      setPendingTest(null);
-      setModalConfirmed(false);
-    }
-    setAntiCheatModalOpen(false);
-  };
 
 
 
@@ -1271,7 +1235,7 @@ const TakeTest = () => {
                   let buttonIcon = <PlayArrowIcon />;
                   let buttonColor = '#2563eb';
                   let buttonDisabled = false;
-                  let buttonAction = () => handleStartTestWithAntiCheat(test);
+                  let buttonAction = () => startTest(test);
 
                   if (hasActiveSession) {
                     // Has active session - allow continuing
