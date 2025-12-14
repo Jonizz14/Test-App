@@ -203,6 +203,7 @@ const TestResults = () => {
                 }}>
                   <TableCell>Test nomi</TableCell>
                   <TableCell>Fan</TableCell>
+                  <TableCell>Sana</TableCell>
                   <TableCell>Ball</TableCell>
                   <TableCell>Baho</TableCell>
                   <TableCell>Harakatlar</TableCell>
@@ -241,6 +242,16 @@ const TestResults = () => {
                             borderColor: test?.subject === 'Ingliz tili' ? '#3b82f6' : undefined
                           }}
                         />
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                          <Typography variant="body2" sx={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500 }}>
+                            Test ishlangan: {new Date(result.submitted_at).toLocaleDateString('uz-UZ')}
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500 }}>
+                            Test chiqgan: {test?.created_at ? new Date(test.created_at).toLocaleDateString('uz-UZ') : 'Noma\'lum'}
+                          </Typography>
+                        </Box>
                       </TableCell>
                       <TableCell>
                         <Typography
