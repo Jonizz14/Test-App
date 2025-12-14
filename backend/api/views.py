@@ -463,6 +463,103 @@ class TestSessionViewSet(viewsets.ModelViewSet):
         except TestSession.DoesNotExist:
             return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
 
+    @action(detail=False, methods=['put'])
+    def update_answers(self, request):
+        """Update answers in a test session"""
+        session_id = request.data.get('session_id')
+        answers = request.data.get('answers', {})
+
+        if not session_id:
+            return Response({'error': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            session = TestSession.objects.get(session_id=session_id, student=request.user)
+
+            # Check if session is still active
+            if session.is_expired or session.time_remaining <= 0:
+                session.mark_expired()
+                return Response({'error': 'Test session has expired'}, status=status.HTTP_410_GONE)
+
+            if session.is_completed:
+                return Response({'error': 'Test already completed'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Update answers
+            session.answers.update(answers)
+            session.save()
+
+            serializer = self.get_serializer(session)
+            return Response(serializer.data)
+
+        except TestSession.DoesNotExist:
+            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=['post'])
+    def complete_session(self, request):
+        """Complete a test session and create attempt record"""
+        session_id = request.data.get('session_id')
+
+        if not session_id:
+            return Response({'error': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            session = TestSession.objects.get(session_id=session_id, student=request.user)
+
+            if session.is_completed:
+                return Response({'error': 'Test already completed'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Check if session has expired
+            is_expired = session.is_expired or session.time_remaining <= 0
+            if is_expired and not session.is_expired:
+                session.mark_expired()
+
+            # Calculate score based on saved answers
+            questions = session.test.questions.all()
+            correct_answers = 0
+            total_questions = questions.count()
+
+            for question in questions:
+                user_answer = session.answers.get(str(question.id), '')
+                if user_answer and user_answer.lower().strip() == question.correct_answer.lower().strip():
+                    correct_answers += 1
+
+            score = (correct_answers / total_questions * 100) if total_questions > 0 else 0
+
+            # Calculate time taken
+            from django.utils import timezone
+            if is_expired:
+                # For expired sessions, use the full time limit
+                time_taken = session.test.time_limit
+            else:
+                # For manually completed sessions, calculate actual time taken
+                time_taken = int((timezone.now() - session.started_at).total_seconds() / 60)
+
+            # Create attempt record
+            attempt = TestAttempt.objects.create(
+                student=session.student,
+                test=session.test,
+                answers=session.answers,
+                score=score,
+                time_taken=time_taken
+            )
+
+            # Mark session as completed
+            session.complete()
+
+            message = 'Test completed successfully'
+            if is_expired:
+                message = 'Test auto-completed due to time expiry'
+
+            return Response({
+                'success': True,
+                'score': score,
+                'attempt_id': attempt.id,
+                'message': message,
+                'expired': is_expired
+            })
+
+        except TestSession.DoesNotExist:
+            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
+
 class GiftViewSet(viewsets.ModelViewSet):
     queryset = Gift.objects.all()
     serializer_class = GiftSerializer
@@ -686,103 +783,6 @@ class StarPackageViewSet(viewsets.ModelViewSet):
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied("Only admin and seller can manage star packages")
         instance.delete()
-
-    @action(detail=False, methods=['put'])
-    def update_answers(self, request):
-        """Update answers in a test session"""
-        session_id = request.data.get('session_id')
-        answers = request.data.get('answers', {})
-        
-        if not session_id:
-            return Response({'error': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            session = TestSession.objects.get(session_id=session_id, student=request.user)
-            
-            # Check if session is still active
-            if session.is_expired or session.time_remaining <= 0:
-                session.mark_expired()
-                return Response({'error': 'Test session has expired'}, status=status.HTTP_410_GONE)
-            
-            if session.is_completed:
-                return Response({'error': 'Test already completed'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            # Update answers
-            session.answers.update(answers)
-            session.save()
-            
-            serializer = self.get_serializer(session)
-            return Response(serializer.data)
-            
-        except TestSession.DoesNotExist:
-            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
-
-    @action(detail=False, methods=['post'])
-    def complete_session(self, request):
-        """Complete a test session and create attempt record"""
-        session_id = request.data.get('session_id')
-
-        if not session_id:
-            return Response({'error': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            session = TestSession.objects.get(session_id=session_id, student=request.user)
-
-            if session.is_completed:
-                return Response({'error': 'Test already completed'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Check if session has expired
-            is_expired = session.is_expired or session.time_remaining <= 0
-            if is_expired and not session.is_expired:
-                session.mark_expired()
-
-            # Calculate score based on saved answers
-            questions = session.test.questions.all()
-            correct_answers = 0
-            total_questions = questions.count()
-
-            for question in questions:
-                user_answer = session.answers.get(str(question.id), '')
-                if user_answer and user_answer.lower().strip() == question.correct_answer.lower().strip():
-                    correct_answers += 1
-
-            score = (correct_answers / total_questions * 100) if total_questions > 0 else 0
-
-            # Calculate time taken
-            from django.utils import timezone
-            if is_expired:
-                # For expired sessions, use the full time limit
-                time_taken = session.test.time_limit
-            else:
-                # For manually completed sessions, calculate actual time taken
-                time_taken = int((timezone.now() - session.started_at).total_seconds() / 60)
-
-            # Create attempt record
-            attempt = TestAttempt.objects.create(
-                student=session.student,
-                test=session.test,
-                answers=session.answers,
-                score=score,
-                time_taken=time_taken
-            )
-
-            # Mark session as completed
-            session.complete()
-
-            message = 'Test completed successfully'
-            if is_expired:
-                message = 'Test auto-completed due to time expiry'
-
-            return Response({
-                'success': True,
-                'score': score,
-                'attempt_id': attempt.id,
-                'message': message,
-                'expired': is_expired
-            })
-
-        except TestSession.DoesNotExist:
-            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=False, methods=['post'])
     def auto_expire_sessions(self, request):
