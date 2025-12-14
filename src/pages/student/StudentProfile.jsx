@@ -1051,38 +1051,51 @@ const StudentProfile = () => {
                   >
                     Premium status
                   </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: '1.2rem',
-                      fontWeight: 700,
-                      color: currentUser?.premium_info?.is_premium ? '#d97706' : '#64748b',
-                      lineHeight: 1.2,
-                      mb: currentUser?.premium_info?.is_premium ? 0 : 2
-                    }}
-                  >
-                    {currentUser?.premium_info?.is_premium ? 'Faol' : 'Yo\'q'}
-                  </Typography>
-                  {!currentUser?.premium_info?.is_premium && (
-                    <Button
-                      variant="contained"
-                      size="small"
-                      onClick={() => navigate('/student/pricing')}
+                  {currentUser?.premium_info?.is_premium ? (
+                    <Typography
                       sx={{
-                        backgroundColor: '#2563eb',
-                        color: '#ffffff',
-                        fontWeight: 600,
-                        textTransform: 'none',
-                        borderRadius: '8px',
-                        px: 2,
-                        py: 0.5,
-                        fontSize: '0.8rem',
-                        '&:hover': {
-                          backgroundColor: '#1d4ed8',
-                        }
+                        fontSize: '1.2rem',
+                        fontWeight: 700,
+                        color: '#d97706',
+                        lineHeight: 1.2,
+                        mb: 0
                       }}
                     >
-                      Sotib olish
-                    </Button>
+                      Faol
+                    </Typography>
+                  ) : (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                      <Typography
+                        sx={{
+                          fontSize: '1.2rem',
+                          fontWeight: 700,
+                          color: '#64748b',
+                          lineHeight: 1.2
+                        }}
+                      >
+                        Yo'q
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => navigate('/student/pricing')}
+                        sx={{
+                          backgroundColor: '#2563eb',
+                          color: '#ffffff',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          borderRadius: '8px',
+                          px: 2,
+                          py: 0.5,
+                          fontSize: '0.8rem',
+                          '&:hover': {
+                            backgroundColor: '#1d4ed8',
+                          }
+                        }}
+                      >
+                        Sotib olish
+                      </Button>
+                    </Box>
                   )}
                 </Box>
                 <Box

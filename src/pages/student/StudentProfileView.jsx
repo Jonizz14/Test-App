@@ -39,6 +39,9 @@ const StudentProfileView = () => {
   const [error, setError] = useState(null);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [emojiPositions, setEmojiPositions] = useState([]);
+  const [placedGifts, setPlacedGifts] = useState([]);
+  const [myGifts, setMyGifts] = useState([]);
+  const [displayGift, setDisplayGift] = useState(null);
 
   useEffect(() => {
     const loadStudentProfile = async () => {

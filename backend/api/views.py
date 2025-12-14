@@ -663,10 +663,13 @@ class StudentGiftViewSet(viewsets.ModelViewSet):
             'student_gift': serializer.data
         })
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
     def my_gifts(self, request):
-        """Get current user's gifts"""
-        gifts = StudentGift.objects.filter(student=request.user)
+        """Get user's gifts"""
+        student_id = request.query_params.get('student')
+        if not student_id:
+            student_id = request.user.id
+        gifts = StudentGift.objects.filter(student_id=student_id)
         serializer = self.get_serializer(gifts, many=True)
         return Response(serializer.data)
 
