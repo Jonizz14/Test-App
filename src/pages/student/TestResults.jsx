@@ -209,7 +209,9 @@ const TestResults = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {results.map((result) => {
+                {results
+                  .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
+                  .map((result) => {
                   const test = getTestById(result.test);
                   return (
                     <TableRow key={result.id} sx={{
