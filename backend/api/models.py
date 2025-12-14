@@ -36,12 +36,6 @@ class User(AbstractUser):
     average_score = models.FloatField(default=0.0)
     completed_subjects = models.JSONField(default=list, blank=True)
 
-    # Ban system
-    is_banned = models.BooleanField(default=False, help_text="Whether the user is banned")
-    ban_reason = models.TextField(blank=True, help_text="Reason for banning")
-    ban_date = models.DateTimeField(null=True, blank=True, help_text="When the user was banned")
-    unban_code = models.CharField(max_length=4, blank=True, help_text="4-digit code to unban the user")
-    entered_ban_code = models.CharField(max_length=4, blank=True, help_text="Ban code entered by student in profile")
 
     # Premium profile system (for students)
     is_premium = models.BooleanField(default=False, help_text="Whether the student has premium status")
@@ -299,10 +293,6 @@ class TestSession(models.Model):
     is_completed = models.BooleanField(default=False, help_text="Whether the test session is completed")
     is_expired = models.BooleanField(default=False, help_text="Whether the test session has expired")
 
-    # Anti-cheating tracking
-    warning_count = models.IntegerField(default=0, help_text="Number of warnings issued in this session")
-    unban_prompt_shown = models.BooleanField(default=False, help_text="Whether the unban prompt has been shown")
-    is_banned_in_session = models.BooleanField(default=False, help_text="Whether student was banned during this session")
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -348,19 +338,6 @@ class TestSession(models.Model):
         self.completed_at = timezone.now()
         self.save()
 
-class WarningLog(models.Model):
-    """Model to track anti-cheating warnings during test sessions"""
-    session = models.ForeignKey(TestSession, on_delete=models.CASCADE, related_name='warnings')
-    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='warning_logs')
-    warning_type = models.CharField(max_length=100, help_text="Type of warning (tab_switch, f12, screenshot, etc.)")
-    warning_message = models.TextField(help_text="The warning message shown to the student")
-    created_at = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return f"Warning for {self.student.username} - {self.warning_type}"
 
 class Feedback(models.Model):
     attempt = models.OneToOneField(TestAttempt, on_delete=models.CASCADE, related_name='feedback')

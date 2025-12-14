@@ -6,7 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.db import models
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, WarningLog, Pricing, StarPackage, Gift, StudentGift
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, Gift, StudentGift
 from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, WarningLogSerializer, PricingSerializer, StarPackageSerializer, GiftSerializer, StudentGiftSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -74,74 +74,6 @@ class UserViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['post'])
-    def ban_user(self, request, pk=None):
-        """Ban a user (admin only)"""
-        if request.user.role != 'admin':
-            return Response({'error': 'Only admin can ban users'}, status=status.HTTP_403_FORBIDDEN)
-
-        user = self.get_object()
-        user.is_banned = True
-        user.ban_reason = request.data.get('reason', 'Admin tomonidan bloklandi')
-        user.ban_date = timezone.now()
-
-        import random
-        user.unban_code = str(random.randint(1000, 9999))
-        user.save()
-
-        serializer = self.get_serializer(user)
-        return Response(serializer.data)
-
-    @action(detail=True, methods=['post'])
-    def unban_user(self, request, pk=None):
-        """Unban a user (admin only)"""
-        if request.user.role != 'admin':
-            return Response({'error': 'Only admin can unban users'}, status=status.HTTP_403_FORBIDDEN)
-
-        user = self.get_object()
-        user.is_banned = False
-        user.ban_reason = ''
-        user.ban_date = None
-        user.unban_code = ''
-        user.save()
-
-        serializer = self.get_serializer(user)
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['post'])
-    def unban_with_code(self, request):
-        """Unban user with unban code"""
-        code = request.data.get('code')
-        if not code:
-            return Response({'error': 'Code is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            user = User.objects.get(unban_code=code, is_banned=True)
-            user.is_banned = False
-            user.ban_reason = ''
-            user.ban_date = None
-            user.unban_code = ''
-            user.save()
-
-            serializer = UserSerializer(user)
-            return Response(serializer.data)
-        except User.DoesNotExist:
-            return Response({'error': 'Invalid unban code'}, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, methods=['post'])
-    def ban_current_user(self, request):
-        """Ban the current user (for anti-cheating violations)"""
-        user = request.user
-        user.is_banned = True
-        user.ban_reason = request.data.get('reason', 'Test qoidalariga rioya qilmaganligi uchun bloklandi')
-        user.ban_date = timezone.now()
-
-        import random
-        user.unban_code = str(random.randint(1000, 9999))
-        user.save()
-
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
 
 
     @action(detail=True, methods=['post'])
@@ -804,21 +736,17 @@ class StarPackageViewSet(viewsets.ModelViewSet):
             if is_expired and not session.is_expired:
                 session.mark_expired()
 
-            # Check if student has entered ban code in profile - if so, give 0 score
-            if session.student.entered_ban_code:
-                score = 0
-            else:
-                # Calculate score based on saved answers
-                questions = session.test.questions.all()
-                correct_answers = 0
-                total_questions = questions.count()
+            # Calculate score based on saved answers
+            questions = session.test.questions.all()
+            correct_answers = 0
+            total_questions = questions.count()
 
-                for question in questions:
-                    user_answer = session.answers.get(str(question.id), '')
-                    if user_answer and user_answer.lower().strip() == question.correct_answer.lower().strip():
-                        correct_answers += 1
+            for question in questions:
+                user_answer = session.answers.get(str(question.id), '')
+                if user_answer and user_answer.lower().strip() == question.correct_answer.lower().strip():
+                    correct_answers += 1
 
-                score = (correct_answers / total_questions * 100) if total_questions > 0 else 0
+            score = (correct_answers / total_questions * 100) if total_questions > 0 else 0
 
             # Calculate time taken
             from django.utils import timezone
@@ -879,63 +807,3 @@ class StarPackageViewSet(viewsets.ModelViewSet):
         # Only allow authenticated users to create sessions
         serializer.save(student=self.request.user)
 
-class WarningLogViewSet(viewsets.ModelViewSet):
-    queryset = WarningLog.objects.all()
-    serializer_class = WarningLogSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        queryset = WarningLog.objects.all()
-        session = self.request.query_params.get('session', None)
-        student = self.request.query_params.get('student', None)
-
-        if session:
-            queryset = queryset.filter(session_id=session)
-        if student:
-            queryset = queryset.filter(student_id=student)
-
-        return queryset
-
-    @action(detail=False, methods=['post'])
-    def log_warning(self, request):
-        """Log a warning for a test session"""
-        session_id = request.data.get('session_id')
-        warning_type = request.data.get('warning_type')
-        warning_message = request.data.get('warning_message')
-
-        if not all([session_id, warning_type, warning_message]):
-            return Response({'error': 'session_id, warning_type, and warning_message are required'},
-                          status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            session = TestSession.objects.get(session_id=session_id, student=request.user)
-
-            # Create warning log
-            warning = WarningLog.objects.create(
-                session=session,
-                student=request.user,
-                warning_type=warning_type,
-                warning_message=warning_message
-            )
-
-            # Increment warning count in session
-            session.warning_count += 1
-            session.save()
-
-            # Check if student should see unban prompt (3 warnings per session)
-            if session.warning_count >= 3 and not session.unban_prompt_shown:
-                # Set unban prompt shown flag
-                session.unban_prompt_shown = True
-                session.save()
-
-                return Response({
-                    'warning_logged': True,
-                    'unban_prompt_triggered': True,
-                    'warning_count': session.warning_count
-                })
-
-            serializer = WarningLogSerializer(warning)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        except TestSession.DoesNotExist:
-            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
