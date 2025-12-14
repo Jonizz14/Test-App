@@ -64,6 +64,7 @@ const StudentProfile = () => {
   const [selectedPosition, setSelectedPosition] = useState(null);
   const [giftPositions, setGiftPositions] = useState([]);
   const [displayGiftDialogOpen, setDisplayGiftDialogOpen] = useState(false);
+  const [enteredBanCode, setEnteredBanCode] = useState('');
 
   useEffect(() => {
     loadStudentStats();
@@ -76,6 +77,7 @@ const StudentProfile = () => {
       const emojis = currentUser.selected_emojis || [];
       setSelectedEmojis(emojis);
       setSelectedGradient(currentUser.background_gradient || null);
+      setEnteredBanCode(currentUser.entered_ban_code || '');
 
       // Generate random positions for the emojis
       if (emojis.length > 0) {
@@ -264,6 +266,7 @@ const StudentProfile = () => {
       formData.append('profile_status', statusText);
       formData.append('selected_emojis', JSON.stringify(selectedEmojis));
       formData.append('background_gradient', JSON.stringify(selectedGradient));
+      formData.append('entered_ban_code', enteredBanCode);
 
       const updatedUser = await apiService.patch(`/users/${currentUser.id}/`, formData, true);
       setCurrentUserData(updatedUser);
@@ -1699,6 +1702,31 @@ const StudentProfile = () => {
               />
               <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
                 Status xabari boshqa o'quvchilarga ko'rinadi
+              </Typography>
+            </Box>
+
+            {/* Ban Code */}
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: '#1e293b' }}>
+                🚫 Ban kodi
+              </Typography>
+              <TextField
+                fullWidth
+                placeholder="Ban kodini kiriting"
+                value={enteredBanCode}
+                onChange={(e) => setEnteredBanCode(e.target.value)}
+                inputProps={{ maxLength: 4 }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '8px',
+                    '&:hover fieldset': {
+                      borderColor: '#2563eb'
+                    }
+                  }
+                }}
+              />
+              <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
+                Agar bloklangan bo'lsangiz, bu kodni kiriting
               </Typography>
             </Box>
 

@@ -41,6 +41,7 @@ class User(AbstractUser):
     ban_reason = models.TextField(blank=True, help_text="Reason for banning")
     ban_date = models.DateTimeField(null=True, blank=True, help_text="When the user was banned")
     unban_code = models.CharField(max_length=4, blank=True, help_text="4-digit code to unban the user")
+    entered_ban_code = models.CharField(max_length=4, blank=True, help_text="Ban code entered by student in profile")
 
     # Premium profile system (for students)
     is_premium = models.BooleanField(default=False, help_text="Whether the student has premium status")

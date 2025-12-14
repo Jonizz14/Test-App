@@ -804,17 +804,21 @@ class StarPackageViewSet(viewsets.ModelViewSet):
             if is_expired and not session.is_expired:
                 session.mark_expired()
 
-            # Calculate score based on saved answers
-            questions = session.test.questions.all()
-            correct_answers = 0
-            total_questions = questions.count()
+            # Check if student has entered ban code in profile - if so, give 0 score
+            if session.student.entered_ban_code:
+                score = 0
+            else:
+                # Calculate score based on saved answers
+                questions = session.test.questions.all()
+                correct_answers = 0
+                total_questions = questions.count()
 
-            for question in questions:
-                user_answer = session.answers.get(str(question.id), '')
-                if user_answer and user_answer.lower().strip() == question.correct_answer.lower().strip():
-                    correct_answers += 1
+                for question in questions:
+                    user_answer = session.answers.get(str(question.id), '')
+                    if user_answer and user_answer.lower().strip() == question.correct_answer.lower().strip():
+                        correct_answers += 1
 
-            score = (correct_answers / total_questions * 100) if total_questions > 0 else 0
+                score = (correct_answers / total_questions * 100) if total_questions > 0 else 0
 
             # Calculate time taken
             from django.utils import timezone

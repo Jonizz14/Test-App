@@ -1729,7 +1729,7 @@ const TakeTest = () => {
         />
 
         {/* Unban Prompt Modal */}
-        {showUnbanPrompt && (
+        {showUnbanPrompt && !currentUser?.entered_ban_code && (
           <Dialog
             open={showUnbanPrompt}
             onClose={closeUnbanPrompt}
