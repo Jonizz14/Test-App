@@ -41,7 +41,6 @@ const StudentStatistics = () => {
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [warningCount, setWarningCount] = useState(0);
 
   useEffect(() => {
     loadStatistics();
@@ -52,20 +51,17 @@ const StudentStatistics = () => {
       setLoading(true);
       setError('');
 
-      // Load student's attempts, all tests, and warnings from API
-      const [attemptsResponse, testsResponse, warningsResponse] = await Promise.all([
+      // Load student's attempts and all tests from API
+      const [attemptsResponse, testsResponse] = await Promise.all([
         apiService.getAttempts({ student: currentUser.id }),
-        apiService.getTests(),
-        apiService.getWarnings({ student: currentUser.id })
+        apiService.getTests()
       ]);
 
       const studentAttempts = attemptsResponse.results || attemptsResponse;
       const allTests = testsResponse.results || testsResponse;
-      const warnings = warningsResponse.results || warningsResponse;
 
       setMyAttempts(studentAttempts);
       setTests(allTests);
-      setWarningCount(Array.isArray(warnings) ? warnings.length : 0);
 
     } catch (err) {
       console.error('Failed to load student statistics:', err);
@@ -361,30 +357,6 @@ const StudentStatistics = () => {
         </Typography>
       </Box>
 
-      {/* Warning Count Alert - Only show if 3 or more warnings */}
-      {warningCount >= 3 && (
-        <div>
-          <Alert
-            severity="warning"
-            sx={{
-              mb: 4,
-              backgroundColor: '#fef3c7',
-              border: '1px solid #f59e0b',
-              color: '#92400e',
-              '& .MuiAlert-icon': {
-                color: '#f59e0b'
-              }
-            }}
-          >
-            <Typography sx={{ fontWeight: 600, mb: 1 }}>
-              ⚠️ Ogohlantirishlar: {warningCount} ta
-            </Typography>
-            <Typography variant="body2">
-              Siz test qoidalariga {warningCount} marta rioya qilmadingiz. Iltimos, test qoidalariga rioya qiling, aks holda profilingiz bloklanishi mumkin.
-            </Typography>
-          </Alert>
-        </div>
-      )}
 
       {/* Main Statistics Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>

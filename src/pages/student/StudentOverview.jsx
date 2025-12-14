@@ -39,7 +39,6 @@ const StudentOverview = () => {
   const [myAttempts, setMyAttempts] = useState([]);
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [warningCount, setWarningCount] = useState(0);
   const [selectedResult, setSelectedResult] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [questions, setQuestions] = useState([]);
@@ -53,25 +52,21 @@ const StudentOverview = () => {
     try {
       setLoading(true);
 
-      // Load student's attempts, tests, and warnings from API
-      const [attemptsResponse, testsResponse, warningsResponse] = await Promise.all([
+      // Load student's attempts and tests from API
+      const [attemptsResponse, testsResponse] = await Promise.all([
         apiService.getAttempts({ student: currentUser.id }),
-        apiService.getTests(),
-        apiService.getWarnings({ student: currentUser.id })
+        apiService.getTests()
       ]);
 
       const studentAttempts = attemptsResponse.results || attemptsResponse;
       const allTests = testsResponse.results || testsResponse;
-      const warnings = warningsResponse.results || warningsResponse;
 
       setMyAttempts(studentAttempts);
       setTests(allTests);
-      setWarningCount(Array.isArray(warnings) ? warnings.length : 0);
 
       console.log('Student overview data loaded:', {
         attempts: studentAttempts.length,
-        tests: allTests.length,
-        warnings: Array.isArray(warnings) ? warnings.length : 0
+        tests: allTests.length
       });
     } catch (error) {
       console.error('Failed to load student data:', error);
