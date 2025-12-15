@@ -1,12 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
-
-// Import the new CSS system
-import './styles/main.css';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { StatisticsProvider } from './context/StatisticsContext';
@@ -25,60 +20,37 @@ import Questions from './pages/admin/Questions';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#0A1F44', // Dark blue from Tailwind
-      light: '#102B60',
-      dark: '#071A35',
+      main: '#1976d2', // Blue accent color
+      light: '#42a5f5',
+      dark: '#1565c0',
       contrastText: '#ffffff',
     },
-    secondary: {
-      main: '#FFFFFF',
-      light: '#F8FAFC',
-      dark: '#E2E8F0',
-      contrastText: '#0A1F44',
-    },
-    success: {
-      main: '#22c55e',
-      light: '#4ade80',
-      dark: '#16a34a',
-    },
-    warning: {
-      main: '#f59e0b',
-      light: '#fbbf24',
-      dark: '#d97706',
-    },
-    error: {
-      main: '#ef4444',
-      light: '#f87171',
-      dark: '#dc2626',
-    },
     background: {
-      default: '#F8FAFC',
-      paper: '#FFFFFF',
+      default: '#ffffff',
+      paper: '#f5f5f5',
     },
     text: {
-      primary: '#1F2937',
-      secondary: '#64748B',
+      primary: '#212121',
+      secondary: '#757575',
     },
   },
   typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
     button: {
       textTransform: 'none',
     },
   },
   shape: {
-    borderRadius: 12, // Consistent rounded corners
+    borderRadius: 8,
   },
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
+          borderRadius: 8,
           textTransform: 'none',
           fontWeight: 500,
-          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
           '&:hover': {
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
           },
         },
       },
@@ -86,19 +58,12 @@ const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 16,
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+          borderRadius: 8,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
         },
       },
     },
     MuiPaper: {
-      styleOverrides: {
-        root: {
-          borderRadius: 16,
-        },
-      },
-    },
-    MuiChip: {
       styleOverrides: {
         root: {
           borderRadius: 8,
@@ -109,22 +74,15 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            borderRadius: 12,
+            borderRadius: 8,
           },
-        },
-      },
-    },
-    MuiAppBar: {
-      styleOverrides: {
-        root: {
-          borderRadius: 0,
         },
       },
     },
     MuiTableContainer: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
+          borderRadius: 8,
         },
       },
     },
@@ -171,6 +129,8 @@ const SellerRoute = ({ children }) => (
   <ProtectedRoute allowedRoles={['seller']}>{children}</ProtectedRoute>
 );
 
+import { Box, Card, CardContent, Typography, Button, Alert } from '@mui/material';
+
 // Error Boundary Component - Catches and handles React errors gracefully
 // Provides user-friendly error messages and recovery options
 class ErrorBoundary extends React.Component {
@@ -190,34 +150,44 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="center min-h-screen bg-blue-50 p-4">
-          <div className="card max-w-md text-center">
-            <div className="text-4xl mb-4">❌</div>
-            <h2 className="text-2xl font-bold text-error mb-4">
-              Xatolik yuz berdi
-            </h2>
-            <p className="text-secondary mb-4">
-              Ilova ishlamayapti. Sahifani qayta yuklang yoki boshqa portda sinab ko'ring.
-            </p>
-            <p className="text-sm text-muted mb-4">
-              Xato: {this.state.error?.message}
-            </p>
-            <div className="flex gap-2 justify-center">
-              <button 
-                className="btn btn-primary"
-                onClick={() => window.location.reload()}
-              >
-                Qayta yuklash
-              </button>
-              <button 
-                className="btn btn-outline"
-                onClick={() => window.location.href = '/test'}
-              >
-                Test sahifasi
-              </button>
-            </div>
-          </div>
-        </div>
+        <Box
+          sx={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            p: 2,
+            bgcolor: 'background.default'
+          }}
+        >
+          <Card sx={{ maxWidth: 400, width: '100%' }}>
+            <CardContent sx={{ textAlign: 'center' }}>
+              <Typography variant="h5" color="error" gutterBottom>
+                Error Occurred
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                The application is not working. Please reload the page or try a different port.
+              </Typography>
+              <Alert severity="error" sx={{ mb: 2, fontSize: '0.875rem' }}>
+                Error: {this.state.error?.message}
+              </Alert>
+              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                <Button
+                  variant="contained"
+                  onClick={() => window.location.reload()}
+                >
+                  Reload
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => window.location.href = '/test'}
+                >
+                  Test Page
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        </Box>
       );
     }
 
@@ -228,44 +198,47 @@ class ErrorBoundary extends React.Component {
 // Test component to check if app is working - Health check page
 const TestPage = () => {
   return (
-    <div className="center p-8 text-center">
-      <div className="card max-w-lg">
-        <h2 className="text-3xl font-bold text-blue-600 mb-4">
-          🎓 STIM Test App Ishlamoqda!
-        </h2>
-        <p className="text-secondary mb-4">
-          Agar bu sahifani ko'rsangiz, app ishlamoqda.
-        </p>
-        <div className="space-y-2 mb-6">
-          <p className="text-sm text-muted">
-            URL: {window.location.href}
-          </p>
-          <p className="text-sm text-muted">
-            Port: {window.location.port}
-          </p>
-        </div>
-        <button 
-          className="btn btn-primary"
-          onClick={() => window.location.href = '/login'}
-        >
-          Login sahifasiga o'tish
-        </button>
-      </div>
-    </div>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        p: 2,
+        bgcolor: 'background.default'
+      }}
+    >
+      <Card sx={{ maxWidth: 400, width: '100%' }}>
+        <CardContent sx={{ textAlign: 'center' }}>
+          <Typography variant="h5" color="primary" gutterBottom>
+            STIM Test App is Working!
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            If you can see this page, the app is working.
+          </Typography>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="body2" color="text.secondary">
+              URL: {window.location.href}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Port: {window.location.port}
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            onClick={() => window.location.href = '/login'}
+          >
+            Go to Login Page
+          </Button>
+        </CardContent>
+      </Card>
+    </Box>
   );
 };
 
 // Main App component - Entry point of the application
 // Provides routing, authentication, theming, and error handling
 function App() {
-  useEffect(() => {
-    AOS.init({
-      duration: 800,
-      easing: 'ease-out-cubic',
-      once: true,
-      offset: 50,
-    });
-  }, []);
 
   return (
     <ErrorBoundary>

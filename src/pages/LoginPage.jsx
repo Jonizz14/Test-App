@@ -140,10 +140,12 @@ const LoginPage = () => {
             height: 'fit-content'
           }}>
             <Box sx={{
-              background: 'linear-gradient(135deg, primary.main 0%, primary.dark 100%)',
-              color: 'white',
+              backgroundColor: 'background.paper',
+              color: 'text.primary',
               p: 3,
-              textAlign: 'center'
+              textAlign: 'center',
+              borderBottom: '1px solid',
+              borderColor: 'divider'
             }}>
               <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
                 <img
