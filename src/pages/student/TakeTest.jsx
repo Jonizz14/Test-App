@@ -66,7 +66,6 @@ const TakeTest = () => {
     hasTimeRemaining,
   } = useServerTest();
 
-  // Show loading if user is not authenticated
   if (!currentUser) {
     return (
       <Box sx={{
@@ -109,29 +108,27 @@ const TakeTest = () => {
   const navigate = useNavigate();
   const [teachers, setTeachers] = useState([]);
   const [teacherTests, setTeacherTests] = useState({});
-  const [allTests, setAllTests] = useState([]); // For "Barcha testlar" section
+  const [allTests, setAllTests] = useState([]); 
   const [takenTests, setTakenTests] = useState(new Set());
   const [selectedTest, setSelectedTest] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [testCompleted, setTestCompleted] = useState(false);
   const [score, setScore] = useState(0);
-  const [sortBy, setSortBy] = useState('date'); // 'date', 'name', 'easy', 'medium', 'hard', 'difficulty'
+  const [sortBy, setSortBy] = useState('date'); 
   const [exitDialogOpen, setExitDialogOpen] = useState(false);
   const [urgentSubmitDialogOpen, setUrgentSubmitDialogOpen] = useState(false);
   const [sessionRecovering, setSessionRecovering] = useState(false);
-  const [activeTestSessions, setActiveTestSessions] = useState({}); // Track active sessions for each test
+  const [activeTestSessions, setActiveTestSessions] = useState({}); 
   const [searchTerm, setSearchTerm] = useState('');
   const [mathSymbolsOpen, setMathSymbolsOpen] = useState(false);
 
-  // Define handleTestComplete before using it in the hook
   const handleTestComplete = async () => {
     try {
       const result = await submitTest();
       if (result && result.success) {
         setScore(result.score);
         setTestCompleted(true);
-        // Update takenTests to include this completed test
         setTakenTests(prev => new Set([...prev, selectedTest.id]));
       } else {
         alert('Test yakunini saqlashda muammo yuz berdi.');
@@ -142,41 +139,31 @@ const TakeTest = () => {
     }
   };
 
-
-
-
-  // Difficulty labels mapping
   const difficultyLabels = {
     easy: 'Oson',
     medium: 'O\'rtacha',
     hard: 'Qiyin'
   };
 
-  // Sort and filter all tests by difficulty
   const getSortedTests = () => {
     let filteredTests = allTests.filter(test => test.is_active);
     
-    // Filter by difficulty if selected
     if (sortBy === 'easy' || sortBy === 'medium' || sortBy === 'hard') {
       filteredTests = filteredTests.filter(test => test.difficulty === sortBy);
     }
     
-    // Sort tests
     if (sortBy === 'difficulty') {
       const difficultyOrder = { easy: 1, medium: 2, hard: 3 };
       filteredTests.sort((a, b) => (difficultyOrder[a.difficulty] || 0) - (difficultyOrder[b.difficulty] || 0));
     } else if (sortBy === 'name') {
-      // Sort by title alphabetically
       filteredTests.sort((a, b) => a.title.localeCompare(b.title));
     } else {
-      // Default sort by creation date (newest first)
       filteredTests.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     }
     
     return filteredTests;
   };
 
-  // Filter tests based on search term
   const getFilteredTests = () => {
     const sortedTests = getSortedTests();
     if (!searchTerm) return sortedTests;
@@ -199,7 +186,6 @@ const TakeTest = () => {
     }
   }, [currentUser]);
 
-  // Check for active sessions for all tests
   useEffect(() => {
     const checkAllActiveSessions = async () => {
       if (allTests.length === 0 || !currentUser) return;
@@ -213,7 +199,6 @@ const TakeTest = () => {
             sessionsMap[test.id] = activeSession;
           }
         } catch (error) {
-          // Silently handle errors for each test
           console.debug(`No active session for test ${test.id}`);
         }
       }
@@ -224,22 +209,18 @@ const TakeTest = () => {
     checkAllActiveSessions();
   }, [allTests, currentUser]);
 
-  // Check for testId in URL parameters
   useEffect(() => {
     const testIdFromParams = searchParams.get('testId');
 
     if (testIdFromParams && teachers.length > 0 && currentUser) {
-      // Check if there's an active session for this test
       const checkAndHandleTest = async () => {
         try {
           setSessionRecovering(true);
 
-          // Check if student has already taken this test via API
           const attempts = await apiService.getAttempts({ student: currentUser.id, test: testIdFromParams });
           const hasAttempt = attempts && attempts.length > 0;
 
           if (hasAttempt) {
-            // Test already completed - redirect to results page
             navigate('/student/results');
             return;
           }
@@ -247,24 +228,19 @@ const TakeTest = () => {
           const activeSession = await checkActiveSession(testIdFromParams);
 
           if (activeSession) {
-            // Continue existing session
             await continueTestFromSession(activeSession, testIdFromParams);
           } else {
-            // Load test and show anti-cheat modal before starting
             const test = await apiService.getTest(testIdFromParams);
             if (test && test.is_active) {
-              // Start test directly
               startTest(test);
             }
           }
         } catch (error) {
           console.error('Failed to handle test from URL:', error);
-          // If test is already completed, redirect to results
           if (error.message && (error.message.includes('Test already completed') || error.message.includes('400') || error.message.includes('already completed'))) {
             navigate('/student/results');
             return;
           }
-          // Clear any session data that might be invalid
           clearSession();
         } finally {
           setSessionRecovering(false);
@@ -275,10 +251,8 @@ const TakeTest = () => {
     }
   }, [searchParams, teachers, navigate, checkActiveSession, currentUser]);
 
-  // Handle session completion
   useEffect(() => {
     if (currentSession && hasTimeRemaining === false && sessionStarted) {
-      // Session has expired or completed
       handleTestComplete();
     }
   }, [hasTimeRemaining, sessionStarted]);
