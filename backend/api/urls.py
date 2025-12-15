@@ -14,6 +14,8 @@ router.register(r'pricing', views.PricingViewSet)
 router.register(r'star-packages', views.StarPackageViewSet)
 router.register(r'gifts', views.GiftViewSet)
 router.register(r'student-gifts', views.StudentGiftViewSet)
+router.register(r'events', views.EventViewSet)
+router.register(r'event-rewards', views.EventRewardViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
