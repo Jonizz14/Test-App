@@ -31,7 +31,6 @@ import {
   PowerSettingsNew as LogoutIcon,
   Security as ShieldIcon,
   Notifications as NotificationsIcon,
-  Event as EventIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import apiService from '../data/apiService';
@@ -113,7 +112,6 @@ const AdminDashboard = () => {
     { text: 'Umumiy', icon: <DashboardIcon />, path: '/admin' },
     { text: 'O\'qituvchilarni boshqarish', icon: <SupervisorAccountIcon />, path: '/admin/teachers' },
     { text: 'O\'quvchilarni boshqarish', icon: <GroupIcon />, path: '/admin/students' },
-    { text: 'Tadbirlar boshqarish', icon: <EventIcon />, path: '/admin/events' },
     { text: 'Sinflar reytingi', icon: <SchoolIcon />, path: '/admin/class-stats' },
     { text: 'Testlar statistikasi', icon: <TrendingUpIcon />, path: '/admin/test-stats' },
     { text: 'O\'quvchilar reytingi', icon: <LeaderboardIcon />, path: '/admin/student-ratings' },
@@ -346,9 +344,6 @@ const AdminDashboard = () => {
               <Route path="/students" element={<ManageStudents />} />
               <Route path="/add-student" element={<AddStudent />} />
               <Route path="/edit-student/:id" element={<AddStudent />} />
-              <Route path="/events" element={<ManageEvents />} />
-              <Route path="/create-event" element={<CreateEvent />} />
-              <Route path="/edit-event/:id" element={<CreateEvent />} />
               <Route path="/class-stats" element={<ClassStatistics />} />
               <Route path="/class-details/:classGroup" element={<ClassDetails />} />
               <Route path="/student-details/:id" element={<StudentDetails />} />

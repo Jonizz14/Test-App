@@ -253,38 +253,3 @@ class StudentGiftSerializer(serializers.ModelSerializer):
     def get_gift_number(self, obj):
         # Get the count of StudentGift objects created before this one
         return StudentGift.objects.filter(purchased_at__lt=obj.purchased_at).count() + 1
-
-class EventSerializer(serializers.ModelSerializer):
-    banner_image_url = serializers.SerializerMethodField()
-    event_type_display = serializers.CharField(source='get_event_type_display', read_only=True)
-    reward_count = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Event
-        fields = ['id', 'title', 'description', 'event_type', 'event_type_display', 'banner_image', 'banner_image_url',
-                  'first_place_stars', 'second_place_stars', 'third_place_stars', 'distribution_date', 'is_active',
-                  'created_at', 'updated_at', 'target_class_groups', 'reward_count']
-        read_only_fields = ['id', 'created_at', 'updated_at', 'banner_image_url', 'event_type_display', 'reward_count']
-
-    def get_banner_image_url(self, obj):
-        if obj.banner_image:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.banner_image.url)
-            else:
-                return obj.banner_image.url
-        return None
-
-    def get_reward_count(self, obj):
-        return obj.rewards.count()
-
-class EventRewardSerializer(serializers.ModelSerializer):
-    event_title = serializers.CharField(source='event.title', read_only=True)
-    student_name = serializers.CharField(source='student.name', read_only=True)
-    student_display_id = serializers.CharField(source='student.display_id', read_only=True)
-
-    class Meta:
-        model = EventReward
-        fields = ['id', 'event', 'event_title', 'student', 'student_name', 'student_display_id',
-                  'stars_awarded', 'position', 'awarded_at', 'is_claimed']
-        read_only_fields = ['id', 'awarded_at', 'event_title', 'student_name', 'student_display_id']

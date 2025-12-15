@@ -29,150 +29,16 @@ import {
   People as PeopleIcon,
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
-  Event as EventIcon,
-  Timer as TimerIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
-import { useCountdown } from '../../hooks/useCountdown';
 
-// Event Countdown Component
-const EventCountdown = ({ event, currentUser }) => {
-  const { formattedTime, isExpired } = useCountdown(event.distribution_date);
-  const [userReward, setUserReward] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (isExpired && currentUser) {
-      checkUserReward();
-    }
-  }, [isExpired, currentUser, event.id]);
-
-  const checkUserReward = async () => {
-    try {
-      setLoading(true);
-      const rewards = await apiService.getMyEventRewards();
-      const reward = rewards.find(r => r.event === event.id);
-      setUserReward(reward);
-    } catch (error) {
-      console.error('Failed to check user reward:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (isExpired) {
-    if (loading) {
-      return (
-        <Box sx={{
-          backgroundColor: '#f3f4f6',
-          border: '1px solid #d1d5db',
-          borderRadius: '8px',
-          p: 2,
-          textAlign: 'center'
-        }}>
-          <Typography sx={{
-            color: '#6b7280',
-            fontWeight: 600,
-            fontSize: '0.875rem'
-          }}>
-            Natijalar tekshirilmoqda...
-          </Typography>
-        </Box>
-      );
-    }
-
-    if (userReward) {
-      // User won a reward
-      return (
-        <Box sx={{
-          backgroundColor: '#fef3c7',
-          border: '1px solid #f59e0b',
-          borderRadius: '8px',
-          p: 2,
-          textAlign: 'center'
-        }}>
-          <Typography sx={{
-            color: '#d97706',
-            fontWeight: 700,
-            fontSize: '0.875rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 1
-          }}>
-            🏆 {userReward.position}-o'rin! Yutug'ingizni oling
-          </Typography>
-          <Typography sx={{
-            color: '#92400e',
-            fontSize: '0.75rem',
-            mt: 0.5
-          }}>
-            {userReward.stars_awarded} yulduz berildi
-          </Typography>
-        </Box>
-      );
-    } else {
-      // User did not win
-      return (
-        <Box sx={{
-          backgroundColor: '#f3f4f6',
-          border: '1px solid #d1d5db',
-          borderRadius: '8px',
-          p: 2,
-          textAlign: 'center'
-        }}>
-          <Typography sx={{
-            color: '#6b7280',
-            fontWeight: 600,
-            fontSize: '0.875rem'
-          }}>
-            Keyingi safar yutarsiz! 💪
-          </Typography>
-        </Box>
-      );
-    }
-  }
-
-  return (
-    <Box sx={{
-      backgroundColor: '#ecfdf5',
-      border: '1px solid #a7f3d0',
-      borderRadius: '8px',
-      p: 2,
-      textAlign: 'center'
-    }}>
-      <Typography sx={{
-        color: '#059669',
-        fontWeight: 600,
-        fontSize: '0.875rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 1,
-        mb: 1
-      }}>
-        <TimerIcon sx={{ fontSize: '1rem' }} />
-        Tugashiga qoldi:
-      </Typography>
-      <Typography sx={{
-        color: '#047857',
-        fontWeight: 700,
-        fontSize: '1.25rem',
-        fontFamily: 'monospace'
-      }}>
-        {formattedTime}
-      </Typography>
-    </Box>
-  );
-};
 
 const StudentOverview = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const [myAttempts, setMyAttempts] = useState([]);
   const [tests, setTests] = useState([]);
-  const [activeEvents, setActiveEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedResult, setSelectedResult] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -187,25 +53,21 @@ const StudentOverview = () => {
     try {
       setLoading(true);
 
-      // Load student's attempts, tests, and active events from API
-      const [attemptsResponse, testsResponse, eventsResponse] = await Promise.all([
+      // Load student's attempts and tests from API
+      const [attemptsResponse, testsResponse] = await Promise.all([
         apiService.getAttempts({ student: currentUser.id }),
-        apiService.getTests(),
-        apiService.getActiveEvents()
+        apiService.getTests()
       ]);
 
       const studentAttempts = attemptsResponse.results || attemptsResponse;
       const allTests = testsResponse.results || testsResponse;
-      const activeEvents = eventsResponse.results || eventsResponse;
 
       setMyAttempts(studentAttempts);
       setTests(allTests);
-      setActiveEvents(activeEvents);
 
       console.log('Student overview data loaded:', {
         attempts: studentAttempts.length,
-        tests: allTests.length,
-        events: activeEvents.length
+        tests: allTests.length
       });
     } catch (error) {
       console.error('Failed to load student data:', error);
@@ -416,116 +278,6 @@ const StudentOverview = () => {
         </Typography>
       </Box>
 
-      {/* Active Events Banner */}
-      {activeEvents.length > 0 && (
-        <Box sx={{ mb: 4 }}>
-          <Box sx={{
-            backgroundColor: '#eff6ff',
-            borderRadius: '12px',
-            padding: '16px 20px',
-            mb: 3,
-            border: '1px solid #e2e8f0'
-          }}>
-            <Typography sx={{
-              fontSize: '1.25rem',
-              fontWeight: 600,
-              color: '#1e293b',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1
-            }}>
-              🎉 Faol tadbirlar
-            </Typography>
-          </Box>
-
-          <Box sx={{ display: 'flex', gap: 3, overflowX: 'auto', pb: 2 }}>
-            {activeEvents.map((event) => (
-              <Card key={event.id} sx={{
-                minWidth: '300px',
-                backgroundColor: '#ffffff',
-                border: '1px solid #e2e8f0',
-                borderRadius: '12px',
-                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                  transform: 'translateY(-2px)',
-                },
-                cursor: 'pointer'
-              }}>
-                {event.banner_image_url && (
-                  <Box sx={{
-                    height: '120px',
-                    backgroundImage: `url(${event.banner_image_url})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    borderRadius: '12px 12px 0 0',
-                    position: 'relative'
-                  }}>
-                    <Box sx={{
-                      position: 'absolute',
-                      top: 8,
-                      right: 8,
-                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                      borderRadius: '20px',
-                      px: 2,
-                      py: 0.5
-                    }}>
-                      <Typography sx={{
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
-                        color: '#d97706'
-                      }}>
-                        🥇 {event.first_place_stars} 🥈 {event.second_place_stars} 🥉 {event.third_place_stars}
-                      </Typography>
-                    </Box>
-                  </Box>
-                )}
-                <CardContent sx={{ p: 3 }}>
-                  <Typography sx={{
-                    fontWeight: 600,
-                    color: '#1e293b',
-                    fontSize: '1rem',
-                    mb: 1
-                  }}>
-                    {event.title}
-                  </Typography>
-                  {event.description && (
-                    <Typography sx={{
-                      color: '#64748b',
-                      fontSize: '0.875rem',
-                      mb: 2,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden'
-                    }}>
-                      {event.description}
-                    </Typography>
-                  )}
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Chip
-                      label={event.event_type_display}
-                      size="small"
-                      sx={{
-                        backgroundColor: '#f3f4f6',
-                        color: '#374151',
-                        fontSize: '0.75rem'
-                      }}
-                    />
-                    <Typography sx={{
-                      color: '#64748b',
-                      fontSize: '0.75rem'
-                    }}>
-                      {new Date(event.distribution_date).toLocaleDateString('uz-UZ')}
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Card>
-            ))}
-          </Box>
-        </Box>
-      )}
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -570,155 +322,6 @@ const StudentOverview = () => {
         </Grid>
       </Grid>
 
-      {/* Active Events Section */}
-      {activeEvents.length > 0 && (
-        <Box sx={{ mt: 4, mb: 4 }}>
-          <Box sx={{
-            backgroundColor: '#fef3c7',
-            borderRadius: '12px',
-            padding: '16px 20px',
-            mb: 3,
-            border: '1px solid #e2e8f0'
-          }}>
-            <Typography sx={{
-              fontSize: '1.25rem',
-              fontWeight: 600,
-              color: '#1e293b',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1
-            }}>
-              <EventIcon sx={{ color: '#d97706' }} />
-              Faol tadbirlar
-            </Typography>
-          </Box>
-
-          <Grid container spacing={3}>
-            {activeEvents.map((event) => (
-              <Grid size={{ xs: 12, md: 6 }} key={event.id}>
-                <Card sx={{
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '12px',
-                  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-                  transition: 'all 0.2s ease',
-                  '&:hover': {
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                    transform: 'translateY(-2px)'
-                  }
-                }}>
-                  <CardContent sx={{ p: 3 }}>
-                    {/* Event Banner */}
-                    {event.banner_image_url && (
-                      <Box sx={{
-                        mb: 2,
-                        borderRadius: '8px',
-                        overflow: 'hidden',
-                        border: '1px solid #e2e8f0'
-                      }}>
-                        <img
-                          src={event.banner_image_url}
-                          alt={event.title}
-                          style={{
-                            width: '100%',
-                            height: '120px',
-                            objectFit: 'cover',
-                            display: 'block'
-                          }}
-                        />
-                      </Box>
-                    )}
-
-                    {/* Event Title and Type */}
-                    <Box sx={{ mb: 2 }}>
-                      <Typography sx={{
-                        fontWeight: 700,
-                        color: '#1e293b',
-                        fontSize: '1.1rem',
-                        mb: 1
-                      }}>
-                        {event.title}
-                      </Typography>
-                      <Chip
-                        label={event.event_type_display}
-                        size="small"
-                        sx={{
-                          backgroundColor: '#eff6ff',
-                          color: '#2563eb',
-                          fontWeight: 600,
-                          fontSize: '0.75rem'
-                        }}
-                      />
-                    </Box>
-
-                    {/* Event Description */}
-                    {event.description && (
-                      <Typography sx={{
-                        color: '#64748b',
-                        fontSize: '0.875rem',
-                        mb: 2,
-                        lineHeight: 1.4
-                      }}>
-                        {event.description}
-                      </Typography>
-                    )}
-
-                    {/* Rewards Info */}
-                    <Box sx={{ mb: 2 }}>
-                      <Typography sx={{
-                        fontSize: '0.875rem',
-                        fontWeight: 600,
-                        color: '#1e293b',
-                        mb: 1
-                      }}>
-                        Mukofotlar:
-                      </Typography>
-                      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                        <Chip
-                          icon={<span>🥇</span>}
-                          label={`${event.first_place_stars} yulduz`}
-                          size="small"
-                          sx={{
-                            backgroundColor: '#fef3c7',
-                            color: '#d97706',
-                            fontWeight: 600,
-                            fontSize: '0.75rem'
-                          }}
-                        />
-                        <Chip
-                          icon={<span>🥈</span>}
-                          label={`${event.second_place_stars} yulduz`}
-                          size="small"
-                          sx={{
-                            backgroundColor: '#f3f4f6',
-                            color: '#374151',
-                            fontWeight: 600,
-                            fontSize: '0.75rem'
-                          }}
-                        />
-                        <Chip
-                          icon={<span>🥉</span>}
-                          label={`${event.third_place_stars} yulduz`}
-                          size="small"
-                          sx={{
-                            backgroundColor: '#fed7d7',
-                            color: '#c53030',
-                            fontWeight: 600,
-                            fontSize: '0.75rem'
-                          }}
-                        />
-                      </Box>
-                    </Box>
-
-                    {/* Countdown Timer */}
-                    <EventCountdown event={event} currentUser={currentUser} />
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-      )}
 
       <Box sx={{ mt: 4 }}>
         <Box sx={{

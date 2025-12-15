@@ -6,8 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.db import models
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, Gift, StudentGift, Event, EventReward
-from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, PricingSerializer, StarPackageSerializer, GiftSerializer, StudentGiftSerializer, EventSerializer, EventRewardSerializer
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, Gift, StudentGift
+from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, PricingSerializer, StarPackageSerializer, GiftSerializer, StudentGiftSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -807,103 +807,4 @@ class StarPackageViewSet(viewsets.ModelViewSet):
         # Only allow authenticated users to create sessions
         serializer.save(student=self.request.user)
 
-class EventViewSet(viewsets.ModelViewSet):
-    queryset = Event.objects.all()
-    serializer_class = EventSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_permissions(self):
-        """Only allow admin to manage events"""
-        if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return [IsAuthenticated()]
-        return [AllowAny()]
-
-    def get_queryset(self):
-        """Return active events for students, all events for admin"""
-        if self.request.user.role == 'admin':
-            return Event.objects.all()
-        return Event.objects.filter(is_active=True)
-
-    def perform_create(self, serializer):
-        if self.request.user.role != 'admin':
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("Only admin can create events")
-        serializer.save()
-
-    def perform_update(self, serializer):
-        if self.request.user.role != 'admin':
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("Only admin can update events")
-        serializer.save()
-
-    def perform_destroy(self, instance):
-        if self.request.user.role != 'admin':
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("Only admin can delete events")
-        instance.delete()
-
-    @action(detail=False, methods=['get'])
-    def active_events(self, request):
-        """Get active events for students"""
-        events = Event.objects.filter(is_active=True)
-        serializer = self.get_serializer(events, many=True)
-        return Response(serializer.data)
-
-    @action(detail=True, methods=['get'])
-    def my_reward(self, request, pk=None):
-        """Get student's reward for this event"""
-        event = self.get_object()
-        try:
-            reward = EventReward.objects.get(event=event, student=request.user)
-            serializer = EventRewardSerializer(reward)
-            return Response(serializer.data)
-        except EventReward.DoesNotExist:
-            return Response({'message': 'No reward found for this event'}, status=status.HTTP_404_NOT_FOUND)
-
-class EventRewardViewSet(viewsets.ModelViewSet):
-    queryset = EventReward.objects.all()
-    serializer_class = EventRewardSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        """Return rewards for current user or all for admin"""
-        if self.request.user.role == 'admin':
-            return EventReward.objects.all()
-        return EventReward.objects.filter(student=self.request.user)
-
-    def perform_create(self, serializer):
-        if self.request.user.role != 'admin':
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("Only admin can create event rewards")
-        serializer.save()
-
-    @action(detail=True, methods=['post'])
-    def claim_reward(self, request, pk=None):
-        """Mark reward as claimed by student"""
-        reward = self.get_object()
-        if reward.student != request.user:
-            return Response({'error': 'You can only claim your own rewards'}, status=status.HTTP_403_FORBIDDEN)
-
-        reward.is_claimed = True
-        reward.save()
-
-        serializer = self.get_serializer(reward)
-        return Response({
-            'message': 'Reward claimed successfully',
-            'reward': serializer.data
-        })
-
-    @action(detail=False, methods=['get'])
-    def my_rewards(self, request):
-        """Get all rewards for current student"""
-        rewards = EventReward.objects.filter(student=request.user)
-        serializer = self.get_serializer(rewards, many=True)
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['get'])
-    def unclaimed_rewards(self, request):
-        """Get unclaimed rewards for current student"""
-        rewards = EventReward.objects.filter(student=request.user, is_claimed=False)
-        serializer = self.get_serializer(rewards, many=True)
-        return Response(serializer.data)
 
