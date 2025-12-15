@@ -39,6 +39,7 @@ import apiService from '../data/apiService';
 import AdminOverview from './admin/AdminOverview';
 import ManageTeachers from './admin/ManageTeachers';
 import ManageStudents from './admin/ManageStudents';
+import ManageEvents from './admin/ManageEvents';
 import AddStudent from './admin/AddStudent';
 import AddTeacher from './admin/AddTeacher';
 import TeacherDetails from './admin/TeacherDetails';
@@ -110,6 +111,7 @@ const AdminDashboard = () => {
     { text: 'Umumiy', icon: <DashboardIcon />, path: '/admin' },
     { text: 'O\'qituvchilarni boshqarish', icon: <SupervisorAccountIcon />, path: '/admin/teachers' },
     { text: 'O\'quvchilarni boshqarish', icon: <GroupIcon />, path: '/admin/students' },
+    { text: 'Tadbirlar boshqarish', icon: <EventIcon />, path: '/admin/events' },
     { text: 'Sinflar reytingi', icon: <SchoolIcon />, path: '/admin/class-stats' },
     { text: 'Testlar statistikasi', icon: <TrendingUpIcon />, path: '/admin/test-stats' },
     { text: 'O\'quvchilar reytingi', icon: <LeaderboardIcon />, path: '/admin/student-ratings' },
@@ -342,6 +344,7 @@ const AdminDashboard = () => {
               <Route path="/students" element={<ManageStudents />} />
               <Route path="/add-student" element={<AddStudent />} />
               <Route path="/edit-student/:id" element={<AddStudent />} />
+              <Route path="/events" element={<ManageEvents />} />
               <Route path="/class-stats" element={<ClassStatistics />} />
               <Route path="/class-details/:classGroup" element={<ClassDetails />} />
               <Route path="/student-details/:id" element={<StudentDetails />} />

@@ -64,10 +64,14 @@ const StudentProfile = () => {
   const [selectedPosition, setSelectedPosition] = useState(null);
   const [giftPositions, setGiftPositions] = useState([]);
   const [displayGiftDialogOpen, setDisplayGiftDialogOpen] = useState(false);
+  const [eventRewards, setEventRewards] = useState([]);
+  const [eventRewardsDialogOpen, setEventRewardsDialogOpen] = useState(false);
+  const [unclaimedRewards, setUnclaimedRewards] = useState([]);
 
   useEffect(() => {
     loadStudentStats();
     loadPlacedGifts();
+    loadEventRewards();
   }, [currentUser]);
 
   useEffect(() => {
@@ -173,6 +177,42 @@ const StudentProfile = () => {
       setPlacedGifts([]);
       setMyGifts([]);
       setDisplayGift(null);
+    }
+  };
+
+  const loadEventRewards = async () => {
+    if (!currentUser) return;
+
+    try {
+      const [rewardsResponse, unclaimedResponse] = await Promise.all([
+        apiService.get('/event-rewards/my_rewards/'),
+        apiService.get('/event-rewards/unclaimed_rewards/')
+      ]);
+
+      const rewards = rewardsResponse.results || rewardsResponse;
+      const unclaimed = unclaimedResponse.results || unclaimedResponse;
+
+      setEventRewards(rewards);
+      setUnclaimedRewards(unclaimed);
+
+      // Show modal if there are unclaimed rewards
+      if (unclaimed.length > 0) {
+        setEventRewardsDialogOpen(true);
+      }
+    } catch (error) {
+      console.error('Error loading event rewards:', error);
+      setEventRewards([]);
+      setUnclaimedRewards([]);
+    }
+  };
+
+  const handleClaimReward = async (rewardId) => {
+    try {
+      await apiService.post(`/event-rewards/${rewardId}/claim_reward/`);
+      await loadEventRewards(); // Reload rewards
+    } catch (error) {
+      console.error('Error claiming reward:', error);
+      alert('Mukofotni qabul qilishda xatolik yuz berdi');
     }
   };
 
@@ -2181,6 +2221,129 @@ const StudentProfile = () => {
         <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
           <Button
             onClick={() => setDisplayGiftDialogOpen(false)}
+            sx={{
+              color: '#374151',
+              fontWeight: 600,
+              textTransform: 'none'
+            }}
+          >
+            Yopish
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Event Rewards Modal */}
+      <Dialog
+        open={eventRewardsDialogOpen}
+        onClose={() => setEventRewardsDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle sx={{
+          fontWeight: 600,
+          color: '#1e293b',
+          fontSize: '1.25rem',
+          textAlign: 'center'
+        }}>
+          🎉 Tabriklaymiz! Siz mukofot yutdingiz!
+        </DialogTitle>
+        <DialogContent>
+          <Typography sx={{
+            color: '#64748b',
+            mb: 3,
+            textAlign: 'center'
+          }}>
+            Quyidagi tadbirlarda qatnashganingiz uchun mukofotlar berildi:
+          </Typography>
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {unclaimedRewards.map((reward) => (
+              <Card key={reward.id} sx={{
+                border: '2px solid #f59e0b',
+                backgroundColor: '#fef3c7',
+                borderRadius: '12px'
+              }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                    <Box sx={{ fontSize: '2rem' }}>
+                      🏆
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography sx={{
+                        fontWeight: 600,
+                        color: '#1e293b',
+                        fontSize: '1.1rem'
+                      }}>
+                        {reward.event_title}
+                      </Typography>
+                      {reward.position && (
+                        <Typography sx={{
+                          color: '#d97706',
+                          fontSize: '0.9rem',
+                          fontWeight: 500
+                        }}>
+                          {reward.position}-o'rin
+                        </Typography>
+                      )}
+                    </Box>
+                    <Box sx={{ textAlign: 'right' }}>
+                      <Typography sx={{
+                        fontSize: '1.5rem',
+                        fontWeight: 700,
+                        color: '#f59e0b'
+                      }}>
+                        +{reward.stars_awarded} ⭐
+                      </Typography>
+                      <Typography sx={{
+                        color: '#64748b',
+                        fontSize: '0.8rem'
+                      }}>
+                        {new Date(reward.awarded_at).toLocaleDateString('uz-UZ')}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Button
+                      variant="contained"
+                      onClick={() => handleClaimReward(reward.id)}
+                      sx={{
+                        backgroundColor: '#f59e0b',
+                        color: '#ffffff',
+                        fontWeight: 600,
+                        '&:hover': {
+                          backgroundColor: '#d97706'
+                        }
+                      }}
+                    >
+                      Mukofotni qabul qilish
+                    </Button>
+                  </Box>
+                </CardContent>
+              </Card>
+            ))}
+          </Box>
+
+          {unclaimedRewards.length === 0 && (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <Typography sx={{
+                fontSize: '3rem',
+                mb: 2
+              }}>
+                🎉
+              </Typography>
+              <Typography sx={{
+                color: '#64748b',
+                mb: 2
+              }}>
+                Hozircha yangi mukofotlar yo'q
+              </Typography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+          <Button
+            onClick={() => setEventRewardsDialogOpen(false)}
             sx={{
               color: '#374151',
               fontWeight: 600,
