@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Typography,
   Box,
@@ -19,36 +20,18 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Grid,
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon, Event as EventIcon } from '@mui/icons-material';
 import apiService from '../../data/apiService';
 
 const ManageEvents = () => {
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState(null);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editingEvent, setEditingEvent] = useState(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    event_type: 'school_rating',
-    first_place_stars: 10,
-    second_place_stars: 7,
-    third_place_stars: 5,
-    distribution_date: '',
-    target_class_groups: '',
-    banner_image: null
-  });
 
   useEffect(() => {
     loadEvents();
@@ -118,19 +101,7 @@ const ManageEvents = () => {
   };
 
   const handleAddClick = () => {
-    setEditingEvent(null);
-    setFormData({
-      title: '',
-      description: '',
-      event_type: 'class_rating',
-      reward_stars: 10,
-      reward_description: '',
-      distribution_date: '',
-      target_class_groups: '',
-      top_positions: 3,
-      banner_image: null
-    });
-    setEditDialogOpen(true);
+    navigate('/admin/create-event');
   };
 
   const handleSave = async () => {
@@ -399,6 +370,18 @@ const ManageEvents = () => {
 
                 <TableCell align="center">
                   <Box display="flex" justifyContent="center" gap={1}>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={event.is_active}
+                          onChange={() => handleToggleActive(event.id)}
+                          color="primary"
+                          size="small"
+                        />
+                      }
+                      label=""
+                      sx={{ mr: 1 }}
+                    />
                     <IconButton
                       size="small"
                       onClick={() => handleEditClick(event)}
@@ -442,175 +425,6 @@ const ManageEvents = () => {
         </Box>
       )}
 
-      {/* Edit/Add Event Dialog */}
-      <Dialog
-        open={editDialogOpen}
-        onClose={() => setEditDialogOpen(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle sx={{ fontWeight: 600, color: '#1e293b' }}>
-          {editingEvent ? 'Tadbirni tahrirlash' : 'Yangi tadbir yaratish'}
-        </DialogTitle>
-        <DialogContent>
-          <Grid container spacing={3} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Sarlavha"
-                value={formData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
-                required
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Tavsif"
-                multiline
-                rows={3}
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <FormControl fullWidth>
-                <InputLabel>Tadbir turi</InputLabel>
-                <Select
-                  value={formData.event_type}
-                  onChange={(e) => handleInputChange('event_type', e.target.value)}
-                  label="Tadbir turi"
-                >
-                  <MenuItem value="school_rating">O'quvchilar reytingi</MenuItem>
-                  <MenuItem value="class_rating">Sinflar reytingi</MenuItem>
-                  <MenuItem value="custom">Maxsus</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 4 }}>
-              <TextField
-                fullWidth
-                label="1-o'rin yulduzlari"
-                type="number"
-                value={formData.first_place_stars}
-                onChange={(e) => handleInputChange('first_place_stars', parseInt(e.target.value))}
-                required
-                InputProps={{
-                  startAdornment: '🥇'
-                }}
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 4 }}>
-              <TextField
-                fullWidth
-                label="2-o'rin yulduzlari"
-                type="number"
-                value={formData.second_place_stars}
-                onChange={(e) => handleInputChange('second_place_stars', parseInt(e.target.value))}
-                required
-                InputProps={{
-                  startAdornment: '🥈'
-                }}
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 4 }}>
-              <TextField
-                fullWidth
-                label="3-o'rin yulduzlari"
-                type="number"
-                value={formData.third_place_stars}
-                onChange={(e) => handleInputChange('third_place_stars', parseInt(e.target.value))}
-                required
-                InputProps={{
-                  startAdornment: '🥉'
-                }}
-              />
-            </Grid>
-
-            {formData.event_type === 'class_rating' && (
-              <Grid size={{ xs: 12 }}>
-                <TextField
-                  fullWidth
-                  label="Mo'ljallangan sinflar (vergul bilan ajratib)"
-                  value={formData.target_class_groups}
-                  onChange={(e) => handleInputChange('target_class_groups', e.target.value)}
-                  placeholder="Masalan: 9-01, 9-02, 10-01"
-                  helperText="Bo'sh qoldirilsa barcha sinflar uchun"
-                />
-              </Grid>
-            )}
-
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Taqsimlash sanasi"
-                type="datetime-local"
-                value={formData.distribution_date}
-                onChange={(e) => handleInputChange('distribution_date', e.target.value)}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                required
-              />
-            </Grid>
-
-
-            <Grid item xs={12}>
-              <input
-                accept="image/*"
-                style={{ display: 'none' }}
-                id="banner-image"
-                type="file"
-                onChange={(e) => handleInputChange('banner_image', e.target.files[0])}
-              />
-              <label htmlFor="banner-image">
-                <Button
-                  variant="outlined"
-                  component="span"
-                  fullWidth
-                  sx={{
-                    borderColor: '#e2e8f0',
-                    color: '#64748b',
-                    '&:hover': {
-                      borderColor: '#2563eb',
-                      backgroundColor: '#f8fafc'
-                    }
-                  }}
-                >
-                  Banner rasmini tanlang
-                </Button>
-              </label>
-              {formData.banner_image && (
-                <Typography sx={{ mt: 1, fontSize: '0.875rem', color: '#059669' }}>
-                  {formData.banner_image.name} tanlandi
-                </Typography>
-              )}
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditDialogOpen(false)}>
-            Bekor qilish
-          </Button>
-          <Button
-            onClick={handleSave}
-            variant="contained"
-            sx={{
-              backgroundColor: '#2563eb',
-              '&:hover': {
-                backgroundColor: '#1d4ed8'
-              }
-            }}
-          >
-            Saqlash
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog

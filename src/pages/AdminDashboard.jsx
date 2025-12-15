@@ -41,6 +41,7 @@ import AdminOverview from './admin/AdminOverview';
 import ManageTeachers from './admin/ManageTeachers';
 import ManageStudents from './admin/ManageStudents';
 import ManageEvents from './admin/ManageEvents';
+import CreateEvent from './admin/CreateEvent';
 import AddStudent from './admin/AddStudent';
 import AddTeacher from './admin/AddTeacher';
 import TeacherDetails from './admin/TeacherDetails';
@@ -346,6 +347,7 @@ const AdminDashboard = () => {
               <Route path="/add-student" element={<AddStudent />} />
               <Route path="/edit-student/:id" element={<AddStudent />} />
               <Route path="/events" element={<ManageEvents />} />
+              <Route path="/create-event" element={<CreateEvent />} />
               <Route path="/class-stats" element={<ClassStatistics />} />
               <Route path="/class-details/:classGroup" element={<ClassDetails />} />
               <Route path="/student-details/:id" element={<StudentDetails />} />
