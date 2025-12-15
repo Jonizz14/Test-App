@@ -263,7 +263,7 @@ class EventSerializer(serializers.ModelSerializer):
         model = Event
         fields = ['id', 'title', 'description', 'event_type', 'event_type_display', 'banner_image', 'banner_image_url',
                   'first_place_stars', 'second_place_stars', 'third_place_stars', 'distribution_date', 'is_active',
-                  'created_at', 'updated_at', 'reward_count']
+                  'created_at', 'updated_at', 'target_class_groups', 'reward_count']
         read_only_fields = ['id', 'created_at', 'updated_at', 'banner_image_url', 'event_type_display', 'reward_count']
 
     def get_banner_image_url(self, obj):

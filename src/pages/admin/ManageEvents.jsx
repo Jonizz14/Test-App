@@ -46,6 +46,7 @@ const ManageEvents = () => {
     second_place_stars: 7,
     third_place_stars: 5,
     distribution_date: '',
+    target_class_groups: '',
     banner_image: null
   });
 
@@ -110,6 +111,7 @@ const ManageEvents = () => {
       second_place_stars: event.second_place_stars || 7,
       third_place_stars: event.third_place_stars || 5,
       distribution_date: event.distribution_date ? new Date(event.distribution_date).toISOString().slice(0, 16) : '',
+      target_class_groups: event.target_class_groups ? event.target_class_groups.join(', ') : '',
       banner_image: null
     });
     setEditDialogOpen(true);
@@ -175,14 +177,27 @@ const ManageEvents = () => {
     />
   );
 
-  const getEventTypeChip = (eventType) => (
-    <Chip
-      label={eventType === 'school_rating' ? 'Maktab reytingi' : 'Maxsus'}
-      color={eventType === 'school_rating' ? 'primary' : 'secondary'}
-      size="small"
-      variant="outlined"
-    />
-  );
+  const getEventTypeChip = (eventType) => {
+    let label = 'Maxsus';
+    let color = 'secondary';
+
+    if (eventType === 'school_rating') {
+      label = "O'quvchilar reytingi";
+      color = 'primary';
+    } else if (eventType === 'class_rating') {
+      label = 'Sinflar reytingi';
+      color = 'success';
+    }
+
+    return (
+      <Chip
+        label={label}
+        color={color}
+        size="small"
+        variant="outlined"
+      />
+    );
+  };
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('uz-UZ', {
@@ -468,7 +483,8 @@ const ManageEvents = () => {
                   onChange={(e) => handleInputChange('event_type', e.target.value)}
                   label="Tadbir turi"
                 >
-                  <MenuItem value="school_rating">Maktab reytingi</MenuItem>
+                  <MenuItem value="school_rating">O'quvchilar reytingi</MenuItem>
+                  <MenuItem value="class_rating">Sinflar reytingi</MenuItem>
                   <MenuItem value="custom">Maxsus</MenuItem>
                 </Select>
               </FormControl>
@@ -515,6 +531,19 @@ const ManageEvents = () => {
                 }}
               />
             </Grid>
+
+            {formData.event_type === 'class_rating' && (
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Mo'ljallangan sinflar (vergul bilan ajratib)"
+                  value={formData.target_class_groups}
+                  onChange={(e) => handleInputChange('target_class_groups', e.target.value)}
+                  placeholder="Masalan: 9-01, 9-02, 10-01"
+                  helperText="Bo'sh qoldirilsa barcha sinflar uchun"
+                />
+              </Grid>
+            )}
 
             <Grid item xs={12} md={6}>
               <TextField

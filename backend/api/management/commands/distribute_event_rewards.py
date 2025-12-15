@@ -70,11 +70,24 @@ class Command(BaseCommand):
             )
 
     def distribute_class_rating_rewards(self, event, dry_run=False):
-        """Distribute rewards based on school-wide ratings"""
+        """Distribute rewards based on ratings (school-wide or class-based)"""
         rewards_distributed = 0
 
-        # Get all students (school-wide)
-        students = User.objects.filter(role='student').all()
+        # Get students based on event type
+        students_query = User.objects.filter(role='student')
+
+        if event.event_type == 'class_rating':
+            # For class rating events, filter by target class groups
+            target_groups = []
+            if event.target_class_groups:
+                target_groups = [group.strip() for group in event.target_class_groups.split(',') if group.strip()]
+
+            if target_groups:
+                students_query = students_query.filter(class_group__in=target_groups)
+            # If no target groups specified, all students are included (school-wide fallback)
+        # For school_rating events, all students are included
+
+        students = students_query.all()
 
         if not students:
             self.stdout.write(
