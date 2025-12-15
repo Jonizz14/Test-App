@@ -8,6 +8,10 @@ import json
 class Command(BaseCommand):
     help = 'Distribute rewards for events that have reached their distribution date'
 
+
+class Command(BaseCommand):
+    help = 'Distribute rewards for events that have reached their distribution date'
+
     def add_arguments(self, parser):
         parser.add_argument(
             '--dry-run',
@@ -169,7 +173,7 @@ class Command(BaseCommand):
         return student_ratings
 
     def award_positions(self, event, top_students, dry_run, context):
-        """Award stars to top students for a given context (school-wide or class)"""
+        """Award stars to top students and their entire class for a given context"""
         rewards_distributed = 0
 
         position_stars = {
@@ -178,9 +182,13 @@ class Command(BaseCommand):
             3: event.third_place_stars
         }
 
+        # Track which classes have already received rewards to avoid duplicates
+        rewarded_classes = set()
+
         for i, rating_data in enumerate(top_students):
             student = rating_data['student']
             position = i + 1
+            stars = position_stars.get(position, 0)
 
             # Check if reward already exists for this event and student
             existing_reward = EventReward.objects.filter(
@@ -194,56 +202,122 @@ class Command(BaseCommand):
                 )
                 continue
 
-            # Get stars for this position
-            stars = position_stars.get(position, 0)
-
-            if dry_run:
-                self.stdout.write(
-                    self.style.WARNING(
-                        f'  DRY RUN [{context}]: Would give {stars} stars to {student.name} '
-                        f'(position {position}, avg score: {rating_data["average_score"]:.1f}%)'
+            # For class-based events, give stars to the entire class
+            if 'class' in context.lower():
+                class_group = student.class_group
+                if class_group and class_group not in rewarded_classes:
+                    # Give stars to all students in the winner's class
+                    class_students = User.objects.filter(
+                        role='student',
+                        class_group=class_group
                     )
-                )
+
+                    for class_student in class_students:
+                        # Check if this student already has a reward for this event
+                        existing_class_reward = EventReward.objects.filter(
+                            event=event,
+                            student=class_student
+                        ).first()
+
+                        if existing_class_reward:
+                            continue
+
+                        if dry_run:
+                            self.stdout.write(
+                                self.style.WARNING(
+                                    f'  DRY RUN [{context}]: Would give {stars} stars to {class_student.name} '
+                                    f'(class reward for {student.name}\'s {position} place)'
+                                )
+                            )
+                        else:
+                            # Create reward record for class student
+                            reward = EventReward.objects.create(
+                                event=event,
+                                student=class_student,
+                                stars_awarded=stars,
+                                position=position if class_student == student else None  # Only winner gets position
+                            )
+
+                            # Add stars to class student
+                            class_student.stars += stars
+                            class_student.save()
+
+                            # Create notification
+                            if class_student == student:
+                                self.create_event_notification(class_student, event, stars, position, "g'olib")
+                            else:
+                                self.create_event_notification(class_student, event, stars, None, "sinf mukofoti")
+
+                            rewards_distributed += 1
+
+                    rewarded_classes.add(class_group)
+
+                    if not dry_run:
+                        self.stdout.write(
+                            self.style.SUCCESS(
+                                f'  [{context}] Gave {stars} stars to entire class {class_group} '
+                                f'(winner: {student.name}, position {position})'
+                            )
+                        )
+                else:
+                    # Class already rewarded, skip
+                    continue
             else:
-                # Create reward record
-                reward = EventReward.objects.create(
-                    event=event,
-                    student=student,
-                    stars_awarded=stars,
-                    position=position
-                )
-
-                # Add stars to student
-                student.stars += stars
-                student.save()
-
-                # Create notification
-                self.create_event_notification(student, event, stars, position)
-
-                self.stdout.write(
-                    self.style.SUCCESS(
-                        f'  [{context}] Gave {stars} stars to {student.name} '
-                        f'(position {position}, avg score: {rating_data["average_score"]:.1f}%)'
+                # For school-wide events, just give to individual winner
+                if dry_run:
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f'  DRY RUN [{context}]: Would give {stars} stars to {student.name} '
+                            f'(position {position}, avg score: {rating_data["average_score"]:.1f}%)'
+                        )
                     )
-                )
+                else:
+                    # Create reward record
+                    reward = EventReward.objects.create(
+                        event=event,
+                        student=student,
+                        stars_awarded=stars,
+                        position=position
+                    )
 
-            rewards_distributed += 1
+                    # Add stars to student
+                    student.stars += stars
+                    student.save()
+
+                    # Create notification
+                    self.create_event_notification(student, event, stars, position)
+
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f'  [{context}] Gave {stars} stars to {student.name} '
+                            f'(position {position}, avg score: {rating_data["average_score"]:.1f}%)'
+                        )
+                    )
+
+                rewards_distributed += 1
 
         return rewards_distributed
 
 
-    def create_event_notification(self, student, event, stars, position):
+    def create_event_notification(self, student, event, stars, position=None, reward_type=""):
         """Create a notification for the student (stored in localStorage simulation)"""
         # Since notifications are stored in localStorage on frontend,
         # we'll just log this for now. In a real implementation,
         # you might want to store notifications in the database
         # or send them via email/push notifications
 
+        if position:
+            message = f'Siz "{event.title}" tadbirida {position}-o\'rinni egallab, {stars} yulduz yutdingiz!'
+        elif reward_type == "sinf mukofoti":
+            message = f'Sizning sinfingiz "{event.title}" tadbirida g\'olib bo\'ldi! {stars} yulduz yutdingiz!'
+        else:
+            message = f'Siz "{event.title}" tadbirida {stars} yulduz yutdingiz!'
+
         notification = {
             'id': f'event_{event.id}_{student.id}',
             'studentId': student.id,
             'title': '🎉 Tadbir mukofoti!',
-            'message': f'Siz "{event.title}" tadbirida {position}-o\'rinni egallab, {stars} yulduz yutdingiz!',
+            'message': message,
             'type': 'event_reward',
             'eventId': event.id,
             'stars': stars,

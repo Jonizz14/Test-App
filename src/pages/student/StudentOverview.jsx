@@ -37,32 +37,101 @@ import apiService from '../../data/apiService';
 import { useCountdown } from '../../hooks/useCountdown';
 
 // Event Countdown Component
-const EventCountdown = ({ event }) => {
+const EventCountdown = ({ event, currentUser }) => {
   const { formattedTime, isExpired } = useCountdown(event.distribution_date);
+  const [userReward, setUserReward] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isExpired && currentUser) {
+      checkUserReward();
+    }
+  }, [isExpired, currentUser, event.id]);
+
+  const checkUserReward = async () => {
+    try {
+      setLoading(true);
+      const rewards = await apiService.getMyEventRewards();
+      const reward = rewards.find(r => r.event === event.id);
+      setUserReward(reward);
+    } catch (error) {
+      console.error('Failed to check user reward:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (isExpired) {
-    return (
-      <Box sx={{
-        backgroundColor: '#fee2e2',
-        border: '1px solid #fecaca',
-        borderRadius: '8px',
-        p: 2,
-        textAlign: 'center'
-      }}>
-        <Typography sx={{
-          color: '#dc2626',
-          fontWeight: 600,
-          fontSize: '0.875rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 1
+    if (loading) {
+      return (
+        <Box sx={{
+          backgroundColor: '#f3f4f6',
+          border: '1px solid #d1d5db',
+          borderRadius: '8px',
+          p: 2,
+          textAlign: 'center'
         }}>
-          <TimerIcon sx={{ fontSize: '1rem' }} />
-          Tadbir tugagan! Natijalar tez orada e'lon qilinadi.
-        </Typography>
-      </Box>
-    );
+          <Typography sx={{
+            color: '#6b7280',
+            fontWeight: 600,
+            fontSize: '0.875rem'
+          }}>
+            Natijalar tekshirilmoqda...
+          </Typography>
+        </Box>
+      );
+    }
+
+    if (userReward) {
+      // User won a reward
+      return (
+        <Box sx={{
+          backgroundColor: '#fef3c7',
+          border: '1px solid #f59e0b',
+          borderRadius: '8px',
+          p: 2,
+          textAlign: 'center'
+        }}>
+          <Typography sx={{
+            color: '#d97706',
+            fontWeight: 700,
+            fontSize: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1
+          }}>
+            🏆 {userReward.position}-o'rin! Yutug'ingizni oling
+          </Typography>
+          <Typography sx={{
+            color: '#92400e',
+            fontSize: '0.75rem',
+            mt: 0.5
+          }}>
+            {userReward.stars_awarded} yulduz berildi
+          </Typography>
+        </Box>
+      );
+    } else {
+      // User did not win
+      return (
+        <Box sx={{
+          backgroundColor: '#f3f4f6',
+          border: '1px solid #d1d5db',
+          borderRadius: '8px',
+          p: 2,
+          textAlign: 'center'
+        }}>
+          <Typography sx={{
+            color: '#6b7280',
+            fontWeight: 600,
+            fontSize: '0.875rem'
+          }}>
+            Keyingi safar yutarsiz! 💪
+          </Typography>
+        </Box>
+      );
+    }
   }
 
   return (
@@ -642,7 +711,7 @@ const StudentOverview = () => {
                     </Box>
 
                     {/* Countdown Timer */}
-                    <EventCountdown event={event} />
+                    <EventCountdown event={event} currentUser={currentUser} />
                   </CardContent>
                 </Card>
               </Grid>
