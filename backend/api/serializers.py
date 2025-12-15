@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, Gift, StudentGift
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, Gift, StudentGift, Event, EventReward
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
@@ -253,3 +253,64 @@ class StudentGiftSerializer(serializers.ModelSerializer):
     def get_gift_number(self, obj):
         # Get the count of StudentGift objects created before this one
         return StudentGift.objects.filter(purchased_at__lt=obj.purchased_at).count() + 1
+
+class EventSerializer(serializers.ModelSerializer):
+    banner_image_url = serializers.SerializerMethodField()
+    event_type_display = serializers.CharField(source='get_event_type_display', read_only=True)
+    target_class_groups_list = serializers.SerializerMethodField()
+    reward_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Event
+        fields = ['id', 'title', 'description', 'event_type', 'event_type_display', 'banner_image', 'banner_image_url',
+                  'reward_stars', 'reward_description', 'distribution_date', 'is_active', 'created_at', 'updated_at',
+                  'target_class_groups', 'target_class_groups_list', 'top_positions', 'reward_count']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'banner_image_url', 'event_type_display', 'target_class_groups_list', 'reward_count']
+
+    def get_banner_image_url(self, obj):
+        if obj.banner_image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.banner_image.url)
+            else:
+                return obj.banner_image.url
+        return None
+
+    def get_target_class_groups_list(self, obj):
+        if obj.target_class_groups:
+            return [group.strip() for group in obj.target_class_groups.split(',') if group.strip()]
+        return []
+
+    def get_reward_count(self, obj):
+        return obj.rewards.count()
+
+    def to_internal_value(self, data):
+        # Convert target_class_groups list to comma-separated string
+        if 'target_class_groups' in data:
+            data = data.copy()
+            if isinstance(data['target_class_groups'], list):
+                data['target_class_groups'] = ','.join(data['target_class_groups'])
+            elif isinstance(data['target_class_groups'], str):
+                # If it's already a string, keep it as is
+                pass
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Convert comma-separated string back to list
+        if instance.target_class_groups:
+            data['target_class_groups'] = [group.strip() for group in instance.target_class_groups.split(',') if group.strip()]
+        else:
+            data['target_class_groups'] = []
+        return data
+
+class EventRewardSerializer(serializers.ModelSerializer):
+    event_title = serializers.CharField(source='event.title', read_only=True)
+    student_name = serializers.CharField(source='student.name', read_only=True)
+    student_display_id = serializers.CharField(source='student.display_id', read_only=True)
+
+    class Meta:
+        model = EventReward
+        fields = ['id', 'event', 'event_title', 'student', 'student_name', 'student_display_id',
+                  'stars_awarded', 'position', 'awarded_at', 'is_claimed']
+        read_only_fields = ['id', 'awarded_at', 'event_title', 'student_name', 'student_display_id']
