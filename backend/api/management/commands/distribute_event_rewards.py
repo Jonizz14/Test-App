@@ -70,22 +70,11 @@ class Command(BaseCommand):
             )
 
     def distribute_class_rating_rewards(self, event, dry_run=False):
-        """Distribute rewards based on class ratings"""
+        """Distribute rewards based on school-wide ratings"""
         rewards_distributed = 0
 
-        # Get target class groups
-        target_groups = []
-        if event.target_class_groups:
-            target_groups = [group.strip() for group in event.target_class_groups.split(',') if group.strip()]
-
-        # Get all students in target classes or all students if no specific classes
-        students_query = User.objects.filter(role='student')
-
-        if target_groups:
-            # Filter by class groups
-            students_query = students_query.filter(class_group__in=target_groups)
-
-        students = students_query.all()
+        # Get all students (school-wide)
+        students = User.objects.filter(role='student').all()
 
         if not students:
             self.stdout.write(
@@ -110,10 +99,16 @@ class Command(BaseCommand):
         # Sort by average score (descending)
         student_ratings.sort(key=lambda x: x['average_score'], reverse=True)
 
-        # Take top positions
-        top_students = student_ratings[:event.top_positions]
+        # Take top 3 positions
+        top_students = student_ratings[:3]
 
-        # Distribute rewards
+        # Distribute rewards for top 3 positions
+        position_stars = {
+            1: event.first_place_stars,
+            2: event.second_place_stars,
+            3: event.third_place_stars
+        }
+
         for i, rating_data in enumerate(top_students):
             student = rating_data['student']
             position = i + 1
@@ -130,8 +125,8 @@ class Command(BaseCommand):
                 )
                 continue
 
-            # Calculate stars based on position
-            stars = self.calculate_stars_for_position(event, position)
+            # Get stars for this position
+            stars = position_stars.get(position, 0)
 
             if dry_run:
                 self.stdout.write(

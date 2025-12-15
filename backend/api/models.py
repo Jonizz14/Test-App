@@ -428,24 +428,23 @@ class StudentGift(models.Model):
 class Event(models.Model):
     """Model to manage events that give rewards to students"""
     EVENT_TYPES = [
-        ('class_rating', 'Sinflar reytingi'),
+        ('school_rating', 'Maktab reytingi'),
         ('custom', 'Maxsus'),
     ]
 
     title = models.CharField(max_length=200, help_text="Event title")
     description = models.TextField(blank=True, help_text="Event description")
-    event_type = models.CharField(max_length=20, choices=EVENT_TYPES, default='class_rating', help_text="Type of event")
+    event_type = models.CharField(max_length=20, choices=EVENT_TYPES, default='school_rating', help_text="Type of event")
     banner_image = models.ImageField(upload_to='event_banners/', blank=True, null=True, help_text="Banner image for the event")
-    reward_stars = models.IntegerField(default=0, help_text="Number of stars to reward")
-    reward_description = models.CharField(max_length=200, blank=True, help_text="Description of the reward")
     distribution_date = models.DateTimeField(help_text="When rewards should be automatically distributed")
     is_active = models.BooleanField(default=True, help_text="Whether the event is active")
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # For class rating events
-    target_class_groups = models.CharField(max_length=500, blank=True, help_text="Comma-separated list of class groups this event targets (empty for all)")
-    top_positions = models.IntegerField(default=3, help_text="Number of top positions to reward (1st, 2nd, 3rd, etc.)")
+    # Separate rewards for each position
+    first_place_stars = models.IntegerField(default=10, help_text="Stars for 1st place")
+    second_place_stars = models.IntegerField(default=7, help_text="Stars for 2nd place")
+    third_place_stars = models.IntegerField(default=5, help_text="Stars for 3rd place")
 
     def __str__(self):
         return f"{self.title} - {self.get_event_type_display()}"

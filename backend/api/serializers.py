@@ -257,15 +257,14 @@ class StudentGiftSerializer(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     banner_image_url = serializers.SerializerMethodField()
     event_type_display = serializers.CharField(source='get_event_type_display', read_only=True)
-    target_class_groups_list = serializers.SerializerMethodField()
     reward_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
         fields = ['id', 'title', 'description', 'event_type', 'event_type_display', 'banner_image', 'banner_image_url',
-                  'reward_stars', 'reward_description', 'distribution_date', 'is_active', 'created_at', 'updated_at',
-                  'target_class_groups', 'target_class_groups_list', 'top_positions', 'reward_count']
-        read_only_fields = ['id', 'created_at', 'updated_at', 'banner_image_url', 'event_type_display', 'target_class_groups_list', 'reward_count']
+                  'first_place_stars', 'second_place_stars', 'third_place_stars', 'distribution_date', 'is_active',
+                  'created_at', 'updated_at', 'reward_count']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'banner_image_url', 'event_type_display', 'reward_count']
 
     def get_banner_image_url(self, obj):
         if obj.banner_image:
@@ -276,33 +275,8 @@ class EventSerializer(serializers.ModelSerializer):
                 return obj.banner_image.url
         return None
 
-    def get_target_class_groups_list(self, obj):
-        if obj.target_class_groups:
-            return [group.strip() for group in obj.target_class_groups.split(',') if group.strip()]
-        return []
-
     def get_reward_count(self, obj):
         return obj.rewards.count()
-
-    def to_internal_value(self, data):
-        # Convert target_class_groups list to comma-separated string
-        if 'target_class_groups' in data:
-            data = data.copy()
-            if isinstance(data['target_class_groups'], list):
-                data['target_class_groups'] = ','.join(data['target_class_groups'])
-            elif isinstance(data['target_class_groups'], str):
-                # If it's already a string, keep it as is
-                pass
-        return super().to_internal_value(data)
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        # Convert comma-separated string back to list
-        if instance.target_class_groups:
-            data['target_class_groups'] = [group.strip() for group in instance.target_class_groups.split(',') if group.strip()]
-        else:
-            data['target_class_groups'] = []
-        return data
 
 class EventRewardSerializer(serializers.ModelSerializer):
     event_title = serializers.CharField(source='event.title', read_only=True)

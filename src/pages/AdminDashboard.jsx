@@ -31,6 +31,7 @@ import {
   PowerSettingsNew as LogoutIcon,
   Security as ShieldIcon,
   Notifications as NotificationsIcon,
+  Event as EventIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import apiService from '../data/apiService';
