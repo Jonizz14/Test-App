@@ -50,8 +50,8 @@ class Command(BaseCommand):
                 self.style.SUCCESS(f'Processing event: {event.title}')
             )
 
-            if event.event_type == 'class_rating':
-                rewards_count = self.distribute_class_rating_rewards(event, dry_run)
+            if event.event_type in ['class_rating', 'school_rating']:
+                rewards_count = self.distribute_rating_rewards(event, dry_run)
             else:
                 self.stdout.write(
                     self.style.WARNING(f'Unknown event type: {event.event_type}')
@@ -69,33 +69,90 @@ class Command(BaseCommand):
                 self.style.SUCCESS(f'Successfully distributed {total_rewards_distributed} rewards')
             )
 
-    def distribute_class_rating_rewards(self, event, dry_run=False):
+    def distribute_rating_rewards(self, event, dry_run=False):
         """Distribute rewards based on ratings (school-wide or class-based)"""
         rewards_distributed = 0
 
-        # Get students based on event type
-        students_query = User.objects.filter(role='student')
+        if event.event_type == 'school_rating':
+            # School-wide rating: all students compete together
+            rewards_distributed += self.distribute_school_rating_rewards(event, dry_run)
+        elif event.event_type == 'class_rating':
+            # Class-based rating: each class has its own competition
+            rewards_distributed += self.distribute_class_rating_rewards(event, dry_run)
 
-        if event.event_type == 'class_rating':
-            # For class rating events, filter by target class groups
-            target_groups = []
-            if event.target_class_groups:
-                target_groups = [group.strip() for group in event.target_class_groups.split(',') if group.strip()]
+        return rewards_distributed
 
-            if target_groups:
-                students_query = students_query.filter(class_group__in=target_groups)
-            # If no target groups specified, all students are included (school-wide fallback)
-        # For school_rating events, all students are included
+    def distribute_school_rating_rewards(self, event, dry_run=False):
+        """Distribute rewards for school-wide rating events"""
+        rewards_distributed = 0
 
-        students = students_query.all()
+        # Get all students
+        students = User.objects.filter(role='student')
 
         if not students:
             self.stdout.write(
-                self.style.WARNING(f'No students found for event {event.title}')
+                self.style.WARNING(f'No students found for school rating event {event.title}')
             )
             return 0
 
         # Calculate ratings for each student
+        student_ratings = self.calculate_student_ratings(students)
+
+        # Sort by average score (descending) and take top 3
+        student_ratings.sort(key=lambda x: x['average_score'], reverse=True)
+        top_students = student_ratings[:3]
+
+        # Distribute rewards
+        rewards_distributed += self.award_positions(event, top_students, dry_run, "school-wide")
+
+        return rewards_distributed
+
+    def distribute_class_rating_rewards(self, event, dry_run=False):
+        """Distribute rewards for class-based rating events"""
+        rewards_distributed = 0
+
+        # Get target class groups
+        target_groups = []
+        if event.target_class_groups:
+            target_groups = [group.strip() for group in event.target_class_groups.split(',') if group.strip()]
+
+        if not target_groups:
+            # If no specific classes, treat as school-wide
+            self.stdout.write(
+                self.style.WARNING(f'No target classes specified for class rating event {event.title}, treating as school-wide')
+            )
+            return self.distribute_school_rating_rewards(event, dry_run)
+
+        # Process each class separately
+        for class_group in target_groups:
+            self.stdout.write(
+                self.style.SUCCESS(f'Processing class: {class_group}')
+            )
+
+            # Get students in this class
+            class_students = User.objects.filter(role='student', class_group=class_group)
+
+            if not class_students:
+                self.stdout.write(
+                    self.style.WARNING(f'No students found in class {class_group}')
+                )
+                continue
+
+            # Calculate ratings for students in this class
+            student_ratings = self.calculate_student_ratings(class_students)
+
+            # Sort by average score (descending) and take top 3
+            student_ratings.sort(key=lambda x: x['average_score'], reverse=True)
+            top_students = student_ratings[:3]
+
+            # Distribute rewards for this class
+            class_rewards = self.award_positions(event, top_students, dry_run, f"class {class_group}")
+            rewards_distributed += class_rewards
+
+        return rewards_distributed
+
+    def calculate_student_ratings(self, students):
+        """Calculate average scores for a group of students"""
         student_ratings = []
 
         for student in students:
@@ -109,13 +166,12 @@ class Command(BaseCommand):
                     'attempt_count': attempts.count()
                 })
 
-        # Sort by average score (descending)
-        student_ratings.sort(key=lambda x: x['average_score'], reverse=True)
+        return student_ratings
 
-        # Take top 3 positions
-        top_students = student_ratings[:3]
+    def award_positions(self, event, top_students, dry_run, context):
+        """Award stars to top students for a given context (school-wide or class)"""
+        rewards_distributed = 0
 
-        # Distribute rewards for top 3 positions
         position_stars = {
             1: event.first_place_stars,
             2: event.second_place_stars,
@@ -126,7 +182,7 @@ class Command(BaseCommand):
             student = rating_data['student']
             position = i + 1
 
-            # Check if reward already exists
+            # Check if reward already exists for this event and student
             existing_reward = EventReward.objects.filter(
                 event=event,
                 student=student
@@ -134,7 +190,7 @@ class Command(BaseCommand):
 
             if existing_reward:
                 self.stdout.write(
-                    f'  Reward already exists for {student.name} (position {position})'
+                    f'  Reward already exists for {student.name} in {context} (position {position})'
                 )
                 continue
 
@@ -144,7 +200,7 @@ class Command(BaseCommand):
             if dry_run:
                 self.stdout.write(
                     self.style.WARNING(
-                        f'  DRY RUN: Would give {stars} stars to {student.name} '
+                        f'  DRY RUN [{context}]: Would give {stars} stars to {student.name} '
                         f'(position {position}, avg score: {rating_data["average_score"]:.1f}%)'
                     )
                 )
@@ -161,12 +217,12 @@ class Command(BaseCommand):
                 student.stars += stars
                 student.save()
 
-                # Create notification (stored in localStorage on frontend)
+                # Create notification
                 self.create_event_notification(student, event, stars, position)
 
                 self.stdout.write(
                     self.style.SUCCESS(
-                        f'  Gave {stars} stars to {student.name} '
+                        f'  [{context}] Gave {stars} stars to {student.name} '
                         f'(position {position}, avg score: {rating_data["average_score"]:.1f}%)'
                     )
                 )
@@ -186,7 +242,7 @@ class Command(BaseCommand):
         notification = {
             'id': f'event_{event.id}_{student.id}',
             'studentId': student.id,
-            'title': '🎉 Event mukofoti!',
+            'title': '🎉 Tadbir mukofoti!',
             'message': f'Siz "{event.title}" tadbirida {position}-o\'rinni egallab, {stars} yulduz yutdingiz!',
             'type': 'event_reward',
             'eventId': event.id,

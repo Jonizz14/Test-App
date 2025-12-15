@@ -29,9 +29,74 @@ import {
   People as PeopleIcon,
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
+  Event as EventIcon,
+  Timer as TimerIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
+import { useCountdown } from '../../hooks/useCountdown';
+
+// Event Countdown Component
+const EventCountdown = ({ event }) => {
+  const { formattedTime, isExpired } = useCountdown(event.distribution_date);
+
+  if (isExpired) {
+    return (
+      <Box sx={{
+        backgroundColor: '#fee2e2',
+        border: '1px solid #fecaca',
+        borderRadius: '8px',
+        p: 2,
+        textAlign: 'center'
+      }}>
+        <Typography sx={{
+          color: '#dc2626',
+          fontWeight: 600,
+          fontSize: '0.875rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 1
+        }}>
+          <TimerIcon sx={{ fontSize: '1rem' }} />
+          Tadbir tugagan! Natijalar tez orada e'lon qilinadi.
+        </Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{
+      backgroundColor: '#ecfdf5',
+      border: '1px solid #a7f3d0',
+      borderRadius: '8px',
+      p: 2,
+      textAlign: 'center'
+    }}>
+      <Typography sx={{
+        color: '#059669',
+        fontWeight: 600,
+        fontSize: '0.875rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 1,
+        mb: 1
+      }}>
+        <TimerIcon sx={{ fontSize: '1rem' }} />
+        Tugashiga qoldi:
+      </Typography>
+      <Typography sx={{
+        color: '#047857',
+        fontWeight: 700,
+        fontSize: '1.25rem',
+        fontFamily: 'monospace'
+      }}>
+        {formattedTime}
+      </Typography>
+    </Box>
+  );
+};
 
 const StudentOverview = () => {
   const { currentUser } = useAuth();
@@ -435,6 +500,156 @@ const StudentOverview = () => {
           </div>
         </Grid>
       </Grid>
+
+      {/* Active Events Section */}
+      {activeEvents.length > 0 && (
+        <Box sx={{ mt: 4, mb: 4 }}>
+          <Box sx={{
+            backgroundColor: '#fef3c7',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            mb: 3,
+            border: '1px solid #e2e8f0'
+          }}>
+            <Typography sx={{
+              fontSize: '1.25rem',
+              fontWeight: 600,
+              color: '#1e293b',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
+            }}>
+              <EventIcon sx={{ color: '#d97706' }} />
+              Faol tadbirlar
+            </Typography>
+          </Box>
+
+          <Grid container spacing={3}>
+            {activeEvents.map((event) => (
+              <Grid size={{ xs: 12, md: 6 }} key={event.id}>
+                <Card sx={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                    transform: 'translateY(-2px)'
+                  }
+                }}>
+                  <CardContent sx={{ p: 3 }}>
+                    {/* Event Banner */}
+                    {event.banner_image_url && (
+                      <Box sx={{
+                        mb: 2,
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        border: '1px solid #e2e8f0'
+                      }}>
+                        <img
+                          src={event.banner_image_url}
+                          alt={event.title}
+                          style={{
+                            width: '100%',
+                            height: '120px',
+                            objectFit: 'cover',
+                            display: 'block'
+                          }}
+                        />
+                      </Box>
+                    )}
+
+                    {/* Event Title and Type */}
+                    <Box sx={{ mb: 2 }}>
+                      <Typography sx={{
+                        fontWeight: 700,
+                        color: '#1e293b',
+                        fontSize: '1.1rem',
+                        mb: 1
+                      }}>
+                        {event.title}
+                      </Typography>
+                      <Chip
+                        label={event.event_type_display}
+                        size="small"
+                        sx={{
+                          backgroundColor: '#eff6ff',
+                          color: '#2563eb',
+                          fontWeight: 600,
+                          fontSize: '0.75rem'
+                        }}
+                      />
+                    </Box>
+
+                    {/* Event Description */}
+                    {event.description && (
+                      <Typography sx={{
+                        color: '#64748b',
+                        fontSize: '0.875rem',
+                        mb: 2,
+                        lineHeight: 1.4
+                      }}>
+                        {event.description}
+                      </Typography>
+                    )}
+
+                    {/* Rewards Info */}
+                    <Box sx={{ mb: 2 }}>
+                      <Typography sx={{
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        color: '#1e293b',
+                        mb: 1
+                      }}>
+                        Mukofotlar:
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                        <Chip
+                          icon={<span>🥇</span>}
+                          label={`${event.first_place_stars} yulduz`}
+                          size="small"
+                          sx={{
+                            backgroundColor: '#fef3c7',
+                            color: '#d97706',
+                            fontWeight: 600,
+                            fontSize: '0.75rem'
+                          }}
+                        />
+                        <Chip
+                          icon={<span>🥈</span>}
+                          label={`${event.second_place_stars} yulduz`}
+                          size="small"
+                          sx={{
+                            backgroundColor: '#f3f4f6',
+                            color: '#374151',
+                            fontWeight: 600,
+                            fontSize: '0.75rem'
+                          }}
+                        />
+                        <Chip
+                          icon={<span>🥉</span>}
+                          label={`${event.third_place_stars} yulduz`}
+                          size="small"
+                          sx={{
+                            backgroundColor: '#fed7d7',
+                            color: '#c53030',
+                            fontWeight: 600,
+                            fontSize: '0.75rem'
+                          }}
+                        />
+                      </Box>
+                    </Box>
+
+                    {/* Countdown Timer */}
+                    <EventCountdown event={event} />
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      )}
 
       <Box sx={{ mt: 4 }}>
         <Box sx={{
