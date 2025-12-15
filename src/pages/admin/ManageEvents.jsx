@@ -41,12 +41,11 @@ const ManageEvents = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    event_type: 'class_rating',
-    reward_stars: 10,
-    reward_description: '',
+    event_type: 'school_rating',
+    first_place_stars: 10,
+    second_place_stars: 7,
+    third_place_stars: 5,
     distribution_date: '',
-    target_class_groups: '',
-    top_positions: 3,
     banner_image: null
   });
 
@@ -106,12 +105,11 @@ const ManageEvents = () => {
     setFormData({
       title: event.title || '',
       description: event.description || '',
-      event_type: event.event_type || 'class_rating',
-      reward_stars: event.reward_stars || 10,
-      reward_description: event.reward_description || '',
+      event_type: event.event_type || 'school_rating',
+      first_place_stars: event.first_place_stars || 10,
+      second_place_stars: event.second_place_stars || 7,
+      third_place_stars: event.third_place_stars || 5,
       distribution_date: event.distribution_date ? new Date(event.distribution_date).toISOString().slice(0, 16) : '',
-      target_class_groups: event.target_class_groups ? event.target_class_groups.join(', ') : '',
-      top_positions: event.top_positions || 3,
       banner_image: null
     });
     setEditDialogOpen(true);
@@ -185,8 +183,8 @@ const ManageEvents = () => {
 
   const getEventTypeChip = (eventType) => (
     <Chip
-      label={eventType === 'class_rating' ? 'Sinflar reytingi' : 'Maxsus'}
-      color={eventType === 'class_rating' ? 'primary' : 'secondary'}
+      label={eventType === 'school_rating' ? 'Maktab reytingi' : 'Maxsus'}
+      color={eventType === 'school_rating' ? 'primary' : 'secondary'}
       size="small"
       variant="outlined"
     />
@@ -289,7 +287,7 @@ const ManageEvents = () => {
             }}>
               <TableCell>Sarlavha</TableCell>
               <TableCell>Turi</TableCell>
-              <TableCell>Yulduzlar</TableCell>
+              <TableCell>Mukofotlar</TableCell>
               <TableCell>Taqsimlash sanasi</TableCell>
               <TableCell align="center">Status</TableCell>
               <TableCell>Yaratilgan</TableCell>
@@ -333,21 +331,29 @@ const ManageEvents = () => {
                 </TableCell>
 
                 <TableCell>
-                  <Typography sx={{
-                    fontWeight: 700,
-                    color: '#f59e0b',
-                    fontSize: '1rem'
-                  }}>
-                    {event.reward_stars} ⭐
-                  </Typography>
-                  {event.reward_description && (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                     <Typography sx={{
-                      color: '#64748b',
-                      fontSize: '0.75rem'
+                      fontWeight: 700,
+                      color: '#f59e0b',
+                      fontSize: '0.9rem'
                     }}>
-                      {event.reward_description}
+                      🥇 {event.first_place_stars} ⭐
                     </Typography>
-                  )}
+                    <Typography sx={{
+                      fontWeight: 600,
+                      color: '#64748b',
+                      fontSize: '0.8rem'
+                    }}>
+                      🥈 {event.second_place_stars} ⭐
+                    </Typography>
+                    <Typography sx={{
+                      fontWeight: 600,
+                      color: '#64748b',
+                      fontSize: '0.8rem'
+                    }}>
+                      🥉 {event.third_place_stars} ⭐
+                    </Typography>
+                  </Box>
                 </TableCell>
 
                 <TableCell>
@@ -468,30 +474,51 @@ const ManageEvents = () => {
                   onChange={(e) => handleInputChange('event_type', e.target.value)}
                   label="Tadbir turi"
                 >
-                  <MenuItem value="class_rating">Sinflar reytingi</MenuItem>
+                  <MenuItem value="school_rating">Maktab reytingi</MenuItem>
                   <MenuItem value="custom">Maxsus</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
-                label="Yulduzlar soni"
+                label="1-o'rin yulduzlari"
                 type="number"
-                value={formData.reward_stars}
-                onChange={(e) => handleInputChange('reward_stars', parseInt(e.target.value))}
+                value={formData.first_place_stars}
+                onChange={(e) => handleInputChange('first_place_stars', parseInt(e.target.value))}
                 required
+                InputProps={{
+                  startAdornment: '🥇'
+                }}
               />
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
-                label="Mukofot tavsifi"
-                value={formData.reward_description}
-                onChange={(e) => handleInputChange('reward_description', e.target.value)}
-                placeholder="Masalan: 1-o'rin uchun"
+                label="2-o'rin yulduzlari"
+                type="number"
+                value={formData.second_place_stars}
+                onChange={(e) => handleInputChange('second_place_stars', parseInt(e.target.value))}
+                required
+                InputProps={{
+                  startAdornment: '🥈'
+                }}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="3-o'rin yulduzlari"
+                type="number"
+                value={formData.third_place_stars}
+                onChange={(e) => handleInputChange('third_place_stars', parseInt(e.target.value))}
+                required
+                InputProps={{
+                  startAdornment: '🥉'
+                }}
               />
             </Grid>
 
@@ -509,31 +536,6 @@ const ManageEvents = () => {
               />
             </Grid>
 
-            {formData.event_type === 'class_rating' && (
-              <>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Nechta o'rin mukofotlanadi"
-                    type="number"
-                    value={formData.top_positions}
-                    onChange={(e) => handleInputChange('top_positions', parseInt(e.target.value))}
-                    inputProps={{ min: 1, max: 10 }}
-                  />
-                </Grid>
-
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Mo'ljallangan sinflar (vergul bilan ajratib)"
-                    value={formData.target_class_groups}
-                    onChange={(e) => handleInputChange('target_class_groups', e.target.value)}
-                    placeholder="Masalan: 9-01, 9-02, 10-01"
-                    helperText="Bo'sh qoldirilsa barcha sinflar uchun"
-                  />
-                </Grid>
-              </>
-            )}
 
             <Grid item xs={12}>
               <input

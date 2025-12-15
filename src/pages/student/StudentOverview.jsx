@@ -342,7 +342,7 @@ const StudentOverview = () => {
                         fontWeight: 600,
                         color: '#d97706'
                       }}>
-                        🎁 {event.reward_stars} yulduz
+                        🥇 {event.first_place_stars} 🥈 {event.second_place_stars} 🥉 {event.third_place_stars}
                       </Typography>
                     </Box>
                   </Box>

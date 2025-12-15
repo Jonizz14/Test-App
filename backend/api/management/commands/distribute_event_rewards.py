@@ -162,11 +162,6 @@ class Command(BaseCommand):
 
         return rewards_distributed
 
-    def calculate_stars_for_position(self, event, position):
-        """Calculate stars based on position"""
-        # For now, simple calculation: reward_stars / position
-        # Can be made more sophisticated later
-        return max(1, event.reward_stars // position)
 
     def create_event_notification(self, student, event, stars, position):
         """Create a notification for the student (stored in localStorage simulation)"""
