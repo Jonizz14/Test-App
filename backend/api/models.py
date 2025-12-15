@@ -424,4 +424,3 @@ class StudentGift(models.Model):
     class Meta:
         ordering = ['-purchased_at']
         unique_together = ['student', 'placement_position']  # Only one gift per position
-

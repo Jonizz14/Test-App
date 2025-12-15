@@ -39,8 +39,6 @@ import apiService from '../data/apiService';
 import AdminOverview from './admin/AdminOverview';
 import ManageTeachers from './admin/ManageTeachers';
 import ManageStudents from './admin/ManageStudents';
-import ManageEvents from './admin/ManageEvents';
-import CreateEvent from './admin/CreateEvent';
 import AddStudent from './admin/AddStudent';
 import AddTeacher from './admin/AddTeacher';
 import TeacherDetails from './admin/TeacherDetails';
