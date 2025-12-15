@@ -56,7 +56,7 @@ const ManageEvents = () => {
   const loadEvents = async () => {
     try {
       setLoading(true);
-      const response = await apiService.get('/events/');
+      const response = await apiService.getEvents();
       setEvents(response.results || response);
     } catch (error) {
       console.error('Failed to load events:', error);
@@ -70,7 +70,7 @@ const ManageEvents = () => {
     try {
       const event = events.find(e => e.id === eventId);
       if (event) {
-        await apiService.patch(`/events/${eventId}/`, { is_active: !event.is_active });
+        await apiService.updateEvent(eventId, { is_active: !event.is_active });
         await loadEvents();
         setSuccess(`Tadbir ${!event.is_active ? 'faollashtirildi' : 'nofaollashtirildi'}`);
       }
@@ -89,7 +89,7 @@ const ManageEvents = () => {
     if (!eventToDelete) return;
 
     try {
-      await apiService.delete(`/events/${eventToDelete.id}/`);
+      await apiService.deleteEvent(eventToDelete.id);
       await loadEvents();
       setSuccess('Tadbir muvaffaqiyatli o\'chirildi!');
       setDeleteDialogOpen(false);
@@ -138,21 +138,15 @@ const ManageEvents = () => {
       // Add all form fields
       Object.keys(formData).forEach(key => {
         if (formData[key] !== null && formData[key] !== undefined) {
-          if (key === 'target_class_groups' && typeof formData[key] === 'string') {
-            // Convert comma-separated string to array for API
-            const groups = formData[key].split(',').map(g => g.trim()).filter(g => g);
-            data.append(key, JSON.stringify(groups));
-          } else {
-            data.append(key, formData[key]);
-          }
+          data.append(key, formData[key]);
         }
       });
 
       if (editingEvent) {
-        await apiService.patch(`/events/${editingEvent.id}/`, data, true);
+        await apiService.updateEvent(editingEvent.id, data);
         setSuccess('Tadbir muvaffaqiyatli yangilandi!');
       } else {
-        await apiService.post('/events/', data, true);
+        await apiService.createEvent(data);
         setSuccess('Tadbir muvaffaqiyatli yaratildi!');
       }
 

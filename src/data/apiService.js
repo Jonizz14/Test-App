@@ -367,6 +367,40 @@ class ApiService {
   async placeGift(studentGiftId, position) {
     return this.post(`/student-gifts/${studentGiftId}/place_gift/`, { position });
   }
+
+  // Event methods
+  async getEvents() {
+    return this.get('/events/');
+  }
+
+  async getActiveEvents() {
+    return this.get('/events/active_events/');
+  }
+
+  async createEvent(data) {
+    return this.post('/events/', data);
+  }
+
+  async updateEvent(id, data) {
+    return this.patch(`/events/${id}/`, data);
+  }
+
+  async deleteEvent(id) {
+    return this.delete(`/events/${id}/`);
+  }
+
+  // Event reward methods
+  async getMyEventRewards() {
+    return this.get('/event-rewards/my_rewards/');
+  }
+
+  async getUnclaimedEventRewards() {
+    return this.get('/event-rewards/unclaimed_rewards/');
+  }
+
+  async claimEventReward(rewardId) {
+    return this.post(`/event-rewards/${rewardId}/claim_reward/`);
+  }
 }
 
 const apiService = new ApiService();

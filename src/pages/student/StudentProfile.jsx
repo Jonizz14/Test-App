@@ -185,8 +185,8 @@ const StudentProfile = () => {
 
     try {
       const [rewardsResponse, unclaimedResponse] = await Promise.all([
-        apiService.get('/event-rewards/my_rewards/'),
-        apiService.get('/event-rewards/unclaimed_rewards/')
+        apiService.getMyEventRewards(),
+        apiService.getUnclaimedEventRewards()
       ]);
 
       const rewards = rewardsResponse.results || rewardsResponse;
@@ -208,7 +208,7 @@ const StudentProfile = () => {
 
   const handleClaimReward = async (rewardId) => {
     try {
-      await apiService.post(`/event-rewards/${rewardId}/claim_reward/`);
+      await apiService.claimEventReward(rewardId);
       await loadEventRewards(); // Reload rewards
     } catch (error) {
       console.error('Error claiming reward:', error);

@@ -57,7 +57,7 @@ const StudentOverview = () => {
       const [attemptsResponse, testsResponse, eventsResponse] = await Promise.all([
         apiService.getAttempts({ student: currentUser.id }),
         apiService.getTests(),
-        apiService.get('/events/active_events/')
+        apiService.getActiveEvents()
       ]);
 
       const studentAttempts = attemptsResponse.results || attemptsResponse;
