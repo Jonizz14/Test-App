@@ -394,7 +394,7 @@ const StudentOverview = () => {
       )}
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <div>
             <StatCard
               title="Topshirilgan testlar"
@@ -404,7 +404,7 @@ const StudentOverview = () => {
             />
           </div>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <div>
             <StatCard
               title="O'rtacha ball"
@@ -414,7 +414,7 @@ const StudentOverview = () => {
             />
           </div>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <div>
             <StatCard
               title="Eng yuqori ball"
@@ -424,7 +424,7 @@ const StudentOverview = () => {
             />
           </div>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <div>
             <StatCard
               title="Eng past ball"

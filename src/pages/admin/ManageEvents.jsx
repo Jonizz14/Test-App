@@ -475,7 +475,7 @@ const ManageEvents = () => {
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Tadbir turi</InputLabel>
                 <Select
@@ -490,7 +490,7 @@ const ManageEvents = () => {
               </FormControl>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 fullWidth
                 label="1-o'rin yulduzlari"
@@ -504,7 +504,7 @@ const ManageEvents = () => {
               />
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 fullWidth
                 label="2-o'rin yulduzlari"
@@ -518,7 +518,7 @@ const ManageEvents = () => {
               />
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 fullWidth
                 label="3-o'rin yulduzlari"
@@ -533,7 +533,7 @@ const ManageEvents = () => {
             </Grid>
 
             {formData.event_type === 'class_rating' && (
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
                   label="Mo'ljallangan sinflar (vergul bilan ajratib)"
