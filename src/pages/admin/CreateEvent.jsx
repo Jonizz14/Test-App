@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Typography,
   Box,
@@ -25,10 +25,13 @@ import apiService from '../../data/apiService';
 
 const CreateEvent = () => {
   const navigate = useNavigate();
+  const { id } = useParams(); // For editing existing events
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [bannerPreview, setBannerPreview] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingEvent, setEditingEvent] = useState(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -41,6 +44,47 @@ const CreateEvent = () => {
     target_class_groups: '',
     banner_image: null
   });
+
+  // Load event data if editing
+  useEffect(() => {
+    if (id) {
+      setIsEditing(true);
+      loadEventForEditing(id);
+    } else {
+      setIsEditing(false);
+    }
+  }, [id]);
+
+  const loadEventForEditing = async (eventId) => {
+    try {
+      setLoading(true);
+      const event = await apiService.getEvent(eventId);
+      setEditingEvent(event);
+
+      // Populate form with event data
+      setFormData({
+        title: event.title || '',
+        description: event.description || '',
+        event_type: event.event_type || 'school_rating',
+        first_place_stars: event.first_place_stars || 10,
+        second_place_stars: event.second_place_stars || 7,
+        third_place_stars: event.third_place_stars || 5,
+        distribution_date: event.distribution_date ? new Date(event.distribution_date).toISOString().slice(0, 16) : '',
+        target_class_groups: event.target_class_groups ? event.target_class_groups.join(', ') : '',
+        banner_image: null // Don't preload existing image
+      });
+
+      // Set banner preview if exists
+      if (event.banner_image_url) {
+        setBannerPreview(event.banner_image_url);
+      }
+    } catch (error) {
+      console.error('Failed to load event for editing:', error);
+      setError('Tadbirni yuklashda xatolik yuz berdi');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -95,12 +139,17 @@ const CreateEvent = () => {
         }
       });
 
-      await apiService.createEvent(data);
-      setSuccess('Tadbir muvaffaqiyatli yaratildi!');
+      if (isEditing && editingEvent) {
+        await apiService.updateEvent(editingEvent.id, data);
+        setSuccess('Tadbir muvaffaqiyatli yangilandi!');
+      } else {
+        await apiService.createEvent(data);
+        setSuccess('Tadbir muvaffaqiyatli yaratildi!');
+      }
 
       // Redirect after success
       setTimeout(() => {
-        navigate('/admin/manage-events');
+        navigate('/admin/events');
       }, 2000);
 
     } catch (error) {
@@ -121,7 +170,7 @@ const CreateEvent = () => {
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
           <IconButton
-            onClick={() => navigate('/admin/manage-events')}
+            onClick={() => navigate('/admin/events')}
             sx={{
               backgroundColor: '#f8fafc',
               '&:hover': { backgroundColor: '#e2e8f0' }
@@ -136,7 +185,7 @@ const CreateEvent = () => {
               color: '#1e293b'
             }}
           >
-            Yangi tadbir yaratish
+            {isEditing ? 'Tadbirni tahrirlash' : 'Yangi tadbir yaratish'}
           </Typography>
         </Box>
         <Typography sx={{
@@ -144,7 +193,7 @@ const CreateEvent = () => {
           color: '#64748b',
           fontWeight: 400
         }}>
-          O'quvchilarga yulduz mukofotlari berish uchun yangi tadbir yarating
+          {isEditing ? 'Tadbir ma\'lumotlarini o\'zgartirish' : 'O\'quvchilarga yulduz mukofotlari berish uchun yangi tadbir yarating'}
         </Typography>
       </Box>
 
@@ -188,7 +237,7 @@ const CreateEvent = () => {
       }}>
         <Grid container spacing={4}>
           {/* Basic Information */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: '#1e293b' }}>
               📋 Asosiy ma'lumotlar
             </Typography>
@@ -232,7 +281,7 @@ const CreateEvent = () => {
           </Grid>
 
           {/* Event Type */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: '#1e293b' }}>
               🎯 Tadbir turi
             </Typography>
@@ -269,7 +318,7 @@ const CreateEvent = () => {
           </Grid>
 
           {/* Rewards */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: '#1e293b' }}>
               🏆 Mukofotlar
             </Typography>
@@ -323,7 +372,7 @@ const CreateEvent = () => {
           </Grid>
 
           {/* Banner Image */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: '#1e293b' }}>
               🖼️ Banner rasmi (ixtiyoriy)
             </Typography>
@@ -398,7 +447,7 @@ const CreateEvent = () => {
         }}>
           <Button
             variant="outlined"
-            onClick={() => navigate('/admin/manage-events')}
+            onClick={() => navigate('/admin/events')}
             sx={{
               px: 4,
               py: 1.5,
@@ -424,7 +473,7 @@ const CreateEvent = () => {
               }
             }}
           >
-            {loading ? 'Saqlanmoqda...' : 'Tadbirni yaratish'}
+            {loading ? 'Saqlanmoqda...' : (isEditing ? 'Tadbirni saqlash' : 'Tadbirni yaratish')}
           </Button>
         </Box>
       </Paper>

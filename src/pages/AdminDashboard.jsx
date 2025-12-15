@@ -348,6 +348,7 @@ const AdminDashboard = () => {
               <Route path="/edit-student/:id" element={<AddStudent />} />
               <Route path="/events" element={<ManageEvents />} />
               <Route path="/create-event" element={<CreateEvent />} />
+              <Route path="/edit-event/:id" element={<CreateEvent />} />
               <Route path="/class-stats" element={<ClassStatistics />} />
               <Route path="/class-details/:classGroup" element={<ClassDetails />} />
               <Route path="/student-details/:id" element={<StudentDetails />} />

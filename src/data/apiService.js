@@ -373,6 +373,10 @@ class ApiService {
     return this.get('/events/');
   }
 
+  async getEvent(id) {
+    return this.get(`/events/${id}/`);
+  }
+
   async getActiveEvents() {
     return this.get('/events/active_events/');
   }

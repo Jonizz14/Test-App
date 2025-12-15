@@ -85,19 +85,7 @@ const ManageEvents = () => {
   };
 
   const handleEditClick = (event) => {
-    setEditingEvent(event);
-    setFormData({
-      title: event.title || '',
-      description: event.description || '',
-      event_type: event.event_type || 'school_rating',
-      first_place_stars: event.first_place_stars || 10,
-      second_place_stars: event.second_place_stars || 7,
-      third_place_stars: event.third_place_stars || 5,
-      distribution_date: event.distribution_date ? new Date(event.distribution_date).toISOString().slice(0, 16) : '',
-      target_class_groups: event.target_class_groups ? event.target_class_groups.join(', ') : '',
-      banner_image: null
-    });
-    setEditDialogOpen(true);
+    navigate(`/admin/edit-event/${event.id}`);
   };
 
   const handleAddClick = () => {
