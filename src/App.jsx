@@ -16,6 +16,7 @@ import TeacherDashboard from './pages/TeacherDashboard';
 import StudentDashboard from './pages/StudentDashboard';
 import SellerDashboard from './pages/SellerDashboard';
 import NotFoundPage from './pages/NotFoundPage';
+import Home from './pages/Home';
 import Questions from './pages/admin/Questions';
 
 // Theme configuration
@@ -300,9 +301,12 @@ function App() {
                   }
                 />
 
-                {/* Default redirect based on user role */}
+                {/* Home page */}
+                <Route path="/" element={<Home />} />
+
+                {/* Dashboard redirect based on user role */}
                 <Route
-                  path="/"
+                  path="/dashboard"
                   element={
                     <ProtectedRoute>
                       <RoleBasedRedirect />

@@ -101,7 +101,8 @@ const SentLessons = () => {
   }
 
   return (
-    <Box sx={{ 
+    <Box sx={{
+      width: '100%',
       py: 4,
       backgroundColor: '#ffffff'
     }}>

@@ -221,7 +221,8 @@ const TestDetails = () => {
   const lowestScore = totalAttempts > 0 ? Math.min(...attempts.map(a => a.score)) : 0;
 
   return (
-    <Box sx={{ 
+    <Box sx={{
+      width: '100%',
       p: 4,
       backgroundColor: '#ffffff'
     }}>

@@ -421,6 +421,7 @@ const CreateTest = () => {
 
   return (
     <Box sx={{
+      width: '100%',
       py: 4,
       backgroundColor: '#ffffff'
     }}>

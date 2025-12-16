@@ -330,7 +330,8 @@ const TeacherStatistics = () => {
 
   return (
     <Box sx={{
-      p: 4,
+      width: '100%',
+      py: 4,
       backgroundColor: '#ffffff'
     }}>
       <Box sx={{
@@ -491,72 +492,6 @@ const TeacherStatistics = () => {
           </Card>
         </Grid>
 
-        {/* Detailed Test Statistics */}
-        <Grid item xs={12}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            p: 3
-          }}>
-            <Typography sx={{ 
-              fontWeight: 600, 
-              color: '#1e293b',
-              fontSize: '1.25rem',
-              mb: 3
-            }}>
-              Testlar bo'yicha batafsil statistika
-            </Typography>
-            <Grid container spacing={2}>
-              {myTests.map(test => {
-                const testAttempts = myTestAttempts.filter(attempt => attempt.test === test.id);
-                const testAverage = testAttempts.length > 0
-                  ? Math.round(testAttempts.reduce((sum, a) => sum + a.score, 0) / testAttempts.length)
-                  : 0;
-
-                return (
-                  <Grid item xs={12} sm={6} md={4} key={test.id}>
-                    <Card sx={{
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                      boxShadow: 'none',
-                      '&:hover': {
-                        boxShadow: '0 2px 4px 0 rgba(0, 0, 0, 0.1)',
-                      }
-                    }}>
-                      <CardContent>
-                        <Typography sx={{ 
-                          fontSize: '1.125rem', 
-                          fontWeight: 600, 
-                          color: '#1e293b',
-                          mb: 1,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          {test.title}
-                        </Typography>
-                        <Typography sx={{ fontSize: '0.875rem', color: '#64748b', mb: 2 }}>
-                          {test.subject}
-                        </Typography>
-                        <Typography sx={{ fontSize: '0.875rem', color: '#1e293b', mb: 0.5 }}>
-                          Urinishlar: {testAttempts.length}
-                        </Typography>
-                        <Typography sx={{ fontSize: '0.875rem', color: '#1e293b', mb: 1 }}>
-                          O'rtacha ball: {testAverage}%
-                        </Typography>
-                        <Typography sx={{ fontSize: '0.75rem', color: '#64748b' }}>
-                          Yaratilgan: {new Date(test.created_at).toLocaleDateString()}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          </Card>
-        </Grid>
       </Grid>
     </Box>
   );

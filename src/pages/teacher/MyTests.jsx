@@ -13,7 +13,6 @@ import {
   DialogContent,
   DialogActions,
   Alert,
-  Snackbar,
   IconButton,
   Tooltip,
   List,
@@ -372,7 +371,33 @@ const MyTests = () => {
     if (filterSubject && test.subject !== filterSubject) return false;
     if (filterStatus === 'active' && !test.is_active) return false;
     if (filterStatus === 'inactive' && test.is_active) return false;
-    if (filterGrade && !test.target_grades.some(g => g.startsWith(filterGrade + '-')) && test.target_grades.length > 0) return false;
+
+    // Class filter - check if test is for the selected grade
+    if (filterGrade) {
+      // If test has no target grades, it should be included (available to all grades)
+      if (!test.target_grades || test.target_grades.length === 0) return true;
+
+      // Check if any of the test's target grades match the selected grade
+      const hasMatchingGrade = test.target_grades.some(grade => {
+        // Handle different grade formats: "9", "9-A", "9-01", etc.
+        const gradeStr = String(grade).trim();
+        const filterNum = filterGrade;
+
+        // Debug logging (remove in production)
+        console.log(`Checking test "${test.title}": grade "${gradeStr}" against filter "${filterNum}"`);
+
+        return gradeStr === filterNum ||
+               gradeStr.startsWith(filterNum + '-') ||
+               gradeStr.startsWith(filterNum + ' ') ||
+               gradeStr.split('-')[0] === filterNum ||
+               gradeStr.split(' ')[0] === filterNum;
+      });
+
+      console.log(`Test "${test.title}" with grades ${JSON.stringify(test.target_grades)}: ${hasMatchingGrade ? 'INCLUDED' : 'FILTERED OUT'}`);
+
+      if (!hasMatchingGrade) return false;
+    }
+
     return true;
   });
   const sortedTests = [...filteredTests].sort((a, b) => {
@@ -402,7 +427,8 @@ const MyTests = () => {
 
   return (
     <Box sx={{
-      p: 4,
+      width: '100%',
+      py: 4,
       backgroundColor: '#ffffff'
     }}>
       <Box sx={{
@@ -512,50 +538,33 @@ const MyTests = () => {
         </FormControl>
       </Box>
 
-      {/* Success/Error Messages */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert 
-          onClose={() => setSnackbar({ ...snackbar, open: false })} 
-          severity={snackbar.severity}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-
       {loading && sortedTests.length === 0 ? (
         <Box sx={{ textAlign: 'center', py: 8 }}>
           <Typography sx={{ color: '#64748b' }}>Testlar yuklanmoqda...</Typography>
         </Box>
       ) : sortedTests.length === 0 ? (
-        <Card sx={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          p: 6,
-          textAlign: 'center'
-        }}>
-          <Typography variant="h6" sx={{
-            color: '#64748b',
-            fontWeight: 600,
-            mb: 2
-          }}>
-            {tests.length === 0 ? 'Siz hali test yaratmagansiz' : 'Filtrga mos testlar topilmadi'}
+        <Paper sx={{ p: 4, textAlign: 'center', bgcolor: '#f8f9fa' }}>
+          <AssessmentIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+          <Typography variant="h6" color="textSecondary" gutterBottom>
+            {tests.length === 0 ? 'Siz hali test yaratmagansiz' : 'Testlar topilmadi'}
           </Typography>
-          <Typography sx={{ color: '#94a3b8' }}>
-            {tests.length === 0 ? '"Yangi test yaratish" tugmasini bosib boshlang' : 'Filtr sozlamalarini o\'zgartirib ko\'ring'}
+          <Typography variant="body2" color="textSecondary">
+            {tests.length === 0 ? '"Yangi test yaratish" tugmasini bosib boshlang' : 'Testlar mavjud emas'}
           </Typography>
-        </Card>
+        </Paper>
       ) : (
+        <Box>
+          <Alert severity="info" sx={{ mb: 3 }}>
+            Siz {sortedTests.length} ta test yaratgansiz
+          </Alert>
         <TableContainer component={Paper} sx={{
           backgroundColor: '#ffffff',
           border: '1px solid #e2e8f0',
           borderRadius: '12px',
           boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          width: '100%',
+          maxWidth: '100%',
+          overflowX: 'auto',
         }}>
           <Table>
             <TableHead>
@@ -792,6 +801,7 @@ const MyTests = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        </Box>
       )}
 
       {/* Student Details Dialog */}
