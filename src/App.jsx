@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { StatisticsProvider } from './context/StatisticsContext';
