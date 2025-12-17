@@ -45,7 +45,9 @@ const LoginPage = () => {
   // Redirect authenticated users to their appropriate dashboard (but not if banned)
   useEffect(() => {
     if (isAuthenticated && currentUser && !isBanned) {
-      if (currentUser.role === 'admin') {
+      if (currentUser.role === 'head_admin') {
+        navigate('/headadmin', { replace: true });
+      } else if (currentUser.role === 'admin') {
         navigate('/admin', { replace: true });
       } else if (currentUser.role === 'teacher') {
         navigate('/teacher', { replace: true });

@@ -12,6 +12,7 @@ import { ServerTestProvider } from './context/ServerTestContext';
 // Import pages (we'll create these next)
 import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/AdminDashboard';
+import HeadAdminDashboard from './pages/HeadAdminDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
 import StudentDashboard from './pages/StudentDashboard';
 import SellerDashboard from './pages/SellerDashboard';
@@ -130,6 +131,10 @@ const StudentRoute = ({ children }) => {
 
 const SellerRoute = ({ children }) => (
   <ProtectedRoute allowedRoles={['seller']}>{children}</ProtectedRoute>
+);
+
+const HeadAdminRoute = ({ children }) => (
+  <ProtectedRoute allowedRoles={['head_admin']}>{children}</ProtectedRoute>
 );
 
 import { Box, Card, CardContent, Typography, Button, Alert } from '@mui/material';
@@ -266,6 +271,15 @@ function App() {
 
                 {/* Protected routes - Require authentication and specific roles */}
                 <Route
+                  path="/headadmin/*"
+                  element={
+                    <HeadAdminRoute>
+                      <HeadAdminDashboard />
+                    </HeadAdminRoute>
+                  }
+                />
+
+                <Route
                   path="/admin/*"
                   element={
                     <AdminRoute>
@@ -332,6 +346,8 @@ const RoleBasedRedirect = () => {
 
   // Redirect users to their appropriate dashboard based on role
   switch (currentUser?.role) {
+    case 'head_admin':
+      return <Navigate to="/headadmin" replace />;
     case 'admin':
       return <Navigate to="/admin" replace />;
     case 'teacher':

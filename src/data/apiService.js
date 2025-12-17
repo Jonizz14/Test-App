@@ -329,6 +329,40 @@ class ApiService {
     return this.post(`/users/${userId}/give_stars/`, data);
   }
 
+  // Pricing methods
+  async getPricing() {
+    return this.get('/pricing/');
+  }
+
+  async createPricing(data) {
+    return this.post('/pricing/', data);
+  }
+
+  async updatePricing(id, data) {
+    return this.patch(`/pricing/${id}/`, data);
+  }
+
+  async deletePricing(id) {
+    return this.delete(`/pricing/${id}/`);
+  }
+
+  // Star package methods
+  async getStarPackages() {
+    return this.get('/star-packages/');
+  }
+
+  async createStarPackage(data) {
+    return this.post('/star-packages/', data);
+  }
+
+  async updateStarPackage(id, data) {
+    return this.patch(`/star-packages/${id}/`, data);
+  }
+
+  async deleteStarPackage(id) {
+    return this.delete(`/star-packages/${id}/`);
+  }
+
   // Gift methods
   async getGifts() {
     return this.get('/gifts/');

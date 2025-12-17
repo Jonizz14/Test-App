@@ -14,6 +14,23 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
+    def get_queryset(self):
+        queryset = User.objects.all()
+        
+        # Apply admin isolation for admin users
+        if self.request.user.is_authenticated and self.request.user.role in ['admin', 'head_admin']:
+            if self.request.user.role == 'head_admin':
+                # Head admin can see all users
+                pass
+            else:
+                # Regular admin can only see users they created
+                queryset = queryset.filter(
+                    models.Q(created_by_admin=self.request.user) |
+                    models.Q(id=self.request.user.id)  # Can see themselves
+                )
+        
+        return queryset
+
     def update(self, request, *args, **kwargs):
         # Allow partial updates for PUT requests too
         instance = self.get_object()
@@ -26,6 +43,12 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            
+            # Set created_by_admin if the creator is an admin
+            if request.user.is_authenticated and request.user.role in ['admin', 'head_admin']:
+                user.created_by_admin = request.user if request.user.role == 'admin' else None
+                user.save()
+            
             return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -271,8 +294,22 @@ class TestViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(teacher=self.request.user)
 
+=======
     def get_queryset(self):
         queryset = Test.objects.all()
+        
+        # Apply admin isolation
+        if self.request.user.is_authenticated and self.request.user.role in ['admin', 'head_admin']:
+            if self.request.user.role == 'head_admin':
+                # Head admin can see all tests
+                pass
+            else:
+                # Regular admin can only see tests created by users they created
+                queryset = queryset.filter(
+                    models.Q(teacher__created_by_admin=self.request.user) |
+                    models.Q(teacher=self.request.user)  # Can see their own tests
+                )
+        
         subject = self.request.query_params.get('subject', None)
         teacher = self.request.query_params.get('teacher', None)
         if subject:

@@ -4,6 +4,7 @@ from django.utils import timezone
 
 class User(AbstractUser):
     ROLE_CHOICES = [
+        ('head_admin', 'Head Admin'),
         ('admin', 'Admin'),
         ('teacher', 'Teacher'),
         ('student', 'Student'),
@@ -12,6 +13,7 @@ class User(AbstractUser):
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
     name = models.CharField(max_length=100, blank=True)
     display_id = models.CharField(max_length=50, blank=True, help_text="Human-readable ID like AHMEDOV_A_11_N")
+    created_by_admin = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='created_users', help_text="Admin who created this user")
     registration_date = models.DateField(null=True, blank=True, help_text="Student registration date")
     created_at = models.DateTimeField(default=timezone.now)
     last_login = models.DateTimeField(null=True, blank=True)
@@ -22,6 +24,13 @@ class User(AbstractUser):
 
     # For sellers
     seller_earnings = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Total earnings from premium sales commission")
+
+    # For admins (premium subscription)
+    admin_premium_plan = models.CharField(max_length=10, blank=True, help_text="Admin premium plan type (week/month/year)")
+    admin_premium_granted_date = models.DateTimeField(null=True, blank=True, help_text="When admin premium was granted")
+    admin_premium_expiry_date = models.DateTimeField(null=True, blank=True, help_text="When admin premium expires")
+    admin_premium_cost = models.DecimalField(max_digits=6, decimal_places=2, default=0, help_text="Cost of admin premium subscription in USD")
+    organization = models.CharField(max_length=100, blank=True, help_text="Organization or company the admin works for")
 
     # For teachers
     subjects = models.JSONField(default=list, blank=True)  # Array of subject names
@@ -190,6 +199,12 @@ class User(AbstractUser):
             name_parts = self.name.upper().split() if self.name else []
             first = name_parts[0] if name_parts else 'STUDENT'
             last = name_parts[1] if len(name_parts) > 1 else 'X'
+        
+        # Generate admin-specific ID for student/teacher
+        if hasattr(self, '_admin_specific_id') and self._admin_specific_id:
+            # Use admin-specific ID if provided
+            self.display_id = self._admin_specific_id
+            return
         
         # Generate random 3 digits
         import random

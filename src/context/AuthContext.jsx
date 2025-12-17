@@ -173,6 +173,7 @@ export const AuthProvider = ({ children }) => {
     unbanWithCode,
     banCurrentUser,
     isAuthenticated: !!currentUser,
+    isHeadAdmin: currentUser?.role === 'head_admin',
     isAdmin: currentUser?.role === 'admin',
     isTeacher: currentUser?.role === 'teacher',
     isStudent: currentUser?.role === 'student',

@@ -19,7 +19,9 @@ class UserSerializer(serializers.ModelSerializer):
                   'is_premium', 'premium_granted_date', 'premium_expiry_date', 'premium_plan', 'premium_cost', 'premium_type', 'premium_balance',
                   'profile_photo', 'profile_photo_url', 'profile_status', 'premium_emoji_count',
                   'background_gradient', 'selected_emojis', 'display_gift', 'premium_info',
-                  'hide_premium_from_others', 'hide_premium_from_self']
+                  'hide_premium_from_others', 'hide_premium_from_self',
+                  'admin_premium_plan', 'admin_premium_granted_date', 'admin_premium_expiry_date', 'admin_premium_cost',
+                  'organization']
         read_only_fields = ['id', 'created_at', 'last_login', 'display_id']
 
     def get_profile_photo_url(self, obj):

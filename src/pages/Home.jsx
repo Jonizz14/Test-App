@@ -8,12 +8,10 @@ const Home = () => {
 
   return (
     <Layout>
-      {/* Hero Section */}
       <section className="hero">
         <div className="layout-container">
           <div>
             <div className="hero-grid">
-              {/* Hero Text */}
               <div className="hero-text">
                 <div className="hero-text-content">
                   <h1 className="hero-title">
@@ -44,7 +42,6 @@ const Home = () => {
                 </div>
               </div>
               
-              {/* Hero Image */}
               <div className="hero-image">
                 <div className="hero-image-container">
                   <div className="hero-image-placeholder"><img src="https://media.istockphoto.com/id/1311041208/vector/a-woman-tutor-with-a-schoolgirl-studying-at-home-they-do-their-homework-vector-education.jpg?s=612x612&w=0&k=20&c=EZJPZ79RRMBnmWjTcLdUgcQy0kmB1_kcIe2tprsUS9c=" alt="" /></div>
@@ -55,7 +52,6 @@ const Home = () => {
         </div>
       </section>
       
-      {/* Roles Section */}
       <section className="roles">
         <div className="layout-container">
           <div>
@@ -68,7 +64,6 @@ const Home = () => {
             </div>
             
             <div className="roles-grid">
-              {/* Student Card */}
               <div className="role-card">
                 <div className="role-image">
                   <div className="role-image-placeholder"><img src="https://media.istockphoto.com/id/1178763127/vector/man-with-laptop-sitting-on-the-chair-freelance-or-studying-concept-cute-illustration-in-flat.jpg?s=612x612&w=0&k=20&c=gzk5c0q1DkndI2IFHIBCHIapEiFHm6JuG0-6C3xL-3I=" alt="" /></div>
@@ -90,7 +85,6 @@ const Home = () => {
                 </div>
               </div>
               
-              {/* Teacher Card */}
               <div className="role-card">
                 <div className="role-image">
                   <div className="role-image-placeholder"><img src="https://img.freepik.com/premium-vector/woman-with-laptop-girl-with-computer-home-office-work-study-concept-flat-cartoon-isolated-vector-stock-illustration-eps-10_419256-241.jpg" alt="" /></div>
@@ -112,7 +106,6 @@ const Home = () => {
                 </div>
               </div>
               
-              {/* Administrator Card */}
               <div className="role-card">
                 <div className="role-image">
                   <div className="role-image-placeholder"><img src="https://img.freepik.com/premium-vector/man-working-laptop-computer-from-home-with-cup-coffee-home-office-concept-woman-working-from-home-student-freelancer-vector-illustration-flat-style-remote-work-freelance-concept_419010-517.jpg?semt=ais_hybrid&w=740&q=80" alt="" /></div>
@@ -137,13 +130,10 @@ const Home = () => {
           </div>
         </div>
       </section>
-      
-      {/* Features Section */}
       <section className="features">
         <div className="layout-container">
           <div>
             <div className="features-layout">
-              {/* Features Text */}
               <div className="features-text">
                 <h2 className="features-title">
                   Asosiy <br /><span className="features-highlight">Xususiyatlar</span>
@@ -154,9 +144,7 @@ const Home = () => {
                 <button className="features-btn" onClick={() => navigate('/login')}>Barcha imkoniyatlar</button>
               </div>
               
-              {/* Features Grid */}
               <div className="features-grid">
-                {/* Feature 1 */}
                 <div className="feature-item">
                   <div className="feature-icon">
                     <span className="material-symbols-outlined">bar_chart</span>
@@ -169,7 +157,6 @@ const Home = () => {
                   </div>
                 </div>
                 
-                {/* Feature 2 */}
                 <div className="feature-item">
                   <div className="feature-icon">
                     <span className="material-symbols-outlined">shield_lock</span>
@@ -182,7 +169,6 @@ const Home = () => {
                   </div>
                 </div>
                 
-                {/* Feature 3 */}
                 <div className="feature-item">
                   <div className="feature-icon">
                     <span className="material-symbols-outlined">library_books</span>
@@ -195,7 +181,6 @@ const Home = () => {
                   </div>
                 </div>
                 
-                {/* Feature 4 */}
                 <div className="feature-item">
                   <div className="feature-icon">
                     <span className="material-symbols-outlined">devices</span>
@@ -213,7 +198,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
       <section className="pricing">
         <div className="layout-container">
           <div>
@@ -226,7 +210,6 @@ const Home = () => {
             </div>
 
             <div className="pricing-grid">
-              {/* Free Plan */}
               <div className="pricing-card">
                 <div className="pricing-card-header">
                   <h3 className="pricing-card-title">Bepul</h3>
@@ -256,7 +239,6 @@ const Home = () => {
                 <button className="pricing-btn" onClick={() => navigate('/login')}>Bepul boshlash</button>
               </div>
 
-              {/* Basic Plan */}
               <div className="pricing-card pricing-card-popular">
                 <div className="pricing-card-badge">Eng mashhur</div>
                 <div className="pricing-card-header">
@@ -291,7 +273,6 @@ const Home = () => {
                 <button className="pricing-btn pricing-btn-primary" onClick={() => navigate('/login')}>Tanlash</button>
               </div>
 
-              {/* Premium Plan */}
               <div className="pricing-card">
                 <div className="pricing-card-header">
                   <h3 className="pricing-card-title">Premium</h3>
