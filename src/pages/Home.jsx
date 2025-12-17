@@ -212,6 +212,122 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Pricing Section */}
+      <section className="pricing">
+        <div className="layout-container">
+          <div>
+            <div className="pricing-header">
+              <span className="pricing-badge">Narxlar</span>
+              <h2 className="pricing-title">O'zingizga mos tarifni tanlang</h2>
+              <p className="pricing-description">
+                Barcha tariflar sizning ehtiyojlaringizga mos keladi. Har qanday vaqtda tarifni o'zgartirishingiz mumkin.
+              </p>
+            </div>
+
+            <div className="pricing-grid">
+              {/* Free Plan */}
+              <div className="pricing-card">
+                <div className="pricing-card-header">
+                  <h3 className="pricing-card-title">Bepul</h3>
+                  <div className="pricing-card-price">
+                    <span className="price-amount">$0</span>
+                    <span className="price-period">/oy</span>
+                  </div>
+                </div>
+                <div className="pricing-card-features">
+                  <div className="pricing-feature">
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <span>Cheklangan o'quvchilar (10 tagacha)</span>
+                  </div>
+                  <div className="pricing-feature">
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <span>Asosiy test yaratish</span>
+                  </div>
+                  <div className="pricing-feature">
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <span>Natijalarni ko'rish</span>
+                  </div>
+                  <div className="pricing-feature">
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <span>Asosiy statistika</span>
+                  </div>
+                </div>
+                <button className="pricing-btn" onClick={() => navigate('/login')}>Bepul boshlash</button>
+              </div>
+
+              {/* Basic Plan */}
+              <div className="pricing-card pricing-card-popular">
+                <div className="pricing-card-badge">Eng mashhur</div>
+                <div className="pricing-card-header">
+                  <h3 className="pricing-card-title">Asosiy</h3>
+                  <div className="pricing-card-price">
+                    <span className="price-amount">$9.99</span>
+                    <span className="price-period">/oy</span>
+                  </div>
+                </div>
+                <div className="pricing-card-features">
+                  <div className="pricing-feature">
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <span>Cheksiz o'quvchilar</span>
+                  </div>
+                  <div className="pricing-feature">
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <span>Ilg'or test yaratish</span>
+                  </div>
+                  <div className="pricing-feature">
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <span>Batafsil statistika</span>
+                  </div>
+                  <div className="pricing-feature">
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <span>24/7 qo'llab-quvvatlash</span>
+                  </div>
+                  <div className="pricing-feature">
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <span>Export natijalari</span>
+                  </div>
+                </div>
+                <button className="pricing-btn pricing-btn-primary" onClick={() => navigate('/login')}>Tanlash</button>
+              </div>
+
+              {/* Premium Plan */}
+              <div className="pricing-card">
+                <div className="pricing-card-header">
+                  <h3 className="pricing-card-title">Premium</h3>
+                  <div className="pricing-card-price">
+                    <span className="price-amount">$19.99</span>
+                    <span className="price-period">/oy</span>
+                  </div>
+                </div>
+                <div className="pricing-card-features">
+                  <div className="pricing-feature">
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <span>Hamma Asosiy xususiyatlar</span>
+                  </div>
+                  <div className="pricing-feature">
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <span>AI yordamchi</span>
+                  </div>
+                  <div className="pricing-feature">
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <span>Maxsus dizayn</span>
+                  </div>
+                  <div className="pricing-feature">
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <span>API integratsiyasi</span>
+                  </div>
+                  <div className="pricing-feature">
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <span>Priority qo'llab-quvvatlash</span>
+                  </div>
+                </div>
+                <button className="pricing-btn" onClick={() => navigate('/login')}>Tanlash</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </Layout>
   );
 };
