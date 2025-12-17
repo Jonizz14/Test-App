@@ -165,7 +165,7 @@ const LoginPage = () => {
                 fontSize: '2.8rem',
                 color: '#1e293b'
               }}>
-                STIM Test App
+                Examify
               </Typography>
               <Typography variant="h6" sx={{
                 opacity: 0.9,

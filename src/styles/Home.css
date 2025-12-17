@@ -34,7 +34,7 @@ body {
 
 /* Layout Container Classes */
 .layout-container {
-  max-width: 1440px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 0 1rem;
 }
@@ -166,6 +166,7 @@ body {
   background: #135bec;
   color: white;
   box-shadow: 0 10px 15px -3px rgba(19, 91, 236, 0.3);
+  border: none;
 }
 
 .btn-primary:hover {
@@ -321,6 +322,7 @@ body {
   text-decoration: none;
   box-shadow: 0 20px 25px -5px rgba(19, 91, 236, 0.25);
   transition: all 0.2s ease;
+  border: none;
 }
 
 .hero-btn-primary:hover {

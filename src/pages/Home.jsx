@@ -1,8 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import '../styles/Home.css';
 
 const Home = () => {
+  const navigate = useNavigate();
+
   return (
     <Layout>
       {/* Hero Section */}
@@ -23,8 +26,8 @@ const Home = () => {
                   </h2>
                 </div>
                 <div className="hero-buttons">
-                  <button className="hero-btn-primary">Bepul boshlash</button>
-                  <button className="hero-btn-secondary">
+                  <button className="hero-btn-primary" onClick={() => navigate('/login')}>Bepul boshlash</button>
+                  <button className="hero-btn-secondary" onClick={() => navigate('/login')}>
                     <span>Batafsil o'rganish</span>
                     <span className="material-symbols-outlined">arrow_forward</span>
                   </button>
@@ -80,10 +83,10 @@ const Home = () => {
                   <p className="role-description">
                     Test topshiring, bilimingizni mustahkamlang va natijalarni real vaqtda ko'ring. O'zlashtirish darajangizni kuzatib boring.
                   </p>
-                  <a className="role-link" href="#">
+                  <button className="role-link" onClick={() => navigate('/login')}>
                     Kirish
                     <span className="material-symbols-outlined">arrow_forward</span>
-                  </a>
+                  </button>
                 </div>
               </div>
               
@@ -102,10 +105,10 @@ const Home = () => {
                   <p className="role-description">
                     Testlar yarating, guruhlarni boshqaring va o'quvchilarning o'zlashtirishini chuqur tahlil qiling. Vaqtingizni tejang.
                   </p>
-                  <a className="role-link" href="#">
+                  <button className="role-link" onClick={() => navigate('/login')}>
                     Boshlash
                     <span className="material-symbols-outlined">arrow_forward</span>
-                  </a>
+                  </button>
                 </div>
               </div>
               
@@ -124,10 +127,10 @@ const Home = () => {
                   <p className="role-description">
                     Tizimni to'liq nazorat qiling, foydalanuvchilarni va kontentni boshqaring. Hisobotlar va statistikalarni kuzating.
                   </p>
-                  <a className="role-link" href="#">
+                  <button className="role-link" onClick={() => navigate('/login')}>
                     Boshqarish
                     <span className="material-symbols-outlined">arrow_forward</span>
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
@@ -148,7 +151,7 @@ const Home = () => {
                 <p className="features-description">
                   Bizning platformamiz ta'lim jarayonini osonlashtiradigan barcha zamonaviy vositalarni taklif etadi. Sizning muvaffaqiyatingiz uchun yaratilgan.
                 </p>
-                <button className="features-btn">Barcha imkoniyatlar</button>
+                <button className="features-btn" onClick={() => navigate('/login')}>Barcha imkoniyatlar</button>
               </div>
               
               {/* Features Grid */}
