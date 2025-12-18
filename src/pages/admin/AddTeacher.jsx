@@ -66,25 +66,7 @@ const AddTeacher = () => {
     }
   }, [id, isEditMode]);
 
-  const generateTeacherId = (firstName, lastName, randomDigits) => {
-    // Create ID like: SAIDOVAMAFTUNAUSTOZ903@test (LASTNAMEFIRSTNAMECUSTOZRANDOM@test)
-    const lastNameUpper = lastName.toUpperCase().replace("'", '');
-    const firstNameUpper = firstName.toUpperCase().replace("'", '');
-    return `${lastNameUpper}${firstNameUpper}USTOZ${randomDigits}@test`;
-  };
-
-  const generateTeacherUsername = (firstName, lastName) => {
-    // Create valid username: karimova (lowercase, no special chars)
-    const lastNameLower = lastName.toLowerCase();
-    const firstNameInitial = firstName.charAt(0).toLowerCase();
-    return `${lastNameLower}${firstNameInitial}oqituvchi`;
-  };
-
-  const generateTeacherEmail = (firstName, lastName) => {
-    // Create valid email: karimova@teacher.testplatform.com
-    const username = generateTeacherUsername(firstName, lastName);
-    return `${username}@teacher.testplatform.com`;
-  };
+  // ID generation is now handled by backend with admin-specific isolation
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -117,32 +99,24 @@ const AddTeacher = () => {
         await apiService.updateUser(id, teacherData);
         setSuccess('O\'qituvchi ma\'lumotlari muvaffaqiyatli yangilandi!');
       } else {
-        // Generate display ID and valid credentials for new teacher
-        const randomDigits = Math.floor(Math.random() * 900) + 100; // Random 3 digits
-        const displayId = generateTeacherId(formData.firstName, formData.lastName, randomDigits);
-        const username = generateTeacherUsername(formData.firstName, formData.lastName);
-        const email = generateTeacherEmail(formData.firstName, formData.lastName);
-
-        // Check if username already exists
-        const allUsers = await apiService.getUsers();
-        const existingTeacher = allUsers.find(t => t.username === username);
-        if (existingTeacher) {
-          setError('Bu ma\'lumotlar bilan o\'qituvchi allaqachon mavjud');
-          return;
-        }
-
-        // Create new teacher via API
+        // Create new teacher via API (ID generation handled by backend)
         const newTeacherData = {
           ...teacherData,
-          username: displayId, // Use display ID as username (will be stored as-is)
-          email: email, // Valid email format
-          password: displayId, // Use display ID as password
+          first_name: formData.firstName,
+          last_name: formData.lastName,
           role: 'teacher',
         };
 
-        await apiService.post('/users/', newTeacherData);
+        const response = await apiService.post('/users/', newTeacherData);
+        const createdTeacher = response;
 
-        setSuccess(`O'qituvchi muvaffaqiyatli qo'shildi! ID: ${displayId}`);
+        setSuccess(
+          <div>
+            <strong>✅ O'qituvchi muvaffaqiyatli qo'shildi!</strong><br/>
+            <strong>ID:</strong> {createdTeacher.display_id || createdTeacher.username}<br/>
+            <strong>Parol:</strong> {createdTeacher.generated_password}
+          </div>
+        );
         setFormData({
           firstName: '',
           lastName: '',
@@ -311,9 +285,11 @@ const AddTeacher = () => {
 
           {formData.firstName && formData.lastName && formData.subjects && (
             <Alert severity="info" sx={{ mt: 2, mb: 2 }}>
-              <strong>Generatsiya qilingan ID:</strong> {generateTeacherId(formData.firstName, formData.lastName, 123)}
+              <strong>ID va parol:</strong> Backend tomonidan admin-specific tarzda generatsiya qilinadi
               <br />
-              <strong>Parol:</strong> Yuqoridagi ID (ID parol sifatida ishlatiladi)
+              <strong>ID format:</strong> ADM[AdminID]_[IsmFamiliya]...USTOZ...@test
+              <br />
+              <strong>Parol:</strong> 12 ta belgidan iborat tasodifiy parol
             </Alert>
           )}
 

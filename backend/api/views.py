@@ -16,7 +16,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = User.objects.all()
-        
+
         # Apply admin isolation for admin users
         if self.request.user.is_authenticated and self.request.user.role in ['admin', 'head_admin']:
             if self.request.user.role == 'head_admin':
@@ -28,7 +28,31 @@ class UserViewSet(viewsets.ModelViewSet):
                     models.Q(created_by_admin=self.request.user) |
                     models.Q(id=self.request.user.id)  # Can see themselves
                 )
-        
+
+        # Apply teacher isolation - teachers can only see students created by their admin
+        elif self.request.user.is_authenticated and self.request.user.role == 'teacher':
+            if self.request.user.created_by_admin:
+                # Teacher can only see students created by their admin
+                queryset = queryset.filter(
+                    models.Q(created_by_admin=self.request.user.created_by_admin) |
+                    models.Q(id=self.request.user.id)  # Can see themselves
+                )
+            else:
+                # If teacher has no admin, only see themselves
+                queryset = queryset.filter(id=self.request.user.id)
+
+        # Apply student isolation - students can only see users created by their admin
+        elif self.request.user.is_authenticated and self.request.user.role == 'student':
+            if self.request.user.created_by_admin:
+                # Student can only see users created by their admin
+                queryset = queryset.filter(
+                    models.Q(created_by_admin=self.request.user.created_by_admin) |
+                    models.Q(id=self.request.user.id)  # Can see themselves
+                )
+            else:
+                # If student has no admin, only see themselves
+                queryset = queryset.filter(id=self.request.user.id)
+
         return queryset
 
     def update(self, request, *args, **kwargs):
@@ -40,37 +64,74 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        # Check limits for free plan admins
+        if request.user.is_authenticated and request.user.role == 'admin' and not request.user.is_premium:
+            role = request.data.get('role')
+            if role == 'student':
+                # Free plan: max 10 students
+                student_count = User.objects.filter(created_by_admin=request.user, role='student').count()
+                if student_count >= 10:
+                    return Response({'error': 'Bepul tarifda maksimum 10 ta o\'quvchi yaratish mumkin'}, status=status.HTTP_400_BAD_REQUEST)
+            elif role == 'teacher':
+                # Free plan: max 5 teachers
+                teacher_count = User.objects.filter(created_by_admin=request.user, role='teacher').count()
+                if teacher_count >= 5:
+                    return Response({'error': 'Bepul tarifda maksimum 5 ta o\'qituvchi yaratish mumkin'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Generate password and username if not provided
+        data = request.data.copy()
+        if 'password' not in data or not data['password']:
+            # Use a temporary password, will be changed to display_id later
+            data['password'] = 'temp_password'
+
+        if 'username' not in data or not data['username']:
+            data['username'] = f"temp_{User.objects.count() + 1}"
+
+        print(f"Creating user with data: {data}")  # Debug logging
+
+        serializer = self.get_serializer(data=data)
         if serializer.is_valid():
             user = serializer.save()
-            
+            print(f"User created: {user.username}, display_id: {user.display_id}, password: {data['password']}")  # Debug logging
+
+            # Set password to display_id for easy login
+            user.set_password(user.display_id)
+            user.save()
+
             # Set created_by_admin if the creator is an admin
             if request.user.is_authenticated and request.user.role in ['admin', 'head_admin']:
                 user.created_by_admin = request.user if request.user.role == 'admin' else None
                 user.save()
-            
-            return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+                print(f"Set created_by_admin to: {user.created_by_admin}")  # Debug logging
+
+            # Return user data with display_id as password for frontend
+            user_data = UserSerializer(user).data
+            user_data['generated_password'] = user.display_id
+            return Response(user_data, status=status.HTTP_201_CREATED)
+        print(f"Serializer errors: {serializer.errors}")  # Debug logging
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['post'])
     def login(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-        
+
         if not username or not password:
             return Response({'error': 'Username and password are required'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         user = None
-        if '@' in username:
-            user = authenticate(username=username, password=password)
-        else:
+        # First try to authenticate directly with username
+        user = authenticate(username=username, password=password)
+
+        # If that fails, try to find by display_id and authenticate with the actual username
+        if not user:
             try:
                 user_obj = User.objects.filter(display_id=username).first()
                 if user_obj:
                     user = authenticate(username=user_obj.username, password=password)
             except User.DoesNotExist:
                 user = None
-        
+
         if user:
             user.last_login = timezone.now()
             user.save()
@@ -294,10 +355,9 @@ class TestViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(teacher=self.request.user)
 
-=======
     def get_queryset(self):
         queryset = Test.objects.all()
-        
+
         # Apply admin isolation
         if self.request.user.is_authenticated and self.request.user.role in ['admin', 'head_admin']:
             if self.request.user.role == 'head_admin':
@@ -309,7 +369,19 @@ class TestViewSet(viewsets.ModelViewSet):
                     models.Q(teacher__created_by_admin=self.request.user) |
                     models.Q(teacher=self.request.user)  # Can see their own tests
                 )
-        
+
+        # Apply student isolation - students can only see tests from teachers created by their admin
+        elif self.request.user.is_authenticated and self.request.user.role == 'student':
+            if self.request.user.created_by_admin:
+                # Student can only see tests from teachers created by their admin
+                queryset = queryset.filter(
+                    models.Q(teacher__created_by_admin=self.request.user.created_by_admin) |
+                    models.Q(teacher=self.request.user.created_by_admin)  # Admin's own tests
+                )
+            else:
+                # If student has no admin, don't show any tests
+                queryset = queryset.none()
+
         subject = self.request.query_params.get('subject', None)
         teacher = self.request.query_params.get('teacher', None)
         if subject:
@@ -317,7 +389,7 @@ class TestViewSet(viewsets.ModelViewSet):
         if teacher:
             queryset = queryset.filter(teacher=teacher)  # Fixed: use teacher instead of teacher_id
 
-        # Filter tests for students based on their class_group
+        # Filter tests for students based on their class_group (additional filtering)
         if self.request.user.role == 'student':
             # For students, only show tests that are specifically assigned to their class
             class_group = self.request.user.class_group
@@ -378,10 +450,32 @@ class TestAttemptViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
+        test = serializer.validated_data['test']
+
+        # Check if student can access this test (same admin isolation)
+        if self.request.user.created_by_admin and test.teacher.created_by_admin != self.request.user.created_by_admin:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Siz faqat o'z adminingizning testlarida qatnasha olasiz")
+
         serializer.save(student=self.request.user)
 
     def get_queryset(self):
         queryset = TestAttempt.objects.all()
+
+        # Apply student isolation - students can only see their own attempts
+        if self.request.user.is_authenticated and self.request.user.role == 'student':
+            queryset = queryset.filter(student=self.request.user)
+
+        # Apply teacher isolation - teachers can only see attempts from their students
+        elif self.request.user.is_authenticated and self.request.user.role == 'teacher':
+            if self.request.user.created_by_admin:
+                queryset = queryset.filter(
+                    models.Q(student__created_by_admin=self.request.user.created_by_admin) |
+                    models.Q(test__teacher=self.request.user)  # Teacher can see attempts on their tests
+                )
+            else:
+                queryset = queryset.filter(test__teacher=self.request.user)
+
         student = self.request.query_params.get('student', None)
         test = self.request.query_params.get('test', None)
         if student:
@@ -402,18 +496,33 @@ class TestSessionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = TestSession.objects.all()
+
+        # Apply student isolation - students can only see their own sessions
+        if self.request.user.is_authenticated and self.request.user.role == 'student':
+            queryset = queryset.filter(student=self.request.user)
+
+        # Apply teacher isolation - teachers can only see sessions from their students
+        elif self.request.user.is_authenticated and self.request.user.role == 'teacher':
+            if self.request.user.created_by_admin:
+                queryset = queryset.filter(
+                    models.Q(student__created_by_admin=self.request.user.created_by_admin) |
+                    models.Q(test__teacher=self.request.user)  # Teacher can see sessions on their tests
+                )
+            else:
+                queryset = queryset.filter(test__teacher=self.request.user)
+
         student = self.request.query_params.get('student', None)
         test = self.request.query_params.get('test', None)
         session_id = self.request.query_params.get('session_id', None)
         active_only = self.request.query_params.get('active_only', None)
-        
+
         if student:
             queryset = queryset.filter(student_id=student)
         if test:
             queryset = queryset.filter(test_id=test)
         if session_id:
             queryset = queryset.filter(session_id=session_id)
-        
+
         # Only return active sessions if requested
         if active_only == 'true':
             from django.utils import timezone
@@ -423,7 +532,7 @@ class TestSessionViewSet(viewsets.ModelViewSet):
                 is_expired=False,
                 expires_at__gt=now
             )
-            
+
         return queryset
 
     @action(detail=False, methods=['post'])
@@ -432,37 +541,41 @@ class TestSessionViewSet(viewsets.ModelViewSet):
         test_id = request.data.get('test_id')
         if not test_id:
             return Response({'error': 'test_id is required'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             test = Test.objects.get(id=test_id, is_active=True)
         except Test.DoesNotExist:
             return Response({'error': 'Test not found or inactive'}, status=status.HTTP_404_NOT_FOUND)
-        
+
+        # Check if student can access this test (same admin isolation)
+        if request.user.created_by_admin and test.teacher.created_by_admin != request.user.created_by_admin:
+            return Response({'error': 'Siz faqat o\'z adminingizning testlarida qatnasha olasiz'}, status=status.HTTP_403_FORBIDDEN)
+
         # Check if student already has an attempt for this test
         existing_attempt = TestAttempt.objects.filter(student=request.user, test=test).first()
         if existing_attempt:
             return Response({'error': 'Test already completed'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         # Check for existing active session
         existing_session = TestSession.objects.filter(
-            student=request.user, 
-            test=test, 
+            student=request.user,
+            test=test,
             is_completed=False,
             is_expired=False
         ).first()
-        
+
         if existing_session:
             # Return existing session
             serializer = self.get_serializer(existing_session)
             return Response(serializer.data)
-        
+
         # Create new session
         from django.utils import timezone
         import uuid
-        
+
         now = timezone.now()
         expires_at = now + timezone.timedelta(minutes=test.time_limit)
-        
+
         session = TestSession.objects.create(
             session_id=str(uuid.uuid4()),
             test=test,
@@ -471,7 +584,7 @@ class TestSessionViewSet(viewsets.ModelViewSet):
             expires_at=expires_at,
             answers={}
         )
-        
+
         serializer = self.get_serializer(session)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -543,6 +656,11 @@ class TestSessionViewSet(viewsets.ModelViewSet):
 
             if session.is_completed:
                 return Response({'error': 'Test already completed'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Check if attempt already exists for this student and test
+            existing_attempt = TestAttempt.objects.filter(student=session.student, test=session.test).first()
+            if existing_attempt:
+                return Response({'error': 'Test attempt already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
             # Check if session has expired
             is_expired = session.is_expired or session.time_remaining <= 0
@@ -807,13 +925,13 @@ class StarPackageViewSet(viewsets.ModelViewSet):
         if self.request.user.role not in ['admin', 'seller']:
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied("Only admin and seller can manage star packages")
-        serializer.save()
+        return serializer.save()
 
     def perform_update(self, serializer):
         if self.request.user.role not in ['admin', 'seller']:
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied("Only admin and seller can manage star packages")
-        serializer.save()
+        return serializer.save()
 
     def perform_destroy(self, instance):
         if self.request.user.role not in ['admin', 'seller']:
@@ -843,5 +961,4 @@ class StarPackageViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Only allow authenticated users to create sessions
         serializer.save(student=self.request.user)
-
 

@@ -73,11 +73,9 @@ class User(AbstractUser):
         if not self.email and self.username:
             self.generate_email()
 
-        # If username is not set but we have name, generate username from name
-        if not self.username and self.first_name and self.last_name:
-            # Create username from display_id for consistency
-            if self.display_id:
-                self.username = self.display_id
+        # If username is temporary or not set, and we have display_id, use display_id as username
+        if (not self.username or self.username.startswith('temp_')) and self.display_id:
+            self.username = self.display_id
 
         # Premium status is managed manually or through purchases
 
@@ -184,12 +182,12 @@ class User(AbstractUser):
         return False
 
     def generate_display_id(self):
-        """Generate a display ID for student/teacher based on name and role"""
+        """Generate a display ID for student/teacher based on name and role with admin isolation"""
         if not self.name and not (self.first_name and self.last_name):
             # Fallback to username if no name data
             self.display_id = self.username
             return
-        
+
         # Use first_name and last_name if available, otherwise parse from name
         if self.first_name and self.last_name:
             first = self.first_name.upper()
@@ -199,25 +197,26 @@ class User(AbstractUser):
             name_parts = self.name.upper().split() if self.name else []
             first = name_parts[0] if name_parts else 'STUDENT'
             last = name_parts[1] if len(name_parts) > 1 else 'X'
-        
-        # Generate admin-specific ID for student/teacher
-        if hasattr(self, '_admin_specific_id') and self._admin_specific_id:
-            # Use admin-specific ID if provided
-            self.display_id = self._admin_specific_id
-            return
-        
+
         # Generate random 3 digits
         import random
         random_digits = str(random.randint(100, 999))
-        
+
+        # Get admin prefix for complete isolation
+        admin_prefix = ''
+        if self.created_by_admin:
+            # Use admin's ID (first 3 chars + counter) for complete isolation
+            admin_id = str(self.created_by_admin.id).zfill(3)  # Pad with zeros
+            admin_prefix = f"ADM{admin_id}_"
+
         if self.role == 'student':
-            # For students: JAHONGIRT903@test
+            # For students: ADM001_JAHONGIRT903@test (with admin ID prefix for complete isolation)
             grade = getattr(self, 'class_group', '9') or '9'
             direction = (getattr(self, 'direction', 'natural') or 'natural')[0].upper()
-            self.display_id = f"{last}{first[0]}T{grade}{direction}{random_digits}@test"
+            self.display_id = f"{admin_prefix}{last}{first[0]}T{grade}{direction}{random_digits}@test"
         elif self.role == 'teacher':
-            # For teachers: MAFTUNASUSTOZ903@test
-            self.display_id = f"{last}{first}USTOZ{random_digits}@test"
+            # For teachers: ADM001_MAFTUNASUSTOZ903@test (with admin ID prefix for complete isolation)
+            self.display_id = f"{admin_prefix}{last}{first}USTOZ{random_digits}@test"
         else:
             # For admin, use email as display_id
             self.display_id = self.email

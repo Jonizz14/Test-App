@@ -42,7 +42,15 @@ class UserSerializer(serializers.ModelSerializer):
         if User.objects.filter(username=username).exists():
             raise serializers.ValidationError({"username": "A user with this username already exists."})
 
-        password = validated_data.pop('password')
+        # Handle password - if not provided, generate one
+        password = validated_data.pop('password', None)
+        if not password:
+            # Generate a random password for new users
+            import secrets
+            import string
+            alphabet = string.ascii_letters + string.digits
+            password = ''.join(secrets.choice(alphabet) for i in range(12))
+
         user = super().create(validated_data)
         user.set_password(password)
         user.save()

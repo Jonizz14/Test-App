@@ -225,6 +225,10 @@ const Home = () => {
                   </div>
                   <div className="pricing-feature">
                     <span className="material-symbols-outlined">check_circle</span>
+                    <span>Cheklangan o'qituvchilar (5 tagacha)</span>
+                  </div>
+                  <div className="pricing-feature">
+                    <span className="material-symbols-outlined">check_circle</span>
                     <span>Asosiy test yaratish</span>
                   </div>
                   <div className="pricing-feature">
@@ -288,10 +292,6 @@ const Home = () => {
                   </div>
                   <div className="pricing-feature">
                     <span className="material-symbols-outlined">check_circle</span>
-                    <span>AI yordamchi</span>
-                  </div>
-                  <div className="pricing-feature">
-                    <span className="material-symbols-outlined">check_circle</span>
                     <span>Maxsus dizayn</span>
                   </div>
                   <div className="pricing-feature">
@@ -301,6 +301,10 @@ const Home = () => {
                   <div className="pricing-feature">
                     <span className="material-symbols-outlined">check_circle</span>
                     <span>Priority qo'llab-quvvatlash</span>
+                  </div>
+                  <div className="pricing-feature">
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <span>Maxsus yordam</span>
                   </div>
                 </div>
                 <button className="pricing-btn" onClick={() => navigate('/login')}>Tanlash</button>

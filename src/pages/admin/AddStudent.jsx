@@ -64,29 +64,7 @@ const AddStudent = () => {
     }
   }, [id, isEditMode]);
 
-  const generateStudentId = (firstName, lastName, classGroup, direction, randomDigits) => {
-    // Create ID like: TO'XTAYEVJT9-03N478@test (LASTNAMEFIRSTINITIALTGRADE_DIRECTION_RANDOM@test)
-    const lastNameUpper = lastName.toUpperCase().replace("'", '');
-    const firstNameInitial = firstName.charAt(0).toUpperCase();
-    const grade = classGroup.split('-')[0]; // Get grade from class like "9-01-A"
-    const directionCode = direction === 'natural' ? 'N' : 'E';
-    return `${lastNameUpper}${firstNameInitial}T${grade}${directionCode}${randomDigits}@test`;
-  };
-
-  const generateStudentUsername = (firstName, lastName, classGroup, direction) => {
-    // Create valid username: ahmedova501n (lowercase, replace - with empty)
-    const lastNameLower = lastName.toLowerCase();
-    const firstNameInitial = firstName.charAt(0).toLowerCase();
-    const classCode = classGroup.replace(/-/g, ''); // Remove all dashes
-    const directionCode = direction === 'natural' ? 'n' : 'e';
-    return `${lastNameLower}${firstNameInitial}${classCode}${directionCode}`;
-  };
-
-  const generateStudentEmail = (firstName, lastName, classGroup, direction) => {
-    // Create valid email: ahmedova501n@student.testplatform.com
-    const username = generateStudentUsername(firstName, lastName, classGroup, direction);
-    return `${username}@student.testplatform.com`;
-  };
+  // ID generation is now handled by backend with admin-specific isolation
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -130,48 +108,24 @@ const AddStudent = () => {
         await apiService.updateUser(id, studentData);
         setSuccess('O\'quvchi ma\'lumotlari muvaffaqiyatli yangilandi!');
       } else {
-        // Generate display ID and valid credentials for new student
-        const randomDigits = Math.floor(Math.random() * 900) + 100; // Random 3 digits
-        const displayId = generateStudentId(
-          formData.firstName,
-          formData.lastName,
-          formData.classGroup,
-          formData.direction,
-          randomDigits
-        );
-        const username = generateStudentUsername(
-          formData.firstName,
-          formData.lastName,
-          formData.classGroup,
-          formData.direction
-        );
-        const email = generateStudentEmail(
-          formData.firstName,
-          formData.lastName,
-          formData.classGroup,
-          formData.direction
-        );
-
-        // Check if username already exists
-        const allUsers = await apiService.getUsers();
-        const existingStudent = allUsers.find(s => s.username === username);
-        if (existingStudent) {
-          setError('Bu ma\'lumotlar bilan o\'quvchi allaqachon mavjud');
-          return;
-        }
-
-        // Create new student via API
+        // Create new student via API (ID generation handled by backend)
         const newStudentData = {
           ...studentData,
-          username: displayId, // Use display ID as username (will be stored as-is)
-          email: email, // Valid email format
-          password: displayId, // Use display ID as password
+          first_name: formData.firstName,
+          last_name: formData.lastName,
           role: 'student',
         };
 
-        await apiService.post('/users/', newStudentData);
+        const response = await apiService.post('/users/', newStudentData);
+        const createdStudent = response;
 
-        setSuccess(`O'quvchi muvaffaqiyatli qo'shildi! ID: ${displayId}`);
+        setSuccess(
+          <div>
+            <strong>✅ O'quvchi muvaffaqiyatli qo'shildi!</strong><br/>
+            <strong>ID:</strong> {createdStudent.display_id || createdStudent.username}<br/>
+            <strong>Parol:</strong> {createdStudent.generated_password}
+          </div>
+        );
         setFormData({
           firstName: '',
           lastName: '',
@@ -332,9 +286,11 @@ const AddStudent = () => {
             <Alert severity="info" sx={{ mt: 2, mb: 2 }}>
               <strong>Yo'nalish:</strong> {formData.direction === 'exact' ? 'Aniq fanlar' : 'Tabiiy fanlar'}
               <br />
-              <strong>Generatsiya qilingan ID:</strong> {generateStudentId(formData.firstName, formData.lastName, formData.classGroup, formData.direction, 123)}
+              <strong>ID va parol:</strong> Backend tomonidan admin-specific tarzda generatsiya qilinadi
               <br />
-              <strong>Parol:</strong> Yuqoridagi ID (ID parol sifatida ishlatiladi)
+              <strong>ID format:</strong> ADM[AdminID]_[IsmFamiliya]...@test
+              <br />
+              <strong>Parol:</strong> 12 ta belgidan iborat tasodifiy parol
             </Alert>
           )}
 

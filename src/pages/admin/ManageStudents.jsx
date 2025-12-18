@@ -75,6 +75,7 @@ const ManageStudents = () => {
           apiService.getUsers(),
           apiService.getAttempts()
         ]);
+        // API already filters users based on admin isolation
         const allStudents = allUsers.filter(user => user.role === 'student');
         const allTeachers = allUsers.filter(user => user.role === 'teacher');
         setStudents(allStudents);
