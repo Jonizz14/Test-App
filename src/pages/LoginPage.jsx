@@ -13,6 +13,8 @@ import {
   CardContent,
   InputAdornment,
   IconButton,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import {
   School as SchoolIcon,
@@ -21,6 +23,7 @@ import {
   Login as LoginIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
+  PersonAdd as PersonAddIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import UnbanModal from '../components/UnbanModal';

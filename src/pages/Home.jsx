@@ -44,7 +44,7 @@ const Home = () => {
               
               <div className="hero-image">
                 <div className="hero-image-container">
-                  <div className="hero-image-placeholder"><img src="https://media.istockphoto.com/id/1311041208/vector/a-woman-tutor-with-a-schoolgirl-studying-at-home-they-do-their-homework-vector-education.jpg?s=612x612&w=0&k=20&c=EZJPZ79RRMBnmWjTcLdUgcQy0kmB1_kcIe2tprsUS9c=" alt="" /></div>
+                  <div className="hero-image-placeholder"><img src="/banner/banner1.png" alt="" /></div>
                 </div>
               </div>
             </div>
@@ -59,14 +59,14 @@ const Home = () => {
               <span className="roles-badge">Platforma Foydalanuvchilari</span>
               <h2 className="roles-title">Kimlar uchun mo'ljallangan?</h2>
               <p className="roles-description">
-                SmartTest barcha ta'lim ishtirokchilari uchun maxsus asboblar to'plamini taqdim etadi.
+                Examify barcha ta'lim ishtirokchilari uchun maxsus asboblar to'plamini taqdim etadi.
               </p>
             </div>
             
             <div className="roles-grid">
               <div className="role-card">
                 <div className="role-image">
-                  <div className="role-image-placeholder"><img src="https://media.istockphoto.com/id/1178763127/vector/man-with-laptop-sitting-on-the-chair-freelance-or-studying-concept-cute-illustration-in-flat.jpg?s=612x612&w=0&k=20&c=gzk5c0q1DkndI2IFHIBCHIapEiFHm6JuG0-6C3xL-3I=" alt="" /></div>
+                  <div className="role-image-placeholder"><img src="/banner/rasm1.png" alt="Talaba" /></div>
                 </div>
                 <div className="role-content">
                   <div className="role-header">
@@ -87,7 +87,7 @@ const Home = () => {
               
               <div className="role-card">
                 <div className="role-image">
-                  <div className="role-image-placeholder"><img src="https://img.freepik.com/premium-vector/woman-with-laptop-girl-with-computer-home-office-work-study-concept-flat-cartoon-isolated-vector-stock-illustration-eps-10_419256-241.jpg" alt="" /></div>
+                  <div className="role-image-placeholder"><img src="/banner/rasm2.png" alt="O'qituvchi" /></div>
                 </div>
                 <div className="role-content">
                   <div className="role-header">
@@ -108,7 +108,7 @@ const Home = () => {
               
               <div className="role-card">
                 <div className="role-image">
-                  <div className="role-image-placeholder"><img src="https://img.freepik.com/premium-vector/man-working-laptop-computer-from-home-with-cup-coffee-home-office-concept-woman-working-from-home-student-freelancer-vector-illustration-flat-style-remote-work-freelance-concept_419010-517.jpg?semt=ais_hybrid&w=740&q=80" alt="" /></div>
+                  <div className="role-image-placeholder"><img src="/banner/rasm3.png" alt="Administrator" /></div>
                 </div>
                 <div className="role-content">
                   <div className="role-header">
