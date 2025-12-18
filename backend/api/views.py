@@ -145,11 +145,34 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def register(self, request):
-        serializer = self.get_serializer(data=request.data)
+        data = request.data.copy()
+
+        # For admin registration, set role to admin and handle organization
+        if data.get('role') == 'admin':
+            data['role'] = 'admin'
+            # Organization is already in the data
+
+        serializer = self.get_serializer(data=data)
         if serializer.is_valid():
             user = serializer.save()
-            user.set_password(request.data['password'])
+            user.set_password(data['password'])
+
+            # For admin registration, set password to display_id for easy login
+            if data.get('role') == 'admin':
+                user.set_password(user.display_id)
+
             user.save()
+
+            # For admin registration, don't return tokens - they need to choose a plan first
+            if data.get('role') == 'admin':
+                user_data = UserSerializer(user).data
+                user_data['generated_password'] = user.display_id
+                return Response({
+                    'user': user_data,
+                    'message': 'Admin ro\'yxatdan o\'tdi. Tarifni tanlash kerak.'
+                }, status=status.HTTP_201_CREATED)
+
+            # For other roles, return tokens
             refresh = RefreshToken.for_user(user)
             return Response({
                 'refresh': str(refresh),
@@ -157,6 +180,44 @@ class UserViewSet(viewsets.ModelViewSet):
                 'user': UserSerializer(user).data
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
+    def select_plan(self, request):
+        """Allow admin to select a pricing plan"""
+        if request.user.role != 'admin':
+            return Response({'error': 'Only admins can select plans'}, status=status.HTTP_403_FORBIDDEN)
+
+        plan_type = request.data.get('plan_type')
+        if not plan_type:
+            return Response({'error': 'plan_type is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = request.user
+
+        if plan_type == 'free':
+            # Free plan - no premium features
+            user.is_premium = False
+            user.admin_premium_plan = 'free'
+            user.admin_premium_granted_date = timezone.now()
+            user.admin_premium_cost = 0
+            user.save()
+        elif plan_type in ['basic', 'premium']:
+            # For now, just set the plan type (payment logic would go here)
+            user.admin_premium_plan = plan_type
+            user.admin_premium_granted_date = timezone.now()
+            # Set basic premium for paid plans
+            user.is_premium = True
+            if plan_type == 'basic':
+                user.admin_premium_cost = 9.99
+            elif plan_type == 'premium':
+                user.admin_premium_cost = 19.99
+            user.save()
+        else:
+            return Response({'error': 'Invalid plan type'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({
+            'message': f'{plan_type} plan selected successfully',
+            'user': UserSerializer(user).data
+        })
 
 
 

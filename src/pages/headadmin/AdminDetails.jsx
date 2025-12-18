@@ -194,223 +194,170 @@ const AdminDetails = () => {
         </Typography>
       </Box>
 
-      <Grid container spacing={4}>
-        {/* Profile Card */}
-        <Grid item xs={12} md={4}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          }}>
-            <CardContent sx={{ p: 4, textAlign: 'center' }}>
-              <Avatar
-                sx={{
-                  width: 120,
-                  height: 120,
-                  mx: 'auto',
-                  mb: 3,
-                  backgroundColor: '#dc2626',
-                  fontSize: '3rem'
-                }}
-              >
-                <AdminIcon sx={{ fontSize: '3rem' }} />
-              </Avatar>
+      <Box sx={{ width: '100%' }}>
+        {/* Profile Card - Full Width Top */}
+        <Card sx={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '16px',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+          mb: 4
+        }}>
+          <CardContent sx={{ p: 6, textAlign: 'center' }}>
+            <Avatar
+              sx={{
+                width: 160,
+                height: 160,
+                mx: 'auto',
+                mb: 4,
+                backgroundColor: '#dc2626',
+                fontSize: '4rem',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              <AdminIcon sx={{ fontSize: '4rem' }} />
+            </Avatar>
 
-              <Typography
-                sx={{
-                  fontSize: '1.5rem',
-                  fontWeight: 700,
-                  color: '#1e293b',
-                  mb: 1
-                }}
-              >
-                {admin.name}
-              </Typography>
+            <Typography
+              sx={{
+                fontSize: '2rem',
+                fontWeight: 700,
+                color: '#1e293b',
+                mb: 2
+              }}
+            >
+              {admin.name}
+            </Typography>
 
-              <Chip
-                label="Administrator"
-                sx={{
-                  backgroundColor: '#fef2f2',
-                  color: '#dc2626',
-                  fontWeight: 600,
-                  mb: 2
-                }}
-              />
+            <Typography
+              sx={{
+                fontFamily: 'monospace',
+                fontSize: '1rem',
+                backgroundColor: '#f1f5f9',
+                padding: '12px 20px',
+                borderRadius: '8px',
+                color: '#475569',
+                display: 'inline-block'
+              }}
+            >
+              {admin.email}
+            </Typography>
+          </CardContent>
+        </Card>
 
-              <Typography
-                sx={{
-                  fontFamily: 'monospace',
-                  fontSize: '0.875rem',
-                  backgroundColor: '#f1f5f9',
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  color: '#475569',
-                  display: 'inline-block'
-                }}
-              >
-                {admin.email}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+        {/* Details Card - Full Width Bottom */}
+        <Card sx={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '16px',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+        }}>
+          <CardContent sx={{ p: 6 }}>
+            <Typography
+              sx={{
+                fontSize: '1.5rem',
+                fontWeight: 700,
+                color: '#1e293b',
+                mb: 4
+              }}
+            >
+              Ma'lumotlar
+            </Typography>
 
-        {/* Details Card */}
-        <Grid item xs={12} md={8}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          }}>
-            <CardContent sx={{ p: 4 }}>
-              <Typography
-                sx={{
-                  fontSize: '1.25rem',
-                  fontWeight: 700,
-                  color: '#1e293b',
-                  mb: 3
-                }}
-              >
-                Ma'lumotlar
-              </Typography>
-
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <PersonIcon sx={{ color: '#64748b', mr: 2, fontSize: '1.25rem' }} />
-                    <Box>
-                      <Typography sx={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 500 }}>
-                        To'liq ism
-                      </Typography>
-                      <Typography sx={{ fontSize: '1rem', color: '#1e293b', fontWeight: 600 }}>
-                        {admin.name}
-                      </Typography>
-                    </Box>
+            <Grid container spacing={4}>
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <PersonIcon sx={{ color: '#64748b', mr: 2.5, fontSize: '1.5rem' }} />
+                  <Box>
+                    <Typography sx={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500, mb: 0.5 }}>
+                      To'liq ism
+                    </Typography>
+                    <Typography sx={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>
+                      {admin.name}
+                    </Typography>
                   </Box>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <EmailIcon sx={{ color: '#64748b', mr: 2, fontSize: '1.25rem' }} />
-                    <Box>
-                      <Typography sx={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 500 }}>
-                        Email
-                      </Typography>
-                      <Typography sx={{ fontSize: '1rem', color: '#1e293b', fontWeight: 600 }}>
-                        {admin.email}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <CalendarIcon sx={{ color: '#64748b', mr: 2, fontSize: '1.25rem' }} />
-                    <Box>
-                      <Typography sx={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 500 }}>
-                        Ro'yxatdan o'tgan
-                      </Typography>
-                      <Typography sx={{ fontSize: '1rem', color: '#1e293b', fontWeight: 600 }}>
-                        {admin.registration_date ? new Date(admin.registration_date).toLocaleDateString('uz-UZ') : 'Noma\'lum'}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <AdminIcon sx={{ color: '#64748b', mr: 2, fontSize: '1.25rem' }} />
-                    <Box>
-                      <Typography sx={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 500 }}>
-                        Rol
-                      </Typography>
-                      <Typography sx={{ fontSize: '1rem', color: '#1e293b', fontWeight: 600 }}>
-                        Administrator
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <PersonIcon sx={{ color: '#64748b', mr: 2, fontSize: '1.25rem' }} />
-                    <Box>
-                      <Typography sx={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 500 }}>
-                        Tashkilot
-                      </Typography>
-                      <Typography sx={{ fontSize: '1rem', color: '#1e293b', fontWeight: 600 }}>
-                        {admin.organization || 'Aniqlanmagan'}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <PaymentIcon sx={{ color: '#64748b', mr: 2, fontSize: '1.25rem' }} />
-                    <Box>
-                      <Typography sx={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 500 }}>
-                        Premium Tarif
-                      </Typography>
-                      <Typography sx={{ fontSize: '1rem', color: '#1e293b', fontWeight: 600 }}>
-                        {admin.admin_premium_plan ? getPlanDisplayName(admin.admin_premium_plan) : 'Yo\'q'}
-                      </Typography>
-                      {admin.admin_premium_expiry_date && (
-                        <Typography sx={{ fontSize: '0.75rem', color: '#64748b' }}>
-                          Tugaydi: {new Date(admin.admin_premium_expiry_date).toLocaleDateString('uz-UZ')}
-                        </Typography>
-                      )}
-                    </Box>
-                  </Box>
-                </Grid>
+                </Box>
               </Grid>
 
-              {/* Action Buttons */}
-              <Box sx={{ mt: 4, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                <Button
-                  variant="contained"
-                  onClick={() => navigate(`/headadmin/edit-admin/${admin.id}`)}
-                  sx={{
-                    backgroundColor: '#dc2626',
-                    '&:hover': {
-                      backgroundColor: '#b91c1c'
-                    }
-                  }}
-                >
-                  Tahrirlash
-                </Button>
-                <Button
-                  variant="contained"
-                  startIcon={<PaymentIcon />}
-                  onClick={() => setPricingDialogOpen(true)}
-                  sx={{
-                    backgroundColor: '#059669',
-                    '&:hover': {
-                      backgroundColor: '#047857'
-                    }
-                  }}
-                >
-                  Tarif biriktirish
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate('/headadmin/admins')}
-                  sx={{
-                    borderColor: '#64748b',
-                    color: '#64748b',
-                    '&:hover': {
-                      backgroundColor: '#f8fafc'
-                    }
-                  }}
-                >
-                  Adminlarga qaytish
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <EmailIcon sx={{ color: '#64748b', mr: 2.5, fontSize: '1.5rem' }} />
+                  <Box>
+                    <Typography sx={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500, mb: 0.5 }}>
+                      Email
+                    </Typography>
+                    <Typography sx={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>
+                      {admin.email}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <CalendarIcon sx={{ color: '#64748b', mr: 2.5, fontSize: '1.5rem' }} />
+                  <Box>
+                    <Typography sx={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500, mb: 0.5 }}>
+                      Ro'yxatdan o'tgan
+                    </Typography>
+                    <Typography sx={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>
+                      {admin.registration_date ? new Date(admin.registration_date).toLocaleDateString('uz-UZ') : 'Noma\'lum'}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <AdminIcon sx={{ color: '#64748b', mr: 2.5, fontSize: '1.5rem' }} />
+                  <Box>
+                    <Typography sx={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500, mb: 0.5 }}>
+                      Rol
+                    </Typography>
+                    <Typography sx={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>
+                      Administrator
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <PersonIcon sx={{ color: '#64748b', mr: 2.5, fontSize: '1.5rem' }} />
+                  <Box>
+                    <Typography sx={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500, mb: 0.5 }}>
+                      Tashkilot
+                    </Typography>
+                    <Typography sx={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>
+                      {admin.organization || 'Aniqlanmagan'}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <PaymentIcon sx={{ color: '#64748b', mr: 2.5, fontSize: '1.5rem' }} />
+                  <Box>
+                    <Typography sx={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500, mb: 0.5 }}>
+                      Premium Tarif
+                    </Typography>
+                    <Typography sx={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>
+                      {admin.admin_premium_plan ? getPlanDisplayName(admin.admin_premium_plan) : 'Yo\'q'}
+                    </Typography>
+                    {admin.admin_premium_expiry_date && (
+                      <Typography sx={{ fontSize: '0.8rem', color: '#64748b' }}>
+                        Tugaydi: {new Date(admin.admin_premium_expiry_date).toLocaleDateString('uz-UZ')}
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
+              </Grid>
+            </Grid>
+
+          </CardContent>
+        </Card>
+      </Box>
 
       {/* Pricing Assignment Dialog */}
       <Dialog

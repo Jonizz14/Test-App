@@ -402,6 +402,11 @@ class ApiService {
     return this.post(`/student-gifts/${studentGiftId}/place_gift/`, { position });
   }
 
+  // Plan selection methods
+  async selectPlan(planType) {
+    return this.post('/users/select_plan/', { plan_type: planType });
+  }
+
 }
 
 const apiService = new ApiService();

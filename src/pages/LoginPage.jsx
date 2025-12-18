@@ -29,19 +29,33 @@ import { useAuth } from '../context/AuthContext';
 import UnbanModal from '../components/UnbanModal';
 import logoImage from '../assets/image.png';
 
-// LoginPage Component - Handles user authentication
+// LoginPage Component - Handles user authentication and admin registration
 const LoginPage = () => {
-  // State management for form data, error handling, and loading states
-  const [formData, setFormData] = useState({
+  // Tab management
+  const [activeTab, setActiveTab] = useState(0);
+
+  // State management for login form
+  const [loginData, setLoginData] = useState({
     email: '',
     password: ''
   });
+
+  // State management for registration form
+  const [registerData, setRegisterData] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    password: '',
+    organization: ''
+  });
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
 
   // Authentication context and navigation hook
-  const { login, logout, currentUser, isAuthenticated, isBanned } = useAuth();
+  const { login, logout, register, currentUser, isAuthenticated, isBanned } = useAuth();
   const navigate = useNavigate();
   const [bannedUser, setBannedUser] = useState(null);
 
@@ -62,10 +76,10 @@ const LoginPage = () => {
     }
   }, [isAuthenticated, currentUser, isBanned, navigate]);
 
-  // Handle form input changes
-  const handleChange = (e) => {
+  // Handle login form input changes
+  const handleLoginChange = (e) => {
     const newFormData = {
-      ...formData,
+      ...loginData,
       [e.target.name]: e.target.value
     };
 
@@ -74,27 +88,39 @@ const LoginPage = () => {
       newFormData.password = 'sellerkatya2010@test.com';
     }
 
-    setFormData(newFormData);
+    setLoginData(newFormData);
   };
 
-  // Handle password visibility toggle
+  // Handle registration form input changes
+  const handleRegisterChange = (e) => {
+    setRegisterData({
+      ...registerData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  // Handle password visibility toggles
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleToggleRegisterPasswordVisibility = () => {
+    setShowRegisterPassword(!showRegisterPassword);
+  };
+
+  // Handle login form submission
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     setBannedUser(null);
 
     try {
-      console.log('Login sahifasi: Login urinish -', formData.email);
+      console.log('Login sahifasi: Login urinish -', loginData.email);
       console.log('Current URL:', window.location.href);
       console.log('Current host:', window.location.host);
 
-      const user = await login(formData.email, formData.password);
+      const user = await login(loginData.email, loginData.password);
 
       // Check if user is banned
       if (user && user.is_banned) {
@@ -113,6 +139,36 @@ const LoginPage = () => {
 
       // Display user-friendly error messages
       setError(err.message || 'Login xatosi yuz berdi. Qayta urinib ko\'ring.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle registration form submission
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const userData = {
+        first_name: registerData.first_name,
+        last_name: registerData.last_name,
+        email: registerData.email,
+        password: registerData.password,
+        organization: registerData.organization,
+        role: 'admin'
+      };
+
+      const user = await register(userData);
+      console.log('Admin registration successful:', user);
+
+      // Switch to login tab after successful registration
+      setActiveTab(0);
+      setError('Admin ro\'yxatdan o\'tdi! Endi login qilishingiz mumkin.');
+    } catch (err) {
+      console.error('Registration error:', err);
+      setError(err.message || 'Ro\'yxatdan o\'tishda xatolik yuz berdi.');
     } finally {
       setLoading(false);
     }
@@ -191,96 +247,237 @@ const LoginPage = () => {
               </Typography>
             </Box>
 
-            <CardContent sx={{ p: 5 }}>
-              {/* Alert for already authenticated users */}
-              {isAuthenticated && (
-                <Alert severity="info" sx={{ mb: 4 }}>
-                  Siz allaqachon {currentUser?.name} sifatida kirgansiz.{' '}
-                  <Button
-                    variant="text"
-                    onClick={logout}
-                    sx={{ ml: 1, p: 0, minWidth: 'auto' }}
-                  >
-                    Chiqish
-                  </Button>
-                </Alert>
-              )}
+            <CardContent sx={{ p: 0 }}>
+              {/* Tabs */}
+              <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)} sx={{ px: 5, pt: 2 }}>
+                  <Tab
+                    label="Kirish"
+                    icon={<LoginIcon />}
+                    iconPosition="start"
+                    sx={{ textTransform: 'none', fontWeight: 600 }}
+                  />
+                  <Tab
+                    label="Admin Ro'yxatdan o'tish"
+                    icon={<PersonAddIcon />}
+                    iconPosition="start"
+                    sx={{ textTransform: 'none', fontWeight: 600 }}
+                  />
+                </Tabs>
+              </Box>
 
-              {/* Error alert */}
-              {error && (
-                <Alert severity="error" sx={{ mb: 4 }}>
-                  {error}
-                </Alert>
-              )}
+              <Box sx={{ p: 5 }}>
+                {/* Alert for already authenticated users */}
+                {isAuthenticated && (
+                  <Alert severity="info" sx={{ mb: 4 }}>
+                    Siz allaqachon {currentUser?.name} sifatida kirgansiz.{' '}
+                    <Button
+                      variant="text"
+                      onClick={logout}
+                      sx={{ ml: 1, p: 0, minWidth: 'auto' }}
+                    >
+                      Chiqish
+                    </Button>
+                  </Alert>
+                )}
 
-              {/* Login form */}
-              <Box component="form" onSubmit={handleSubmit}>
-                <TextField
-                  fullWidth
-                  label="Email manzil yoki ID"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  autoComplete="email"
-                  autoFocus
-                  sx={{
-                    mb: 4,
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '12px'
-                    }
-                  }}
-                  placeholder="Admin uchun email, o'quvchi/o'qituvchi uchun ID"
-                />
+                {/* Error alert */}
+                {error && (
+                  <Alert severity={error.includes('muvaffaqiyatli') ? 'success' : 'error'} sx={{ mb: 4 }}>
+                    {error}
+                  </Alert>
+                )}
 
-                <TextField
-                  fullWidth
-                  label="Parol"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={formData.password}
-                  onChange={handleChange}
-                  autoComplete="current-password"
-                  sx={{
-                    mb: 5,
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '12px'
-                    }
-                  }}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={handleTogglePasswordVisibility}
-                          edge="end"
+                {/* Login Tab */}
+                {activeTab === 0 && (
+                  <Box component="form" onSubmit={handleLoginSubmit}>
+                    <TextField
+                      fullWidth
+                      label="Email manzil yoki ID"
+                      name="email"
+                      type="email"
+                      value={loginData.email}
+                      onChange={handleLoginChange}
+                      autoComplete="email"
+                      autoFocus
+                      sx={{
+                        mb: 4,
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '12px'
+                        }
+                      }}
+                      placeholder="Admin uchun email, o'quvchi/o'qituvchi uchun ID"
+                    />
+
+                    <TextField
+                      fullWidth
+                      label="Parol"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={loginData.password}
+                      onChange={handleLoginChange}
+                      autoComplete="current-password"
+                      sx={{
+                        mb: 5,
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '12px'
+                        }
+                      }}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={handleTogglePasswordVisibility}
+                              edge="end"
+                              sx={{
+                                color: '#64748b',
+                                mr: '-2.5px'
+                              }}
+                            >
+                              {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+
+                    <Button
+                      type="submit"
+                      fullWidth
+                      variant="contained"
+                      size="large"
+                      disabled={loading}
+                      sx={{
+                        py: 1.8,
+                        fontSize: '1.1rem',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                      }}
+                    >
+                      {loading ? 'Kirish...' : 'Kirish'}
+                    </Button>
+                  </Box>
+                )}
+
+                {/* Registration Tab */}
+                {activeTab === 1 && (
+                  <Box component="form" onSubmit={handleRegisterSubmit}>
+                    <Grid container spacing={3}>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          fullWidth
+                          label="Ism"
+                          name="first_name"
+                          value={registerData.first_name}
+                          onChange={handleRegisterChange}
+                          autoComplete="given-name"
                           sx={{
-                            color: '#64748b',
-                            mr: '-2.5px'
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: '12px'
+                            }
                           }}
-                        >
-                          {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          fullWidth
+                          label="Familiya"
+                          name="last_name"
+                          value={registerData.last_name}
+                          onChange={handleRegisterChange}
+                          autoComplete="family-name"
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: '12px'
+                            }
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField
+                          fullWidth
+                          label="Email manzil"
+                          name="email"
+                          type="email"
+                          value={registerData.email}
+                          onChange={handleRegisterChange}
+                          autoComplete="email"
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: '12px'
+                            }
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField
+                          fullWidth
+                          label="Tashkilot"
+                          name="organization"
+                          value={registerData.organization}
+                          onChange={handleRegisterChange}
+                          autoComplete="organization"
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: '12px'
+                            }
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField
+                          fullWidth
+                          label="Parol"
+                          name="password"
+                          type={showRegisterPassword ? 'text' : 'password'}
+                          value={registerData.password}
+                          onChange={handleRegisterChange}
+                          autoComplete="new-password"
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: '12px'
+                            }
+                          }}
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  aria-label="toggle password visibility"
+                                  onClick={handleToggleRegisterPasswordVisibility}
+                                  edge="end"
+                                  sx={{
+                                    color: '#64748b',
+                                    mr: '-2.5px'
+                                  }}
+                                >
+                                  {showRegisterPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
 
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  size="large"
-                  disabled={loading}
-                  sx={{
-                    py: 1.8,
-                    fontSize: '1.1rem',
-                    fontWeight: 600,
-                    textTransform: 'none',
-                  }}
-                >
-                  {loading ? 'Kirish...' : 'Kirish'}
-                </Button>
+                    <Button
+                      type="submit"
+                      fullWidth
+                      variant="contained"
+                      size="large"
+                      disabled={loading}
+                      sx={{
+                        py: 1.8,
+                        fontSize: '1.1rem',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        mt: 4
+                      }}
+                    >
+                      {loading ? 'Ro\'yxatdan o\'tish...' : 'Admin sifatida ro\'yxatdan o\'tish'}
+                    </Button>
+                  </Box>
+                )}
               </Box>
             </CardContent>
           </Card>

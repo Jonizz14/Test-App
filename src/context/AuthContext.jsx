@@ -102,6 +102,11 @@ export const AuthProvider = ({ children }) => {
         role: userData.role,
       };
 
+      // Add organization for admin registration
+      if (userData.role === 'admin' && userData.organization) {
+        apiData.organization = userData.organization;
+      }
+
       // Add student-specific fields
       if (userData.role === 'student') {
         apiData.grade = userData.grade;
@@ -110,7 +115,12 @@ export const AuthProvider = ({ children }) => {
 
       const savedUser = await apiService.register(apiData);
 
-      // Update state
+      // For admin registration, don't auto-login - they need to choose a plan first
+      if (userData.role === 'admin') {
+        return savedUser; // Return user data without setting current user
+      }
+
+      // Update state for other roles
       setCurrentUser(savedUser);
       localStorage.setItem('currentUser', JSON.stringify(savedUser));
       return savedUser;

@@ -18,6 +18,7 @@ import StudentDashboard from './pages/StudentDashboard';
 import SellerDashboard from './pages/SellerDashboard';
 import NotFoundPage from './pages/NotFoundPage';
 import Home from './pages/Home';
+import PricingSelection from './pages/PricingSelection';
 import Questions from './pages/admin/Questions';
 
 // Theme configuration
@@ -113,9 +114,16 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 };
 
 // Role-based route components
-const AdminRoute = ({ children }) => (
-  <ProtectedRoute allowedRoles={['admin']}>{children}</ProtectedRoute>
-);
+const AdminRoute = ({ children }) => {
+  const { currentUser } = useAuth();
+
+  // If admin hasn't selected a plan yet, redirect to pricing
+  if (currentUser && currentUser.role === 'admin' && !currentUser.is_premium && !currentUser.admin_premium_plan) {
+    return <Navigate to="/pricing" replace />;
+  }
+
+  return <ProtectedRoute allowedRoles={['admin']}>{children}</ProtectedRoute>;
+};
 
 const TeacherRoute = ({ children }) => (
   <ProtectedRoute allowedRoles={['teacher']}>{children}</ProtectedRoute>
@@ -267,6 +275,7 @@ function App() {
 
                 {/* Public routes - Accessible without authentication */}
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/pricing" element={<PricingSelection />} />
                 <Route path="/user/password/questions" element={<Questions />} />
 
                 {/* Protected routes - Require authentication and specific roles */}
