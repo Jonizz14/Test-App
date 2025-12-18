@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0027_user_hide_premium_from_others_and_more'),
+        ('api', '0023_starpackage'),
     ]
 
     operations = [

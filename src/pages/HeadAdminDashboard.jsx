@@ -36,6 +36,7 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import apiService from '../data/apiService';
+import NotificationCenter from '../components/NotificationCenter';
 
 // Import head admin sub-pages (we'll create these)
 import HeadAdminOverview from './headadmin/HeadAdminOverview';
@@ -52,6 +53,7 @@ const HeadAdminDashboard = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
   const [bannedStudents, setBannedStudents] = React.useState([]);
   const [modalOpen, setModalOpen] = React.useState(false);
+  const [pendingAdminsCount, setPendingAdminsCount] = React.useState(0);
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -70,20 +72,23 @@ const HeadAdminDashboard = () => {
     navigate('/login');
   };
 
-  // Fetch banned students
+  // Fetch banned students and pending admins
   React.useEffect(() => {
-    const fetchBannedStudents = async () => {
+    const fetchData = async () => {
       try {
         const usersData = await apiService.getUsers();
         const users = usersData.results || usersData;
         const banned = users.filter(user => user.role === 'student' && user.is_banned);
         setBannedStudents(banned);
+
+        const pending = users.filter(user => user.role === 'admin' && user.admin_premium_pending);
+        setPendingAdminsCount(pending.length);
       } catch (error) {
-        console.error('Failed to fetch banned students:', error);
+        console.error('Failed to fetch data:', error);
       }
     };
 
-    fetchBannedStudents();
+    fetchData();
   }, []);
 
   // Handle unbanning a student
@@ -102,7 +107,17 @@ const HeadAdminDashboard = () => {
 
   const menuItems = [
     { text: 'Umumiy', icon: <DashboardIcon />, path: '/headadmin' },
-    { text: 'Adminlarni boshqarish', icon: <AdminIcon />, path: '/headadmin/admins' },
+    {
+      text: 'Adminlarni boshqarish',
+      icon: pendingAdminsCount > 0 ? (
+        <Badge badgeContent={pendingAdminsCount} color="error">
+          <AdminIcon />
+        </Badge>
+      ) : (
+        <AdminIcon />
+      ),
+      path: '/headadmin/admins'
+    },
   ];
 
   const drawer = (
@@ -250,9 +265,28 @@ const HeadAdminDashboard = () => {
               </Badge>
             </IconButton>
           )}
+          {pendingAdminsCount > 0 && (
+            <IconButton
+              color="inherit"
+              onClick={() => navigate('/headadmin/admins')}
+              sx={{
+                mr: 2,
+                color: '#dc2626',
+                '&:hover': {
+                  backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                }
+              }}
+              title={`${pendingAdminsCount} ta admin tasdiqlanishini kutmoqda`}
+            >
+              <Badge badgeContent={pendingAdminsCount} color="error">
+                <NotificationsIcon sx={{ fontSize: '1.3rem' }} />
+              </Badge>
+            </IconButton>
+          )}
           <Typography variant="body1" sx={{ mr: 2 }}>
             Welcome, {currentUser?.name} (Head Admin)
           </Typography>
+          <NotificationCenter />
           <Button
             variant="outlined"
             onClick={handleLogout}

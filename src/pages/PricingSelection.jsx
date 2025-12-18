@@ -8,9 +8,14 @@ import {
   Button,
   Container,
   Alert,
+  IconButton,
 } from '@mui/material';
+import {
+  Logout as LogoutIcon,
+} from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import apiService from '../data/apiService';
+import { createAdminNotification } from '../utils/notificationService';
 
 const PricingSelection = () => {
   const [pricing, setPricing] = useState([]);
@@ -20,13 +25,14 @@ const PricingSelection = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect if not an admin or already has a plan
+    // Redirect if not an admin
     if (!currentUser || currentUser.role !== 'admin') {
       navigate('/login');
       return;
     }
 
-    if (currentUser.is_premium) {
+    // If plan is already approved, redirect to admin
+    if (currentUser.admin_premium_approved) {
       navigate('/admin');
       return;
     }
@@ -49,21 +55,27 @@ const PricingSelection = () => {
     setError('');
 
     try {
-      await apiService.selectPlan(planType);
+      // Show processing message
+      setError('Sizning so\'rovingiz bajarilmoqda...');
+
+      const response = await apiService.selectPlan(planType);
 
       // Update local user state
-      const updatedUser = { ...currentUser };
+      const updatedUser = response.user;
+      setCurrentUserData(updatedUser);
+      
+      // Create notification for head admin (for paid plans only)
+      if (planType !== 'free') {
+        createAdminNotification(updatedUser, planType);
+        console.log('Notification created for head admin');
+      }
+
       if (planType === 'free') {
-        updatedUser.is_premium = false;
-        updatedUser.admin_premium_plan = 'free';
-        // Update AuthContext and navigate to admin dashboard
-        setCurrentUserData(updatedUser);
+        // Free plan - immediately navigate
         navigate('/admin');
       } else {
-        // For paid plans, update user data and open Telegram in new tab
-        updatedUser.is_premium = true;
-        updatedUser.admin_premium_plan = planType;
-        setCurrentUserData(updatedUser);
+        // For paid plans, show pending message and open Telegram
+        setError('Tarifingiz tasdiqlanishini kutmoqdasiz. Head admin tasdiqlagandan keyin sizga habar beriladi.');
         window.open('https://t.me/jonizz_devvvv', '_blank');
       }
     } catch (err) {
@@ -96,7 +108,22 @@ const PricingSelection = () => {
           alignItems: 'center',
           gap: 4
         }}>
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Box sx={{ textAlign: 'center', mb: 4, position: 'relative' }}>
+            <IconButton
+              onClick={handleLogout}
+              sx={{
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                color: '#64748b',
+                '&:hover': {
+                  backgroundColor: '#f1f5f9',
+                }
+              }}
+              title="Chiqish"
+            >
+              <LogoutIcon />
+            </IconButton>
             <Typography variant="h3" component="h1" sx={{
               fontWeight: 700,
               mb: 2,
@@ -117,9 +144,34 @@ const PricingSelection = () => {
           </Box>
 
           {error && (
-            <Alert severity={error.includes('muvaffaqiyatli') ? 'success' : 'error'} sx={{ width: '100%', maxWidth: 600 }}>
+            <Alert severity={error.includes('muvaffaqiyatli') || error.includes('tasdiqlanishini') ? 'info' : 'error'} sx={{ width: '100%', maxWidth: 600 }}>
               {error}
             </Alert>
+          )}
+
+          {currentUser?.admin_premium_pending && (
+            <Alert severity="warning" sx={{ width: '100%', maxWidth: 600 }}>
+              Sizning {currentUser.admin_premium_plan} tarifingiz tasdiqlanishini kutmoqdasiz. Head admin tasdiqlagandan keyin sizga habar beriladi.
+            </Alert>
+          )}
+
+          {currentUser?.admin_premium_pending && (
+            <Box sx={{ width: '100%', maxWidth: 600, textAlign: 'center', mt: 4 }}>
+              <Button
+                variant="outlined"
+                onClick={() => navigate('/')}
+                sx={{
+                  borderColor: '#64748b',
+                  color: '#64748b',
+                  '&:hover': {
+                    backgroundColor: '#f1f5f9',
+                    borderColor: '#64748b'
+                  }
+                }}
+              >
+                Bosh sahifaga o'tish
+              </Button>
+            </Box>
           )}
 
           <Box sx={{

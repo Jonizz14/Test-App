@@ -117,8 +117,8 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 const AdminRoute = ({ children }) => {
   const { currentUser } = useAuth();
 
-  // If admin hasn't selected a plan yet, redirect to pricing
-  if (currentUser && currentUser.role === 'admin' && !currentUser.is_premium && !currentUser.admin_premium_plan) {
+  // If admin hasn't selected a plan yet or plan is pending approval, redirect to pricing
+  if (currentUser && currentUser.role === 'admin' && (!currentUser.admin_premium_approved)) {
     return <Navigate to="/pricing" replace />;
   }
 

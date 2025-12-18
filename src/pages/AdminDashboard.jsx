@@ -187,6 +187,63 @@ const AdminDashboard = () => {
     </Box>
   );
 
+  // If admin has pending plan approval, show processing message
+  if (currentUser?.admin_premium_pending) {
+    return (
+      <Box sx={{
+        minHeight: '100vh',
+        backgroundColor: 'background.default',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        py: 6,
+        px: 3
+      }}>
+        <Container maxWidth="md">
+          <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 4,
+            textAlign: 'center'
+          }}>
+            <Typography variant="h4" component="h1" sx={{
+              fontWeight: 700,
+              color: '#1e293b'
+            }}>
+              Sizning so'rovingiz bajarilmoqda
+            </Typography>
+            <Typography variant="h6" sx={{
+              color: '#64748b',
+              mb: 2
+            }}>
+              {currentUser.admin_premium_plan} tarifi uchun so'rovingiz head admin tomonidan ko'rib chiqilmoqda.
+            </Typography>
+            <Typography variant="body1" sx={{ color: '#64748b' }}>
+              Tasdiqlanishini kutib turing. Bu bir necha daqiqa davom etishi mumkin.
+            </Typography>
+            <Button
+              variant="outlined"
+              onClick={handleLogout}
+              startIcon={<LogoutIcon />}
+              sx={{
+                mt: 3,
+                borderColor: '#64748b',
+                color: '#64748b',
+                '&:hover': {
+                  backgroundColor: '#f1f5f9',
+                  borderColor: '#64748b'
+                }
+              }}
+            >
+              Chiqish
+            </Button>
+          </Box>
+        </Container>
+      </Box>
+    );
+  }
+
   return (
     <Box className="app-container" sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       {/* App Bar */}

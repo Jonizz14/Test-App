@@ -1,3 +1,4 @@
+import time
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -6,8 +7,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.db import models
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, Gift, StudentGift
-from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, PricingSerializer, StarPackageSerializer, GiftSerializer, StudentGiftSerializer
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage
+from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, PricingSerializer, StarPackageSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -94,8 +95,12 @@ class UserViewSet(viewsets.ModelViewSet):
             user = serializer.save()
             print(f"User created: {user.username}, display_id: {user.display_id}, password: {data['password']}")  # Debug logging
 
-            # Set password to display_id for easy login
-            user.set_password(user.display_id)
+            # For admin users, if password was provided in request, use it; otherwise use display_id
+            if user.role == 'admin' and 'password' in data and data['password'] and data['password'] != 'temp_password':
+                user.set_password(data['password'])
+            else:
+                # Set password to display_id for easy login
+                user.set_password(user.display_id)
             user.save()
 
             # Set created_by_admin if the creator is an admin
@@ -104,9 +109,12 @@ class UserViewSet(viewsets.ModelViewSet):
                 user.save()
                 print(f"Set created_by_admin to: {user.created_by_admin}")  # Debug logging
 
-            # Return user data with display_id as password for frontend
+            # Return user data with appropriate password for frontend
             user_data = UserSerializer(user).data
-            user_data['generated_password'] = user.display_id
+            if user.role == 'admin' and 'password' in data and data['password'] and data['password'] != 'temp_password':
+                user_data['generated_password'] = data['password']
+            else:
+                user_data['generated_password'] = user.display_id
             return Response(user_data, status=status.HTTP_201_CREATED)
         print(f"Serializer errors: {serializer.errors}")  # Debug logging
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -155,18 +163,15 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=data)
         if serializer.is_valid():
             user = serializer.save()
+            # Use the provided password for admin registration
             user.set_password(data['password'])
-
-            # For admin registration, set password to display_id for easy login
-            if data.get('role') == 'admin':
-                user.set_password(user.display_id)
 
             user.save()
 
             # For admin registration, don't return tokens - they need to choose a plan first
             if data.get('role') == 'admin':
                 user_data = UserSerializer(user).data
-                user_data['generated_password'] = user.display_id
+                user_data['generated_password'] = data['password']  # Use provided password
                 return Response({
                     'user': user_data,
                     'message': 'Admin ro\'yxatdan o\'tdi. Tarifni tanlash kerak.'
@@ -194,23 +199,28 @@ class UserViewSet(viewsets.ModelViewSet):
         user = request.user
 
         if plan_type == 'free':
-            # Free plan - no premium features
+            # Free plan - no premium features, immediately approved
             user.is_premium = False
             user.admin_premium_plan = 'free'
+            user.admin_premium_pending = False
+            user.admin_premium_approved = True
             user.admin_premium_granted_date = timezone.now()
             user.admin_premium_cost = 0
             user.save()
         elif plan_type in ['basic', 'premium']:
-            # For now, just set the plan type (payment logic would go here)
+            # Paid plans - set as pending approval
             user.admin_premium_plan = plan_type
-            user.admin_premium_granted_date = timezone.now()
-            # Set basic premium for paid plans
-            user.is_premium = True
+            user.admin_premium_pending = True
+            user.admin_premium_approved = False
+            user.is_premium = False  # Not premium until approved
             if plan_type == 'basic':
                 user.admin_premium_cost = 9.99
             elif plan_type == 'premium':
                 user.admin_premium_cost = 19.99
             user.save()
+
+            # Send notification to head admin
+            self._send_admin_plan_notification(user, plan_type)
         else:
             return Response({'error': 'Invalid plan type'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -218,6 +228,67 @@ class UserViewSet(viewsets.ModelViewSet):
             'message': f'{plan_type} plan selected successfully',
             'user': UserSerializer(user).data
         })
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def approve_plan(self, request, pk=None):
+        """Head admin approves a pending admin premium plan"""
+        if request.user.role != 'head_admin':
+            return Response({'error': 'Only head admin can approve plans'}, status=status.HTTP_403_FORBIDDEN)
+
+        user = self.get_object()
+        if user.role != 'admin':
+            return Response({'error': 'Can only approve admin plans'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not user.admin_premium_pending:
+            return Response({'error': 'No pending plan to approve'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Approve the plan
+        user.admin_premium_pending = False
+        user.admin_premium_approved = True
+        user.is_premium = True
+        user.admin_premium_granted_date = timezone.now()
+        user.save()
+
+        serializer = UserSerializer(user)
+        return Response({
+            'message': f'{user.admin_premium_plan} plan approved for {user.name}',
+            'user': serializer.data
+        })
+    
+    def _send_admin_plan_notification(self, admin_user, plan_type):
+        """Send notification to head admin when an admin selects a plan"""
+        try:
+            # Get all head admins
+            head_admins = User.objects.filter(role='head_admin')
+            
+            for head_admin in head_admins:
+                # Create notification data
+                notification_data = {
+                    'id': f'admin-plan-{admin_user.id}-{int(time.time())}',
+                    'type': 'admin_plan_selection',
+                    'title': 'Yangi Admin Tarif Tanladi',
+                    'message': f"Admin {admin_user.name} ({admin_user.email}) {plan_type} tarifini tanladi. Tasdiqlash kerak.",
+                    'adminId': admin_user.id,
+                    'adminName': admin_user.name,
+                    'adminEmail': admin_user.email,
+                    'planType': plan_type,
+                    'organization': admin_user.organization or 'Noma\'lum',
+                    'createdAt': timezone.now().isoformat(),
+                    'isRead': False
+                }
+                
+                # In a real application, you would save this to database
+                # For now, we'll log it and could potentially use WebSocket or other real-time notification system
+                print(f"Notification sent to head admin {head_admin.name}: {notification_data['message']}")
+                
+                # TODO: In production, you would:
+                # 1. Save notification to database
+                # 2. Send real-time notification via WebSocket
+                # 3. Send email notification if needed
+                
+        except Exception as e:
+            print(f"Error sending admin plan notification: {e}")
+            # Don't fail the main operation if notification fails
 
 
 
@@ -523,8 +594,16 @@ class TestAttemptViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = TestAttempt.objects.all()
 
+        # Apply admin isolation - regular admins can only see attempts from their students
+        if self.request.user.is_authenticated and self.request.user.role == 'admin':
+            queryset = queryset.filter(
+                models.Q(student__created_by_admin=self.request.user) |
+                models.Q(test__teacher__created_by_admin=self.request.user) |
+                models.Q(test__teacher=self.request.user)  # Can see attempts on their own tests
+            )
+        
         # Apply student isolation - students can only see their own attempts
-        if self.request.user.is_authenticated and self.request.user.role == 'student':
+        elif self.request.user.is_authenticated and self.request.user.role == 'student':
             queryset = queryset.filter(student=self.request.user)
 
         # Apply teacher isolation - teachers can only see attempts from their students
@@ -550,6 +629,33 @@ class FeedbackViewSet(viewsets.ModelViewSet):
     serializer_class = FeedbackSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        queryset = Feedback.objects.all()
+
+        # Apply admin isolation - regular admins can only see feedback from their students
+        if self.request.user.is_authenticated and self.request.user.role == 'admin':
+            queryset = queryset.filter(
+                models.Q(attempt__student__created_by_admin=self.request.user) |
+                models.Q(attempt__test__teacher__created_by_admin=self.request.user) |
+                models.Q(attempt__test__teacher=self.request.user)  # Can see feedback on their own tests
+            )
+        
+        # Apply teacher isolation - teachers can only see feedback from their students
+        elif self.request.user.is_authenticated and self.request.user.role == 'teacher':
+            if self.request.user.created_by_admin:
+                queryset = queryset.filter(
+                    models.Q(attempt__student__created_by_admin=self.request.user.created_by_admin) |
+                    models.Q(attempt__test__teacher=self.request.user)  # Teacher can see feedback on their tests
+                )
+            else:
+                queryset = queryset.filter(attempt__test__teacher=self.request.user)
+        
+        # Students can only see their own feedback
+        elif self.request.user.is_authenticated and self.request.user.role == 'student':
+            queryset = queryset.filter(attempt__student=self.request.user)
+
+        return queryset
+
 class TestSessionViewSet(viewsets.ModelViewSet):
     queryset = TestSession.objects.all()
     serializer_class = TestSessionSerializer
@@ -558,8 +664,16 @@ class TestSessionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = TestSession.objects.all()
 
+        # Apply admin isolation - regular admins can only see sessions from their students
+        if self.request.user.is_authenticated and self.request.user.role == 'admin':
+            queryset = queryset.filter(
+                models.Q(student__created_by_admin=self.request.user) |
+                models.Q(test__teacher__created_by_admin=self.request.user) |
+                models.Q(test__teacher=self.request.user)  # Can see sessions on their own tests
+            )
+        
         # Apply student isolation - students can only see their own sessions
-        if self.request.user.is_authenticated and self.request.user.role == 'student':
+        elif self.request.user.is_authenticated and self.request.user.role == 'student':
             queryset = queryset.filter(student=self.request.user)
 
         # Apply teacher isolation - teachers can only see sessions from their students
@@ -776,159 +890,7 @@ class TestSessionViewSet(viewsets.ModelViewSet):
         except TestSession.DoesNotExist:
             return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
 
-class GiftViewSet(viewsets.ModelViewSet):
-    queryset = Gift.objects.all()
-    serializer_class = GiftSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_permissions(self):
-        """Only allow admin and seller to manage gifts"""
-        if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return [IsAuthenticated()]
-        return [AllowAny()]
-
-    def get_queryset(self):
-        """Only return active gifts for non-admin users"""
-        if self.request.user.role in ['admin', 'seller']:
-            return Gift.objects.all()
-        return Gift.objects.filter(is_active=True)
-
-    def perform_create(self, serializer):
-        if self.request.user.role not in ['admin', 'seller']:
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("Only admin and seller can manage gifts")
-        return serializer.save()
-
-    def perform_update(self, serializer):
-        if self.request.user.role not in ['admin', 'seller']:
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("Only admin and seller can manage gifts")
-        return serializer.save()
-
-    def perform_destroy(self, instance):
-        if self.request.user.role not in ['admin', 'seller']:
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("Only admin and seller can manage gifts")
         instance.delete()
-
-class StudentGiftViewSet(viewsets.ModelViewSet):
-    queryset = StudentGift.objects.all()
-    serializer_class = StudentGiftSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        queryset = StudentGift.objects.all()
-        student = self.request.query_params.get('student', None)
-        if student:
-            queryset = queryset.filter(student_id=student)
-        return queryset
-
-    @action(detail=False, methods=['post'])
-    def purchase_gift(self, request):
-        """Student purchases a gift with stars"""
-        gift_id = request.data.get('gift_id')
-        if not gift_id:
-            return Response({'error': 'gift_id is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            gift = Gift.objects.get(id=gift_id, is_active=True)
-        except Gift.DoesNotExist:
-            return Response({'error': 'Gift not found or inactive'}, status=status.HTTP_404_NOT_FOUND)
-
-        student = request.user
-        if student.role != 'student':
-            return Response({'error': 'Only students can purchase gifts'}, status=status.HTTP_403_FORBIDDEN)
-
-        if student.stars < gift.star_cost:
-            return Response({'error': 'Not enough stars to purchase this gift'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Deduct stars and create purchase record
-        student.stars -= gift.star_cost
-        student.save()
-
-        # Find the first available position (1, 2, or 3)
-        placed_positions = StudentGift.objects.filter(
-            student=student,
-            is_placed=True
-        ).values_list('placement_position', flat=True)
-
-        available_position = None
-        for pos in [1, 2, 3]:
-            if pos not in placed_positions:
-                available_position = pos
-                break
-
-        # Create the gift and place it if there's an available position
-        student_gift = StudentGift.objects.create(
-            student=student,
-            gift=gift,
-            is_placed=available_position is not None,
-            placement_position=available_position
-        )
-
-        serializer = self.get_serializer(student_gift)
-        return Response({
-            'message': 'Gift purchased successfully',
-            'student_gift': serializer.data,
-            'remaining_stars': student.stars
-        })
-
-    @action(detail=True, methods=['post'])
-    def place_gift(self, request, pk=None):
-        """Place or remove a gift on student's profile"""
-        student_gift = self.get_object()
-        if student_gift.student != request.user:
-            return Response({'error': 'You can only manage your own gifts'}, status=status.HTTP_403_FORBIDDEN)
-
-        position = request.data.get('position')  # 1, 2, or 3, or null to remove
-
-        if position is not None:
-            if position not in [1, 2, 3]:
-                return Response({'error': 'Position must be 1, 2, or 3'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Check if position is already taken
-            existing = StudentGift.objects.filter(
-                student=request.user,
-                placement_position=position,
-                is_placed=True
-            ).exclude(id=student_gift.id).first()
-
-            if existing:
-                return Response({'error': f'Position {position} is already occupied'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Update placement
-        student_gift.is_placed = position is not None
-        student_gift.placement_position = position
-        student_gift.save()
-
-        serializer = self.get_serializer(student_gift)
-        message = f'Gift placed at position {position}' if position is not None else 'Gift removed from profile'
-        return Response({
-            'message': message,
-            'student_gift': serializer.data
-        })
-
-    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
-    def my_gifts(self, request):
-        """Get user's gifts"""
-        student_id = request.query_params.get('student')
-        if not student_id:
-            student_id = request.user.id
-        gifts = StudentGift.objects.filter(student_id=student_id)
-        serializer = self.get_serializer(gifts, many=True)
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['get'])
-    def placed_gifts(self, request):
-        """Get gifts placed on current user's profile"""
-        gifts = StudentGift.objects.filter(
-            student=request.user,
-            is_placed=True
-        ).order_by('placement_position')
-        serializer = self.get_serializer(gifts, many=True)
-        return Response(serializer.data)
-
-
 
 class PricingViewSet(viewsets.ModelViewSet):
     queryset = Pricing.objects.all()
@@ -942,7 +904,7 @@ class PricingViewSet(viewsets.ModelViewSet):
         return [AllowAny()]
 
     def get_queryset(self):
-        """Only return active pricing for non-admin users"""
+        """Only return active pricing plans for non-admin users"""
         if self.request.user.role in ['admin', 'seller']:
             return Pricing.objects.all()
         return Pricing.objects.filter(is_active=True)
@@ -951,13 +913,13 @@ class PricingViewSet(viewsets.ModelViewSet):
         if self.request.user.role not in ['admin', 'seller']:
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied("Only admin and seller can manage pricing")
-        serializer.save()
+        return serializer.save()
 
     def perform_update(self, serializer):
         if self.request.user.role not in ['admin', 'seller']:
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied("Only admin and seller can manage pricing")
-        serializer.save()
+        return serializer.save()
 
     def perform_destroy(self, instance):
         if self.request.user.role not in ['admin', 'seller']:

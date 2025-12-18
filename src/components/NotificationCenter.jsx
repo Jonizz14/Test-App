@@ -16,6 +16,7 @@ import {
   School as SchoolIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
+import { getNotificationsForUser, markNotificationAsRead } from '../utils/notificationService';
 
 const NotificationCenter = () => {
   const { currentUser } = useAuth();
@@ -26,8 +27,7 @@ const NotificationCenter = () => {
 
   useEffect(() => {
     if (currentUser) {
-      const allNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
-      const userNotifications = allNotifications.filter(n => n.studentId === currentUser.id);
+      const userNotifications = getNotificationsForUser(currentUser);
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setNotifications(userNotifications);
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -44,14 +44,10 @@ const NotificationCenter = () => {
   };
 
   const markAsRead = (notificationId) => {
-    const allNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
-    const updatedNotifications = allNotifications.map(n =>
-      n.id === notificationId ? { ...n, isRead: true } : n
-    );
-    localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
+    markNotificationAsRead(notificationId);
     // Reload notifications
     if (currentUser) {
-      const userNotifications = updatedNotifications.filter(n => n.studentId === currentUser.id);
+      const userNotifications = getNotificationsForUser(currentUser);
       setNotifications(userNotifications);
       setUnreadCount(userNotifications.filter(n => !n.isRead).length);
     }
@@ -63,6 +59,9 @@ const NotificationCenter = () => {
     // Navigate based on notification type
     if (notification.type === 'lesson_reminder') {
       navigate('/student/lessons');
+    } else if (notification.type === 'admin_registration' || notification.type === 'admin_plan_selection') {
+      // Navigate to head admin manage admins page
+      navigate('/headadmin/admins');
     }
   };
 
@@ -110,13 +109,22 @@ const NotificationCenter = () => {
                 <Box sx={{ width: '100%', wordWrap: 'break-word' }}>
                   <Box display="flex" alignItems="center" justifyContent="space-between" mb={0.5}>
                     <Box display="flex" alignItems="center" sx={{ minWidth: 0, flex: 1 }}>
-                      <SchoolIcon sx={{ mr: 1, color: 'primary.main', fontSize: '1.2rem' }} />
+                      {notification.type === 'admin_registration' || notification.type === 'admin_plan_selection' ? (
+                        <SchoolIcon sx={{ mr: 1, color: 'warning.main', fontSize: '1.2rem' }} />
+                      ) : (
+                        <SchoolIcon sx={{ mr: 1, color: 'primary.main', fontSize: '1.2rem' }} />
+                      )}
                       <Typography variant="subtitle2" fontWeight="bold" sx={{ fontSize: '0.9rem', lineHeight: 1.2 }}>
                         {notification.title}
                       </Typography>
                     </Box>
                     {!notification.isRead && (
-                      <Chip label="Yangi" size="small" color="primary" sx={{ ml: 1, fontSize: '0.7rem', height: '20px' }} />
+                      <Chip 
+                        label="Yangi" 
+                        size="small" 
+                        color={notification.type === 'admin_registration' || notification.type === 'admin_plan_selection' ? 'warning' : 'primary'} 
+                        sx={{ ml: 1, fontSize: '0.7rem', height: '20px' }} 
+                      />
                     )}
                   </Box>
 
@@ -125,7 +133,10 @@ const NotificationCenter = () => {
                   </Typography>
 
                   <Typography variant="caption" color="textSecondary" sx={{ fontSize: '0.75rem' }}>
-                    {new Date(notification.createdAt).toLocaleDateString('uz-UZ')} • {notification.teacherName}
+                    {new Date(notification.createdAt).toLocaleDateString('uz-UZ')} • 
+                    {notification.type === 'admin_registration' || notification.type === 'admin_plan_selection' 
+                      ? notification.adminName 
+                      : notification.teacherName}
                   </Typography>
                 </Box>
               </MenuItem>

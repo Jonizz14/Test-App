@@ -407,6 +407,10 @@ class ApiService {
     return this.post('/users/select_plan/', { plan_type: planType });
   }
 
+  async approvePlan(userId) {
+    return this.post(`/users/${userId}/approve_plan/`);
+  }
+
 }
 
 const apiService = new ApiService();

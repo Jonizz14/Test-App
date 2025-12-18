@@ -27,6 +27,8 @@ class User(AbstractUser):
 
     # For admins (premium subscription)
     admin_premium_plan = models.CharField(max_length=10, blank=True, help_text="Admin premium plan type (week/month/year)")
+    admin_premium_pending = models.BooleanField(default=False, help_text="Whether admin premium is pending approval")
+    admin_premium_approved = models.BooleanField(default=False, help_text="Whether admin premium has been approved")
     admin_premium_granted_date = models.DateTimeField(null=True, blank=True, help_text="When admin premium was granted")
     admin_premium_expiry_date = models.DateTimeField(null=True, blank=True, help_text="When admin premium expires")
     admin_premium_cost = models.DecimalField(max_digits=6, decimal_places=2, default=0, help_text="Cost of admin premium subscription in USD")
@@ -60,7 +62,6 @@ class User(AbstractUser):
     premium_emoji_count = models.IntegerField(default=0, help_text="Number of premium emojis available")
     background_gradient = models.JSONField(default=dict, blank=True, help_text="Background gradient settings for premium profile")
     selected_emojis = models.JSONField(default=list, blank=True, help_text="List of selected premium emojis")
-    display_gift = models.ForeignKey('StudentGift', on_delete=models.SET_NULL, null=True, blank=True, related_name='displayed_by', help_text="Gift selected for display next to name")
     hide_premium_from_others = models.BooleanField(default=False, help_text="Hide premium status from other users")
     hide_premium_from_self = models.BooleanField(default=False, help_text="Hide premium status from self")
 
@@ -399,42 +400,3 @@ class StarPackage(models.Model):
 
     class Meta:
         ordering = ['stars']
-
-class Gift(models.Model):
-    """Model to manage gift items that students can purchase with stars"""
-    RARITY_CHOICES = [
-        ('common', 'Oddiy'),
-        ('rare', 'Nodirkor'),
-        ('epic', 'Epik'),
-        ('legendary', 'Afsonaviy'),
-    ]
-    name = models.CharField(max_length=100, help_text="Name of the gift")
-    description = models.TextField(blank=True, help_text="Description of the gift")
-    image = models.ImageField(upload_to='gifts/', help_text="Gift image (should be 300x300px)")
-    star_cost = models.IntegerField(help_text="Number of stars required to purchase this gift")
-    rarity = models.CharField(max_length=20, choices=RARITY_CHOICES, default='common', help_text="Rarity level of the gift")
-    gift_count = models.IntegerField(default=0, help_text="Total available quantity of this gift (0 = unlimited)")
-    is_active = models.BooleanField(default=True, help_text="Whether this gift is available for purchase")
-    created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.name} - {self.star_cost} stars"
-
-    class Meta:
-        ordering = ['star_cost']
-
-class StudentGift(models.Model):
-    """Model to track gifts purchased by students"""
-    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='purchased_gifts')
-    gift = models.ForeignKey(Gift, on_delete=models.CASCADE, related_name='purchases')
-    purchased_at = models.DateTimeField(default=timezone.now)
-    is_placed = models.BooleanField(default=False, help_text="Whether this gift is placed on the student's profile")
-    placement_position = models.IntegerField(null=True, blank=True, help_text="Position on profile (1-3)")
-
-    def __str__(self):
-        return f"{self.student.name} - {self.gift.name}"
-
-    class Meta:
-        ordering = ['-purchased_at']
-        unique_together = ['student', 'placement_position']  # Only one gift per position
