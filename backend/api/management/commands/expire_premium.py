@@ -26,8 +26,7 @@ class Command(BaseCommand):
             user.selected_emojis = []
             user.background_gradient = {}  
             user.profile_photo = None 
-            user.profile_status = ''   
-            user.display_gift = None 
+            user.profile_status = '' 
 
             user.save()
             count += 1
