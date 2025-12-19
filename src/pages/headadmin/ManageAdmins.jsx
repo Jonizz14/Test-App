@@ -19,10 +19,6 @@ import {
   Alert,
   IconButton,
   InputAdornment,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -31,8 +27,7 @@ import {
   Search as SearchIcon,
   Info as InfoIcon,
   AdminPanelSettings as AdminIcon,
-  Payment as PaymentIcon,
-  CheckCircle as CheckCircleIcon,
+
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import apiService from "../../data/apiService";
@@ -42,9 +37,7 @@ const ManageAdmins = () => {
   const [admins, setAdmins] = useState([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [adminToDelete, setAdminToDelete] = useState(null);
-  const [planDialogOpen, setPlanDialogOpen] = useState(false);
-  const [adminToChangePlan, setAdminToChangePlan] = useState(null);
-  const [selectedPlan, setSelectedPlan] = useState("");
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -87,53 +80,7 @@ const ManageAdmins = () => {
     navigate(`/headadmin/edit-admin/${admin.id}`);
   };
 
-  const handleChangePlanClick = (admin) => {
-    setAdminToChangePlan(admin);
-    setSelectedPlan(admin.admin_premium_plan || 'free');
-    setPlanDialogOpen(true);
-  };
 
-  const handleChangePlan = async () => {
-    try {
-      // Call API to change plan
-      await apiService.updateUser(adminToChangePlan.id, {
-        admin_premium_plan: selectedPlan,
-        is_premium: selectedPlan !== 'free'
-      });
-
-      // Update local state
-      setAdmins(admins.map(admin =>
-        admin.id === adminToChangePlan.id
-          ? { ...admin, admin_premium_plan: selectedPlan, is_premium: selectedPlan !== 'free' }
-          : admin
-      ));
-
-      setSuccess("Admin tarifi muvaffaqiyatli o'zgartirildi!");
-      setPlanDialogOpen(false);
-      setAdminToChangePlan(null);
-    } catch (error) {
-      console.error("Failed to change plan:", error);
-      setError("Tarifni o'zgartirishda xatolik yuz berdi");
-    }
-  };
-
-  const handleApprovePlan = async (admin) => {
-    try {
-      await apiService.approvePlan(admin.id);
-
-      // Update local state
-      setAdmins(admins.map(a =>
-        a.id === admin.id
-          ? { ...a, admin_premium_pending: false, admin_premium_approved: true, is_premium: true }
-          : a
-      ));
-
-      setSuccess(`${admin.name} uchun ${admin.admin_premium_plan} tarifi tasdiqlandi!`);
-    } catch (error) {
-      console.error("Failed to approve plan:", error);
-      setError("Tarifni tasdiqlashda xatolik yuz berdi");
-    }
-  };
 
   // Filter admins based on search term
   const filteredAdmins = admins.filter((admin) => {
@@ -288,7 +235,6 @@ const ManageAdmins = () => {
               <TableCell>Email</TableCell>
               <TableCell>Tashkilot</TableCell>
               <TableCell>Status</TableCell>
-              <TableCell>Tarif</TableCell>
               <TableCell>Ro'yxatdan o'tgan</TableCell>
               <TableCell>Harakatlar</TableCell>
             </TableRow>
@@ -338,33 +284,9 @@ const ManageAdmins = () => {
                   </Typography>
                 </TableCell>
                 <TableCell>
-                  {admin.admin_premium_pending ? (
-                    <Chip
-                      label="Tasdiqlanish kutilmoqda"
-                      color="warning"
-                      size="small"
-                    />
-                  ) : admin.admin_premium_approved ? (
-                    <Chip
-                      label="Tasdiqlangan"
-                      color="success"
-                      size="small"
-                    />
-                  ) : (
-                    <Chip
-                      label="Faol emas"
-                      color="default"
-                      size="small"
-                    />
-                  )}
-                </TableCell>
-                <TableCell>
                   <Chip
-                    label={admin.admin_premium_plan === 'free' ? 'Bepul' :
-                           admin.admin_premium_plan === 'basic' ? 'Asosiy' :
-                           admin.admin_premium_plan === 'premium' ? 'Premium' : 'Noma\'lum'}
-                    color={admin.admin_premium_plan === 'free' ? 'default' :
-                           admin.admin_premium_plan === 'basic' ? 'primary' : 'secondary'}
+                    label="Faol"
+                    color="success"
                     size="small"
                   />
                 </TableCell>
@@ -396,38 +318,7 @@ const ManageAdmins = () => {
                     >
                       Batafsil
                     </Button>
-                    {admin.admin_premium_pending && (
-                      <Button
-                        size="small"
-                        variant="contained"
-                        onClick={() => handleApprovePlan(admin)}
-                        startIcon={<CheckCircleIcon />}
-                        sx={{
-                          fontSize: "0.75rem",
-                          padding: "4px 8px",
-                          minWidth: "auto",
-                          backgroundColor: "#10b981",
-                          "&:hover": {
-                            backgroundColor: "#059669",
-                          },
-                        }}
-                      >
-                        Tasdiqlash
-                      </Button>
-                    )}
-                    <IconButton
-                      size="small"
-                      onClick={() => handleChangePlanClick(admin)}
-                      sx={{
-                        color: "#7c3aed",
-                        "&:hover": {
-                          backgroundColor: "#faf5ff",
-                        },
-                      }}
-                      title="Tarifni o'zgartirish"
-                    >
-                      <PaymentIcon />
-                    </IconButton>
+
                     <IconButton
                       size="small"
                       onClick={() => handleEditClick(admin)}
@@ -504,49 +395,7 @@ const ManageAdmins = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Change Plan Dialog */}
-      <Dialog
-        open={planDialogOpen}
-        onClose={() => setPlanDialogOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>
-          Admin tarifini o'zgartirish
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body1" sx={{ mb: 3 }}>
-            {adminToChangePlan?.name} uchun yangi tarifni tanlang:
-          </Typography>
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Tarif</InputLabel>
-            <Select
-              value={selectedPlan}
-              onChange={(e) => setSelectedPlan(e.target.value)}
-              label="Tarif"
-            >
-              <MenuItem value="free">Bepul - $0/oy</MenuItem>
-              <MenuItem value="basic">Asosiy - $9.99/oy</MenuItem>
-              <MenuItem value="premium">Premium - $19.99/oy</MenuItem>
-            </Select>
-          </FormControl>
-          <Alert severity="info" sx={{ mb: 2 }}>
-            <strong>E'tibor:</strong> Tarif o'zgarishi darhol amalga oshadi.
-          </Alert>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setPlanDialogOpen(false)}>
-            Bekor qilish
-          </Button>
-          <Button
-            onClick={handleChangePlan}
-            variant="contained"
-            color="primary"
-          >
-            O'zgartirish
-          </Button>
-        </DialogActions>
-      </Dialog>
+
     </Box>
   );
 };

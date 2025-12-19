@@ -1,5 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Noto+Sans:wght@400;500;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Noto+Sans:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
 
 * {
   box-sizing: border-box;
@@ -8,7 +8,8 @@
 }
 
 body {
-  font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: "Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
   line-height: 1.6;
   color: #1f2937;
   background-color: #f8fafc;
@@ -17,7 +18,7 @@ body {
 }
 
 .material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
+  font-family: "Material Symbols Outlined";
   font-weight: normal;
   font-style: normal;
   font-size: 24px;
@@ -136,7 +137,8 @@ body {
   padding-left: 1.5rem;
 }
 
-.btn-secondary, .btn-primary {
+.btn-secondary,
+.btn-primary {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -671,7 +673,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center; 
+  object-position: center;
 }
 
 .role-image-placeholder {
@@ -770,109 +772,98 @@ body {
   max-width: 1200px;
 }
 
-.features-layout {
+.features-header {
   display: flex;
   flex-direction: column;
-  gap: 3rem 5rem;
-}
-
-@media (min-width: 1024px) {
-  .features-layout {
-    flex-direction: row;
-    align-items: flex-start;
-  }
-}
-
-.features-text {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  flex: 1;
-}
-
-@media (min-width: 1024px) {
-  .features-text {
-    top: 6rem;
-    width: 33.333333%;
-    height: fit-content;
-  }
-}
-
-.features-title {
-  font-size: 2.25rem;
-  font-weight: 700;
-  line-height: 1.2;
-  color: #1f2937;
-}
-
-@media (max-width: 768px) {
-  .features-title {
-    font-size: 1.875rem;
-  }
-}
-
-.features-highlight {
-  color: #135bec;
-}
-
-.features-description {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #6b7280;
-}
-
-.features-btn {
-  display: flex;
   align-items: center;
-  justify-content: center;
-  height: 40px;
-  padding: 0 1rem;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  background: white;
-  color: #1f2937;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  width: fit-content;
+  text-align: center;
+  gap: 1rem;
+  margin-bottom: 4rem;
 }
 
-.features-btn:hover {
-  background: #f9fafb;
+.features-alternating {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
 }
 
-.features-grid {
+.feature-row {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-  flex: 1;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+  padding: 2rem 0;
 }
 
 @media (max-width: 768px) {
-  .features-grid {
+  .feature-row {
     grid-template-columns: 1fr;
+    gap: 2rem;
+    text-align: center;
   }
 }
 
-@media (min-width: 1024px) {
-  .features-grid {
-    width: 66.666667%;
+.feature-row-left .feature-text {
+  order: 1;
+}
+
+.feature-row-left .feature-image {
+  order: 2;
+}
+
+.feature-row-right .feature-text {
+  order: 2;
+}
+
+.feature-row-right .feature-image {
+  order: 1;
+}
+
+@media (max-width: 768px) {
+  .feature-row-left .feature-text,
+  .feature-row-right .feature-text {
+    order: 1;
+  }
+
+  .feature-row-left .feature-image,
+  .feature-row-right .feature-image {
+    order: 2;
   }
 }
 
-.feature-item {
+.feature-text {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  border-radius: 1rem;
-  border: 1px solid #f3f4f6;
-  background: #f8fafc;
-  padding: 1.5rem;
-  transition: box-shadow 0.2s ease;
+  gap: 1.5rem;
+  max-width: 500px;
 }
 
-.feature-item:hover {
+.feature-image {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.feature-image img {
+  max-width: 100%;
+  max-height: 300px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 1rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.feature-image img:hover {
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .feature-image img {
+    max-height: 250px;
+  }
 }
 
 .feature-icon {
@@ -1180,7 +1171,8 @@ body {
 }
 
 .dark\:hover\:shadow-lg:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .dark\:bg-background-dark {
@@ -1338,15 +1330,6 @@ body {
     text-align: center;
   }
 
-  .features-layout {
-    flex-direction: column;
-    gap: 2rem;
-  }
-
-  .features-text {
-    position: static;
-  }
-
   .footer-main {
     grid-template-columns: 1fr;
   }
@@ -1389,8 +1372,16 @@ body {
     font-size: 1.875rem;
   }
 
-  .features-grid {
-    grid-template-columns: 1fr;
+  .features-alternating {
+    gap: 3rem;
+  }
+
+  .feature-row {
+    padding: 1.5rem 0;
+  }
+
+  .feature-text {
+    max-width: 100%;
   }
 
   .roles-grid {
@@ -1426,11 +1417,172 @@ body {
     width: 100%;
   }
 
-  .features-grid {
-    grid-template-columns: 1fr;
+  .feature-image img {
+    max-height: 200px;
   }
 
   .roles-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Asosiy konteyner */
+.features-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 4rem 0;
+  width: 100%;
+}
+
+/* O'rtadagi chiziq */
+.timeline-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 4px; /* Chiziqni biroz qalinlashtirdik */
+  background: linear-gradient(to bottom, #135bec, #9333ea);
+  transform: translateX(-50%);
+  z-index: 1;
+  border-radius: 2px;
+}
+
+/* Har bir qator (Item) */
+.timeline-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 4rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* Chap va O'ng bloklar uchun umumiy stil */
+.timeline-block {
+  width: 45%; /* Ekranning 45% ini egallaydi */
+  display: flex;
+  flex-direction: column;
+}
+
+.left-block {
+  align-items: flex-end; /* Chapdagilar o'ngga yopishadi (chiziqqa yaqin) */
+  text-align: right;
+  padding-right: 2rem;
+}
+
+.right-block {
+  align-items: flex-start; /* O'ngdagilar chapga yopishadi (chiziqqa yaqin) */
+  text-align: left;
+  padding-left: 2rem;
+}
+
+/* O'rtadagi nuqta */
+.timeline-point {
+  position: absolute;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  background: #135bec;
+  border: 4px solid white;
+  border-radius: 50%;
+  transform: translate(-50%, 0);
+  z-index: 3;
+  box-shadow: 0 0 0 3px rgba(19, 91, 236, 0.2);
+}
+
+/* Matnli karta (oq fonli) */
+.feature-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  border: 1px solid #f3f4f6;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  width: 100%;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Matn ichidagi icon */
+.feature-icon {
+  display: inline-flex;
+  padding: 10px;
+  background: #eff6ff;
+  color: #135bec;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+/* Rasm o'rovi */
+.feature-image-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.feature-image-wrapper img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  /* Rasmni chiroyli ko'rsatish uchun */
+  object-fit: cover;
+  max-height: 300px;
+}
+
+/* --- RESPONSIVE (Mobil qurilmalar) --- */
+@media (max-width: 768px) {
+  .features-timeline {
+    padding: 2rem 0;
+  }
+
+  /* Chiziqni chapga o'tkazamiz */
+  .timeline-line {
+    left: 30px;
+  }
+
+  /* Bloklarni vertikal joylashtiramiz */
+  .timeline-item {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 3rem;
+  }
+
+  /* Chap va O'ng bloklarni kengligini 100% qilamiz va siljitamiz */
+  .timeline-block {
+    width: 100%;
+    padding-left: 60px !important; /* Chiziqdan keyin joy tashlash */
+    padding-right: 0 !important;
+    text-align: left !important; /* Matnni chapga tekislash */
+    align-items: flex-start !important;
+  }
+
+  /* Nuqtani chapga o'tkazamiz */
+  .timeline-point {
+    left: 30px;
+    top: 2rem; /* Nuqta matn boshida turishi uchun */
+  }
+
+  /* Rasmlar mobil versiyada matndan keyin chiqishi uchun order o'zgartirish */
+  .left-block {
+    order: 2; /* Rasm pastga tushadi */
+    margin-top: 1.5rem;
+  }
+
+  .right-block {
+    order: 1; /* Matn tepaga chiqadi (agar o'ngda bo'lsa) */
+  }
+
+  /* Agar rasm chapda bo'lgan variant bo'lsa (2-qator kabi), uni to'g'irlash */
+  /* Bu oddiy yechim: Mobil versiyada shunchaki barchasini vertikal qilib, rasm va matnni ketma-ket qo'yamiz */
+
+  .feature-image-wrapper img {
+    max-height: 200px;
+    width: 100%;
   }
 }

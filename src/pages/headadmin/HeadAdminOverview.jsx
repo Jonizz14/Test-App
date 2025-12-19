@@ -32,7 +32,6 @@ import {
   Security as SecurityIcon,
 } from '@mui/icons-material';
 import apiService from '../../data/apiService';
-import NotificationTest from '../../components/NotificationTest';
 
 const HeadAdminOverview = () => {
   const [stats, setStats] = useState({
@@ -266,8 +265,7 @@ const HeadAdminOverview = () => {
         </Typography>
       </Box>
 
-      {/* Notification Test Component - Remove in production */}
-      <NotificationTest />
+
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>

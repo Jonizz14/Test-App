@@ -25,7 +25,6 @@ const Header = () => {
               </div>
               <div className="nav-buttons">
                 <button className="btn-secondary" onClick={() => navigate('/login')}>Kirish</button>
-                <button className="btn-primary" onClick={() => navigate('/login')}>Ro'yxatdan o'tish</button>
               </div>
             </nav>
             

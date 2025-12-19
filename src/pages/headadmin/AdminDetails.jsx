@@ -37,20 +37,14 @@ const AdminDetails = () => {
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [pricingDialogOpen, setPricingDialogOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState('');
-  const [pricingPlans, setPricingPlans] = useState([]);
+
 
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const [adminData, pricingData] = await Promise.all([
-          apiService.getUser(id),
-          apiService.getPricing()
-        ]);
+        const adminData = await apiService.getUser(id);
         setAdmin(adminData);
-        setPricingPlans(pricingData.results || pricingData);
       } catch (error) {
         console.error('Failed to load data:', error);
         setError('Ma\'lumotlarni yuklashda xatolik yuz berdi');
@@ -64,50 +58,7 @@ const AdminDetails = () => {
     }
   }, [id]);
 
-  const handleAssignPricing = async () => {
-    if (!selectedPlan) return;
 
-    try {
-      const plan = pricingPlans.find(p => p.plan_type === selectedPlan);
-      if (!plan) return;
-
-      const now = new Date();
-      let expiryDate;
-
-      if (selectedPlan === 'week') {
-        expiryDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-      } else if (selectedPlan === 'month') {
-        expiryDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-      } else if (selectedPlan === 'year') {
-        expiryDate = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
-      }
-
-      await apiService.updateUser(id, {
-        admin_premium_plan: selectedPlan,
-        admin_premium_granted_date: now.toISOString(),
-        admin_premium_expiry_date: expiryDate.toISOString(),
-        admin_premium_cost: plan.discounted_price
-      });
-
-      // Reload admin data
-      const updatedAdmin = await apiService.getUser(id);
-      setAdmin(updatedAdmin);
-      setPricingDialogOpen(false);
-      setSelectedPlan('');
-    } catch (error) {
-      console.error('Failed to assign pricing:', error);
-      setError('Tarif biriktirishda xatolik yuz berdi');
-    }
-  };
-
-  const getPlanDisplayName = (planType) => {
-    switch (planType) {
-      case 'week': return '1 Hafta';
-      case 'month': return '1 Oy';
-      case 'year': return '1 Yil';
-      default: return planType;
-    }
-  };
 
   if (loading) {
     return (
@@ -335,96 +286,14 @@ const AdminDetails = () => {
                 </Box>
               </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <PaymentIcon sx={{ color: '#64748b', mr: 2.5, fontSize: '1.5rem' }} />
-                  <Box>
-                    <Typography sx={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500, mb: 0.5 }}>
-                      Premium Tarif
-                    </Typography>
-                    <Typography sx={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>
-                      {admin.admin_premium_plan ? getPlanDisplayName(admin.admin_premium_plan) : 'Yo\'q'}
-                    </Typography>
-                    {admin.admin_premium_expiry_date && (
-                      <Typography sx={{ fontSize: '0.8rem', color: '#64748b' }}>
-                        Tugaydi: {new Date(admin.admin_premium_expiry_date).toLocaleDateString('uz-UZ')}
-                      </Typography>
-                    )}
-                  </Box>
-                </Box>
-              </Grid>
+
             </Grid>
 
           </CardContent>
         </Card>
       </Box>
 
-      {/* Pricing Assignment Dialog */}
-      <Dialog
-        open={pricingDialogOpen}
-        onClose={() => setPricingDialogOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle sx={{ color: '#059669', fontWeight: 700 }}>
-          Admin uchun tarif biriktirish
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body1" sx={{ mb: 3 }}>
-            {admin?.name} uchun premium tarif tanlang:
-          </Typography>
 
-          <FormControl fullWidth sx={{ mb: 3 }}>
-            <InputLabel>Tarif turi</InputLabel>
-            <Select
-              value={selectedPlan}
-              label="Tarif turi"
-              onChange={(e) => setSelectedPlan(e.target.value)}
-            >
-              {pricingPlans.map((plan) => (
-                <MenuItem key={plan.plan_type} value={plan.plan_type}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                    <span>{getPlanDisplayName(plan.plan_type)}</span>
-                    <span style={{ color: '#059669', fontWeight: 600 }}>
-                      ${plan.discounted_price}
-                    </span>
-                  </Box>
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          {selectedPlan && (
-            <Alert severity="info" sx={{ mb: 2 }}>
-              <strong>Tanlangan tarif:</strong> {getPlanDisplayName(selectedPlan)}
-              <br />
-              <strong>Narx:</strong> ${pricingPlans.find(p => p.plan_type === selectedPlan)?.discounted_price}
-            </Alert>
-          )}
-
-          <Alert severity="warning">
-            Bu amal admin uchun premium imkoniyatlarini faollashtiradi.
-          </Alert>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setPricingDialogOpen(false)}>
-            Bekor qilish
-          </Button>
-          <Button
-            onClick={handleAssignPricing}
-            variant="contained"
-            disabled={!selectedPlan}
-            sx={{
-              backgroundColor: '#059669',
-              '&:hover': {
-                backgroundColor: '#047857'
-              }
-            }}
-          >
-            Tarif biriktirish
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };

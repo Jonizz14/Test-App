@@ -51,9 +51,13 @@ class ApiService {
             if (refreshResponse.ok) {
               const data = await refreshResponse.json();
               this.setToken(data.access);
-              // Retry the original request
+              // Update config headers for retry
               config.headers['Authorization'] = `Bearer ${data.access}`;
-              return fetch(url, config);
+              // Retry the original request
+              const retryResponse = await fetch(url, config);
+              if (retryResponse.ok) {
+                return retryResponse;
+              }
             }
           } catch (error) {
             console.error('Token refresh failed:', error);
@@ -61,7 +65,7 @@ class ApiService {
         }
         // If refresh fails, logout
         this.logout();
-        throw new Error('Authentication failed');
+        throw new Error('Authentication failed - please login again');
       }
 
       if (!response.ok) {
