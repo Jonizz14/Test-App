@@ -1,6 +1,9 @@
 import React from 'react';
-import { Button, Box, Typography } from '@mui/material';
+import { Card, Button, Typography, Space } from 'antd';
 import { createAdminNotification, createAdminRegistrationNotification } from '../utils/notificationService';
+import { showSuccess } from '../utils/antdNotification';
+
+const { Title, Text } = Typography;
 
 const NotificationTest = () => {
   const addTestNotification = () => {
@@ -13,7 +16,7 @@ const NotificationTest = () => {
     };
 
     createAdminNotification(testAdmin, 'basic');
-    alert('Test notification added! Check the notification bell.');
+    showSuccess('Test notification added! Check the notification bell.');
   };
 
   const addRegistrationNotification = () => {
@@ -26,23 +29,31 @@ const NotificationTest = () => {
     };
 
     createAdminRegistrationNotification(testAdmin);
-    alert('Test registration notification added! Check the notification bell.');
+    showSuccess('Test registration notification added! Check the notification bell.');
   };
 
   const clearNotifications = () => {
     localStorage.removeItem('notifications');
-    alert('All notifications cleared!');
+    showSuccess('All notifications cleared!');
   };
 
   return (
-    <Box sx={{ p: 2, border: '1px solid #ddd', borderRadius: 2, mb: 2 }}>
-      <Typography variant="h6" sx={{ mb: 2 }}>Notification Test (For Development)</Typography>
-      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+    <Card
+      style={{
+        marginBottom: '16px',
+        border: '1px solid #d9d9d9',
+        borderRadius: '8px'
+      }}
+      styles={{ body: { padding: '16px' } }}
+    >
+      <Title level={5} style={{ marginBottom: '16px', color: '#1f2937' }}>
+        Notification Test (For Development)
+      </Title>
+      <Space wrap size="small">
         <Button 
           variant="outlined" 
           size="small" 
           onClick={addTestNotification}
-          sx={{ fontSize: '0.8rem' }}
         >
           Add Plan Notification
         </Button>
@@ -50,21 +61,19 @@ const NotificationTest = () => {
           variant="outlined" 
           size="small" 
           onClick={addRegistrationNotification}
-          sx={{ fontSize: '0.8rem' }}
         >
           Add Registration Notification
         </Button>
         <Button 
           variant="outlined" 
           size="small" 
-          color="error"
+          danger
           onClick={clearNotifications}
-          sx={{ fontSize: '0.8rem' }}
         >
           Clear All
         </Button>
-      </Box>
-    </Box>
+      </Space>
+    </Card>
   );
 };
 

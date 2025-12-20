@@ -27,6 +27,7 @@ import {Typography,
 import { Add as AddIcon, Delete as DeleteIcon, Block as BlockIcon, CheckCircle as CheckCircleIcon, Search as SearchIcon, Info as InfoIcon, Group as GroupIcon, KeyboardArrowUp as KeyboardArrowUpIcon, KeyboardArrowDown as KeyboardArrowDownIcon, FileDownload as FileDownloadIcon, FileUpload as FileUploadIcon, Edit as EditIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
+import { showError, showSuccess } from '../../utils/antdNotification';
 import * as XLSX from 'xlsx';
 
 const ManageStudents = () => {
@@ -214,7 +215,7 @@ const ManageStudents = () => {
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
       if (jsonData.length === 0) {
-        alert('Excel faylda ma\'lumotlar topilmadi');
+        showError('Excel faylda ma\'lumotlar topilmadi');
         return;
       }
 
@@ -307,11 +308,11 @@ const ManageStudents = () => {
           message += `\n...va yana ${errors.length - 5} ta xatolik`;
         }
       }
-      alert(message);
+      showSuccess(message);
 
     } catch (error) {
       console.error('Import error:', error);
-      alert('Excel faylini o\'qishda xatolik yuz berdi: ' + error.message);
+      showError('Excel faylini o\'qishda xatolik yuz berdi: ' + error.message);
     }
 
     // Clear file input

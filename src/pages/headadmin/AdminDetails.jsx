@@ -140,7 +140,7 @@ const AdminDetails = () => {
               textAlign: 'center',
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
             }}
-            bodyStyle={{ padding: '48px 24px' }}
+            styles={{ body: { padding: '48px 24px' } }}
           >
             <Avatar
               size={160}

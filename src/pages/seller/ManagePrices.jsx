@@ -61,7 +61,7 @@ const ManagePrices = () => {
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       console.error('Failed to save:', error);
-      alert('Saqlashda xatolik yuz berdi');
+      showError('Saqlashda xatolik yuz berdi');
     }
   };
 

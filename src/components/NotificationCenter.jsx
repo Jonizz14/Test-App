@@ -2,46 +2,36 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Badge,
-  IconButton,
-  Menu,
-  MenuItem,
-  ListItemText,
+  Button,
+  Dropdown,
   Typography,
-  Box,
-  Chip,
+  Space,
+  Tag,
   Divider,
-} from '@mui/material';
+  Empty,
+} from 'antd';
 import {
-  Notifications as NotificationsIcon,
-  School as SchoolIcon,
-} from '@mui/icons-material';
+  BellOutlined,
+  BankOutlined,
+} from '@ant-design/icons';
 import { useAuth } from '../context/AuthContext';
 import { getNotificationsForUser, markNotificationAsRead } from '../utils/notificationService';
+
+const { Text, Title } = Typography;
 
 const NotificationCenter = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {
     if (currentUser) {
       const userNotifications = getNotificationsForUser(currentUser);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNotifications(userNotifications);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUnreadCount(userNotifications.filter(n => !n.isRead).length);
     }
   }, [currentUser]);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   const markAsRead = (notificationId) => {
     markNotificationAsRead(notificationId);
@@ -55,7 +45,6 @@ const NotificationCenter = () => {
 
   const handleNotificationClick = (notification) => {
     markAsRead(notification.id);
-    handleClose();
     // Navigate based on notification type
     if (notification.type === 'lesson_reminder') {
       navigate('/student/lessons');
@@ -65,95 +54,170 @@ const NotificationCenter = () => {
     }
   };
 
-  return (
-    <>
-      <IconButton
-        color="inherit"
-        onClick={handleClick}
-        sx={{ mr: 1 }}
-      >
-        <Badge badgeContent={unreadCount} color="error">
-          <NotificationsIcon />
-        </Badge>
-      </IconButton>
+  const notificationMenu = (
+    <div style={{ 
+      width: 450, 
+      maxHeight: 500, 
+      overflowY: 'auto',
+      backgroundColor: '#ffffff',
+      borderRadius: '8px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+    }}>
+      <div style={{ 
+        padding: '16px', 
+        borderBottom: '1px solid #f0f0f0',
+        borderRadius: '8px 8px 0 0'
+      }}>
+        <Title level={5} style={{ margin: 0, color: '#1f2937' }}>
+          Bildirishnomalar
+        </Title>
+      </div>
 
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-        PaperProps={{
-          sx: { width: 450, maxHeight: 600, overflow: 'auto' }
-        }}
-      >
-        <Box sx={{ p: 1.5, borderBottom: 1, borderColor: 'divider' }}>
-          <Typography variant="h6" sx={{ fontSize: '1.1rem' }}>
-            Bildirishnomalar
-          </Typography>
-        </Box>
-
-        {notifications.length === 0 ? (
-          <MenuItem disabled>
-            <ListItemText primary="Bildirishnomalar yo'q" />
-          </MenuItem>
-        ) : (
-          notifications.slice(0, 10).map((notification, index) => (
-            <Box key={notification.id}>
-              <MenuItem
+      {notifications.length === 0 ? (
+        <div style={{ padding: '40px 20px', textAlign: 'center' }}>
+          <Empty 
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description="Bildirishnomalar yo'q"
+          />
+        </div>
+      ) : (
+        <>
+          {notifications.slice(0, 10).map((notification, index) => (
+            <div key={notification.id}>
+              <div
                 onClick={() => handleNotificationClick(notification)}
-                sx={{
-                  backgroundColor: notification.isRead ? 'transparent' : 'action.hover',
-                  py: 1.5,
-                  px: 2
+                style={{
+                  padding: '12px 16px',
+                  backgroundColor: notification.isRead ? 'transparent' : '#f0f8ff',
+                  cursor: 'pointer',
+                  borderBottom: index < notifications.slice(0, 10).length - 1 ? '1px solid #f0f0f0' : 'none',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  if (!notification.isRead) {
+                    e.target.style.backgroundColor = '#e6f7ff';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = notification.isRead ? 'transparent' : '#f0f8ff';
                 }}
               >
-                <Box sx={{ width: '100%', wordWrap: 'break-word' }}>
-                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={0.5}>
-                    <Box display="flex" alignItems="center" sx={{ minWidth: 0, flex: 1 }}>
+                <div style={{ width: '100%', wordWrap: 'break-word' }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    marginBottom: '4px' 
+                  }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      flex: 1,
+                      minWidth: 0
+                    }}>
                       {notification.type === 'admin_registration' || notification.type === 'admin_plan_selection' ? (
-                        <SchoolIcon sx={{ mr: 1, color: 'warning.main', fontSize: '1.2rem' }} />
+                        <BankOutlined 
+                          style={{ 
+                            marginRight: '8px', 
+                            color: '#faad14', 
+                            fontSize: '16px' 
+                          }} 
+                        />
                       ) : (
-                        <SchoolIcon sx={{ mr: 1, color: 'primary.main', fontSize: '1.2rem' }} />
+                        <BankOutlined 
+                          style={{ 
+                            marginRight: '8px', 
+                            color: '#1890ff', 
+                            fontSize: '16px' 
+                          }} 
+                        />
                       )}
-                      <Typography variant="subtitle2" fontWeight="bold" sx={{ fontSize: '0.9rem', lineHeight: 1.2 }}>
+                      <Text 
+                        strong 
+                        style={{ 
+                          fontSize: '14px', 
+                          lineHeight: 1.2,
+                          color: '#1f2937',
+                          margin: 0
+                        }}
+                      >
                         {notification.title}
-                      </Typography>
-                    </Box>
+                      </Text>
+                    </div>
                     {!notification.isRead && (
-                      <Chip 
-                        label="Yangi" 
-                        size="small" 
-                        color={notification.type === 'admin_registration' || notification.type === 'admin_plan_selection' ? 'warning' : 'primary'} 
-                        sx={{ ml: 1, fontSize: '0.7rem', height: '20px' }} 
-                      />
+                      <Tag 
+                        color={notification.type === 'admin_registration' || notification.type === 'admin_plan_selection' ? 'orange' : 'blue'}
+                        size="small"
+                        style={{ marginLeft: '8px', fontSize: '10px', height: '20px', lineHeight: '18px' }}
+                      >
+                        Yangi
+                      </Tag>
                     )}
-                  </Box>
+                  </div>
 
-                  <Typography variant="body2" color="textSecondary" sx={{ mb: 0.5, fontSize: '0.85rem', lineHeight: 1.3 }}>
+                  <Text 
+                    style={{ 
+                      fontSize: '13px', 
+                      color: '#6b7280', 
+                      lineHeight: 1.3,
+                      display: 'block',
+                      marginBottom: '4px'
+                    }}
+                  >
                     {notification.message}
-                  </Typography>
+                  </Text>
 
-                  <Typography variant="caption" color="textSecondary" sx={{ fontSize: '0.75rem' }}>
+                  <Text 
+                    type="secondary" 
+                    style={{ fontSize: '11px' }}
+                  >
                     {new Date(notification.createdAt).toLocaleDateString('uz-UZ')} • 
                     {notification.type === 'admin_registration' || notification.type === 'admin_plan_selection' 
                       ? notification.adminName 
                       : notification.teacherName}
-                  </Typography>
-                </Box>
-              </MenuItem>
-              {index < notifications.slice(0, 10).length - 1 && <Divider />}
-            </Box>
-          ))
-        )}
+                  </Text>
+                </div>
+              </div>
+            </div>
+          ))}
+        </>
+      )}
 
-        {notifications.length > 10 && (
-          <MenuItem disabled sx={{ justifyContent: 'center' }}>
-            <Typography variant="caption" color="textSecondary">
-              Ko'proq bildirishnomalar...
-            </Typography>
-          </MenuItem>
-        )}
-      </Menu>
-    </>
+      {notifications.length > 10 && (
+        <div style={{ 
+          padding: '12px 16px', 
+          textAlign: 'center',
+          borderTop: '1px solid #f0f0f0'
+        }}>
+          <Text type="secondary" style={{ fontSize: '12px' }}>
+            Ko'proq bildirishnomalar...
+          </Text>
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <Dropdown
+      overlay={notificationMenu}
+      trigger={['click']}
+      placement="bottomRight"
+    >
+      <Button 
+        type="text" 
+        icon={
+          <Badge count={unreadCount} size="small">
+            <BellOutlined style={{ fontSize: '18px', color: '#ffffff' }} />
+          </Badge>
+        }
+        style={{ 
+          marginRight: '8px',
+          height: '40px',
+          width: '40px',
+          padding: 0
+        }}
+      />
+    </Dropdown>
   );
 };
 

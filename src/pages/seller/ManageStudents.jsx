@@ -101,7 +101,7 @@ const ManageStudents = () => {
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       console.error('Failed to grant premium:', error);
-      alert('Premium berishda xatolik yuz berdi');
+      showError('Premium berishda xatolik yuz berdi');
     }
   };
 
@@ -115,7 +115,7 @@ const ManageStudents = () => {
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       console.error('Failed to revoke premium:', error);
-      alert('Premium olib tashlashda xatolik yuz berdi');
+      showError('Premium olib tashlashda xatolik yuz berdi');
     }
   };
 

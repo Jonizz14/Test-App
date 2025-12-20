@@ -297,7 +297,7 @@ const ContactMessages = () => {
 
       {/* Filters and Search */}
       <Card style={{ marginBottom: '16px' }}>
-        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+        <Space orientation="vertical" style={{ width: '100%' }} size="middle">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <FilterOutlined style={{ color: '#374151' }} />
             <Text strong style={{ color: '#374151' }}>
@@ -412,7 +412,7 @@ const ContactMessages = () => {
         width={600}
       >
         {selectedMessage && (
-          <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+          <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
             <div>
               <Text strong>Ism:</Text>
               <br />

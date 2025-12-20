@@ -1,26 +1,32 @@
 import React, { useState } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Typography,
-  Box,
-  Chip,
-  FormControl,
-  InputLabel,
+  Modal,
+  Form,
+  Input,
   Select,
-  MenuItem,
+  Button,
+  Typography,
+  Space,
   Alert,
-} from '@mui/material';
+  Card,
+  Row,
+  Col,
+  message,
+} from 'antd';
 import {
-  Send as SendIcon,
-  School as SchoolIcon,
-} from '@mui/icons-material';
+  SendOutlined,
+  BankOutlined,
+} from '@ant-design/icons';
+
+const { Text, Title } = Typography;
+const { TextArea } = Input;
+const { Option } = Select;
 
 const SendLessonModal = ({ open, onClose, student, testResult, teacherInfo }) => {
+  const [form] = Form.useForm();
+  const [sending, setSending] = useState(false);
+  const [success, setSuccess] = useState(false);
+
   const subjects = [
     'Matematika',
     'Algebra',
@@ -38,7 +44,7 @@ const SendLessonModal = ({ open, onClose, student, testResult, teacherInfo }) =>
     'Informatika',
   ];
 
-  const [formData, setFormData] = useState({
+  const initialValues = {
     subject: testResult?.test?.subject || '',
     room: '',
     lessonDate: '',
@@ -47,25 +53,18 @@ const SendLessonModal = ({ open, onClose, student, testResult, teacherInfo }) =>
     description: '',
     difficulty: 'medium',
     estimatedTime: 60,
-  });
-  const [sending, setSending] = useState(false);
-  const [success, setSuccess] = useState(false);
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
   };
 
   const handleSend = async () => {
-    if (!formData.room || !formData.lessonDate || !formData.lessonTime || !formData.topic || !formData.description) {
-      return;
-    }
-
-    setSending(true);
-
     try {
+      const values = await form.validateFields();
+      
+      if (!values.room || !values.lessonDate || !values.lessonTime || !values.topic || !values.description) {
+        return;
+      }
+
+      setSending(true);
+
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -79,17 +78,17 @@ const SendLessonModal = ({ open, onClose, student, testResult, teacherInfo }) =>
         teacherName: teacherInfo?.fullName || teacherInfo?.name || "O'qituvchi",
         type: 'lesson_reminder',
         title: "Qo'shimcha dars belgilandi",
-        message: `${teacherInfo?.fullName || teacherInfo?.name || "O'qituvchi"} sizni ${formData.lessonDate} kuni ${formData.lessonTime}da "${formData.topic}" mavzusida qo'shimcha darsga taklif qiladi.\n\nFan: ${formData.subject}\nQiyinlik: ${formData.difficulty === 'easy' ? 'Oson' : formData.difficulty === 'medium' ? "O'rtacha" : 'Qiyin'}\nDavomiyligi: ${formData.estimatedTime} daqiqa\nHona: ${formData.room}\nTafsilot: ${formData.description}`,
+        message: `${teacherInfo?.fullName || teacherInfo?.name || "O'qituvchi"} sizni ${values.lessonDate} kuni ${values.lessonTime}da "${values.topic}" mavzusida qo'shimcha darsga taklif qiladi.\n\nFan: ${values.subject}\nQiyinlik: ${values.difficulty === 'easy' ? 'Oson' : values.difficulty === 'medium' ? "O'rtacha" : 'Qiyin'}\nDavomiyligi: ${values.estimatedTime} daqiqa\nHona: ${values.room}\nTafsilot: ${values.description}`,
         testId: testResult?.test?.id,
         testTitle: testResult?.test?.title,
-        subject: formData.subject,
-        room: formData.room,
-        lessonDate: formData.lessonDate,
-        lessonTime: formData.lessonTime,
-        lessonTopic: formData.topic,
-        lessonDescription: formData.description,
-        difficulty: formData.difficulty,
-        estimatedTime: formData.estimatedTime,
+        subject: values.subject,
+        room: values.room,
+        lessonDate: values.lessonDate,
+        lessonTime: values.lessonTime,
+        lessonTopic: values.topic,
+        lessonDescription: values.description,
+        difficulty: values.difficulty,
+        estimatedTime: values.estimatedTime,
         createdAt: new Date().toISOString(),
         isRead: false
       };
@@ -100,305 +99,192 @@ const SendLessonModal = ({ open, onClose, student, testResult, teacherInfo }) =>
       localStorage.setItem('notifications', JSON.stringify(existingNotifications));
 
       setSuccess(true);
+      message.success('Dars muvaffaqiyatli yuborildi! Talaba bildirishnoma oladi.');
+      
       setTimeout(() => {
         setSuccess(false);
         onClose();
-        // Reset form
-        setFormData({
-          subject: testResult?.test?.subject || '',
-          room: '',
-          lessonDate: '',
-          lessonTime: '',
-          topic: '',
-          description: '',
-          difficulty: 'medium',
-          estimatedTime: 60,
-        });
+        form.resetFields();
       }, 2000);
 
     } catch (error) {
       console.error('Error sending lesson:', error);
+      message.error('Dars yuborishda xatolik yuz berdi');
     } finally {
       setSending(false);
     }
   };
 
+  const handleCancel = () => {
+    form.resetFields();
+    onClose();
+  };
 
   return (
-    <Dialog
+    <Modal
+      title={
+        <Space>
+          <BankOutlined style={{ color: '#1890ff', fontSize: '20px' }} />
+          <Title level={4} style={{ margin: 0 }}>
+            Qo'shimcha dars yuborish
+          </Title>
+        </Space>
+      }
       open={open}
-      onClose={onClose}
-      maxWidth="lg"
-      fullWidth
-      sx={{
-        '& .MuiDialog-paper': {
-          borderRadius: 3,
-          boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
-          minHeight: '600px',
-        }
-      }}
-    >
-      <DialogTitle sx={{
-        backgroundColor: '#f8f9fa',
-        borderBottom: '1px solid #e9ecef',
-        pb: 2
-      }}>
-        <Box display="flex" alignItems="center" gap={2}>
-          <SchoolIcon sx={{ color: 'primary.main', fontSize: '2rem' }} />
-          <Box>
-            <Typography variant="h5" sx={{ fontWeight: 700, color: '#212529' }}>
-              Qo'shimcha dars yuborish
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#6c757d', mt: 0.5 }}>
-              {student?.name || student?.fullName || `${student?.first_name || ''} ${student?.last_name || ''}`.trim()} uchun individual dars
-            </Typography>
-          </Box>
-        </Box>
-      </DialogTitle>
-
-      <DialogContent sx={{ p: 3 }}>
-        {success && (
-          <Alert severity="success" sx={{ mb: 3 }}>
-            Dars muvaffaqiyatli yuborildi! Talaba bildirishnoma oladi.
-          </Alert>
-        )}
-
-        {testResult && (
-          <Box sx={{
-            backgroundColor: '#f8f9fa',
-            p: 2,
-            borderRadius: 2,
-            mb: 3,
-            border: '1px solid #e9ecef'
-          }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#495057', mb: 1 }}>
-              Test natijasi asosida:
-            </Typography>
-            <Box display="flex" gap={2} alignItems="center">
-              <Chip
-                label={`${testResult.score}%`}
-                color={testResult.score >= 70 ? 'success' : 'warning'}
-                size="small"
-              />
-              <Typography variant="body2" color="textSecondary">
-                {testResult.test?.title}
-              </Typography>
-            </Box>
-          </Box>
-        )}
-
-        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3, alignItems: 'start' }}>
-          <FormControl fullWidth required>
-            <InputLabel>Fan</InputLabel>
-            <Select
-              name="subject"
-              value={formData.subject}
-              label="Fan"
-              onChange={handleChange}
-              sx={{
-                borderRadius: 2,
-                backgroundColor: '#fafafa',
-                minHeight: '56px',
-              }}
-            >
-              {subjects.map(subject => (
-                <MenuItem key={subject} value={subject}>{subject}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <TextField
-            label="Hona"
-            name="room"
-            value={formData.room}
-            onChange={handleChange}
-            fullWidth
-            required
-            placeholder="Masalan: 101, V-5"
-            variant="outlined"
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 2,
-                backgroundColor: '#fafafa',
-                minHeight: '56px',
-              }
-            }}
-          />
-
-          <TextField
-            label="Dars sanasi"
-            name="lessonDate"
-            type="date"
-            value={formData.lessonDate}
-            onChange={handleChange}
-            fullWidth
-            required
-            InputLabelProps={{ shrink: true }}
-            variant="outlined"
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 2,
-                backgroundColor: '#fafafa',
-                minHeight: '56px',
-              }
-            }}
-          />
-
-          <TextField
-            label="Dars vaqti"
-            name="lessonTime"
-            type="time"
-            value={formData.lessonTime}
-            onChange={handleChange}
-            fullWidth
-            required
-            InputLabelProps={{ shrink: true }}
-            variant="outlined"
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 2,
-                backgroundColor: '#fafafa',
-                minHeight: '56px',
-              }
-            }}
-          />
-
-          <FormControl fullWidth required>
-            <InputLabel>Qiyinlik darajasi</InputLabel>
-            <Select
-              name="difficulty"
-              value={formData.difficulty}
-              label="Qiyinlik darajasi"
-              onChange={handleChange}
-              sx={{
-                borderRadius: 2,
-                backgroundColor: '#fafafa',
-                minHeight: '56px',
-              }}
-            >
-              <MenuItem value="easy">Oson</MenuItem>
-              <MenuItem value="medium">O'rtacha</MenuItem>
-              <MenuItem value="hard">Qiyin</MenuItem>
-            </Select>
-          </FormControl>
-
-          <TextField
-            label="Dars davomiyligi (daqiqa)"
-            name="estimatedTime"
-            type="number"
-            value={formData.estimatedTime}
-            onChange={handleChange}
-            fullWidth
-            required
-            placeholder="Masalan: 60"
-            variant="outlined"
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 2,
-                backgroundColor: '#fafafa',
-                minHeight: '56px',
-              }
-            }}
-          />
-
-          <TextField
-            label="Mavzu"
-            name="topic"
-            value={formData.topic}
-            onChange={handleChange}
-            fullWidth
-            required
-            placeholder="Masalan: Algebra asoslari, Newton qonunlari"
-            variant="outlined"
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 2,
-                backgroundColor: '#fafafa',
-                minHeight: '56px',
-              },
-              gridColumn: '1 / -1'
-            }}
-          />
-
-          <TextField
-            label="Tafsilot"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            fullWidth
-            required
-            multiline
-            rows={4}
-            placeholder="Darsning mazmuni, o'rganiladigan tushunchalar, amaliy mashqlar haqida batafsil yozing..."
-            variant="outlined"
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 2,
-                backgroundColor: '#fafafa',
-              },
-              gridColumn: '1 / -1'
-            }}
-          />
-        </Box>
-
-        <Box sx={{
-          mt: 3,
-          p: 2,
-          backgroundColor: '#e3f2fd',
-          borderRadius: 2,
-          border: '1px solid #bbdefb'
-        }}>
-          <Typography variant="body2" sx={{ fontWeight: 500, color: '#1976d2' }}>
-            💡 Maslahat: Darsni talabaning test natijalariga qarab, uning zaif tomonlariga e'tibor qaratib tuzing.
-          </Typography>
-        </Box>
-      </DialogContent>
-
-      <DialogActions sx={{
-        p: 3,
-        pt: 2,
-        borderTop: '1px solid #e9ecef',
-        backgroundColor: '#f8f9fa'
-      }}>
-        <Button
-          onClick={onClose}
-          sx={{
-            cursor: 'pointer',
-            borderRadius: 2,
-            px: 3,
-            py: 1,
-            fontWeight: 600,
-            borderColor: '#d1d5db',
-            color: '#374151',
-            '&:hover': { backgroundColor: 'transparent' }
-          }}
-          variant="outlined"
-        >
+      onCancel={handleCancel}
+      width={800}
+      footer={[
+        <Button key="cancel" onClick={handleCancel}>
           Bekor qilish
-        </Button>
+        </Button>,
         <Button
+          key="send"
+          type="primary"
+          icon={<SendOutlined />}
+          loading={sending}
           onClick={handleSend}
-          disabled={sending || !formData.room || !formData.lessonDate || !formData.lessonTime || !formData.topic || !formData.description}
-          sx={{
-            cursor: sending ? 'not-allowed' : 'pointer',
-            borderRadius: 2,
-            px: 4,
-            py: 1,
-            fontWeight: 600,
-            backgroundColor: 'primary.main',
-            '&:hover': { backgroundColor: 'primary.main' },
-            '&:disabled': {
-              backgroundColor: '#9ca3af',
-              cursor: 'not-allowed'
-            }
-          }}
-          variant="contained"
-          startIcon={<SendIcon />}
+          disabled={sending}
         >
           {sending ? 'Yuborilmoqda...' : 'Darsni yuborish'}
-        </Button>
-      </DialogActions>
-    </Dialog>
+        </Button>,
+      ]}
+      style={{ top: 20 }}
+      styles={{ body: { padding: '24px' } }}
+    >
+      <div style={{ marginBottom: '16px' }}>
+        <Text type="secondary">
+          {student?.name || student?.fullName || `${student?.first_name || ''} ${student?.last_name || ''}`.trim()} uchun individual dars
+        </Text>
+      </div>
+
+      {testResult && (
+        <Card size="small" style={{ marginBottom: '16px', backgroundColor: '#f5f5f5' }}>
+          <Text strong>Test natijasi asosida:</Text>
+          <div style={{ marginTop: '8px' }}>
+            <Space>
+              <span style={{
+                padding: '4px 8px',
+                backgroundColor: testResult.score >= 70 ? '#f6ffed' : '#fff2e8',
+                border: `1px solid ${testResult.score >= 70 ? '#b7eb8f' : '#ffd591'}`,
+                borderRadius: '4px',
+                color: testResult.score >= 70 ? '#389e0d' : '#d46b08',
+                fontWeight: 'bold'
+              }}>
+                {testResult.score}%
+              </span>
+              <Text type="secondary">{testResult.test?.title}</Text>
+            </Space>
+          </div>
+        </Card>
+      )}
+
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={initialValues}
+      >
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              name="subject"
+              label="Fan"
+              rules={[{ required: true, message: 'Fan tanlang!' }]}
+            >
+              <Select placeholder="Fanni tanlang">
+                {subjects.map(subject => (
+                  <Option key={subject} value={subject}>{subject}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="room"
+              label="Hona"
+              rules={[{ required: true, message: 'Hona raqamini kiriting!' }]}
+            >
+              <Input placeholder="Masalan: 101, V-5" />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="lessonDate"
+              label="Dars sanasi"
+              rules={[{ required: true, message: 'Dars sanasini tanlang!' }]}
+            >
+              <Input type="date" />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="lessonTime"
+              label="Dars vaqti"
+              rules={[{ required: true, message: 'Dars vaqtini tanlang!' }]}
+            >
+              <Input type="time" />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="difficulty"
+              label="Qiyinlik darajasi"
+              rules={[{ required: true, message: 'Qiyinlik darajasini tanlang!' }]}
+            >
+              <Select>
+                <Option value="easy">Oson</Option>
+                <Option value="medium">O'rtacha</Option>
+                <Option value="hard">Qiyin</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="estimatedTime"
+              label="Dars davomiyligi (daqiqa)"
+              rules={[{ required: true, message: 'Davomiylikni kiriting!' }]}
+            >
+              <Input type="number" placeholder="Masalan: 60" min="15" max="180" />
+            </Form.Item>
+          </Col>
+
+          <Col span={24}>
+            <Form.Item
+              name="topic"
+              label="Mavzu"
+              rules={[{ required: true, message: 'Mavzuni kiriting!' }]}
+            >
+              <Input placeholder="Masalan: Algebra asoslari, Newton qonunlari" />
+            </Form.Item>
+          </Col>
+
+          <Col span={24}>
+            <Form.Item
+              name="description"
+              label="Tafsilot"
+              rules={[{ required: true, message: 'Tafsilotni kiriting!' }]}
+            >
+              <TextArea 
+                rows={4} 
+                placeholder="Darsning mazmuni, o'rganiladigan tushunchalar, amaliy mashqlar haqida batafsil yozing..."
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
+
+      <Alert
+        message="💡 Maslahat"
+        description="Darsni talabaning test natijalariga qarab, uning zaif tomonlariga e'tibor qaratib tuzing."
+        type="info"
+        showIcon
+        style={{ marginTop: '16px' }}
+      />
+    </Modal>
   );
 };
 

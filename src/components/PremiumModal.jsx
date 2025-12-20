@@ -53,7 +53,7 @@ const PremiumModal = ({ open, onClose, student, onConfirm }) => {
       onClose();
     } catch (error) {
       console.error('Failed to grant premium:', error);
-      alert('Premium berishda xatolik yuz berdi');
+      showError('Premium berishda xatolik yuz berdi');
     } finally {
       setLoading(false);
     }

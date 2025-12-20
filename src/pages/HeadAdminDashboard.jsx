@@ -157,28 +157,6 @@ const HeadAdminDashboard = () => {
           )}
           
         </div>
-
-        <Space size="middle">
-          {bannedStudents.length > 0 && (
-            <Badge count={bannedStudents.length} size="small">
-              <Button
-                type="text"
-                icon={<BellOutlined style={{ color: '#dc2626' }} />}
-                onClick={() => setModalOpen(true)}
-                style={{ 
-                  color: '#dc2626',
-                  fontSize: '16px'
-                }}
-                title={`${bannedStudents.length} ta bloklangan o'quvchi bor`}
-              />
-            </Badge>
-          )}
-          
-          <NotificationCenter />
-          
-          <Typography.Text style={{ color: '#6b7280' }}>
-            Welcome, {currentUser?.name} (Head Admin)
-          </Typography.Text>
           
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
             <Space style={{ cursor: 'pointer' }}>
@@ -192,7 +170,6 @@ const HeadAdminDashboard = () => {
               </Typography.Text>
             </Space>
           </Dropdown>
-        </Space>
       </Header>
 
       <Layout>
