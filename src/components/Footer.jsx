@@ -1,7 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/Footer.css";
 
 const Footer = () => {
+  const navigate = useNavigate();
+
   return (
     <footer className="footer">
       <div className="layout-container">
@@ -15,40 +18,38 @@ const Footer = () => {
               <span className="text-gray-900 font-bold">Examify</span>
             </div>
             <p className="text-gray-500">
-              Zamonaviy ta'limni biz bilan quring. Oson, tez va ishonchli.
+              Sergeli ixtisoslashtirilgan maktab uchun ishlab chiqilgan test tizimi.
             </p>
           </div>
 
-          {/* Product Section */}
+          {/* Quick Links Section */}
           <div className="footer-section">
-            <h4>MAHSULOT</h4>
-            <a href="#">Xususiyatlar</a>
-            <a href="#">Narxlar</a>
-            <a href="#">Yangiliklar</a>
+            <h4>TEZ HAVOLALAR</h4>
+            <a onClick={() => navigate('/')}>Bosh sahifa</a>
+            <a href="https://sergelitim.uz" target="_blank" rel="noopener noreferrer">Maktab web sahifasi</a>
+            <a onClick={() => navigate('/contact')}>Bog'lanish</a>
           </div>
 
-          {/* Help Section */}
+          {/* Contact Section */}
           <div className="footer-section">
-            <h4>YORDAM</h4>
-            <a href="#">Markaz</a>
-            <a href="#">Qo'llanma</a>
-            <a href="#">Bog'lanish</a>
+            <h4>BOG'LANISH</h4>
+            <p className="text-gray-500">
+              Sergeli tumani, Toshkent shahri
+            </p>
+            <p className="text-gray-500">
+              +998 90 123 45 67
+            </p>
+            <p className="text-gray-500">
+              info@sergelitim.uz
+            </p>
           </div>
 
-          {/* Social Section */}
+          {/* School Info Section */}
           <div className="footer-section">
-            <h4>IJTIMOIY TARMOQLAR</h4>
-            <div className="footer-social">
-              <a className="footer-social-link" href="#">
-                <span className="material-symbols-outlined">public</span>
-              </a>
-              <a className="footer-social-link" href="#">
-                <span className="material-symbols-outlined">mail</span>
-              </a>
-              <a className="footer-social-link" href="#">
-                <span className="material-symbols-outlined">call</span>
-              </a>
-            </div>
+            <h4>MAKTAB HAQIDA</h4>
+            <p className="text-gray-500">
+              Sergeli ixtisoslashtirilgan maktab - zamonaviy ta'lim dasturlarini amalga oshiruvchi muassasa.
+            </p>
           </div>
         </div>
       </div>

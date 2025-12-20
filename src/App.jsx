@@ -18,6 +18,7 @@ import StudentDashboard from './pages/StudentDashboard';
 import SellerDashboard from './pages/SellerDashboard';
 import NotFoundPage from './pages/NotFoundPage';
 import Home from './pages/Home';
+import Contact from './pages/Contact';
 
 import Questions from './pages/admin/Questions';
 
@@ -319,6 +320,9 @@ function App() {
 
                 {/* Home page */}
                 <Route path="/" element={<Home />} />
+                
+                {/* Contact page */}
+                <Route path="/contact" element={<Contact />} />
 
                 {/* Dashboard redirect based on user role */}
                 <Route

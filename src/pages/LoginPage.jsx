@@ -1,53 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Paper,
-  TextField,
-  Button,
-  Typography,
-  Alert,
-  Container,
-  Grid,
-  Card,
-  CardContent,
-  InputAdornment,
-  IconButton,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-
-} from '@mui/material';
-import {
-  School as SchoolIcon,
-  Person as PersonIcon,
-  AdminPanelSettings as AdminIcon,
-  Login as LoginIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-
-} from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import UnbanModal from '../components/UnbanModal';
 import logoImage from '../assets/image.png';
+import '../styles/Login.css';
 
 // LoginPage Component - Handles user authentication and admin registration
 const LoginPage = () => {
-
-
   // State management for login form
   const [loginData, setLoginData] = useState({
     email: '',
     password: ''
   });
 
-
-
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
 
   // Authentication context and navigation hook
   const { login, logout, currentUser, isAuthenticated, isBanned } = useAuth();
@@ -86,14 +54,10 @@ const LoginPage = () => {
     setLoginData(newFormData);
   };
 
-
-
   // Handle password visibility toggles
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-
-
 
   // Handle login form submission
   const handleLoginSubmit = async (e) => {
@@ -131,183 +95,136 @@ const LoginPage = () => {
     }
   };
 
-
-
   return (
-    <Box sx={{
-      minHeight: '100vh',
-      backgroundColor: 'background.default',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      py: 6,
-      px: 3
-    }}>
-      <Container maxWidth="xl">
-        <Box sx={{
-          display: 'flex',
-          alignItems: 'center',
-          minHeight: '80vh',
-          justifyContent: 'center'
-        }}>
-          <Card sx={{
-            maxWidth: 480,
-            width: '100%',
-            backgroundColor: 'background.paper',
-            border: '1px solid',
-            borderColor: 'divider',
-            overflow: 'hidden',
-            height: 'fit-content'
-          }}>
-            <Box sx={{
-              backgroundColor: 'background.paper',
-              color: 'text.primary',
-              p: 3,
-              textAlign: 'center',
-              borderBottom: '1px solid',
-              borderColor: 'divider'
-            }}>
-              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-                <img
-                  src={logoImage}
-                  alt="STIM Test App Logo"
-                  style={{
-                    height: '60px',
-                    width: 'auto',
-                    maxWidth: '80px',
-                    marginBottom: '16px'
-                  }}
-                />
-              </Box>
-              <Typography variant="h3" component="h1" sx={{
-                fontWeight: 700,
-                mb: 2,
-                fontSize: '2.8rem',
-                color: '#1e293b'
-              }}>
-                Examify
-              </Typography>
-              <Typography variant="h6" sx={{
-                opacity: 0.9,
-                mb: 3,
-                fontWeight: 400,
-                color: '#1e293b'
-              }}>
-                Zamonaviy test platformasi
-              </Typography>
-              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-                <LoginIcon sx={{ fontSize: '2.5rem', color: '#1e293b' }} />
-              </Box>
-              <Typography variant="h5" component="h2" sx={{ fontWeight: 600, mb: 2, color: '#1e293b' }}>
-                Tizimga kirish
-              </Typography>
-              <Typography variant="body1" sx={{ opacity: 0.9, color: '#1e293b' }}>
+    <div className="login-page">
+      <div className="layout-container">
+        <div>
+          <div className="login-card">
+            <div className="login-header">
+              <div className="login-logo">
+                <div className="examify-logo">
+                  <span className="material-symbols-outlined logo">school</span>
+                  <span className="examify-text">Examify</span>
+                </div>
+              </div>
+              <div className="login-icon">
+                <span className="material-symbols-outlined">
+                  login
+                </span>
+              </div>
+              <h2 className="login-form-title">Tizimga kirish</h2>
+              <p className="login-form-subtitle">
                 Hisobingizga kirish uchun ma'lumotlarni kiriting
-              </Typography>
-            </Box>
+              </p>
+            </div>
 
-            <CardContent sx={{ p: 0 }}>
+            <div className="login-content">
+              {/* Alert for already authenticated users */}
+              {isAuthenticated && (
+                <div className="alert alert-info">
+                  <span>Siz allaqachon {currentUser?.name} sifatida kirgansiz.</span>
+                  <button
+                    className="logout-link"
+                    onClick={logout}
+                  >
+                    Chiqish
+                  </button>
+                  <button
+                    className="alert-close"
+                    onClick={() => {}}
+                  >
+                    <span className="material-symbols-outlined">close</span>
+                  </button>
+                </div>
+              )}
 
+              {/* Error alert */}
+              {error && (
+                <div className={`alert ${error.includes('muvaffaqiyatli') ? 'alert-success' : 'alert-error'}`}>
+                  <span className="material-symbols-outlined">
+                    {error.includes('muvaffaqiyatli') ? 'check_circle' : 'error'}
+                  </span>
+                  <span>{error}</span>
+                  <button
+                    className="alert-close"
+                    onClick={() => setError('')}
+                  >
+                    <span className="material-symbols-outlined">close</span>
+                  </button>
+                </div>
+              )}
 
-              <Box sx={{ p: 3 }}>
-                {/* Alert for already authenticated users */}
-                {isAuthenticated && (
-                  <Alert severity="info" sx={{ mb: 4 }}>
-                    Siz allaqachon {currentUser?.name} sifatida kirgansiz.{' '}
-                    <Button
-                      variant="text"
-                      onClick={logout}
-                      sx={{ ml: 1, p: 0, minWidth: 'auto' }}
-                    >
-                      Chiqish
-                    </Button>
-                  </Alert>
-                )}
+              {/* Login Form */}
+              <form onSubmit={handleLoginSubmit}>
+                <div className="form-group">
+                  <label htmlFor="email" className="form-label">
+                    Email manzil yoki ID
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    className="form-input"
+                    value={loginData.email}
+                    onChange={handleLoginChange}
+                    autoComplete="email"
+                    autoFocus
+                    placeholder="Admin uchun email, o'quvchi/o'qituvchi uchun ID"
+                    required
+                  />
+                </div>
 
-                {/* Error alert */}
-                {error && (
-                  <Alert severity={error.includes('muvaffaqiyatli') ? 'success' : 'error'} sx={{ mb: 4 }}>
-                    {error}
-                  </Alert>
-                )}
-
-
-
-                {/* Login Form */}
-                  <Box component="form" onSubmit={handleLoginSubmit}>
-                    <TextField
-                      fullWidth
-                      label="Email manzil yoki ID"
-                      name="email"
-                      type="email"
-                      value={loginData.email}
-                      onChange={handleLoginChange}
-                      autoComplete="email"
-                      autoFocus
-                      sx={{
-                        mb: 4,
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: '12px'
-                        }
-                      }}
-                      placeholder="Admin uchun email, o'quvchi/o'qituvchi uchun ID"
-                    />
-
-                    <TextField
-                      fullWidth
-                      label="Parol"
-                      name="password"
+                <div className="form-group">
+                  <label htmlFor="password" className="form-label">
+                    Parol
+                  </label>
+                  <div className="password-input-wrapper">
+                    <input
                       type={showPassword ? 'text' : 'password'}
+                      id="password"
+                      name="password"
+                      className="form-input"
                       value={loginData.password}
                       onChange={handleLoginChange}
                       autoComplete="current-password"
-                      sx={{
-                        mb: 3,
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: '12px'
-                        }
-                      }}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton
-                              aria-label="toggle password visibility"
-                              onClick={handleTogglePasswordVisibility}
-                              edge="end"
-                              sx={{
-                                color: '#64748b',
-                                mr: '-2.5px'
-                              }}
-                            >
-                              {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      }}
+                      placeholder="Parolni kiriting"
+                      required
                     />
-
-                    <Button
-                      type="submit"
-                      fullWidth
-                      variant="contained"
-                      size="large"
-                      disabled={loading}
-                      sx={{
-                        py: 1.8,
-                        fontSize: '1.1rem',
-                        fontWeight: 600,
-                        textTransform: 'none',
-                        mt: 3
-                      }}
+                    <button
+                      type="button"
+                      className="password-toggle"
+                      onClick={handleTogglePasswordVisibility}
+                      aria-label="toggle password visibility"
                     >
-                      {loading ? 'Kirish...' : 'Kirish'}
-                    </Button>
-                  </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Box>
-      </Container>
+                      <span className="material-symbols-outlined">
+                        {showPassword ? 'visibility_off' : 'visibility'}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="form-button"
+                  disabled={loading}
+                >
+                  {loading ? 'Kirish...' : 'Kirish'}
+                </button>
+
+                <div className="login-back-btn">
+                  <button 
+                    className="back-home-btn"
+                    onClick={() => navigate('/')}
+                  >
+                    <span className="material-symbols-outlined">arrow_back</span>
+                    Bosh sahifaga qaytish
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Unban Modal for Banned Users */}
       <UnbanModal
@@ -317,7 +234,7 @@ const LoginPage = () => {
           setBannedUser(null);
         }} // Modal can be closed for newly banned users
       />
-    </Box>
+    </div>
   );
 };
 

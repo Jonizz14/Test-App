@@ -33,7 +33,15 @@ const Home = () => {
                   </button>
                   <button
                     className="hero-btn-secondary"
-                    onClick={() => navigate("/login")}
+                    onClick={() => {
+                      const featuresSection = document.querySelector('.features');
+                      if (featuresSection) {
+                        featuresSection.scrollIntoView({ 
+                          behavior: 'smooth',
+                          block: 'start'
+                        });
+                      }
+                    }}
                   >
                     <span>Batafsil o'rganish</span>
                     <span className="material-symbols-outlined">
@@ -200,7 +208,7 @@ const Home = () => {
                 <div className="timeline-point"></div>
                 <div className="timeline-block right-block">
                   <div className="feature-image-wrapper">
-                    <img src="/banner/rasm1.png" alt="Real vaqt tahlili" />
+                    <img src="/banner/info1.png" alt="Real vaqt tahlili" />
                   </div>
                 </div>
               </div>
@@ -209,7 +217,7 @@ const Home = () => {
               <div className="timeline-item">
                 <div className="timeline-block left-block">
                   <div className="feature-image-wrapper">
-                    <img src="/banner/rasm2.png" alt="Xavfsiz test tizimi" />
+                    <img src="/banner/info2.png" alt="Xavfsiz test tizimi" />
                   </div>
                 </div>
                 <div className="timeline-point"></div>
@@ -250,7 +258,7 @@ const Home = () => {
                 <div className="timeline-point"></div>
                 <div className="timeline-block right-block">
                   <div className="feature-image-wrapper">
-                    <img src="/banner/rasm3.png" alt="Katta savollar banki" />
+                    <img src="/banner/info3.png" alt="Katta savollar banki" />
                   </div>
                 </div>
               </div>
@@ -259,7 +267,7 @@ const Home = () => {
               <div className="timeline-item">
                 <div className="timeline-block left-block">
                   <div className="feature-image-wrapper">
-                    <img src="/banner/banner1.png" alt="Moslashuvchan dizayn" />
+                    <img src="/banner/info4.png" alt="Moslashuvchan dizayn" />
                   </div>
                 </div>
                 <div className="timeline-point"></div>

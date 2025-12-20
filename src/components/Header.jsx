@@ -19,9 +19,9 @@ const Header = () => {
             
             <nav className="nav-desktop">
               <div className="nav-links">
-                <a className="nav-link" href="#">Xususiyatlar</a>
-                <a className="nav-link" href="#">Narxlar</a>
-                <a className="nav-link" href="#">Bog'lanish</a>
+                <a className="nav-link" onClick={() => navigate('/')}>Bosh sahifa</a>
+                <a className="nav-link" href="https://sergelitim.uz" target="_blank" rel="noopener noreferrer">Maktabimiz web sahifasi</a>
+                <a className="nav-link" onClick={() => navigate('/contact')}>Bog'lanish</a>
               </div>
               <div className="nav-buttons">
                 <button className="btn-secondary" onClick={() => navigate('/login')}>Kirish</button>

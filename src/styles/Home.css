@@ -852,12 +852,6 @@ body {
   height: auto;
   object-fit: contain;
   border-radius: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-}
-
-.feature-image img:hover {
-  transform: scale(1.05);
 }
 
 @media (max-width: 768px) {
@@ -875,7 +869,6 @@ body {
   align-items: center;
   justify-content: center;
   color: #135bec;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .feature-icon-symbol {
@@ -889,15 +882,18 @@ body {
 }
 
 .feature-title {
-  font-size: 1.125rem;
+  font-size: 1.375rem; /* Increased from 1.125rem */
   font-weight: 700;
   color: #1f2937;
+  margin-bottom: 0.75rem; /* Added margin */
+  line-height: 1.3;
 }
 
 .feature-description {
-  font-size: 0.875rem;
+  font-size: 0.9375rem; /* Slightly increased from 0.875rem */
   color: #6b7280;
-  line-height: 1.6;
+  line-height: 1.7; /* Increased line height for better readability */
+  text-align: justify;
 }
 
 .footer {
@@ -1431,7 +1427,7 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 4rem 0;
+  padding: 5rem 0; /* Increased padding */
   width: 100%;
 }
 
@@ -1454,7 +1450,7 @@ body {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-bottom: 4rem;
+  margin-bottom: 6rem; /* Increased spacing between items */
   position: relative;
   z-index: 2;
 }
@@ -1489,32 +1485,24 @@ body {
   border-radius: 50%;
   transform: translate(-50%, 0);
   z-index: 3;
-  box-shadow: 0 0 0 3px rgba(19, 91, 236, 0.2);
 }
 
 /* Matnli karta (oq fonli) */
 .feature-card {
   background: white;
-  padding: 2rem;
+  padding: 2.5rem; /* Increased padding */
   border-radius: 1rem;
-  border: 1px solid #f3f4f6;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
   width: 100%;
-}
-
-.feature-card:hover {
-  transform: translateY(-5px);
 }
 
 /* Matn ichidagi icon */
 .feature-icon {
   display: inline-flex;
-  padding: 10px;
+  padding: 12px; /* Increased padding */
   background: #eff6ff;
   color: #135bec;
   border-radius: 12px;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem; /* Increased margin */
 }
 
 /* Rasm o'rovi */
@@ -1529,10 +1517,10 @@ body {
   max-width: 100%;
   height: auto;
   border-radius: 1rem;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
   /* Rasmni chiroyli ko'rsatish uchun */
   object-fit: cover;
-  max-height: 300px;
+  max-height: 420px; /* Increased from 300px */
+  width: 100%;
 }
 
 /* --- RESPONSIVE (Mobil qurilmalar) --- */
@@ -1571,7 +1559,7 @@ body {
   /* Rasmlar mobil versiyada matndan keyin chiqishi uchun order o'zgartirish */
   .left-block {
     order: 2; /* Rasm pastga tushadi */
-    margin-top: 1.5rem;
+    margin-top: 2rem; /* Increased margin */
   }
 
   .right-block {
@@ -1582,7 +1570,7 @@ body {
   /* Bu oddiy yechim: Mobil versiyada shunchaki barchasini vertikal qilib, rasm va matnni ketma-ket qo'yamiz */
 
   .feature-image-wrapper img {
-    max-height: 200px;
+    max-height: 280px; /* Increased from 200px */
     width: 100%;
   }
 }
