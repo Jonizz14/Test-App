@@ -447,6 +447,16 @@ body {
   background: rgba(19, 91, 236, 0.9);
 }
 
+.contact-form-submit:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.contact-form-submit:disabled:hover {
+  background: #9ca3af;
+}
+
 .contact-location {
   width: 100%;
   background: #f8fafc;
@@ -630,6 +640,10 @@ body {
   margin-top: 0.125rem;
 }
 
+.toast-icon-error {
+  color: #ef4444;
+}
+
 .toast-text {
   flex: 1;
 }
@@ -687,5 +701,404 @@ body {
     left: 10px;
     width: calc(100% - 20px);
     max-width: none;
+  }
+}
+
+/* My Messages Section */
+.my-messages-section {
+  width: 100%;
+  background: #f8fafc;
+  padding: 4rem 0;
+}
+
+.my-messages-section .layout-container {
+  display: flex;
+  justify-content: center;
+}
+
+.my-messages-section .layout-container > div {
+  padding: 0 2.5rem;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.my-messages-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.my-messages-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #1f2937;
+}
+
+.my-messages-highlight {
+  color: #135bec;
+}
+
+.my-messages-description {
+  color: #6b7280;
+  max-width: 600px;
+}
+
+.my-messages-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid #135bec;
+  background: white;
+  color: #135bec;
+}
+
+.my-messages-toggle:hover {
+  background: #135bec;
+  color: white;
+}
+
+.my-messages-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.my-messages-empty {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+}
+
+.my-messages-empty p {
+  color: #6b7280;
+  font-size: 1.125rem;
+}
+
+.my-messages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.message-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f3f4f6;
+}
+
+.message-card.new {
+  border-left: 4px solid #ef4444;
+}
+
+.message-card.read {
+  border-left: 4px solid #f59e0b;
+}
+
+.message-card.replied {
+  border-left: 4px solid #10b981;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.message-info h4 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.message-subject {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.message-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-badge.new {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.status-badge.read {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+}
+
+.status-badge.replied {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+}
+
+.replied-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #10b981;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.message-content {
+  margin-bottom: 1rem;
+}
+
+.message-content p {
+  color: #374151;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.message-meta {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.admin-reply {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-reply h5 {
+  color: #0369a1;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.admin-reply p {
+  color: #0c4a6e;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.reply-meta {
+  font-size: 0.75rem;
+  color: #0369a1;
+  opacity: 0.8;
+}
+
+.message-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.message-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.edit-btn {
+  background: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+}
+
+.edit-btn:hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.delete-btn {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.edit-message-dialog {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.edit-message-dialog h4 {
+  color: #1f2937;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.edit-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.edit-message-dialog input,
+.edit-message-dialog select,
+.edit-message-dialog textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.edit-message-dialog textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.edit-form-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.cancel-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background: #f3f4f6;
+}
+
+.save-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: #135bec;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-btn:hover {
+  background: rgba(19, 91, 236, 0.9);
+}
+
+.delete-confirmation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.delete-confirmation-dialog {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.delete-confirmation-dialog h4 {
+  color: #1f2937;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.delete-confirmation-dialog p {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+.delete-confirmation-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.confirm-delete-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  background: #dc2626;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirm-delete-btn:hover {
+  background: #b91c1c;
+}
+
+/* Responsive Design for My Messages */
+@media (max-width: 768px) {
+  .my-messages-section .layout-container > div {
+    padding: 0 1rem;
+  }
+
+  .my-messages-title {
+    font-size: 1.875rem;
+  }
+
+  .message-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .message-status {
+    align-items: flex-start;
+  }
+
+  .edit-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .message-actions {
+    flex-wrap: wrap;
   }
 }

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, ContactMessage
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
@@ -219,4 +219,16 @@ class StarPackageSerializer(serializers.ModelSerializer):
         if obj.discount_percentage > 0:
             return f"{obj.discount_percentage}% Chegirma"
         return ""
+
+class ContactMessageSerializer(serializers.ModelSerializer):
+    subject_name = serializers.CharField(source='get_subject_display', read_only=True)
+    status_name = serializers.CharField(source='get_status_display', read_only=True)
+    replied_by_name = serializers.CharField(source='replied_by.username', read_only=True)
+    
+    class Meta:
+        model = ContactMessage
+        fields = ['id', 'name', 'email', 'phone', 'subject', 'subject_name', 'message', 
+                  'status', 'status_name', 'created_at', 'updated_at', 'replied_at', 
+                  'admin_reply', 'replied_by', 'replied_by_name']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'replied_at', 'replied_by']
 

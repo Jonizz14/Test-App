@@ -7,7 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.db import models
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, ContactMessage
 from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, PricingSerializer, StarPackageSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -984,4 +984,268 @@ class StarPackageViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Only allow authenticated users to create sessions
         serializer.save(student=self.request.user)
+
+class ContactMessageViewSet(viewsets.ModelViewSet):
+    """ViewSet for managing contact messages"""
+    queryset = ContactMessage.objects.all()
+    permission_classes = [AllowAny]  # Allow public submission
+    
+    def get_serializer_class(self):
+        from .serializers import ContactMessageSerializer
+        return ContactMessageSerializer
+    
+    def create(self, request, *args, **kwargs):
+        """Handle contact form submission"""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        
+        return Response({
+            'message': 'Xabaringiz muvaffaqiyatli yuborildi! Biz tez orada javob beramiz.',
+            'data': serializer.data
+        }, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def admin_list(self, request):
+        """List messages for admin users (head admin only)"""
+        if request.user.role != 'head_admin':
+            return Response({'error': 'Faqat super admin xabarlarni ko\'ra oladi'}, status=status.HTTP_403_FORBIDDEN)
+        
+        queryset = self.get_queryset()
+        
+        # Filter by status if provided
+        status = request.query_params.get('status', None)
+        if status:
+            queryset = queryset.filter(status=status)
+        
+        # Filter by subject if provided
+        subject = request.query_params.get('subject', None)
+        if subject:
+            queryset = queryset.filter(subject=subject)
+        
+        # Search by name, email, or message content
+        search = request.query_params.get('search', None)
+        if search:
+            queryset = queryset.filter(
+                models.Q(name__icontains=search) |
+                models.Q(email__icontains=search) |
+                models.Q(message__icontains=search)
+            )
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['patch'], permission_classes=[IsAuthenticated])
+    def update_status(self, request, pk=None):
+        """Update message status (head admin only)"""
+        if request.user.role != 'head_admin':
+            return Response({'error': 'Faqat super admin statusni o\'zgartira oladi'}, status=status.HTTP_403_FORBIDDEN)
+        
+        message = self.get_object()
+        new_status = request.data.get('status')
+        admin_reply = request.data.get('admin_reply', '')
+        
+        if new_status not in ['new', 'read', 'replied', 'closed']:
+            return Response({'error': 'Noto\'g\'ri status'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        message.status = new_status
+        if admin_reply:
+            message.admin_reply = admin_reply
+            message.replied_by = request.user
+            from django.utils import timezone
+            message.replied_at = timezone.now()
+        
+        message.save()
+        
+        serializer = self.get_serializer(message)
+        return Response({
+            'message': 'Xabar holati yangilandi',
+            'data': serializer.data
+        })
+    
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def reply(self, request, pk=None):
+        """Reply to a contact message (head admin only)"""
+        if request.user.role != 'head_admin':
+            return Response({'error': 'Faqat super admin javob bera oladi'}, status=status.HTTP_403_FORBIDDEN)
+        
+        message = self.get_object()
+        admin_reply = request.data.get('admin_reply', '')
+        
+        if not admin_reply:
+            return Response({'error': 'Javob matni kerak'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        message.admin_reply = admin_reply
+        message.replied_by = request.user
+        message.status = 'replied'
+        from django.utils import timezone
+        message.replied_at = timezone.now()
+        message.save()
+        
+        # Send email notification to user
+        email_sent = self._send_reply_email(message, admin_reply)
+        
+        serializer = self.get_serializer(message)
+        return Response({
+            'message': 'Javob yuborildi' + (' va email yuborildi' if email_sent else ''),
+            'email_sent': email_sent,
+            'data': serializer.data
+        })
+    
+    def _send_reply_email(self, message, admin_reply):
+        """Send email notification to user when admin replies"""
+        try:
+            # Import Django email functionality
+            from django.core.mail import send_mail
+            from django.template.loader import render_to_string
+            from django.utils.html import strip_tags
+            from django.conf import settings
+            
+            # Prepare email content
+            subject = f'Reply to your message: {message.get_subject_display()}'
+            
+            # Create HTML email content
+            html_content = f"""
+            <html>
+            <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+                <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <h2 style="color: #135bec; margin-bottom: 20px;">Javob xabaringiz bor!</h2>
+                    
+                    <p>Assalomu alaykum <strong>{message.name}</strong>,</p>
+                    
+                    <p>Sizning "<strong>{message.get_subject_display()}</strong>" mavzusidagi xabaringizga javob berildi:</p>
+                    
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #135bec; margin: 20px 0;">
+                        <h4 style="margin: 0 0 10px 0; color: #374151;">Sizning xabaringiz:</h4>
+                        <p style="margin: 0; color: #6b7280;">{message.message}</p>
+                    </div>
+                    
+                    <div style="background: #e0f2fe; padding: 20px; border-radius: 8px; border-left: 4px solid #0ea5e9; margin: 20px 0;">
+                        <h4 style="margin: 0 0 10px 0; color: #0369a1;">Admin javobi:</h4>
+                        <p style="margin: 0; color: #0c4a6e;">{admin_reply}</p>
+                    </div>
+                    
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                        <p style="color: #6b7280; font-size: 14px; margin: 0;">
+                            Javob bergan: {message.replied_by.name if message.replied_by else 'Admin'}<br>
+                            Sana: {message.replied_at.strftime('%Y-%m-%d %H:%M') if message.replied_at else ''}
+                        </p>
+                    </div>
+                    
+                    <div style="margin-top: 30px; padding: 20px; background: #f0f9ff; border-radius: 8px; text-align: center;">
+                        <p style="margin: 0; color: #0369a1; font-weight: 600;">Examify - Sergeli ixtisoslashtirilgan maktab</p>
+                        <p style="margin: 5px 0 0 0; color: #6b7280; font-size: 14px;">Professional ta'lim platformasi</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            
+            # Create plain text version
+            plain_message = f"""
+Javob xabaringiz bor!
+
+Assalomu alaykum {message.name},
+
+Sizning "{message.get_subject_display()}" mavzusidagi xabaringizga javob berildi:
+
+Sizning xabaringiz:
+{message.message}
+
+Admin javobi:
+{admin_reply}
+
+Javob bergan: {message.replied_by.name if message.replied_by else 'Admin'}
+Sana: {message.replied_at.strftime('%Y-%m-%d %H:%M') if message.replied_at else ''}
+
+Examify - Sergeli ixtisoslashtirilgan maktab
+Professional ta'lim platformasi
+            """
+            
+            # Send email
+            send_mail(
+                subject=subject,
+                message=plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL or 'noreply@examify.uz',
+                recipient_list=[message.email],
+                html_message=html_content,
+                fail_silently=False
+            )
+            
+            print(f"Email sent successfully to {message.email}")
+            return True
+            
+        except Exception as e:
+            print(f"Failed to send email: {e}")
+            # Don't fail the main operation if email fails
+            return False
+    
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def my_messages(self, request):
+        """Get user's own contact messages"""
+        if not request.user.email:
+            return Response({'error': 'Email manzili kerak'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Get messages by email (since users don't need to be logged in to send messages)
+        queryset = ContactMessage.objects.filter(email=request.user.email).order_by('-created_at')
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['put'], permission_classes=[IsAuthenticated])
+    def edit_message(self, request, pk=None):
+        """Edit user's own contact message (only if not replied yet)"""
+        if not request.user.email:
+            return Response({'error': 'Email manzili kerak'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            message = ContactMessage.objects.get(id=pk, email=request.user.email)
+        except ContactMessage.DoesNotExist:
+            return Response({'error': 'Xabar topilmadi'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check if message has already been replied to
+        if message.status == 'replied':
+            return Response({'error': 'Javob berilgan xabarni tahrirlab bo\'lmaydi'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Only allow editing name, phone, subject, and message (not email)
+        name = request.data.get('name')
+        phone = request.data.get('phone')
+        subject = request.data.get('subject')
+        message_text = request.data.get('message')
+        
+        if name:
+            message.name = name
+        if phone is not None:
+            message.phone = phone
+        if subject:
+            message.subject = subject
+        if message_text:
+            message.message = message_text
+        
+        message.save()
+        
+        serializer = self.get_serializer(message)
+        return Response({
+            'message': 'Xabar muvaffaqiyatli yangilandi',
+            'data': serializer.data
+        })
+    
+    @action(detail=True, methods=['delete'], permission_classes=[IsAuthenticated])
+    def delete_message(self, request, pk=None):
+        """Delete user's own contact message (only if not replied yet)"""
+        if not request.user.email:
+            return Response({'error': 'Email manzili kerak'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            message = ContactMessage.objects.get(id=pk, email=request.user.email)
+        except ContactMessage.DoesNotExist:
+            return Response({'error': 'Xabar topilmadi'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check if message has already been replied to
+        if message.status == 'replied':
+            return Response({'error': 'Javob berilgan xabarni o\'chirib bo\'lmaydi'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        message.delete()
+        
+        return Response({'message': 'Xabar muvaffaqiyatli o\'chirildi'})
 

@@ -400,3 +400,42 @@ class StarPackage(models.Model):
 
     class Meta:
         ordering = ['stars']
+
+class ContactMessage(models.Model):
+    """Model to store contact form messages"""
+    SUBJECT_CHOICES = [
+        ('technical', 'Texnik yordam'),
+        ('billing', 'To\'lov masalalari'),
+        ('feature', 'Yangi funksiya taklifi'),
+        ('partnership', 'Hamkorlik'),
+        ('other', 'Boshqa'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('new', 'Yangi'),
+        ('read', 'O\'qilgan'),
+        ('replied', 'Javob berilgan'),
+        ('closed', 'Yopilgan'),
+    ]
+    
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20, blank=True)
+    subject = models.CharField(max_length=20, choices=SUBJECT_CHOICES)
+    message = models.TextField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='new')
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+    replied_at = models.DateTimeField(null=True, blank=True)
+    admin_reply = models.TextField(blank=True)
+    replied_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='replied_messages')
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status', 'created_at']),
+            models.Index(fields=['subject']),
+        ]
+    
+    def __str__(self):
+        return f"{self.name} - {self.get_subject_display()} ({self.get_status_display()})"

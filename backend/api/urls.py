@@ -12,6 +12,7 @@ router.register(r'feedback', views.FeedbackViewSet)
 router.register(r'sessions', views.TestSessionViewSet, basename='testsession')
 router.register(r'pricing', views.PricingViewSet)
 router.register(r'star-packages', views.StarPackageViewSet)
+router.register(r'contact-messages', views.ContactMessageViewSet)
 
 
 urlpatterns = [

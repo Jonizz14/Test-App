@@ -415,6 +415,37 @@ class ApiService {
     return this.post(`/users/${userId}/approve_plan/`);
   }
 
+  // Contact message methods
+  async getContactMessages(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    return this.get(`/contact-messages/admin_list/${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async submitContactMessage(data) {
+    return this.post('/contact-messages/', data);
+  }
+
+  async updateContactMessageStatus(messageId, data) {
+    return this.patch(`/contact-messages/${messageId}/update_status/`, data);
+  }
+
+  async replyToContactMessage(messageId, data) {
+    return this.post(`/contact-messages/${messageId}/reply/`, data);
+  }
+
+  // User's own contact message methods
+  async getMyContactMessages() {
+    return this.get('/contact-messages/my_messages/');
+  }
+
+  async editContactMessage(messageId, data) {
+    return this.put(`/contact-messages/${messageId}/edit_message/`, data);
+  }
+
+  async deleteContactMessage(messageId) {
+    return this.delete(`/contact-messages/${messageId}/delete_message/`);
+  }
+
 }
 
 const apiService = new ApiService();

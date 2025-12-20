@@ -33,6 +33,7 @@ import {
   Notifications as NotificationsIcon,
   AdminPanelSettings as AdminIcon,
   History as ActivityIcon,
+  Email as EmailIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import apiService from '../data/apiService';
@@ -44,6 +45,7 @@ import ManageAdmins from './headadmin/ManageAdmins';
 import AddAdmin from './headadmin/AddAdmin';
 import AdminDetails from './headadmin/AdminDetails';
 import SiteActivity from './headadmin/SiteActivity';
+import ContactMessages from './headadmin/ContactMessages';
 
 // Import components
 import BannedStudentsModal from '../components/BannedStudentsModal';
@@ -110,6 +112,11 @@ const HeadAdminDashboard = () => {
       text: 'Adminlarni boshqarish',
       icon: <AdminIcon />,
       path: '/headadmin/admins'
+    },
+    {
+      text: 'Xabarlar',
+      icon: <EmailIcon />,
+      path: '/headadmin/messages'
     },
   ];
 
@@ -342,7 +349,7 @@ const HeadAdminDashboard = () => {
               <Route path="/add-admin" element={<AddAdmin />} />
               <Route path="/edit-admin/:id" element={<AddAdmin />} />
               <Route path="/admin-details/:id" element={<AdminDetails />} />
-
+              <Route path="/messages" element={<ContactMessages />} />
             </Routes>
           </Container>
         </Box>
