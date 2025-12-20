@@ -1,37 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Grid,
-  Paper,
-  Typography,
-  Box,
+  Row,
+  Col,
   Card,
-  CardContent,
+  Typography,
   List,
-  ListItem,
-  ListItemText,
-  Divider,
   Alert,
-  CircularProgress,
-  Button,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-} from '@mui/material';
+  Spin,
+  Collapse,
+  Badge,
+  Statistic,
+} from 'antd';
 import {
-  People as PeopleIcon,
-  Assessment as AssessmentIcon,
-  School as SchoolIcon,
-  TrendingUp as TrendingUpIcon,
-  AdminPanelSettings as AdminPanelSettingsIcon,
-  LocalLibrary as LocalLibraryIcon,
-  EmojiPeople as EmojiPeopleIcon,
-  BarChart as BarChartIcon,
-  Quiz as QuizIcon,
-  Timeline as TimelineIcon,
-  ExpandMore as ExpandMoreIcon,
-  Security as SecurityIcon,
-} from '@mui/icons-material';
+  UserOutlined,
+  TeamOutlined,
+  SafetyCertificateOutlined,
+  BookOutlined,
+  RiseOutlined,
+  BarChartOutlined,
+  TrophyOutlined,
+  ClockCircleOutlined,
+} from '@ant-design/icons';
 import apiService from '../../data/apiService';
+
+const { Title, Text } = Typography;
+const { Panel } = Collapse;
 
 const HeadAdminOverview = () => {
   const [stats, setStats] = useState({
@@ -137,381 +130,333 @@ const HeadAdminOverview = () => {
     fetchStatistics();
   }, []);
 
-  const StatCard = ({ title, value, icon, color }) => (
-    <Card sx={{
-      backgroundColor: '#ffffff',
-      border: '1px solid #e2e8f0',
-      borderRadius: '12px',
-      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-      transition: 'none',
-      '&:hover': {
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-      },
-    }}>
-      <CardContent sx={{
-        p: 4,
-        '&:last-child': { pb: 4 }
-      }}>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Box flex={1}>
-            <Typography
-              sx={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                color: '#64748b',
-                mb: 1
-              }}
-            >
-              {title}
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: '2.5rem',
-                fontWeight: 700,
-                color: '#1e293b',
-                lineHeight: 1.2
-              }}
-            >
-              {value}
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              backgroundColor: color === 'primary.main' ? '#eff6ff' :
-                              color === 'secondary.main' ? '#f0fdf4' :
-                              color === 'success.main' ? '#ecfdf5' :
-                              color === 'warning.main' ? '#fffbeb' :
-                              '#f8fafc',
-              borderRadius: '12px',
-              padding: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              ml: 2
+  const StatCard = ({ title, value, icon, color, suffix }) => (
+    <Card
+      style={{
+        backgroundColor: '#ffffff',
+        border: '1px solid #e2e8f0',
+        borderRadius: '12px',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.3s ease',
+      }}
+      bodyStyle={{ padding: '24px' }}
+      hoverable
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ flex: 1 }}>
+          <Text
+            style={{
+              fontSize: '12px',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              color: '#64748b',
+              display: 'block',
+              marginBottom: '8px'
             }}
           >
-            {React.cloneElement(icon, {
-              sx: {
-                fontSize: '2rem',
-                color: color === 'primary.main' ? '#2563eb' :
-                       color === 'secondary.main' ? '#16a34a' :
-                       color === 'success.main' ? '#059669' :
-                       color === 'warning.main' ? '#d97706' :
-                       '#64748b'
-              }
-            })}
-          </Box>
-        </Box>
-      </CardContent>
+            {title}
+          </Text>
+          <Statistic
+            value={value}
+            suffix={suffix}
+            valueStyle={{
+              fontSize: '40px',
+              fontWeight: 700,
+              color: '#1e293b',
+              lineHeight: 1.2
+            }}
+          />
+        </div>
+        <div
+          style={{
+            backgroundColor: color,
+            borderRadius: '12px',
+            padding: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginLeft: '16px'
+          }}
+        >
+          {React.cloneElement(icon, {
+            style: {
+              fontSize: '32px',
+              color: '#ffffff'
+            }
+          })}
+        </div>
+      </div>
     </Card>
   );
 
   if (loading) {
     return (
-      <Box sx={{
-        p: 4,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '400px'
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '400px',
+        flexDirection: 'column'
       }}>
-        <CircularProgress />
-        <Typography variant="body1" sx={{ ml: 2 }}>
-          Ma'lumotlar yuklanmoqda...
-        </Typography>
-      </Box>
+        <Spin size="large" />
+        <Text style={{ marginTop: 16 }}>Ma'lumotlar yuklanmoqda...</Text>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box sx={{ p: 4 }}>
-        <Alert severity="error" sx={{ mt: 2 }}>
-          {error}
-        </Alert>
-      </Box>
+      <div style={{ padding: '24px' }}>
+        <Alert
+          message={error}
+          type="error"
+          showIcon
+          style={{ marginBottom: '16px' }}
+        />
+      </div>
     );
   }
 
   return (
-    <Box sx={{
-      py: 4,
-      backgroundColor: '#ffffff'
-    }}>
-      <Box sx={{
-        mb: 6,
-        pb: 4,
+    <div style={{ padding: '24px 0' }}>
+      {/* Header */}
+      <div style={{
+        marginBottom: '24px',
+        paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
-      }}
-      >
-        <Typography
-          sx={{
-            fontSize: '2.5rem',
-            fontWeight: 700,
-            color: '#1e293b',
-            mb: 2
-          }}
-        >
+      }}>
+        <Title level={1} style={{ margin: 0, color: '#1e293b', marginBottom: '8px' }}>
           Head Admin Umumiy ko'rinishi
-        </Typography>
-        <Typography sx={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400
-        }}>
+        </Title>
+        <Text style={{ fontSize: '18px', color: '#64748b' }}>
           Platformaning to'liq statistikasi va barcha faoliyati
-        </Typography>
-      </Box>
+        </Text>
+      </div>
 
-
-
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
+      {/* Statistics Cards */}
+      <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
+        <Col xs={24} sm={12} md={6}>
           <StatCard
             title="Jami foydalanuvchilar"
             value={stats.totalUsers}
-            icon={<AdminPanelSettingsIcon fontSize="large" />}
-            color="primary.main"
+            icon={<SafetyCertificateOutlined />}
+            color="#2563eb"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
           <StatCard
             title="Administratorlar"
             value={stats.totalAdmins}
-            icon={<SecurityIcon fontSize="large" />}
-            color="error.main"
+            icon={<TeamOutlined />}
+            color="#dc2626"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
           <StatCard
             title="O'qituvchilar"
             value={stats.totalTeachers}
-            icon={<LocalLibraryIcon fontSize="large" />}
-            color="secondary.main"
+            icon={<BookOutlined />}
+            color="#16a34a"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
           <StatCard
             title="O'quvchilar"
             value={stats.totalStudents}
-            icon={<EmojiPeopleIcon fontSize="large" />}
-            color="success.main"
+            icon={<UserOutlined />}
+            color="#059669"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
+        </Col>
+        <Col xs={24} sm={12} md={4}>
           <StatCard
             title="Sotuvchilar"
             value={stats.totalSellers}
-            icon={<PeopleIcon fontSize="large" />}
-            color="warning.main"
+            icon={<TeamOutlined />}
+            color="#d97706"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
+        </Col>
+        <Col xs={24} sm={12} md={4}>
           <StatCard
             title="Jami testlar"
             value={stats.totalTests}
-            icon={<AssessmentIcon fontSize="large" />}
-            color="info.main"
+            icon={<BarChartOutlined />}
+            color="#7c3aed"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
+        </Col>
+        <Col xs={24} sm={12} md={4}>
           <StatCard
             title="Jami urinishlar"
             value={stats.totalAttempts}
-            icon={<AssessmentIcon fontSize="large" />}
-            color="primary.main"
+            icon={<TrophyOutlined />}
+            color="#2563eb"
           />
-        </Grid>
-      </Grid>
+        </Col>
+      </Row>
 
-      <Box sx={{ mt: 4 }}>
-        <Accordion
-          expanded={detailsExpanded}
-          onChange={() => setDetailsExpanded(!detailsExpanded)}
-          sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '16px !important',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            '&:before': {
-              display: 'none',
-            },
-            '&.Mui-expanded': {
-              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
-            }
-          }}
-        >
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon sx={{ color: '#2563eb' }} />}
-            sx={{
-              backgroundColor: '#f8fafc',
-              borderBottom: detailsExpanded ? '1px solid #e2e8f0' : 'none',
-              borderRadius: detailsExpanded ? '16px 16px 0 0' : '16px',
-              py: 3,
-              px: 4,
-              '&:hover': {
-                backgroundColor: '#f1f5f9',
-              },
-              '& .MuiAccordionSummary-content': {
-                alignItems: 'center',
-                gap: 2,
-              }
-            }}
-          >
-            <Box sx={{
-              width: 48,
-              height: 48,
-              borderRadius: '12px',
-              backgroundColor: '#eff6ff',
+      {/* Detailed Statistics */}
+      <Collapse
+        activeKey={detailsExpanded ? ['details'] : []}
+        onChange={(keys) => setDetailsExpanded(keys.includes('details'))}
+        ghost
+        style={{
+          backgroundColor: 'transparent'
+        }}
+      >
+        <Panel
+          key="details"
+          showArrow={false}
+          header={
+            <div style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '16px',
+              padding: '24px',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <SecurityIcon sx={{ color: '#2563eb', fontSize: '1.5rem' }} />
-            </Box>
-            <Box>
-              <Typography sx={{
-                fontSize: '1.25rem',
-                fontWeight: 700,
-                color: '#1e293b',
-                mb: 0.5
+              gap: '16px',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+            }}
+            >
+              <div style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '12px',
+                backgroundColor: '#eff6ff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}>
-                📊 To'liq statistika va faoliyatni ko'rish
-              </Typography>
-              <Typography sx={{
-                fontSize: '0.875rem',
-                color: '#64748b',
-                fontWeight: 400
+                <BarChartOutlined style={{ color: '#2563eb', fontSize: '24px' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <Title level={4} style={{ margin: 0, color: '#1e293b', marginBottom: '4px' }}>
+                  📊 To'liq statistika va faoliyatni ko'rish
+                </Title>
+                <Text style={{ fontSize: '14px', color: '#64748b' }}>
+                  Platformaning batafsil statistikasi va faoliyat tarixi
+                </Text>
+              </div>
+              <div style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                backgroundColor: detailsExpanded ? '#2563eb' : '#94a3b8',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transform: detailsExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'all 0.3s ease'
               }}>
-                Platformaning batafsil statistikasi va faoliyat tarixi
-              </Typography>
-            </Box>
-          </AccordionSummary>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M6 9L1 4h10L6 9z" fill="white"/>
+                </svg>
+              </div>
+            </div>
+          }
+        >
+          <div style={{ padding: '24px 0' }}>
+            {/* Recent Activity */}
+            <Card
+              style={{
+                backgroundColor: '#fffbeb',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                marginBottom: '24px'
+              }}
+              bodyStyle={{ padding: '16px 20px' }}
+            >
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '16px'
+              }}>
+                <ClockCircleOutlined style={{ color: '#d97706', fontSize: '20px' }} />
+                <Title level={4} style={{ margin: 0, color: '#1e293b' }}>
+                  So'nggi faoliyat
+                </Title>
+              </div>
+            </Card>
 
-          <AccordionDetails sx={{ p: 0 }}>
-            <Box sx={{ p: 4 }}>
-              {/* Recent Activity */}
-              <Box>
-                <Box sx={{
-                  backgroundColor: '#fffbeb',
-                  borderRadius: '12px',
-                  padding: '16px 20px',
-                  mb: 3,
-                  border: '1px solid #e2e8f0'
-                }}>
-                  <Typography sx={{
-                    fontSize: '1.25rem',
-                    fontWeight: 600,
-                    color: '#1e293b',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1
-                  }}>
-                    <TimelineIcon sx={{ color: '#d97706' }} />
-                    So'nggi faoliyat
-                  </Typography>
-                </Box>
-                <Card sx={{
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '12px',
-                  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-                  maxHeight: '400px',
-                  overflow: 'auto'
-                }}>
-                  <List sx={{ p: 0 }}>
-                    {stats.allRecentActivity.length > 0 ? (
-                      stats.allRecentActivity.map((activity, index) => (
-                        <React.Fragment key={activity.id}>
-                          <ListItem sx={{
-                            px: 3,
-                            py: 2.5,
-                            '&:hover': {
-                              backgroundColor: '#f8fafc',
-                            },
-                            transition: 'background-color 0.2s ease'
-                          }}>
-                            <ListItemText
-                              primary={
-                                <Box sx={{
-                                  display: 'flex',
-                                  justifyContent: 'space-between',
-                                  alignItems: 'center',
-                                  mb: 0.5
-                                }}>
-                                  <Typography sx={{
-                                    fontSize: '0.875rem',
-                                    fontWeight: 600,
-                                    color: '#1e293b'
-                                  }}>
-                                    {activity.action}
-                                  </Typography>
-                                  <Box sx={{
-                                    backgroundColor: activity.score >= 80 ? '#ecfdf5' :
-                                                   activity.score >= 60 ? '#fffbeb' : '#fef2f2',
-                                    color: activity.score >= 80 ? '#059669' :
-                                          activity.score >= 60 ? '#d97706' : '#dc2626',
-                                    px: 2,
-                                    py: 0.5,
-                                    borderRadius: '6px',
-                                    fontSize: '0.75rem',
-                                    fontWeight: 600
-                                  }}>
-                                    {activity.score}%
-                                  </Box>
-                                </Box>
-                              }
-                              secondary={
-                                <Typography sx={{
-                                  fontSize: '0.75rem',
-                                  color: '#64748b',
-                                  fontWeight: 400
-                                }}>
-                                  {activity.user} • {activity.time}
-                                </Typography>
-                              }
-                            />
-                          </ListItem>
-                          {index < stats.allRecentActivity.length - 1 && (
-                            <Divider sx={{ my: 0, mx: 3 }} />
-                          )}
-                        </React.Fragment>
-                      ))
-                    ) : (
-                      <ListItem sx={{ px: 3, py: 6 }}>
-                        <ListItemText
-                          primary={
-                            <Typography sx={{
-                              fontSize: '0.875rem',
-                              fontWeight: 500,
-                              color: '#64748b',
-                              textAlign: 'center'
-                            }}>
-                              Hozircha faoliyat yo'q
-                            </Typography>
-                          }
-                          secondary={
-                            <Typography sx={{
-                              fontSize: '0.75rem',
-                              color: '#94a3b8',
-                              textAlign: 'center'
-                            }}>
-                              Testlar yakunlanganda bu yerda ko'rinadi
-                            </Typography>
-                          }
+            <Card
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                maxHeight: '400px',
+                overflow: 'auto'
+              }}
+            >
+              <List
+                dataSource={stats.allRecentActivity}
+                locale={{ emptyText: 'Hozircha faoliyat yo\'q' }}
+                renderItem={(activity, index) => (
+                  <List.Item
+                    style={{
+                      padding: '16px 24px',
+                      borderBottom: index < stats.allRecentActivity.length - 1 ? '1px solid #f1f5f9' : 'none',
+                      transition: 'background-color 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f8fafc';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
+                  >
+                    <div style={{ width: '100%' }}>
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '4px'
+                      }}>
+                        <Text style={{
+                          fontSize: '14px',
+                          fontWeight: 600,
+                          color: '#1e293b'
+                        }}>
+                          {activity.action}
+                        </Text>
+                        <Badge
+                          count={`${activity.score}%`}
+                          style={{
+                            backgroundColor: activity.score >= 80 ? '#ecfdf5' :
+                                           activity.score >= 60 ? '#fffbeb' : '#fef2f2',
+                            color: activity.score >= 80 ? '#059669' :
+                                   activity.score >= 60 ? '#d97706' : '#dc2626',
+                            border: 'none',
+                            fontSize: '12px',
+                            fontWeight: 600
+                          }}
                         />
-                      </ListItem>
-                    )}
-                  </List>
-                </Card>
-              </Box>
-            </Box>
-          </AccordionDetails>
-        </Accordion>
-      </Box>
-    </Box>
+                      </div>
+                      <Text style={{
+                        fontSize: '12px',
+                        color: '#64748b',
+                        fontWeight: 400
+                      }}>
+                        {activity.user} • {activity.time}
+                      </Text>
+                    </div>
+                  </List.Item>
+                )}
+              />
+            </Card>
+          </div>
+        </Panel>
+      </Collapse>
+    </div>
   );
 };
 

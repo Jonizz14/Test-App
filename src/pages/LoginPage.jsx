@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import UnbanModal from '../components/UnbanModal';
+import { Alert } from 'antd';
 import logoImage from '../assets/image.png';
 import '../styles/Login.css';
 
@@ -121,37 +122,32 @@ const LoginPage = () => {
             <div className="login-content">
               {/* Alert for already authenticated users */}
               {isAuthenticated && (
-                <div className="alert alert-info">
-                  <span>Siz allaqachon {currentUser?.name} sifatida kirgansiz.</span>
-                  <button
-                    className="logout-link"
-                    onClick={logout}
-                  >
-                    Chiqish
-                  </button>
-                  <button
-                    className="alert-close"
-                    onClick={() => {}}
-                  >
-                    <span className="material-symbols-outlined">close</span>
-                  </button>
-                </div>
+                <Alert
+                  message={`Siz allaqachon ${currentUser?.name} sifatida kirgansiz.`}
+                  type="info"
+                  showIcon
+                  action={
+                    <button
+                      className="logout-link"
+                      onClick={logout}
+                    >
+                      Chiqish
+                    </button>
+                  }
+                  style={{ marginBottom: '16px' }}
+                />
               )}
 
               {/* Error alert */}
               {error && (
-                <div className={`alert ${error.includes('muvaffaqiyatli') ? 'alert-success' : 'alert-error'}`}>
-                  <span className="material-symbols-outlined">
-                    {error.includes('muvaffaqiyatli') ? 'check_circle' : 'error'}
-                  </span>
-                  <span>{error}</span>
-                  <button
-                    className="alert-close"
-                    onClick={() => setError('')}
-                  >
-                    <span className="material-symbols-outlined">close</span>
-                  </button>
-                </div>
+                <Alert
+                  message={error}
+                  type={error.includes('muvaffaqiyatli') ? 'success' : 'error'}
+                  showIcon
+                  closable
+                  onClose={() => setError('')}
+                  style={{ marginBottom: '16px' }}
+                />
               )}
 
               {/* Login Form */}

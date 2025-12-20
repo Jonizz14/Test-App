@@ -3,14 +3,13 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import apiService from "../data/apiService";
 import { useAuth } from "../context/AuthContext";
+import { showSuccess, showError } from "../utils/antdNotification";
 import "../styles/Contact.css";
 
 const Contact = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [toastType, setToastType] = useState('success');
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [myMessages, setMyMessages] = useState([]);
   const [showMyMessages, setShowMyMessages] = useState(false);
@@ -33,26 +32,19 @@ const Contact = () => {
       setIsSubmitting(true);
       const response = await apiService.submitContactMessage(messageData);
       
-      setToastMessage(response.message || 'Xabaringiz muvaffaqiyatli yuborildi!');
-      setToastType('success');
-      setShowToast(true);
+      showSuccess(response.message || 'Xabaringiz muvaffaqiyatli yuborildi!');
       
       // Reset form
       e.target.reset();
       
     } catch (error) {
       console.error('Failed to send message:', error);
-      setToastMessage('Xabar yuborishda xatolik yuz berdi. Iltimos, qaytadan urinib ko\'ring.');
-      setToastType('error');
-      setShowToast(true);
+      showError('Xabar yuborishda xatolik yuz berdi. Iltimos, qaytadan urinib ko\'ring.');
     } finally {
       setIsSubmitting(false);
     }
     
-    // Hide toast after 5 seconds
-    setTimeout(() => {
-      setShowToast(false);
-    }, 5000);
+
   };
 
   // Fetch user's messages if logged in
@@ -74,30 +66,22 @@ const Contact = () => {
   const handleEditMessage = async (messageId, updatedData) => {
     try {
       await apiService.editContactMessage(messageId, updatedData);
-      setToastMessage('Xabar muvaffaqiyatli yangilandi');
-      setToastType('success');
-      setShowToast(true);
+      showSuccess('Xabar muvaffaqiyatli yangilandi');
       setEditingMessage(null);
       fetchMyMessages();
     } catch (error) {
-      setToastMessage('Xabarni tahrirlashda xatolik yuz berdi');
-      setToastType('error');
-      setShowToast(true);
+      showError('Xabarni tahrirlashda xatolik yuz berdi');
     }
   };
 
   const handleDeleteMessage = async (messageId) => {
     try {
       await apiService.deleteContactMessage(messageId);
-      setToastMessage('Xabar muvaffaqiyatli o\'chirildi');
-      setToastType('success');
-      setShowToast(true);
+      showSuccess('Xabar muvaffaqiyatli o\'chirildi');
       setDeleteConfirm(null);
       fetchMyMessages();
     } catch (error) {
-      setToastMessage('Xabarni o\'chirishda xatolik yuz berdi');
-      setToastType('error');
-      setShowToast(true);
+      showError('Xabarni o\'chirishda xatolik yuz berdi');
     }
   };
 
@@ -534,26 +518,7 @@ const Contact = () => {
         </div>
       </section>
 
-      {/* Toast Notification */}
-      {showToast && (
-        <div className="toast-notification">
-          <div className="toast-content">
-            <span className={`material-symbols-outlined toast-icon ${toastType === 'error' ? 'toast-icon-error' : ''}`}>
-              {toastType === 'error' ? 'error' : 'check_circle'}
-            </span>
-            <div className="toast-text">
-              <strong>{toastType === 'error' ? 'Xatolik!' : 'Muvaffaqiyat!'}</strong>
-              <p>{toastMessage}</p>
-            </div>
-            <button 
-              className="toast-close"
-              onClick={() => setShowToast(false)}
-            >
-              <span className="material-symbols-outlined">close</span>
-            </button>
-          </div>
-        </div>
-      )}
+
 
       {/* Delete Confirmation Dialog */}
       {deleteConfirm && (

@@ -1,56 +1,51 @@
 import React, { useState, useEffect } from "react";
 import {
   Typography,
-  Box,
   Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Button,
-  Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
+  Tag,
+  Modal,
+  Input,
+  Space,
   Alert,
-  IconButton,
-  InputAdornment,
-} from "@mui/material";
+  Popconfirm,
+  Avatar,
+} from "antd";
 import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-  Search as SearchIcon,
-  Info as InfoIcon,
-  AdminPanelSettings as AdminIcon,
-
-} from "@mui/icons-material";
+  PlusOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  SearchOutlined,
+  EyeOutlined,
+  SafetyCertificateOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import apiService from "../../data/apiService";
+
+const { Title, Text } = Typography;
+const { Search } = Input;
 
 const ManageAdmins = () => {
   const navigate = useNavigate();
   const [admins, setAdmins] = useState([]);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [adminToDelete, setAdminToDelete] = useState(null);
-
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const loadData = async () => {
       try {
+        setLoading(true);
         // Load admins from API
         const allUsers = await apiService.getUsers();
         const allAdmins = allUsers.filter((user) => user.role === "admin");
         setAdmins(allAdmins);
       } catch (error) {
         console.error("Failed to load data:", error);
+        setError("Ma'lumotlarni yuklashda xatolik yuz berdi");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -63,340 +58,234 @@ const ManageAdmins = () => {
       // Remove from local state
       setAdmins(admins.filter((admin) => admin.id !== adminId));
       setSuccess("Admin muvaffaqiyatli o'chirildi!");
-      setDeleteDialogOpen(false);
-      setAdminToDelete(null);
     } catch (error) {
       console.error("Failed to delete admin:", error);
       setError("Adminni o'chirishda xatolik yuz berdi");
     }
   };
 
-  const handleDeleteClick = (admin) => {
-    setAdminToDelete(admin);
-    setDeleteDialogOpen(true);
-  };
-
   const handleEditClick = (admin) => {
     navigate(`/headadmin/edit-admin/${admin.id}`);
   };
 
+  const handleDetailsClick = (admin) => {
+    navigate(`/headadmin/admin-details/${admin.id}`);
+  };
 
+  const columns = [
+    {
+      title: 'Ism',
+      dataIndex: 'name',
+      key: 'name',
+      render: (name, record) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Avatar 
+            icon={<SafetyCertificateOutlined />} 
+            style={{ backgroundColor: '#dc2626' }}
+          />
+          <Text strong style={{ color: '#1e293b' }}>
+            {name}
+          </Text>
+        </div>
+      ),
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+      render: (email) => (
+        <Text
+          style={{
+            fontFamily: "monospace",
+            fontWeight: 600,
+            fontSize: "12px",
+            backgroundColor: "#fef2f2",
+            padding: "4px 8px",
+            borderRadius: "6px",
+            color: "#dc2626",
+          }}
+        >
+          {email}
+        </Text>
+      ),
+    },
+    {
+      title: 'Tashkilot',
+      dataIndex: 'organization',
+      key: 'organization',
+      render: (organization) => (
+        <Text style={{ color: "#64748b" }}>
+          {organization || '-'}
+        </Text>
+      ),
+    },
+    {
+      title: 'Status',
+      key: 'status',
+      render: () => (
+        <Tag color="success">Faol</Tag>
+      ),
+    },
+    {
+      title: "Ro'yxatdan o'tgan",
+      dataIndex: 'registration_date',
+      key: 'registration_date',
+      render: (date) => (
+        <Text style={{ color: "#64748b" }}>
+          {date ? new Date(date).toLocaleDateString('uz-UZ') : 'Noma\'lum'}
+        </Text>
+      ),
+    },
+    {
+      title: 'Harakatlar',
+      key: 'actions',
+      render: (_, record) => (
+        <Space size="small">
+          <Button
+            size="small"
+            type="default"
+            onClick={() => handleDetailsClick(record)}
+            icon={<EyeOutlined />}
+            style={{
+              fontSize: "12px",
+              padding: "4px 8px",
+              borderColor: "#dc2626",
+              color: "#dc2626",
+              height: "auto",
+            }}
+          >
+            Batafsil
+          </Button>
 
-  // Filter admins based on search term
-  const filteredAdmins = admins.filter((admin) => {
-    if (!searchTerm) return true;
-
-    const searchLower = searchTerm.toLowerCase();
-    const name = admin.name || "";
-    const email = admin.email || "";
-
-    return (
-      name.toLowerCase().includes(searchLower) ||
-      email.toLowerCase().includes(searchLower)
-    );
-  });
+          <Button
+            size="small"
+            type="text"
+            onClick={() => handleEditClick(record)}
+            icon={<EditOutlined />}
+            style={{
+              color: "#059669",
+            }}
+          >
+            Tahrirlash
+          </Button>
+          
+          <Popconfirm
+            title="Adminni o'chirishni tasdiqlang"
+            description="Haqiqatan ham ushbu adminni o'chirishni xohlaysizmi?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="O'chirish"
+            cancelText="Bekor qilish"
+            okButtonProps={{ danger: true }}
+          >
+            <Button
+              size="small"
+              type="text"
+              icon={<DeleteOutlined />}
+              style={{
+                color: "#dc2626",
+              }}
+            >
+              O'chirish
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
 
   return (
-    <Box
-      sx={{
-        py: 4,
-        backgroundColor: "#ffffff",
-      }}
-    >
+    <div style={{ padding: '24px 0' }}>
       {/* Header */}
-      <Box
-        sx={{
-          mb: 6,
-          pb: 4,
-          borderBottom: "1px solid #e2e8f0",
-        }}
-      >
-        <Typography
-          sx={{
-            fontSize: "2.5rem",
-            fontWeight: 700,
-            color: "#1e293b",
-            mb: 2,
-          }}
-        >
+      <div style={{
+        marginBottom: '24px',
+        paddingBottom: '16px',
+        borderBottom: '1px solid #e2e8f0'
+      }}>
+        <Title level={1} style={{ margin: 0, color: '#1e293b', marginBottom: '8px' }}>
           Administratorlarni boshqarish
-        </Typography>
-        <Typography
-          sx={{
-            fontSize: "1.125rem",
-            color: "#64748b",
-            fontWeight: 400,
-          }}
-        >
+        </Title>
+        <Text style={{ fontSize: '18px', color: '#64748b' }}>
           Adminlar ma'lumotlarini boshqaring va yangi adminlar qo'shing
-        </Typography>
-      </Box>
+        </Text>
+      </div>
 
       {/* Search and Add Button */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 4,
-        }}
-      >
-        <TextField
-          fullWidth
-          variant="outlined"
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '16px',
+        gap: '16px',
+      }}>
+        <Search
           placeholder="Admin nomi yoki emailini qidirish..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon sx={{ color: "#64748b" }} />
-              </InputAdornment>
-            ),
+          allowClear
+          style={{
+            maxWidth: '400px',
           }}
-          sx={{
-            mr: 2,
-            "& .MuiOutlinedInput-root": {
-              borderRadius: "8px",
-              backgroundColor: "#ffffff",
-              borderColor: "#e2e8f0",
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "#2563eb",
-              },
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                borderColor: "#2563eb",
-              },
-            },
+          prefix={<SearchOutlined style={{ color: '#64748b' }} />}
+          onChange={(e) => {
+            // In a real implementation, you'd filter the data here
+            // For now, we'll just show all admins
           }}
         />
         <Button
-          variant="contained"
-          startIcon={<AddIcon />}
+          type="primary"
+          icon={<PlusOutlined />}
           onClick={() => navigate("/headadmin/add-admin")}
-          sx={{
+          style={{
             backgroundColor: "#dc2626",
-            color: "#ffffff",
-            padding: "12px 24px",
-            borderRadius: "8px",
+            borderColor: "#dc2626",
             fontWeight: 600,
-            textTransform: "none",
-            whiteSpace: "nowrap",
-            "&:hover": {
-              backgroundColor: "#b91c1c",
-            },
           }}
         >
           Admin qo'shish
         </Button>
-      </Box>
+      </div>
 
+      {/* Success Message */}
       {success && (
-        <Alert severity="success" sx={{ mb: 4 }}>
-          {success}
-        </Alert>
+        <Alert
+          message={success}
+          type="success"
+          showIcon
+          style={{ marginBottom: '16px' }}
+        />
       )}
 
+      {/* Error Message */}
       {error && (
-        <Alert severity="error" sx={{ mb: 4 }}>
-          {error}
-        </Alert>
+        <Alert
+          message={error}
+          type="error"
+          showIcon
+          style={{ marginBottom: '16px' }}
+        />
       )}
 
-      {searchTerm && (
-        <Typography sx={{ mb: 2, color: "#64748b", fontSize: "0.875rem" }}>
-          {filteredAdmins.length} ta admin topildi
-        </Typography>
-      )}
-
-      <TableContainer
-        component={Paper}
-        sx={{
-          backgroundColor: "#ffffff",
-          border: "1px solid #e2e8f0",
-          borderRadius: "12px",
-          boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
+      {/* Table */}
+      <Table
+        columns={columns}
+        dataSource={admins}
+        rowKey="id"
+        loading={loading}
+        pagination={{
+          pageSize: 10,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} admin`,
         }}
-      >
-        <Table>
-          <TableHead>
-            <TableRow
-              sx={{
-                backgroundColor: "#f8fafc",
-                "& th": {
-                  fontWeight: 700,
-                  fontSize: "0.875rem",
-                  color: "#1e293b",
-                  borderBottom: "1px solid #e2e8f0",
-                  padding: "16px",
-                },
-              }}
-            >
-              <TableCell>Ism</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Tashkilot</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Ro'yxatdan o'tgan</TableCell>
-              <TableCell>Harakatlar</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredAdmins.map((admin) => (
-              <TableRow
-                key={admin.id}
-                sx={{
-                  "&:hover": {
-                    backgroundColor: "#f8fafc",
-                  },
-                  "& td": {
-                    borderBottom: "1px solid #f1f5f9",
-                    padding: "16px",
-                    fontSize: "0.875rem",
-                    color: "#334155",
-                  },
-                }}
-              >
-                <TableCell>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <AdminIcon sx={{ color: "#dc2626", fontSize: "1.5rem" }} />
-                    <Typography sx={{ fontWeight: 600, color: "#1e293b" }}>
-                      {admin.name}
-                    </Typography>
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Typography
-                    sx={{
-                      fontFamily: "monospace",
-                      fontWeight: 600,
-                      fontSize: "0.75rem",
-                      backgroundColor: "#fef2f2",
-                      padding: "4px 8px",
-                      borderRadius: "6px",
-                      color: "#dc2626",
-                    }}
-                  >
-                    {admin.email}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography sx={{ color: "#64748b" }}>
-                    {admin.organization || '-'}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label="Faol"
-                    color="success"
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Typography sx={{ color: "#64748b" }}>
-                    {admin.registration_date ? new Date(admin.registration_date).toLocaleDateString('uz-UZ') : 'Noma\'lum'}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Box sx={{ display: "flex", gap: 1 }}>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() =>
-                        navigate(`/headadmin/admin-details/${admin.id}`)
-                      }
-                      startIcon={<InfoIcon />}
-                      sx={{
-                        fontSize: "0.75rem",
-                        padding: "4px 8px",
-                        minWidth: "auto",
-                        borderColor: "#dc2626",
-                        color: "#dc2626",
-                        "&:hover": {
-                          backgroundColor: "#fef2f2",
-                          borderColor: "#b91c1c",
-                        },
-                      }}
-                    >
-                      Batafsil
-                    </Button>
-
-                    <IconButton
-                      size="small"
-                      onClick={() => handleEditClick(admin)}
-                      sx={{
-                        color: "#059669",
-                        "&:hover": {
-                          backgroundColor: "#ecfdf5",
-                        },
-                      }}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleDeleteClick(admin)}
-                      sx={{
-                        color: "#dc2626",
-                        "&:hover": {
-                          backgroundColor: "#fef2f2",
-                        },
-                      }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle sx={{ color: "error.main" }}>
-          Adminni o'chirishni tasdiqlang
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            Haqiqatan ham ushbu adminni o'chirishni xohlaysizmi?
-          </Typography>
-          {adminToDelete && (
-            <Paper sx={{ p: 2, backgroundColor: "#f5f5f5", mb: 2 }}>
-              <Typography variant="h6">{adminToDelete.name}</Typography>
-              <Typography variant="body2" color="textSecondary">
-                ID: {adminToDelete.display_id || adminToDelete.username}
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                Email: {adminToDelete.email}
-              </Typography>
-            </Paper>
-          )}
-          <Alert severity="warning">
-            <strong>E'tibor:</strong> Bu amal qaytarib bo'lmaydi. Admin o'chiriladi.
-          </Alert>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>
-            Bekor qilish
-          </Button>
-          <Button
-            onClick={() => handleDelete(adminToDelete.id)}
-            color="error"
-            variant="contained"
-            sx={{ cursor: "pointer" }}
-          >
-            O'chirish
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-
-    </Box>
+        locale={{
+          emptyText: 'Adminlar topilmadi',
+        }}
+        style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+          overflow: 'hidden',
+        }}
+      />
+    </div>
   );
 };
 

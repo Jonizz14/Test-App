@@ -39,6 +39,7 @@ import { useAuth } from '../context/AuthContext';
 import { useServerTest } from '../context/ServerTestContext';
 import NotificationCenter from '../components/NotificationCenter';
 import UnbanModal from '../components/UnbanModal';
+import { showWarning } from '../utils/antdNotification';
 
 // Import student sub-pages (we'll create these)
 import StudentOverview from './student/StudentOverview';
@@ -79,7 +80,7 @@ const StudentDashboard = () => {
 
   const handleNavigation = (path) => {
     if (sessionStarted && path !== '/student/take-test') {
-      alert('Test topshirayotganingizda boshqa sahifalarga o\'ta olmaysiz. Avval testni yakunlang!');
+      showWarning('Test topshirayotganingizda boshqa sahifalarga o\'ta olmaysiz. Avval testni yakunlang!');
       return;
     }
     navigate(path);
@@ -281,7 +282,7 @@ const StudentDashboard = () => {
         <MenuItem
           onClick={() => {
             if (sessionStarted) {
-              alert('Test topshirayotganingizda chiqa olmaysiz. Avval testni yakunlang!');
+              showWarning('Test topshirayotganingizda chiqa olmaysiz. Avval testni yakunlang!');
             } else {
               handleLogout();
             }

@@ -1,35 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import {
   Typography,
-  Box,
-  Card,
-  CardContent,
   Button,
+  Card,
   Avatar,
-  Chip,
-  Grid,
+  Row,
+  Col,
   Alert,
-  CircularProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TextField,
-} from '@mui/material';
+  Spin,
+  Space,
+} from 'antd';
 import {
-  ArrowBack as ArrowBackIcon,
-  AdminPanelSettings as AdminIcon,
-  Email as EmailIcon,
-  Person as PersonIcon,
-  CalendarToday as CalendarIcon,
-  Payment as PaymentIcon,
-} from '@mui/icons-material';
+  ArrowLeftOutlined,
+  UserOutlined,
+  MailOutlined,
+  CalendarOutlined,
+  SafetyCertificateOutlined,
+  BankOutlined,
+} from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiService from '../../data/apiService';
+
+const { Title, Text } = Typography;
 
 const AdminDetails = () => {
   const navigate = useNavigate();
@@ -37,7 +29,6 @@ const AdminDetails = () => {
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
 
   useEffect(() => {
     const loadData = async () => {
@@ -58,132 +49,118 @@ const AdminDetails = () => {
     }
   }, [id]);
 
-
-
   if (loading) {
     return (
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '400px'
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '400px',
+        flexDirection: 'column'
       }}>
-        <CircularProgress />
-        <Typography variant="body1" sx={{ ml: 2 }}>
-          Ma'lumotlar yuklanmoqda...
-        </Typography>
-      </Box>
+        <Spin size="large" />
+        <Text style={{ marginTop: 16 }}>Ma'lumotlar yuklanmoqda...</Text>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box sx={{ p: 4 }}>
-        <Alert severity="error" sx={{ mb: 4 }}>
-          {error}
-        </Alert>
+      <div style={{ padding: '24px' }}>
+        <Alert
+          message={error}
+          type="error"
+          showIcon
+          style={{ marginBottom: '16px' }}
+        />
         <Button
-          variant="outlined"
-          startIcon={<ArrowBackIcon />}
+          type="text"
+          icon={<ArrowLeftOutlined />}
           onClick={() => navigate('/headadmin/admins')}
         >
           Adminlarga qaytish
         </Button>
-      </Box>
+      </div>
     );
   }
 
   if (!admin) {
     return (
-      <Box sx={{ p: 4 }}>
-        <Alert severity="warning" sx={{ mb: 4 }}>
-          Admin topilmadi
-        </Alert>
+      <div style={{ padding: '24px' }}>
+        <Alert
+          message="Admin topilmadi"
+          type="warning"
+          showIcon
+          style={{ marginBottom: '16px' }}
+        />
         <Button
-          variant="outlined"
-          startIcon={<ArrowBackIcon />}
+          type="text"
+          icon={<ArrowLeftOutlined />}
           onClick={() => navigate('/headadmin/admins')}
         >
           Adminlarga qaytish
         </Button>
-      </Box>
+      </div>
     );
   }
 
   return (
-    <Box sx={{ py: 4, backgroundColor: '#ffffff' }}>
+    <div style={{ padding: '24px 0' }}>
       {/* Header */}
-      <Box sx={{
-        mb: 6,
-        pb: 4,
+      <div style={{
+        marginBottom: '24px',
+        paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
       }}>
         <Button
-          variant="outlined"
-          startIcon={<ArrowBackIcon />}
+          type="text"
+          icon={<ArrowLeftOutlined />}
           onClick={() => navigate('/headadmin/admins')}
-          sx={{ mr: 3, mb: 2 }}
+          style={{ marginBottom: 16 }}
         >
           Adminlarni boshqarishga qaytish
         </Button>
-        <Typography
-          sx={{
-            fontSize: '2.5rem',
-            fontWeight: 700,
-            color: '#1e293b',
-            mb: 2
-          }}
-        >
+        
+        <Title level={1} style={{ margin: 0, color: '#1e293b', marginBottom: '8px' }}>
           Admin ma'lumotlari
-        </Typography>
-        <Typography sx={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400
-        }}>
+        </Title>
+        <Text style={{ fontSize: '18px', color: '#64748b' }}>
           {admin.name} haqida batafsil ma'lumot
-        </Typography>
-      </Box>
+        </Text>
+      </div>
 
-      <Box sx={{ width: '100%' }}>
-        {/* Profile Card - Full Width Top */}
-        <Card sx={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '16px',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-          mb: 4
-        }}>
-          <CardContent sx={{ p: 6, textAlign: 'center' }}>
+      <Row gutter={[24, 24]}>
+        {/* Profile Card */}
+        <Col xs={24}>
+          <Card
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '16px',
+              textAlign: 'center',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            }}
+            bodyStyle={{ padding: '48px 24px' }}
+          >
             <Avatar
-              sx={{
-                width: 160,
-                height: 160,
-                mx: 'auto',
-                mb: 4,
+              size={160}
+              icon={<SafetyCertificateOutlined />}
+              style={{
                 backgroundColor: '#dc2626',
-                fontSize: '4rem',
+                fontSize: '64px',
+                marginBottom: '24px',
                 boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
               }}
-            >
-              <AdminIcon sx={{ fontSize: '4rem' }} />
-            </Avatar>
+            />
 
-            <Typography
-              sx={{
-                fontSize: '2rem',
-                fontWeight: 700,
-                color: '#1e293b',
-                mb: 2
-              }}
-            >
+            <Title level={2} style={{ margin: 0, color: '#1e293b', marginBottom: '16px' }}>
               {admin.name}
-            </Typography>
+            </Title>
 
-            <Typography
-              sx={{
+            <div
+              style={{
                 fontFamily: 'monospace',
-                fontSize: '1rem',
+                fontSize: '16px',
                 backgroundColor: '#f1f5f9',
                 padding: '12px 20px',
                 borderRadius: '8px',
@@ -192,109 +169,99 @@ const AdminDetails = () => {
               }}
             >
               {admin.email}
-            </Typography>
-          </CardContent>
-        </Card>
+            </div>
+          </Card>
+        </Col>
 
-        {/* Details Card - Full Width Bottom */}
-        <Card sx={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '16px',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-        }}>
-          <CardContent sx={{ p: 6 }}>
-            <Typography
-              sx={{
-                fontSize: '1.5rem',
-                fontWeight: 700,
-                color: '#1e293b',
-                mb: 4
-              }}
-            >
+        {/* Details Card */}
+        <Col xs={24}>
+          <Card
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '16px',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+            }}
+          >
+            <Title level={3} style={{ marginBottom: '24px', color: '#1e293b' }}>
               Ma'lumotlar
-            </Typography>
+            </Title>
 
-            <Grid container spacing={4}>
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <PersonIcon sx={{ color: '#64748b', mr: 2.5, fontSize: '1.5rem' }} />
-                  <Box>
-                    <Typography sx={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500, mb: 0.5 }}>
+            <Row gutter={[24, 24]}>
+              <Col xs={24} sm={12}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
+                  <UserOutlined style={{ color: '#64748b', fontSize: '24px', marginRight: '16px' }} />
+                  <div>
+                    <Text style={{ fontSize: '14px', color: '#64748b', fontWeight: 500, display: 'block' }}>
                       To'liq ism
-                    </Typography>
-                    <Typography sx={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>
+                    </Text>
+                    <Text style={{ fontSize: '18px', color: '#1e293b', fontWeight: 600 }}>
                       {admin.name}
-                    </Typography>
-                  </Box>
-                </Box>
-              </Grid>
+                    </Text>
+                  </div>
+                </div>
+              </Col>
 
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <EmailIcon sx={{ color: '#64748b', mr: 2.5, fontSize: '1.5rem' }} />
-                  <Box>
-                    <Typography sx={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500, mb: 0.5 }}>
+              <Col xs={24} sm={12}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
+                  <MailOutlined style={{ color: '#64748b', fontSize: '24px', marginRight: '16px' }} />
+                  <div>
+                    <Text style={{ fontSize: '14px', color: '#64748b', fontWeight: 500, display: 'block' }}>
                       Email
-                    </Typography>
-                    <Typography sx={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>
+                    </Text>
+                    <Text style={{ fontSize: '18px', color: '#1e293b', fontWeight: 600 }}>
                       {admin.email}
-                    </Typography>
-                  </Box>
-                </Box>
-              </Grid>
+                    </Text>
+                  </div>
+                </div>
+              </Col>
 
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <CalendarIcon sx={{ color: '#64748b', mr: 2.5, fontSize: '1.5rem' }} />
-                  <Box>
-                    <Typography sx={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500, mb: 0.5 }}>
+              <Col xs={24} sm={12}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
+                  <CalendarOutlined style={{ color: '#64748b', fontSize: '24px', marginRight: '16px' }} />
+                  <div>
+                    <Text style={{ fontSize: '14px', color: '#64748b', fontWeight: 500, display: 'block' }}>
                       Ro'yxatdan o'tgan
-                    </Typography>
-                    <Typography sx={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>
+                    </Text>
+                    <Text style={{ fontSize: '18px', color: '#1e293b', fontWeight: 600 }}>
                       {admin.registration_date ? new Date(admin.registration_date).toLocaleDateString('uz-UZ') : 'Noma\'lum'}
-                    </Typography>
-                  </Box>
-                </Box>
-              </Grid>
+                    </Text>
+                  </div>
+                </div>
+              </Col>
 
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <AdminIcon sx={{ color: '#64748b', mr: 2.5, fontSize: '1.5rem' }} />
-                  <Box>
-                    <Typography sx={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500, mb: 0.5 }}>
+              <Col xs={24} sm={12}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
+                  <SafetyCertificateOutlined style={{ color: '#64748b', fontSize: '24px', marginRight: '16px' }} />
+                  <div>
+                    <Text style={{ fontSize: '14px', color: '#64748b', fontWeight: 500, display: 'block' }}>
                       Rol
-                    </Typography>
-                    <Typography sx={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>
+                    </Text>
+                    <Text style={{ fontSize: '18px', color: '#1e293b', fontWeight: 600 }}>
                       Administrator
-                    </Typography>
-                  </Box>
-                </Box>
-              </Grid>
+                    </Text>
+                  </div>
+                </div>
+              </Col>
 
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <PersonIcon sx={{ color: '#64748b', mr: 2.5, fontSize: '1.5rem' }} />
-                  <Box>
-                    <Typography sx={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500, mb: 0.5 }}>
+              <Col xs={24} sm={12}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
+                  <BankOutlined style={{ color: '#64748b', fontSize: '24px', marginRight: '16px' }} />
+                  <div>
+                    <Text style={{ fontSize: '14px', color: '#64748b', fontWeight: 500, display: 'block' }}>
                       Tashkilot
-                    </Typography>
-                    <Typography sx={{ fontSize: '1.1rem', color: '#1e293b', fontWeight: 600 }}>
+                    </Text>
+                    <Text style={{ fontSize: '18px', color: '#1e293b', fontWeight: 600 }}>
                       {admin.organization || 'Aniqlanmagan'}
-                    </Typography>
-                  </Box>
-                </Box>
-              </Grid>
-
-
-            </Grid>
-
-          </CardContent>
-        </Card>
-      </Box>
-
-
-    </Box>
+                    </Text>
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          </Card>
+        </Col>
+      </Row>
+    </div>
   );
 };
 
