@@ -15,6 +15,7 @@
     "@mui/icons-material": "^7.3.5",
     "@mui/material": "^7.3.5",
     "@tailwindcss/postcss": "^4.1.18",
+    "antd": "^6.1.1",
     "aos": "^2.3.4",
     "axios": "^1.13.2",
     "chart.js": "^4.5.1",

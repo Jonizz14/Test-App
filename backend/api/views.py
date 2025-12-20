@@ -404,7 +404,8 @@ class UserViewSet(viewsets.ModelViewSet):
             user.save()
 
             # Add commission to seller earnings (10% of discounted price)
-            commission = pricing.discounted_price * 0.1
+            from decimal import Decimal
+            commission = pricing.discounted_price * Decimal('0.1')
             request.user.seller_earnings += commission
             request.user.save()
 
@@ -901,12 +902,14 @@ class PricingViewSet(viewsets.ModelViewSet):
         """Only allow admin and seller to manage pricing"""
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [IsAuthenticated()]
+        # Allow public access for list and retrieve
         return [AllowAny()]
 
     def get_queryset(self):
         """Only return active pricing plans for non-admin users"""
-        if self.request.user.role in ['admin', 'seller']:
+        if self.request.user.is_authenticated and self.request.user.role in ['admin', 'seller', 'head_admin']:
             return Pricing.objects.all()
+        # For unauthenticated users, only return active pricing plans
         return Pricing.objects.filter(is_active=True)
 
     def perform_create(self, serializer):
@@ -936,12 +939,14 @@ class StarPackageViewSet(viewsets.ModelViewSet):
         """Only allow admin and seller to manage star packages"""
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [IsAuthenticated()]
+        # Allow public access for list and retrieve
         return [AllowAny()]
 
     def get_queryset(self):
         """Only return active star packages for non-admin users"""
-        if self.request.user.role in ['admin', 'seller']:
+        if self.request.user.is_authenticated and self.request.user.role in ['admin', 'seller', 'head_admin']:
             return StarPackage.objects.all()
+        # For unauthenticated users, only return active star packages
         return StarPackage.objects.filter(is_active=True)
 
     def perform_create(self, serializer):

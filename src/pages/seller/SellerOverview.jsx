@@ -1,18 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Typography,
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  Paper,
-} from '@mui/material';
-import {
-  Group as GroupIcon,
-  Star as StarIcon,
-} from '@mui/icons-material';
+import { Typography, Card, Row, Col } from 'antd';
+import { TeamOutlined, StarOutlined } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
+import 'antd/dist/reset.css';
 
 const SellerOverview = () => {
   const { currentUser } = useAuth();
@@ -48,47 +39,37 @@ const SellerOverview = () => {
   };
 
   const StatCard = ({ title, value, icon, color }) => (
-    <Card sx={{
-      backgroundColor: '#ffffff',
-      border: '1px solid #e2e8f0',
-      borderRadius: '12px',
-      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-      transition: 'none',
-      '&:hover': {
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-      },
-    }}>
-      <CardContent sx={{
-        p: 4,
-        '&:last-child': { pb: 4 }
-      }}>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Box flex={1}>
-            <Typography
-              sx={{
-                fontSize: '0.75rem',
+    <Card
+      style={{
+        backgroundColor: '#ffffff',
+        border: '1px solid #e2e8f0',
+        borderRadius: '12px',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+      }}
+      hoverable
+    >
+      <div style={{ padding: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ flex: 1 }}>
+            <Typography.Text
+              style={{
+                fontSize: '12px',
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
                 color: '#64748b',
-                mb: 1
+                marginBottom: '8px',
+                display: 'block'
               }}
             >
               {title}
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: '2.5rem',
-                fontWeight: 700,
-                color: '#1e293b',
-                lineHeight: 1.2
-              }}
-            >
+            </Typography.Text>
+            <Typography.Title level={1} style={{ margin: 0, color: '#1e293b', lineHeight: 1.2 }}>
               {loading ? '...' : value}
-            </Typography>
-          </Box>
-          <Box
-            sx={{
+            </Typography.Title>
+          </div>
+          <div
+            style={{
               backgroundColor: color === 'primary.main' ? '#eff6ff' :
                               color === 'secondary.main' ? '#f0fdf4' :
                               color === 'success.main' ? '#ecfdf5' :
@@ -99,12 +80,12 @@ const SellerOverview = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              ml: 2
+              marginLeft: '16px'
             }}
           >
             {React.cloneElement(icon, {
-              sx: {
-                fontSize: '2rem',
+              style: {
+                fontSize: '32px',
                 color: color === 'primary.main' ? '#2563eb' :
                        color === 'secondary.main' ? '#16a34a' :
                        color === 'success.main' ? '#059669' :
@@ -112,82 +93,66 @@ const SellerOverview = () => {
                        '#64748b'
               }
             })}
-          </Box>
-        </Box>
-      </CardContent>
+          </div>
+        </div>
+      </div>
     </Card>
   );
 
   return (
-    <Box sx={{ py: 4 }}>
+    <div style={{ padding: '24px 0' }}>
       {/* Header */}
-      <Box sx={{
-        mb: 6,
-        pb: 4,
+      <div style={{
+        marginBottom: '24px',
+        paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
       }}>
-        <Typography
-          sx={{
-            fontSize: '2.5rem',
-            fontWeight: 700,
-            color: '#1e293b',
-            mb: 2
-          }}
-        >
+        <Typography.Title level={1} style={{ margin: 0, color: '#1e293b', marginBottom: '8px' }}>
           Seller Panel - Umumiy ma'lumotlar
-        </Typography>
-        <Typography sx={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400
-        }}>
+        </Typography.Title>
+        <Typography.Text style={{ fontSize: '18px', color: '#64748b' }}>
           Premium obunalar va o'quvchilarni boshqarish uchun panel
-        </Typography>
-      </Box>
+        </Typography.Text>
+      </div>
 
       {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={4}>
+      <Row gutter={16} style={{ marginBottom: '16px' }}>
+        <Col xs={24} sm={12} md={8}>
           <StatCard
             title="Jami o'quvchilar"
             value={stats.totalStudents}
-            icon={<GroupIcon fontSize="large" />}
+            icon={<TeamOutlined />}
             color="primary.main"
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
+        </Col>
+        <Col xs={24} sm={12} md={8}>
           <StatCard
             title="Premium o'quvchilar"
             value={stats.premiumStudents}
-            icon={<StarIcon fontSize="large" />}
+            icon={<StarOutlined />}
             color="warning.main"
           />
-        </Grid>
-      </Grid>
+        </Col>
+      </Row>
 
       {/* Welcome Message */}
-      <Paper sx={{
-        p: 4,
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
-      }}>
-        <Typography variant="h6" gutterBottom sx={{
-          fontWeight: 600,
-          color: '#1e293b'
-        }}>
+      <Card
+        style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
+        }}
+      >
+        <Typography.Title level={4} style={{ marginBottom: '8px', color: '#1e293b' }}>
           Xush kelibsiz, {currentUser?.name}!
-        </Typography>
-        <Typography variant="body1" sx={{
-          color: '#334155',
-          lineHeight: 1.6
-        }}>
+        </Typography.Title>
+        <Typography.Text style={{ color: '#334155', lineHeight: 1.6 }}>
           Bu seller panel orqali siz o'quvchilarga premium status berishingiz va narxlarni boshqarishingiz mumkin.
           Chap menudan kerakli bo'limni tanlang.
-        </Typography>
-      </Paper>
-    </Box>
+        </Typography.Text>
+      </Card>
+    </div>
   );
 };
 

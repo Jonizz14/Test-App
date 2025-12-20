@@ -42,7 +42,7 @@ class ApiService {
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
           try {
-            const refreshResponse = await fetch(`${this.baseURL}/token/refresh/`, {
+            const refreshResponse = await fetch(`${this.baseURL}/api/token/refresh/`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ refresh: refreshToken }),
@@ -331,6 +331,15 @@ class ApiService {
 
   async giveStars(userId, data) {
     return this.post(`/users/${userId}/give_stars/`, data);
+  }
+
+  // Premium management methods
+  async grantPremium(userId, pricingId) {
+    return this.patch(`/users/${userId}/grant_premium/`, { pricing_id: pricingId });
+  }
+
+  async revokePremium(userId) {
+    return this.patch(`/users/${userId}/revoke_premium/`);
   }
 
   // Pricing methods

@@ -1,53 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Typography,
-  Box,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Button,
-  Chip,
-  TextField,
-  InputAdornment,
-  Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Grid,
-  Card,
-  CardContent,
-} from '@mui/material';
-import {
-  Search as SearchIcon,
-  Star as StarIcon,
-  StarBorder as StarBorderIcon,
-} from '@mui/icons-material';
+import { Typography, Button, Input, Alert, Modal, Row, Col, Card, Table, Tag, Space, Select } from 'antd';
+import { SearchOutlined, StarOutlined, StarFilled } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
 import PremiumModal from '../../components/PremiumModal';
 import { useCountdown } from '../../hooks/useCountdown';
+import 'antd/dist/reset.css';
 
 // Component for countdown timer
 const StudentCountdown = ({ expiryDate }) => {
   const { formattedTime, isExpired } = useCountdown(expiryDate);
 
   if (isExpired) {
-    return <Typography sx={{ color: '#ef4444', fontWeight: 600 }}>Tugagan</Typography>;
+    return <Typography.Text style={{ color: '#ef4444', fontWeight: 600 }}>Tugagan</Typography.Text>;
   }
 
   return (
-    <Typography sx={{
-      color: '#059669',
-      fontWeight: 600,
-      fontFamily: 'monospace'
-    }}>
+    <Typography.Text style={{ color: '#059669', fontWeight: 600, fontFamily: 'monospace' }}>
       {formattedTime}
-    </Typography>
+    </Typography.Text>
   );
 };
 
@@ -63,6 +34,9 @@ const ManageStudents = () => {
   const [starPackages, setStarPackages] = useState([]);
   const [starsDialogOpen, setStarsDialogOpen] = useState(false);
   const [givingStars, setGivingStars] = useState(false);
+  const [pricingPlans, setPricingPlans] = useState([]);
+  const [selectedPricingPlan, setSelectedPricingPlan] = useState(null);
+  const [selectedStarPackage, setSelectedStarPackage] = useState(null);
 
   useEffect(() => {
     loadStudents();
@@ -75,14 +49,16 @@ const ManageStudents = () => {
   const loadStudents = async () => {
     try {
       setLoading(true);
-      const usersData = await apiService.getUsers();
+      const [usersData, packagesResponse, pricingResponse] = await Promise.all([
+        apiService.getUsers(),
+        apiService.get('/star-packages/'),
+        apiService.get('/pricing/')
+      ]);
       const users = usersData.results || usersData;
       const studentUsers = users.filter(user => user.role === 'student');
       setStudents(studentUsers);
-
-      // Load star packages
-      const packagesResponse = await apiService.get('/star-packages/');
-      setStarPackages(packagesResponse);
+      setStarPackages(packagesResponse.results || packagesResponse || []);
+      setPricingPlans(pricingResponse.results || pricingResponse || []);
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {
@@ -117,13 +93,11 @@ const ManageStudents = () => {
   const handleGrantPremium = async (studentId, pricingPlan) => {
     try {
       // Grant premium with pricing information
-      const response = await apiService.patch(`/users/${studentId}/grant_premium/`, {
-        pricing_id: pricingPlan.id
-      });
+      const response = await apiService.grantPremium(studentId, pricingPlan.id);
 
       // Reload students to get updated data
       await loadStudents();
-      setSuccessMessage(`Premium berildi: ${pricingPlan.plan_name} - $${pricingPlan.discounted_price}`);
+      setSuccessMessage(`Premium berildi: ${pricingPlan.plan_name} - ${pricingPlan.discounted_price}`);
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       console.error('Failed to grant premium:', error);
@@ -133,7 +107,7 @@ const ManageStudents = () => {
 
   const revokePremium = async (studentId) => {
     try {
-      await apiService.patch(`/users/${studentId}/revoke_premium/`);
+      await apiService.revokePremium(studentId);
 
       // Reload students to get updated data
       await loadStudents();
@@ -185,211 +159,203 @@ const ManageStudents = () => {
     }
   };
 
+  const giveStarsToStudent = async (student, packageData) => {
+    try {
+      setGivingStars(true);
+
+      const response = await apiService.giveStars(student.id, { stars: packageData.stars });
+
+      // Update the student in the local state with the response data
+      if (response && response.student) {
+        setStudents(prevStudents =>
+          prevStudents.map(s =>
+            s.id === student.id ? response.student : s
+          )
+        );
+        setFilteredStudents(prevFiltered =>
+          prevFiltered.map(s =>
+            s.id === student.id ? response.student : s
+          )
+        );
+      } else {
+        // Fallback to reloading if response doesn't contain student data
+        await loadStudents();
+      }
+
+      setSuccessMessage(`${packageData.stars} yulduz ${student.name}ga berildi!`);
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error) {
+      console.error('Failed to give stars:', error);
+      alert('Yulduz berishda xatolik yuz berdi');
+    } finally {
+      setGivingStars(false);
+    }
+  };
+
   return (
-    <Box sx={{ py: 4 }}>
+    <div style={{ padding: '24px 0' }}>
       {/* Header */}
-      <Box sx={{
-        mb: 6,
-        pb: 4,
+      <div style={{
+        marginBottom: '24px',
+        paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
       }}>
-        <Typography
-          sx={{
-            fontSize: '2.5rem',
-            fontWeight: 700,
-            color: '#1e293b',
-            mb: 2
-          }}
-        >
+        <Typography.Title level={1} style={{ margin: 0, color: '#1e293b', marginBottom: '8px' }}>
           O'quvchilarni boshqarish
-        </Typography>
-        <Typography sx={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400
-        }}>
+        </Typography.Title>
+        <Typography.Text style={{ fontSize: '18px', color: '#64748b' }}>
           O'quvchilarga premium status bering yoki olib tashlang
-        </Typography>
-      </Box>
+        </Typography.Text>
+      </div>
 
       {/* Success Message */}
       {successMessage && (
         <Alert
-          severity="success"
-          sx={{
-            mb: 4,
-            backgroundColor: '#ecfdf5',
-            border: '1px solid #10b981',
-            color: '#059669',
-            borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.15)'
-          }}
-        >
-          ✅ {successMessage}
-        </Alert>
+          message={successMessage}
+          type="success"
+          showIcon
+          style={{ marginBottom: '16px' }}
+        />
       )}
 
       {/* Search */}
-      <Box sx={{ mb: 4 }}>
-        <TextField
-          fullWidth
+      <div style={{ marginBottom: '16px' }}>
+        <Input
           placeholder="O'quvchi nomini, ID yoki sinfini qidiring..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon sx={{ color: '#64748b' }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '12px',
-              backgroundColor: '#ffffff',
-              '&:hover fieldset': {
-                borderColor: '#2563eb'
-              }
-            }
-          }}
+          prefix={<SearchOutlined style={{ color: '#64748b' }} />}
+          style={{ borderRadius: '12px' }}
         />
-      </Box>
+      </div>
 
       {/* Students Table */}
-      <Paper sx={{
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        overflow: 'hidden'
-      }}>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: '#f8fafc' }}>
-                <TableCell sx={{ fontWeight: 600, color: '#1e293b', py: 3 }}>Ism Familiya</TableCell>
-                <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Login</TableCell>
-                <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Sinf</TableCell>
-                <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Yo'nalish</TableCell>
-                <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Yulduzlar</TableCell>
-                <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Premium Status</TableCell>
-                <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Premium vaqti</TableCell>
-                <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>Amallar</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4 }}>
-                    Yuklanmoqda...
-                  </TableCell>
-                </TableRow>
-              ) : filteredStudents.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} sx={{ textAlign: 'center', py: 4, color: '#64748b' }}>
-                    {searchTerm ? 'Hech narsa topilmadi' : 'O\'quvchilar yo\'q'}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredStudents.map((student) => (
-                  <TableRow key={student.id} sx={{
-                    '&:hover': {
-                      backgroundColor: '#f8fafc'
-                    }
-                  }}>
-                    <TableCell sx={{ py: 3 }}>
-                      <Typography sx={{ fontWeight: 500, color: '#1e293b' }}>
-                        {student.name || 'Noma\'lum'}
-                      </Typography>
-                    </TableCell>
-                    <TableCell sx={{ color: '#64748b' }}>
-                      <Typography sx={{
-                        fontFamily: 'monospace',
-                        fontSize: '0.8rem',
-                        backgroundColor: '#f8fafc',
-                        px: 1,
-                        py: 0.5,
-                        borderRadius: '4px',
-                        display: 'inline-block'
-                      }}>
-                        {student.display_id || student.username}
-                      </Typography>
-                    </TableCell>
-                    <TableCell sx={{ color: '#64748b' }}>
-                      {student.class_group || 'Noma\'lum'}
-                    </TableCell>
-                    <TableCell sx={{ color: '#64748b' }}>
-                      {student.direction === 'natural' ? 'Tabiiy fanlar' :
-                       student.direction === 'exact' ? 'Aniq fanlar' : 'Yo\'nalish yo\'q'}
-                    </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <StarIcon sx={{ mr: 1, color: '#f59e0b' }} />
-                        <Typography sx={{
-                          fontWeight: 700,
-                          color: '#d97706'
-                        }}>
-                          {student.stars || 0}
-                        </Typography>
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        icon={student.is_premium ? <StarIcon /> : <StarBorderIcon />}
-                        label={student.is_premium ? 'Premium bor' : 'Yo\'q'}
-                        sx={{
-                          backgroundColor: student.is_premium ? '#fef3c7' : '#f3f4f6',
-                          color: student.is_premium ? '#d97706' : '#64748b',
-                          fontWeight: 600
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell sx={{ color: '#64748b' }}>
-                      {student.is_premium && student.premium_expiry_date ? (
-                        <StudentCountdown expiryDate={student.premium_expiry_date} />
-                      ) : (
-                        '-'
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: 'flex', gap: 1, flexDirection: 'column' }}>
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          onClick={() => handleTogglePremium(student, student.is_premium)}
-                          sx={{
-                            borderColor: student.is_premium ? '#d97706' : '#2563eb',
-                            color: student.is_premium ? '#d97706' : '#2563eb',
-                            '&:hover': {
-                              backgroundColor: student.is_premium ? '#fef3c7' : '#eff6ff',
-                              borderColor: student.is_premium ? '#d97706' : '#2563eb'
-                            }
-                          }}
-                        >
-                          {student.is_premium ? 'Premium olib tashlash' : 'Premium berish'}
-                        </Button>
-                        <Button
-                          variant="contained"
-                          size="small"
-                          onClick={() => handleGiveStars(student)}
-                          sx={{
-                            backgroundColor: '#f59e0b',
-                            color: '#ffffff',
-                            '&:hover': {
-                              backgroundColor: '#d97706'
-                            }
-                          }}
-                        >
-                          Yulduz berish
-                        </Button>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
+      <Table
+        dataSource={filteredStudents}
+        loading={loading}
+        columns={[
+          {
+            title: 'Ism Familiya',
+            dataIndex: 'name',
+            key: 'name',
+            render: (name) => <Typography.Text strong>{name || 'Noma\'lum'}</Typography.Text>,
+          },
+          {
+            title: 'Login',
+            dataIndex: 'display_id',
+            key: 'display_id',
+            render: (display_id, record) => (
+              <Typography.Text style={{ fontFamily: 'monospace', fontSize: '12px', backgroundColor: '#f8fafc', padding: '2px 4px', borderRadius: '4px' }}>
+                {display_id || record.username}
+              </Typography.Text>
+            ),
+          },
+          {
+            title: 'Sinf',
+            dataIndex: 'class_group',
+            key: 'class_group',
+            render: (class_group) => class_group || 'Noma\'lum',
+          },
+          {
+            title: 'Yo\'nalish',
+            dataIndex: 'direction',
+            key: 'direction',
+            render: (direction) => direction === 'natural' ? 'Tabiiy fanlar' : direction === 'exact' ? 'Aniq fanlar' : 'Yo\'nalish yo\'q',
+          },
+          {
+            title: 'Yulduzlar',
+            dataIndex: 'stars',
+            key: 'stars',
+            render: (stars) => (
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <StarOutlined style={{ marginRight: '4px', color: '#f59e0b' }} />
+                <Typography.Text strong style={{ color: '#d97706' }}>{stars || 0}</Typography.Text>
+              </div>
+            ),
+          },
+          {
+            title: 'Premium Status',
+            dataIndex: 'is_premium',
+            key: 'is_premium',
+            render: (is_premium) => (
+              <Tag color={is_premium ? 'gold' : 'default'} icon={is_premium ? <StarFilled /> : <StarOutlined />}>
+                {is_premium ? 'Premium bor' : 'Yo\'q'}
+              </Tag>
+            ),
+          },
+          {
+            title: 'Premium vaqti',
+            dataIndex: 'premium_expiry_date',
+            key: 'premium_expiry_date',
+            render: (expiry_date, record) => record.is_premium && expiry_date ? <StudentCountdown expiryDate={expiry_date} /> : '-',
+          },
+          {
+            title: 'Amallar',
+            key: 'actions',
+            render: (_, record) => (
+              <Space orientation="vertical" size="small">
+                <div>
+                  <Typography.Text style={{ fontSize: '12px', color: '#64748b' }}>Premium:</Typography.Text>
+                  {record.is_premium ? (
+                    <Button
+                      size="small"
+                      onClick={() => handleTogglePremium(record, record.is_premium)}
+                      style={{
+                        borderColor: '#d97706',
+                        color: '#d97706',
+                        fontSize: '11px',
+                        padding: '0 8px',
+                        height: '20px',
+                        marginLeft: '8px'
+                      }}
+                    >
+                      Olib tashlash
+                    </Button>
+                  ) : (
+                    <Select
+                      size="small"
+                      placeholder="Tanlang"
+                      style={{ width: 200, marginLeft: '8px', fontSize: '11px' }}
+                      onChange={(value) => {
+                        const plan = pricingPlans.find(p => p.id === value);
+                        if (plan) {
+                          handleGrantPremium(record.id, plan);
+                        }
+                      }}
+                      options={pricingPlans.map(plan => ({
+                        value: plan.id,
+                        label: `${plan.plan_name} (${plan.discounted_price})`
+                      }))}
+                    />
+                  )}
+                </div>
+                <div>
+                  <Typography.Text style={{ fontSize: '12px', color: '#64748b' }}>Yulduz:</Typography.Text>
+                  <Select
+                    size="small"
+                    placeholder="Tanlang"
+                    style={{ width: 200, marginLeft: '8px', fontSize: '11px' }}
+                    onChange={(value) => {
+                      const pkg = starPackages.find(p => p.id === value);
+                      if (pkg) {
+                        giveStarsToStudent(record, pkg);
+                      }
+                    }}
+                    options={starPackages.map(pkg => ({
+                      value: pkg.id,
+                      label: `${pkg.stars} yulduz (${pkg.discounted_price})`
+                    }))}
+                  />
+                </div>
+              </Space>
+            ),
+          },
+        ]}
+        rowKey="id"
+        locale={{
+          emptyText: searchTerm ? 'Hech narsa topilmadi' : 'O\'quvchilar yo\'q',
+        }}
+      />
 
       {/* Premium Modal */}
       <PremiumModal
@@ -402,114 +368,74 @@ const ManageStudents = () => {
         onConfirm={handleGrantPremium}
       />
 
-      {/* Stars Dialog */}
-      <Dialog
-        open={starsDialogOpen}
-        onClose={() => {
-          setStarsDialogOpen(false);
-          setSelectedStudent(null);
-        }}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle sx={{
-          fontWeight: 600,
-          color: '#1e293b',
-          fontSize: '1.25rem'
-        }}>
-          {selectedStudent && `${selectedStudent.name}ga yulduz berish`}
-        </DialogTitle>
-        <DialogContent>
-          <Typography sx={{ mb: 3, color: '#64748b' }}>
+      {/* Stars Modal */}
+      {selectedStudent && (
+        <Modal
+          title={`${selectedStudent.name}ga yulduz berish`}
+          open={starsDialogOpen}
+          onCancel={() => {
+            setStarsDialogOpen(false);
+            setSelectedStudent(null);
+          }}
+          footer={[
+            <Button key="cancel" onClick={() => {
+              setStarsDialogOpen(false);
+              setSelectedStudent(null);
+            }}>
+              Bekor qilish
+            </Button>,
+          ]}
+        >
+          <Typography.Text style={{ marginBottom: '16px', color: '#64748b' }}>
             Qaysi yulduz paketini tanlaysiz?
-          </Typography>
+          </Typography.Text>
 
-          <Grid container spacing={2}>
+          <Row gutter={16}>
             {starPackages.map((pkg) => (
-              <Grid item xs={12} sm={6} md={4} key={pkg.id}>
-                <Card sx={{
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  '&:hover': {
-                    borderColor: '#f59e0b',
-                    boxShadow: '0 4px 6px -1px rgba(245, 158, 11, 0.1)'
-                  }
-                }}>
-                  <CardContent sx={{ p: 3, textAlign: 'center' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-                      <StarIcon sx={{ fontSize: '2rem', color: '#f59e0b', mr: 1 }} />
-                      <Typography sx={{
-                        fontSize: '2rem',
-                        fontWeight: 700,
-                        color: '#d97706'
-                      }}>
+              <Col xs={24} sm={12} md={8} key={pkg.id}>
+                <Card
+                  hoverable
+                  style={{
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    textAlign: 'center'
+                  }}
+                >
+                  <div style={{ padding: '24px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                      <StarOutlined style={{ fontSize: '32px', color: '#f59e0b', marginRight: '8px' }} />
+                      <Typography.Title level={2} style={{ margin: 0, color: '#d97706' }}>
                         {pkg.stars}
-                      </Typography>
-                    </Box>
+                      </Typography.Title>
+                    </div>
 
-                    <Typography sx={{
-                      fontWeight: 600,
-                      color: '#1e293b',
-                      mb: 1
-                    }}>
+                    <Typography.Text strong style={{ display: 'block', marginBottom: '8px' }}>
                       ${pkg.discounted_price}
-                    </Typography>
+                    </Typography.Text>
 
                     {pkg.discount_percentage > 0 && (
-                      <Typography sx={{
-                        fontSize: '0.75rem',
-                        color: '#059669',
-                        mb: 2
-                      }}>
+                      <Typography.Text style={{ fontSize: '12px', color: '#059669', display: 'block', marginBottom: '16px' }}>
                         {pkg.discount_percentage}% chegirma
-                      </Typography>
+                      </Typography.Text>
                     )}
 
                     <Button
-                      variant="contained"
-                      fullWidth
-                      onClick={() => handleGiveStarsConfirm(pkg)}
+                      type="primary"
+                      block
+                      onClick={() => giveStarsToStudent(selectedStudent, pkg)}
                       disabled={givingStars}
-                      sx={{
-                        backgroundColor: '#f59e0b',
-                        color: '#ffffff',
-                        fontWeight: 600,
-                        textTransform: 'none',
-                        '&:hover': {
-                          backgroundColor: '#d97706'
-                        },
-                        '&:disabled': {
-                          backgroundColor: '#d1d5db'
-                        }
-                      }}
+                      style={{ backgroundColor: '#f59e0b', borderColor: '#f59e0b' }}
                     >
                       {givingStars ? 'Berilmoqda...' : 'Tanlash'}
                     </Button>
-                  </CardContent>
+                  </div>
                 </Card>
-              </Grid>
+              </Col>
             ))}
-          </Grid>
-        </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
-          <Button
-            onClick={() => {
-              setStarsDialogOpen(false);
-              setSelectedStudent(null);
-            }}
-            sx={{
-              color: '#374151',
-              fontWeight: 600,
-              textTransform: 'none'
-            }}
-          >
-            Bekor qilish
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+          </Row>
+        </Modal>
+      )}
+    </div>
   );
 };
 
