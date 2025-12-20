@@ -99,7 +99,7 @@ const LoginPage = () => {
     <div className="login-page">
       <div className="layout-container">
         <div>
-          <div className="login-card">
+          <div className="login-card" style={{ maxWidth: 660 }}>
             <div className="login-header">
               <div className="login-logo">
                 <div className="examify-logo">

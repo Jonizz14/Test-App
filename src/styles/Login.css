@@ -68,7 +68,9 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid #f3f4f6;
   width: 100%;
-  max-width: 700px;
+  max-width: 1200px;
+  min-width: 500px;
+  min-height: 600px; /* increased height */     /* responsive large height */
   overflow: hidden;
 }
 
