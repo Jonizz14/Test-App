@@ -1,25 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Card, Typography, Button, Progress, Alert, Modal } from 'antd';
 import {
-  Typography,
-  Box,
-  Paper,
-  Button,
-  LinearProgress,
-  Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from '@mui/material';
-import {
-  CheckCircle as CheckCircleIcon,
-  Error as ErrorIcon,
-  ArrowBack as ArrowBackIcon,
-} from '@mui/icons-material';
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  ArrowLeftOutlined,
+} from '@ant-design/icons';
 import { useServerTest } from '../../context/ServerTestContext';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
+
+const { Title, Text } = Typography;
 
 const SubmitTest = () => {
    const navigate = useNavigate();
@@ -105,16 +96,17 @@ const SubmitTest = () => {
 
   if (isSubmitting) {
     return (
-      <Box sx={{
-        py: 4,
+      <div style={{
+        paddingTop: '16px',
+        paddingBottom: '16px',
         backgroundColor: '#ffffff',
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-        <Paper sx={{
-          p: 4,
+        <Card style={{
+          padding: '24px',
           textAlign: 'center',
           backgroundColor: '#ffffff',
           border: '1px solid #e2e8f0',
@@ -123,66 +115,78 @@ const SubmitTest = () => {
           maxWidth: '500px',
           width: '100%'
         }}>
-          <Typography sx={{
+          <Title level={2} style={{
             fontSize: '2rem',
             fontWeight: 700,
             color: '#1e293b',
-            mb: 3
+            marginBottom: '16px'
           }}>
-            Test topshirilmoqda...
-          </Typography>
-          <LinearProgress sx={{ mb: 2, height: 8, borderRadius: 4 }} />
-          <Typography variant="body1" sx={{ color: '#64748b' }}>
+            Test natijasi
+          </Title>
+          <Progress 
+            percent={100} 
+            status="active"
+            style={{ marginBottom: '16px' }}
+            strokeColor="#3b82f6"
+          />
+          <Text style={{ color: '#64748b', marginBottom: '16px', display: 'block' }}>
             Iltimos kuting, sizning test natijangiz saqlanmoqda...
-          </Typography>
-        </Paper>
-      </Box>
+          </Text>
+        </Card>
+      </div>
     );
   }
 
   if (submissionResult) {
     const { success, score, error: submitError } = submissionResult;
+    const isHighScore = success && score >= 70;
 
     return (
-      <Box sx={{
-        py: 4,
+      <div style={{
+        paddingTop: '16px',
+        paddingBottom: '16px',
         backgroundColor: '#ffffff',
         minHeight: '100vh'
       }}>
         {/* Header */}
-        <Box sx={{
+        <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          mb: 6,
-          pb: 4,
+          marginBottom: '24px',
+          paddingBottom: '16px',
           borderBottom: '1px solid #e2e8f0'
         }}
         >
-          <Typography sx={{
+          <Title level={2} style={{
             fontSize: '2.5rem',
             fontWeight: 700,
-            color: '#1e293b'
+            color: '#1e293b',
+            marginBottom: 0
           }}>
             Test natijasi
-          </Typography>
+          </Title>
           <Button
-            startIcon={<ArrowBackIcon />}
+            icon={<ArrowLeftOutlined />}
             onClick={handleBackToTests}
-            variant="outlined"
-            sx={{
+            style={{
               borderColor: '#d1d5db',
               color: '#374151',
-              '&:hover': { backgroundColor: '#f9fafb' }
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#f9fafb';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = 'transparent';
             }}
           >
             Testlarga qaytish
           </Button>
-        </Box>
+        </div>
 
         <div>
-          <Paper sx={{
-            p: 4,
+          <Card style={{
+            padding: '24px',
             textAlign: 'center',
             background: success && score >= 70
               ? 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)'
@@ -195,94 +199,114 @@ const SubmitTest = () => {
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
             maxWidth: '600px',
-            mx: 'auto'
+            margin: '0 auto'
           }}>
             {success ? (
               <>
-                <CheckCircleIcon sx={{
-                  fontSize: '4rem',
-                  color: score >= 70 ? 'success.main' : 'error.main',
-                  mb: 2
-                }} />
-                <Typography variant="h3" sx={{
+                <div style={{ marginBottom: '16px' }}>
+                  {score >= 70 ? (
+                    <CheckCircleOutlined style={{
+                      fontSize: '4rem',
+                      color: '#22c55e'
+                    }} />
+                  ) : (
+                    <CloseCircleOutlined style={{
+                      fontSize: '4rem',
+                      color: '#dc2626'
+                    }} />
+                  )}
+                </div>
+                <Title level={1} style={{
                   fontWeight: 700,
-                  color: score >= 70 ? 'success.main' : 'error.main',
-                  mb: 2
+                  color: score >= 70 ? '#22c55e' : '#dc2626',
+                  marginBottom: '16px',
+                  marginTop: 0
                 }}>
                   {score}%
-                </Typography>
-                <Typography variant="h6" gutterBottom>
+                </Title>
+                <Title level={4} style={{ marginBottom: '16px' }}>
                   {selectedTest?.title}
-                </Typography>
-                <Typography variant="body1" sx={{ mb: 3 }}>
+                </Title>
+                <Text style={{ marginBottom: '16px', display: 'block' }}>
                   {score >= 70 ? 'Tabriklaymiz! Testni muvaffaqiyatli topshirdingiz.' : 'Testni qayta topshirib ko\'ring.'}
-                </Typography>
+                </Text>
               </>
             ) : (
               <>
-                <ErrorIcon sx={{
+                <CloseCircleOutlined style={{
                   fontSize: '4rem',
-                  color: 'warning.main',
-                  mb: 2
+                  color: '#d97706',
+                  marginBottom: '16px'
                 }} />
-                <Typography variant="h6" sx={{
+                <Title level={4} style={{
                   fontWeight: 700,
-                  color: 'warning.main',
-                  mb: 2
+                  color: '#d97706',
+                  marginBottom: '16px'
                 }}>
                   Test topshirishda muammo yuz berdi
-                </Typography>
-                <Typography variant="body1" sx={{ mb: 3, color: '#64748b' }}>
+                </Title>
+                <Text style={{ marginBottom: '16px', color: '#64748b', display: 'block' }}>
                   {submitError || 'Noma\'lum xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.'}
-                </Typography>
+                </Text>
               </>
             )}
 
-            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
               <Button
-                variant="contained"
+                type="primary"
                 onClick={handleBackToTests}
-                sx={{
+                style={{
                   cursor: 'pointer',
                   backgroundColor: '#6b7280',
-                  '&:hover': { backgroundColor: '#4b5563' }
+                  borderColor: '#6b7280'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#4b5563';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#6b7280';
                 }}
               >
                 Boshqa test topshirish
               </Button>
               {success && (
                 <Button
-                  variant="outlined"
                   onClick={handleViewResults}
-                  sx={{
+                  style={{
                     cursor: 'pointer',
                     borderColor: '#2563eb',
                     color: '#2563eb',
-                    '&:hover': { backgroundColor: '#eff6ff' }
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#eff6ff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = 'transparent';
                   }}
                 >
                   Natijalarimni ko'rish
                 </Button>
               )}
-            </Box>
-          </Paper>
+            </div>
+          </Card>
         </div>
-      </Box>
+      </div>
     );
   }
 
   // Initial confirmation dialog
   return (
-    <Box sx={{
-      py: 4,
+    <div style={{
+      paddingTop: '16px',
+      paddingBottom: '16px',
       backgroundColor: '#ffffff',
       minHeight: '100vh',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center'
     }}>
-      <Paper sx={{
-        p: 4,
+      <Card style={{
+        padding: '24px',
         textAlign: 'center',
         backgroundColor: '#ffffff',
         border: '1px solid #e2e8f0',
@@ -291,80 +315,94 @@ const SubmitTest = () => {
         maxWidth: '500px',
         width: '100%'
       }}>
-        <Typography sx={{
+        <Title level={2} style={{
           fontSize: '2rem',
           fontWeight: 700,
           color: '#1e293b',
-          mb: 3
+          marginBottom: '16px'
         }}>
-          Testni topshirish
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 3, color: '#64748b' }}>
+          Test natijasi
+        </Title>
+        <Text style={{
+          fontSize: '1.125rem',
+          color: '#64748b',
+          fontWeight: 400,
+          marginBottom: '16px',
+          display: 'block'
+        }}>
+          Testni topshirish natijasi va ballaringiz
+        </Text>
+        <Text style={{ marginBottom: '16px', color: '#64748b', display: 'block' }}>
           Siz testni topshirishni xohlaysizmi? Bu amal qaytarib bo'lmaydi.
-        </Typography>
+        </Text>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
+          <Alert message={error} type="error" style={{ marginBottom: '16px' }} />
         )}
 
-        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
           <Button
-            variant="outlined"
             onClick={() => navigate('/student/take-test')}
-            sx={{
+            style={{
               borderColor: '#d1d5db',
               color: '#374151',
-              '&:hover': { backgroundColor: '#f9fafb' }
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#f9fafb';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = 'transparent';
             }}
           >
             Bekor qilish
           </Button>
           <Button
-            variant="contained"
+            type="primary"
             onClick={() => setConfirmDialogOpen(true)}
             disabled={isLoading}
-            sx={{
+            style={{
               backgroundColor: '#10b981',
-              '&:hover': { backgroundColor: '#059669' }
+              borderColor: '#10b981'
+            }}
+            onMouseEnter={(e) => {
+              if (!isLoading) {
+                e.target.style.backgroundColor = '#059669';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isLoading) {
+                e.target.style.backgroundColor = '#10b981';
+              }
             }}
           >
             Testni topshirish
           </Button>
-        </Box>
-      </Paper>
+        </div>
+      </Card>
 
       {/* Confirmation Dialog */}
-      <Dialog
+      <Modal
+        title={
+          <span style={{ color: '#dc2626', fontWeight: 600 }}>
+            Testni topshirishni tasdiqlang
+          </span>
+        }
         open={confirmDialogOpen}
-        onClose={() => setConfirmDialogOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle sx={{ color: '#dc2626', fontWeight: 600 }}>
-          Testni topshirishni tasdiqlang
-        </DialogTitle>
-        <DialogContent>
-          <Typography sx={{ color: '#374151' }}>
-            Rostdan ham testni topshirishni xohlaysizmi? Test tugagandan keyin javoblarni o'zgartirib bo'lmaydi.
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setConfirmDialogOpen(false)} sx={{ color: '#64748b' }}>
+        onCancel={() => setConfirmDialogOpen(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setConfirmDialogOpen(false)} style={{ color: '#64748b' }}>
             Bekor qilish
-          </Button>
-          <Button
-            onClick={handleConfirmSubmit}
-            variant="contained"
-            color="success"
-            sx={{ ml: 1 }}
-          >
+          </Button>,
+          <Button key="submit" type="primary" onClick={handleConfirmSubmit} style={{ marginLeft: '8px', backgroundColor: '#10b981', borderColor: '#10b981' }}>
             Ha, topshirish
           </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+        ]}
+      >
+        <Text style={{ color: '#374151' }}>
+          Rostdan ham testni topshirishni xohlaysizmi? Test tugagandan keyin javoblarni o'zgartirib bo'lmaydi.
+        </Text>
+      </Modal>
+    </div>
   );
 };
 

@@ -1,39 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Typography,
-  Box,
-  TextField,
-  Button,
-  Paper,
-  Card,
-  CardContent,
-  Chip,
-  InputAdornment,
-  Alert,
-  Grid,
   Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from '@mui/material';
+  Card,
+  Typography,
+  Input,
+  Button,
+  Row,
+  Col,
+  Tag,
+  Space,
+  Alert,
+  Spin,
+} from 'antd';
 import {
-  Search as SearchIcon,
-  Person as PersonIcon,
-  Assessment as AssessmentIcon,
-  School as SchoolIcon,
-  CheckCircle as CheckCircleIcon,
-  PlayArrow as PlayArrowIcon,
-  Repeat as RepeatIcon,
-  ArrowBack as ArrowBackIcon,
-  AccessTime as TimeIcon,
-  Quiz as QuizIcon,
-} from '@mui/icons-material';
+  SearchOutlined,
+  UserOutlined,
+  PlayCircleOutlined,
+} from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import { useServerTest } from '../../context/ServerTestContext';
 import apiService from '../../data/apiService';
+
+const { Title, Text } = Typography;
+const { Search } = Input;
 
 // SearchTeachers Component - Student interface for finding and taking tests
 // Allows students to search teachers, filter by subjects, and access available tests
@@ -49,7 +39,7 @@ const SearchTeachers = () => {
   const [teachers, setTeachers] = useState([]);
   const [tests, setTests] = useState([]);
   const [studentAttempts, setStudentAttempts] = useState([]);
-  const [activeTestSessions, setActiveTestSessions] = useState({}); // Track active sessions for each test
+  const [activeTestSessions, setActiveTestSessions] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedTeacher, setSelectedTeacher] = useState(null);
@@ -79,7 +69,6 @@ const SearchTeachers = () => {
 
       // Filter teachers from all users
       const teachersData = users.filter(user => user.role === 'teacher');
-      
       
       setTeachers(teachersData);
       setTests(tests);
@@ -122,7 +111,6 @@ const SearchTeachers = () => {
     return tests.filter(test => {
       // Check if test is for this teacher (temporarily removed all other filters)
       const isForTeacher = test.teacher === teacherId;
-      
       
       return isForTeacher;
     });
@@ -202,399 +190,306 @@ const SearchTeachers = () => {
   // Loading state display
   if (loading) {
     return (
-      <Box sx={{ 
-        py: 4,
-        backgroundColor: '#ffffff'
-      }}>
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b'
-        }}>
-          O'qituvchilarni qidirish
-        </Typography>
-        <Typography sx={{ color: '#64748b' }}>Yuklanmoqda...</Typography>
-      </Box>
+      <div style={{ padding: '32px 0', backgroundColor: '#ffffff' }}>
+        <Spin size="large" />
+        <div style={{ marginTop: '16px' }}>
+          <Title level={2} style={{ color: '#1e293b' }}>
+            O'qituvchilarni qidirish
+          </Title>
+          <Text style={{ color: '#64748b' }}>Yuklanmoqda...</Text>
+        </div>
+      </div>
     );
   }
 
   // Error state display
   if (error) {
     return (
-      <Box sx={{ 
-        py: 4,
-        backgroundColor: '#ffffff'
-      }}>
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b'
-        }}>
+      <div style={{ padding: '32px 0', backgroundColor: '#ffffff' }}>
+        <Title level={2} style={{ color: '#1e293b' }}>
           O'qituvchilarni qidirish
-        </Typography>
-        <Alert severity="error" sx={{ 
-          backgroundColor: '#fef2f2',
-          border: '1px solid #fecaca',
-          color: '#991b1b'
-        }}>
-          {error}
-        </Alert>
-      </Box>
+        </Title>
+        <Alert
+          message={error}
+          type="error"
+          style={{
+            backgroundColor: '#fef2f2',
+            border: '1px solid #fecaca',
+            color: '#991b1b'
+          }}
+        />
+      </div>
     );
   }
 
+  const columns = [
+    {
+      title: 'O\'qituvchi ismi',
+      dataIndex: 'name',
+      key: 'name',
+      render: (name, record) => (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Text style={{ fontSize: '1.25rem', marginRight: '16px' }}>👨‍🏫</Text>
+          <div>
+            <Text style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.875rem' }}>
+              {name || 'Ismi ko\'rsatilmagan'}
+            </Text>
+            {record.bio && (
+              <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>
+                {record.bio}
+              </div>
+            )}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: 'Fanlar',
+      dataIndex: 'subjects',
+      key: 'subjects',
+      render: (subjects) => (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+          {subjects?.slice(0, 3).map((subject) => (
+            <Tag
+              key={subject}
+              style={{
+                backgroundColor: '#eff6ff',
+                color: '#2563eb',
+                fontWeight: 500,
+                borderRadius: '6px',
+                fontSize: '0.75rem',
+                height: '24px',
+                lineHeight: '24px',
+                margin: 0
+              }}
+            >
+              {subject}
+            </Tag>
+          )) || (
+            <Text style={{ color: '#94a3b8', fontSize: '0.75rem' }}>
+              Fanlar ko'rsatilmagan
+            </Text>
+          )}
+          {subjects && subjects.length > 3 && (
+            <Tag
+              style={{
+                backgroundColor: '#f3f4f6',
+                color: '#6b7280',
+                fontWeight: 500,
+                borderRadius: '6px',
+                fontSize: '0.75rem',
+                height: '24px',
+                lineHeight: '24px',
+                margin: 0
+              }}
+            >
+              +{subjects.length - 3}
+            </Tag>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: 'Testlar soni',
+      key: 'testCount',
+      render: (_, record) => {
+        const teacherTests = getTeacherTests(record.id);
+        return (
+          <Text style={{ fontWeight: 600, color: '#059669', fontSize: '0.875rem' }}>
+            {teacherTests.length}
+          </Text>
+        );
+      },
+    },
+    {
+      title: 'Faol seanslar',
+      key: 'activeSessions',
+      render: (_, record) => {
+        const activeSessionsCount = getActiveSessionsCountForTeacher(record.id);
+        const hasActiveSessions = activeSessionsCount > 0;
+        
+        return hasActiveSessions ? (
+          <Tag
+            style={{
+              backgroundColor: '#ecfdf5',
+              color: '#059669',
+              fontWeight: 600,
+              borderRadius: '6px',
+              fontSize: '0.75rem',
+              margin: 0
+            }}
+          >
+            {activeSessionsCount} ta
+          </Tag>
+        ) : (
+          <Tag
+            style={{
+              backgroundColor: '#f3f4f6',
+              color: '#6b7280',
+              fontWeight: 600,
+              borderRadius: '6px',
+              fontSize: '0.75rem',
+              margin: 0
+            }}
+          >
+            Yo'q
+          </Tag>
+        );
+      },
+    },
+    {
+      title: 'Harakatlar',
+      key: 'actions',
+      render: (_, record) => {
+        const activeSessionsCount = getActiveSessionsCountForTeacher(record.id);
+        const hasActiveSessions = activeSessionsCount > 0;
+        
+        return (
+          <Button
+            type="primary"
+            icon={hasActiveSessions ? <PlayCircleOutlined /> : <UserOutlined />}
+            onClick={() => navigate(`/student/teacher-details/${record.id}`)}
+            style={{
+              fontSize: '0.75rem',
+              padding: '4px 8px',
+              height: 'auto',
+              backgroundColor: hasActiveSessions ? '#059669' : '#2563eb',
+              borderColor: hasActiveSessions ? '#059669' : '#2563eb'
+            }}
+          >
+            {hasActiveSessions ? 'Davom ettirish' : 'Ko\'rish'}
+          </Button>
+        );
+      },
+    },
+  ];
+
   return (
-    <Box sx={{
-      py: 4,
-      backgroundColor: '#ffffff'
-    }}>
+    <div style={{ padding: '32px 0', backgroundColor: '#ffffff' }}>
       {/* Header */}
-      <Box sx={{
-        mb: 6,
-        pb: 4,
+      <div style={{
+        marginBottom: '32px',
+        paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
-      }}
-      >
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          mb: 2
-        }}>
+      }}>
+        <Title level={2} style={{ color: '#1e293b', marginBottom: '8px' }}>
           O'qituvchilarni qidirish
-        </Typography>
-        <Typography sx={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400
-        }}>
+        </Title>
+        <Text style={{ fontSize: '1.125rem', color: '#64748b', fontWeight: 400 }}>
           O'qituvchilarni toping va ularning testlarini ko'ring
-        </Typography>
-      </Box>
+        </Text>
+      </div>
 
       {/* Search and filter section */}
-      <Box sx={{ mb: 6 }}>
-        <Grid container spacing={3} sx={{ mb: 3 }}>
+      <div style={{ marginBottom: '32px' }}>
+        <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
           {/* Teacher name search */}
-          <Grid item xs={12} md={6}>
-            <Box>
-              <Typography sx={{ 
-                fontWeight: 600, 
-                color: '#374151',
-                fontSize: '0.875rem',
-                mb: 1
-              }}>
+          <Col xs={24} md={12}>
+            <div>
+              <Text style={{ fontWeight: 600, color: '#374151', fontSize: '0.875rem', display: 'block', marginBottom: '8px' }}>
                 O'qituvchi ismi bo'yicha qidirish
-              </Typography>
-              <TextField
-                fullWidth
-                variant="outlined"
+              </Text>
+              <Search
+                placeholder="O'qituvchi nomini kiriting..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="O'qituvchi nomini kiriting..."
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon sx={{ color: '#64748b' }} />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '8px',
-                    backgroundColor: '#ffffff',
-                    borderColor: '#e2e8f0',
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#2563eb'
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#2563eb'
-                    }
-                  }
-                }}
+                style={{ width: '100%' }}
+                prefix={<SearchOutlined style={{ color: '#64748b' }} />}
               />
-            </Box>
-          </Grid>
+            </div>
+          </Col>
 
           {/* Subject filter */}
-          <Grid item xs={12} md={6}>
-            <Box>
-              <Typography sx={{ 
-                fontWeight: 600, 
-                color: '#374151',
-                fontSize: '0.875rem',
-                mb: 1
-              }}>
+          <Col xs={24} md={12}>
+            <div>
+              <Text style={{ fontWeight: 600, color: '#374151', fontSize: '0.875rem', display: 'block', marginBottom: '8px' }}>
                 Fan bo'yicha filtr
-              </Typography>
-              <TextField
-                fullWidth
-                variant="outlined"
+              </Text>
+              <Input
+                placeholder="masalan: Matematika, Fizika"
                 value={subjectFilter}
                 onChange={(e) => setSubjectFilter(e.target.value)}
-                placeholder="masalan: Matematika, Fizika"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '8px',
-                    backgroundColor: '#ffffff',
-                    borderColor: '#e2e8f0',
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#2563eb'
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#2563eb'
-                    }
-                  }
-                }}
               />
-            </Box>
-          </Grid>
-        </Grid>
+            </div>
+          </Col>
+        </Row>
 
         {/* Popular subjects quick filters */}
-        <Box>
-          <Typography sx={{ 
-            fontWeight: 600, 
-            color: '#374151',
-            fontSize: '0.875rem',
-            mb: 2
-          }}>
+        <div>
+          <Text style={{ fontWeight: 600, color: '#374151', fontSize: '0.875rem', display: 'block', marginBottom: '16px' }}>
             Mashhur fanlar:
-          </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+          </Text>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {allSubjects.slice(0, 8).map((subject) => (
-              <Chip
+              <Tag
                 key={subject}
-                label={subject}
-                onClick={() => setSubjectFilter(subjectFilter === subject ? '' : subject)}
-                variant={subjectFilter === subject ? "filled" : "outlined"}
-                sx={{
+                style={{
                   cursor: 'pointer',
                   backgroundColor: subjectFilter === subject ? '#2563eb' : 'transparent',
                   color: subjectFilter === subject ? '#ffffff' : '#374151',
                   borderColor: subjectFilter === subject ? '#2563eb' : '#e2e8f0',
                   fontWeight: 500,
                   fontSize: '0.75rem',
-                  '&:hover': {
-                    backgroundColor: subjectFilter === subject ? '#1d4ed8' : '#f8fafc',
-                    borderColor: subjectFilter === subject ? '#1d4ed8' : '#2563eb'
-                  }
+                  borderRadius: '6px'
                 }}
-              />
+                onClick={() => setSubjectFilter(subjectFilter === subject ? '' : subject)}
+              >
+                {subject}
+              </Tag>
             ))}
-          </Box>
-        </Box>
-      </Box>
+          </div>
+        </div>
+      </div>
 
       {/* Teachers section */}
-      <Box sx={{ mb: 6 }}>
-        <Typography sx={{
-          fontSize: '1.25rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          mb: 4
-        }}>
+      <div style={{ marginBottom: '32px' }}>
+        <Title level={4} style={{ color: '#1e293b', marginBottom: '24px' }}>
           📚 {filteredTeachers.length} ta o'qituvchi topildi
-        </Typography>
+        </Title>
 
-        <div>
-          <TableContainer component={Paper} sx={{
+        <Card
+          style={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          }}>
-            <Table>
-              <TableHead>
-                <TableRow sx={{
-                  backgroundColor: '#f8fafc',
-                  '& th': {
-                    fontWeight: 700,
-                    fontSize: '0.875rem',
-                    color: '#1e293b',
-                    borderBottom: '1px solid #e2e8f0',
-                    padding: '16px'
-                  }
-                }}>
-                  <TableCell>O'qituvchi ismi</TableCell>
-                  <TableCell>Fanlar</TableCell>
-                  <TableCell>Testlar soni</TableCell>
-                  <TableCell>Faol seanslar</TableCell>
-                  <TableCell>Harakatlar</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredTeachers.map((teacher) => {
-                  const teacherTests = getTeacherTests(teacher.id);
-                  const activeSessionsCount = getActiveSessionsCountForTeacher(teacher.id);
-                  const hasActiveSessions = activeSessionsCount > 0;
-
-                  return (
-                    <TableRow key={teacher.id} sx={{
-                      '&:hover': {
-                        backgroundColor: '#f8fafc',
-                      },
-                      '& td': {
-                        borderBottom: '1px solid #f1f5f9',
-                        padding: '16px',
-                        fontSize: '0.875rem',
-                        color: '#334155'
-                      }
-                    }}>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Typography sx={{ fontSize: '1.25rem', mr: 2 }}>👨‍🏫</Typography>
-                          <Box>
-                            <Typography sx={{
-                              fontWeight: 600,
-                              color: '#1e293b',
-                              fontSize: '0.875rem'
-                            }}>
-                              {teacher.name || 'Ismi ko\'rsatilmagan'}
-                            </Typography>
-                            {teacher.bio && (
-                              <Typography sx={{
-                                fontSize: '0.75rem',
-                                color: '#64748b',
-                                mt: 0.5
-                              }}>
-                                {teacher.bio}
-                              </Typography>
-                            )}
-                          </Box>
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                          {teacher.subjects?.slice(0, 3).map((subject) => (
-                            <Chip
-                              key={subject}
-                              label={subject}
-                              size="small"
-                              sx={{
-                                backgroundColor: '#eff6ff',
-                                color: '#2563eb',
-                                fontWeight: 500,
-                                borderRadius: '6px',
-                                fontSize: '0.75rem',
-                                height: '24px'
-                              }}
-                            />
-                          )) || (
-                            <Typography sx={{
-                              color: '#94a3b8',
-                              fontSize: '0.75rem'
-                            }}>
-                              Fanlar ko'rsatilmagan
-                            </Typography>
-                          )}
-                          {teacher.subjects && teacher.subjects.length > 3 && (
-                            <Chip
-                              label={`+${teacher.subjects.length - 3}`}
-                              size="small"
-                              sx={{
-                                backgroundColor: '#f3f4f6',
-                                color: '#6b7280',
-                                fontWeight: 500,
-                                borderRadius: '6px',
-                                fontSize: '0.75rem',
-                                height: '24px'
-                              }}
-                            />
-                          )}
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Typography sx={{
-                          fontWeight: 600,
-                          color: '#059669',
-                          fontSize: '0.875rem'
-                        }}>
-                          {teacherTests.length}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        {hasActiveSessions ? (
-                          <Chip
-                            label={`${activeSessionsCount} ta`}
-                            size="small"
-                            sx={{
-                              backgroundColor: '#ecfdf5',
-                              color: '#059669',
-                              fontWeight: 600,
-                              borderRadius: '6px',
-                              fontSize: '0.75rem'
-                            }}
-                          />
-                        ) : (
-                          <Chip
-                            label="Yo'q"
-                            size="small"
-                            sx={{
-                              backgroundColor: '#f3f4f6',
-                              color: '#6b7280',
-                              fontWeight: 600,
-                              borderRadius: '6px',
-                              fontSize: '0.75rem'
-                            }}
-                          />
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                          <Button
-                            size="small"
-                            variant="contained"
-                            onClick={() => navigate(`/student/teacher-details/${teacher.id}`)}
-                            sx={{
-                              fontSize: '0.75rem',
-                              padding: '4px 8px',
-                              minWidth: 'auto',
-                              backgroundColor: hasActiveSessions ? '#059669' : '#2563eb',
-                              '&:hover': {
-                                backgroundColor: hasActiveSessions ? '#047857' : '#1d4ed8',
-                              }
-                            }}
-                            startIcon={<PersonIcon />}
-                          >
-                            {hasActiveSessions ? 'Davom ettirish' : 'Ko\'rish'}
-                          </Button>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </div>
-      </Box>
+          }}
+        >
+          <Table
+            columns={columns}
+            dataSource={filteredTeachers.map(teacher => ({ ...teacher, key: teacher.id }))}
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} ta`,
+            }}
+            scroll={{ x: 800 }}
+          />
+        </Card>
+      </div>
 
       {/* No results message */}
       {filteredTeachers.length === 0 && allTests.length === 0 && (
-        <div>
-          <Card sx={{
+        <Card
+          style={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            p: 6,
-            textAlign: 'center'
-          }}>
-            <Typography variant="h6" sx={{
-              color: '#64748b',
-              fontWeight: 600,
-              mb: 2
-            }}>
-              Sizning kriteriyalaringizga mos o'qituvchi topilmadi
-            </Typography>
-            <Typography sx={{ color: '#94a3b8' }}>
-              Qidiruv so'zlarini yoki fan filtrlarini o'zgartirib ko'ring
-            </Typography>
-          </Card>
-        </div>
+            textAlign: 'center',
+            padding: '48px'
+          }}
+        >
+          <Title level={4} style={{ color: '#64748b', fontWeight: 600, marginBottom: '16px' }}>
+            Sizning kriteriyalaringizga mos o'qituvchi topilmadi
+          </Title>
+          <Text style={{ color: '#94a3b8' }}>
+            Qidiruv so'zlarini yoki fan filtrlarini o'zgartirib ko'ring
+          </Text>
+        </Card>
       )}
-    </Box>
+    </div>
   );
 };
 

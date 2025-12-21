@@ -1,30 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Typography,
-  Box,
-  Paper,
   Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Chip,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Card,
-  CardContent,
-} from '@mui/material';
+  Typography,
+  Tag,
+  Button,
+  Modal,
+  Space,
+  Alert,
+  Spin,
+} from 'antd';
 import {
-  Assessment as AssessmentIcon,
-  CheckCircle as CheckCircleIcon,
-  Cancel as CancelIcon,
-} from '@mui/icons-material';
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+} from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
+
+const { Title, Text } = Typography;
 
 const TestResults = () => {
   const { currentUser } = useAuth();
@@ -95,10 +88,10 @@ const TestResults = () => {
   };
 
   const getScoreColor = (score) => {
-    if (score >= 90) return '#10b981';
-    if (score >= 70) return '#3b82f6';
-    if (score >= 50) return '#f59e0b';
-    return '#ef4444';
+    if (score >= 90) return '#52c41a';
+    if (score >= 70) return '#1890ff';
+    if (score >= 50) return '#faad14';
+    return '#f5222d';
   };
 
   const getScoreLabel = (score) => {
@@ -108,330 +101,335 @@ const TestResults = () => {
     return 'Qoniqarsiz';
   };
 
+  const columns = [
+    {
+      title: 'Test nomi',
+      dataIndex: 'test',
+      key: 'test',
+      render: (testId) => {
+        const test = getTestById(testId);
+        return (
+          <Text style={{ fontWeight: 600, color: '#1e293b' }}>
+            {test?.title || 'Noma\'lum test'}
+          </Text>
+        );
+      },
+    },
+    {
+      title: 'Fan',
+      dataIndex: 'test',
+      key: 'subject',
+      render: (testId) => {
+        const test = getTestById(testId);
+        return (
+          <Tag
+            style={{
+              backgroundColor: test?.subject === 'Ingliz tili' ? '#3b82f6' : '#eff6ff',
+              color: test?.subject === 'Ingliz tili' ? '#ffffff' : '#2563eb',
+              fontWeight: 600,
+              borderRadius: '6px',
+              fontSize: '0.75rem',
+              border: test?.subject === 'Ingliz tili' ? '#3b82f6' : 'none'
+            }}
+          >
+            {test?.subject || 'Noma\'lum'}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: 'Sana',
+      dataIndex: 'submitted_at',
+      key: 'date',
+      render: (submitted_at, record) => {
+        const test = getTestById(record.test);
+        return (
+          <div>
+            <Text style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500, display: 'block' }}>
+              Test ishlangan: {new Date(submitted_at).toLocaleDateString('uz-UZ')}
+            </Text>
+            <Text style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500 }}>
+              Test chiqgan: {test?.created_at ? new Date(test.created_at).toLocaleDateString('uz-UZ') : 'Noma\'lum'}
+            </Text>
+          </div>
+        );
+      },
+    },
+    {
+      title: 'Ball',
+      dataIndex: 'score',
+      key: 'score',
+      render: (score) => (
+        <Text
+          style={{
+            fontWeight: 700,
+            fontSize: '1.125rem',
+            color: getScoreColor(score)
+          }}
+        >
+          {score}%
+        </Text>
+      ),
+    },
+    {
+      title: 'Baho',
+      dataIndex: 'score',
+      key: 'grade',
+      render: (score) => (
+        <Tag
+          style={{
+            fontWeight: 600,
+            fontSize: '0.75rem',
+            backgroundColor: score >= 70 ? '#ecfdf5' : '#fef3c7',
+            color: score >= 70 ? '#059669' : '#d97706',
+            borderRadius: '6px',
+            border: 'none'
+          }}
+        >
+          {getScoreLabel(score)}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Harakatlar',
+      key: 'actions',
+      render: (_, record) => (
+        <Button
+          size="small"
+          type="outlined"
+          onClick={() => handleViewDetails(record)}
+          style={{
+            borderColor: '#e2e8f0',
+            color: '#374151',
+            borderRadius: '6px',
+            fontSize: '0.75rem',
+            fontWeight: 600
+          }}
+        >
+          Tafsilotlar
+        </Button>
+      ),
+    },
+  ];
+
   if (loading) {
     return (
-      <Box sx={{ 
-        py: 4,
-        backgroundColor: '#ffffff'
-      }}>
-        {/* Header */}
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          mb: 6,
-          pb: 4,
-          borderBottom: '1px solid #e2e8f0'
-        }}>
-          <Typography sx={{
-            fontSize: '2.5rem',
-            fontWeight: 700,
-            color: '#1e293b'
-          }}>
+      <div style={{ padding: '32px 0', backgroundColor: '#ffffff' }}>
+        <Spin size="large" />
+        <div style={{ marginTop: '16px' }}>
+          <Title level={2} style={{ color: '#1e293b' }}>
             Mening test natijalarim
-          </Typography>
-        </Box>
-        <Typography sx={{ color: '#64748b' }}>Yuklanmoqda...</Typography>
-      </Box>
+          </Title>
+          <Text style={{ color: '#64748b' }}>Yuklanmoqda...</Text>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Box sx={{
-      py: 4,
-      backgroundColor: '#ffffff'
-    }}>
+    <div style={{ padding: '32px 0', backgroundColor: '#ffffff' }}>
       {/* Header */}
-      <Box sx={{
+      <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        mb: 6,
-        pb: 4,
+        marginBottom: '24px',
+        paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
-      }}
-      >
-        <Typography sx={{
+      }}>
+        <Title level={2} style={{
           fontSize: '2.5rem',
           fontWeight: 700,
-          color: '#1e293b'
+          color: '#1e293b',
+          marginBottom: '8px'
         }}>
           Mening test natijalarim
-        </Typography>
-      </Box>
+        </Title>
+        <Text style={{
+          fontSize: '1.125rem',
+          color: '#64748b',
+          fontWeight: 400
+        }}>
+          Sizning barcha test natijalaringiz va statistikalaringiz
+        </Text>
+      </div>
 
       {results.length === 0 ? (
-        <div>
-          <Card sx={{
+        <Card
+          style={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            p: 4,
-            textAlign: 'center'
-          }}>
-            <AssessmentIcon sx={{ fontSize: 64, color: '#64748b', mb: 2 }} />
-            <Typography variant="h6" sx={{ color: '#64748b', mb: 2 }}>
-              Hozircha test natijalari yo'q
-            </Typography>
-            <Typography variant="body2" color="#64748b">
-              Test topshirgandan keyin natijalaringiz shu yerda ko'rinadi
-            </Typography>
-          </Card>
-        </div>
+            textAlign: 'center',
+            padding: '32px'
+          }}
+        >
+          <Title level={4} style={{ color: '#64748b', marginBottom: '16px' }}>
+            Hozircha test natijalari yo'q
+          </Title>
+          <Text style={{ color: '#64748b' }}>
+            Test topshirgandan keyin natijalaringiz shu yerda ko'rinadi
+          </Text>
+        </Card>
       ) : (
-        <div>
-          <Card sx={{
+        <Card
+          style={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
             overflow: 'hidden'
-          }}>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow sx={{
-                  backgroundColor: '#f8fafc',
-                  '& th': {
-                    fontWeight: 700,
-                    fontSize: '0.875rem',
-                    color: '#1e293b',
-                    borderBottom: '1px solid #e2e8f0',
-                    padding: '16px'
-                  }
-                }}>
-                  <TableCell>Test nomi</TableCell>
-                  <TableCell>Fan</TableCell>
-                  <TableCell>Sana</TableCell>
-                  <TableCell>Ball</TableCell>
-                  <TableCell>Baho</TableCell>
-                  <TableCell>Harakatlar</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {results
-                  .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
-                  .map((result) => {
-                  const test = getTestById(result.test);
-                  return (
-                    <TableRow key={result.id} sx={{
-                      '&:hover': {
-                        backgroundColor: '#f8fafc',
-                      },
-                      '& td': {
-                        borderBottom: '1px solid #f1f5f9',
-                        padding: '16px',
-                        fontSize: '0.875rem',
-                        color: '#334155'
-                      }
-                    }}>
-                      <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>
-                        {test?.title || 'Noma\'lum test'}
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={test?.subject || 'Noma\'lum'}
-                          size="small"
-                          sx={{
-                            backgroundColor: test?.subject === 'Ingliz tili' ? '#3b82f6' : '#eff6ff',
-                            color: test?.subject === 'Ingliz tili' ? '#ffffff' : '#2563eb',
-                            fontWeight: 600,
-                            borderRadius: '6px',
-                            fontSize: '0.75rem',
-                            borderColor: test?.subject === 'Ingliz tili' ? '#3b82f6' : undefined
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                          <Typography variant="body2" sx={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500 }}>
-                            Test ishlangan: {new Date(result.submitted_at).toLocaleDateString('uz-UZ')}
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500 }}>
-                            Test chiqgan: {test?.created_at ? new Date(test.created_at).toLocaleDateString('uz-UZ') : 'Noma\'lum'}
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Typography
-                          sx={{
-                            fontWeight: 700,
-                            fontSize: '1.125rem',
-                            color: getScoreColor(result.score)
-                          }}
-                        >
-                          {result.score}%
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={getScoreLabel(result.score)}
-                          size="small"
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: '0.75rem',
-                            backgroundColor: result.score >= 70 ? '#ecfdf5' : '#fef3c7',
-                            color: result.score >= 70 ? '#059669' : '#d97706',
-                            borderRadius: '6px'
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          onClick={() => handleViewDetails(result)}
-                          sx={{
-                            borderColor: '#e2e8f0',
-                            color: '#374151',
-                            borderRadius: '6px',
-                            fontSize: '0.75rem',
-                            fontWeight: 600,
-                            textTransform: 'none',
-                            '&:hover': {
-                              borderColor: '#2563eb',
-                              backgroundColor: '#f8fafc',
-                            }
-                          }}
-                        >
-                          Tafsilotlar
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          }}
+        >
+          <Table
+            columns={columns}
+            dataSource={results
+              .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
+              .map(result => ({ ...result, key: result.id }))
+            }
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} ta`,
+            }}
+            scroll={{ x: 800 }}
+          />
         </Card>
-        </div>
       )}
 
-      {/* Results Details Dialog */}
-      <Dialog
+      {/* Results Details Modal */}
+      <Modal
+        title={
+          <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '1.25rem' }}>
+            Test natijalari tafsilotlari
+          </div>
+        }
         open={dialogOpen}
-        onClose={handleCloseDialog}
-        maxWidth="md"
-        fullWidth
+        onCancel={handleCloseDialog}
+        width={800}
+        footer={[
+          <Button key="close" onClick={handleCloseDialog}>
+            Yopish
+          </Button>
+        ]}
       >
-        <DialogTitle sx={{ 
-          fontWeight: 600, 
-          color: '#1e293b',
-          fontSize: '1.25rem',
-          pb: 2
-        }}>
-          Test natijalari tafsilotlari
-        </DialogTitle>
-        <DialogContent>
-          {selectedResult && (() => {
-            const test = getTestById(selectedResult.test);
+        {selectedResult && (
+          <div>
+            {(() => {
+              const test = getTestById(selectedResult.test);
+              return (
+                <div>
+                  <Title level={4} style={{ color: '#1e293b', fontWeight: 600, marginBottom: '8px' }}>
+                    {test?.title || 'Noma\'lum test'}
+                  </Title>
+                  <Text style={{ color: '#64748b', marginBottom: '24px', display: 'block' }}>
+                    Fan: {test?.subject || 'Noma\'lum'}
+                  </Text>
 
-            return (
-              <Box>
-                <Typography variant="h6" gutterBottom sx={{ color: '#1e293b', fontWeight: 600 }}>
-                  {test?.title || 'Noma\'lum test'}
-                </Typography>
-                <Typography variant="body2" color="#64748b" gutterBottom sx={{ mb: 3 }}>
-                  Fan: {test?.subject || 'Noma\'lum'}
-                </Typography>
-
-                <Card sx={{
-                  backgroundColor: '#f8fafc',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
-                  mb: 3
-                }}>
-                  <CardContent sx={{ p: 3 }}>
-                    <Typography variant="h6" sx={{ color: '#1e293b', fontWeight: 600, mb: 2 }}>
+                  <Card
+                    style={{
+                      backgroundColor: '#f8fafc',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '8px',
+                      marginBottom: '24px'
+                    }}
+                    bodyStyle={{ padding: '16px' }}
+                  >
+                    <Title level={5} style={{ color: '#1e293b', fontWeight: 600, marginBottom: '8px' }}>
                       Sizning balingiz: <span style={{ color: getScoreColor(selectedResult.score) }}>{selectedResult.score}%</span> ({getScoreLabel(selectedResult.score)})
-                    </Typography>
-                  </CardContent>
-                </Card>
+                    </Title>
+                  </Card>
 
-                <Typography variant="h6" gutterBottom sx={{ color: '#1e293b', fontWeight: 600 }}>
-                  Test ma'lumotlari:
-                </Typography>
+                  <Title level={5} style={{ color: '#1e293b', fontWeight: 600, marginBottom: '16px' }}>
+                    Test ma'lumotlari:
+                  </Title>
 
-                <Card sx={{
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px'
-                }}>
-                  <CardContent sx={{ p: 3 }}>
-                    <Typography variant="body2" gutterBottom sx={{ color: '#334155' }}>
-                      <strong>Fan:</strong> {test?.subject || 'Noma\'lum'}
-                    </Typography>
-                    <Typography variant="body2" gutterBottom sx={{ color: '#334155' }}>
-                      <strong>Savollar soni:</strong> {test?.total_questions || 'Noma\'lum'}
-                    </Typography>
-                    <Typography variant="body2" gutterBottom sx={{ color: '#334155' }}>
-                      <strong>Vaqt limiti:</strong> {test?.time_limit || 'Noma\'lum'} daqiqa
-                    </Typography>
+                  <Card
+                    style={{
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '8px',
+                      marginBottom: '24px'
+                    }}
+                    bodyStyle={{ padding: '16px' }}
+                  >
+                    <div style={{ marginBottom: '8px' }}>
+                      <Text style={{ color: '#334155' }}><strong>Fan:</strong> {test?.subject || 'Noma\'lum'}</Text>
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <Text style={{ color: '#334155' }}><strong>Savollar soni:</strong> {test?.total_questions || 'Noma\'lum'}</Text>
+                    </div>
+                    <div>
+                      <Text style={{ color: '#334155' }}><strong>Vaqt limiti:</strong> {test?.time_limit || 'Noma\'lum'} daqiqa</Text>
+                    </div>
+                  </Card>
 
-                  </CardContent>
-                </Card>
+                  <Title level={5} style={{ color: '#1e293b', fontWeight: 600, marginBottom: '16px' }}>
+                    Savollar va javoblar:
+                  </Title>
 
-                <Typography variant="h6" gutterBottom sx={{ color: '#1e293b', fontWeight: 600, mt: 3 }}>
-                  Savollar va javoblar:
-                </Typography>
+                  {questionsLoading ? (
+                    <Text style={{ color: '#64748b', fontStyle: 'italic' }}>
+                      Savollar yuklanmoqda...
+                    </Text>
+                  ) : questions.length > 0 ? (
+                    <div>
+                      {questions.map((question, index) => {
+                        const studentAnswer = selectedResult.answers?.[question.id];
+                        const isCorrect = studentAnswer && question.correct_answer && 
+                          studentAnswer.toString().trim().toLowerCase() === question.correct_answer.toString().trim().toLowerCase();
 
-                {questionsLoading ? (
-                  <Typography sx={{ color: '#64748b', fontStyle: 'italic' }}>
-                    Savollar yuklanmoqda...
-                  </Typography>
-                ) : questions.length > 0 ? (
-                  <Box>
-                    {questions.map((question, index) => {
-                      const studentAnswer = selectedResult.answers?.[question.id];
-                      const isCorrect = studentAnswer && question.correct_answer && 
-                        studentAnswer.toString().trim().toLowerCase() === question.correct_answer.toString().trim().toLowerCase();
-
-                      return (
-                        <Card key={question.id} sx={{ 
-                          mb: 2, 
-                          border: '1px solid #e2e8f0',
-                          borderLeft: `4px solid ${isCorrect ? '#10b981' : '#ef4444'}`
-                        }}>
-                          <CardContent sx={{ p: 3 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                              <Chip 
-                                label={`${index + 1}-savol`} 
-                                size="small" 
-                                sx={{ 
-                                  mr: 2,
+                        return (
+                          <Card
+                            key={question.id}
+                            style={{
+                              marginBottom: '16px',
+                              border: '1px solid #e2e8f0',
+                              borderLeft: `4px solid ${isCorrect ? '#10b981' : '#ef4444'}`
+                            }}
+                            bodyStyle={{ padding: '16px' }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+                              <Tag
+                                style={{
+                                  marginRight: '8px',
                                   backgroundColor: '#f1f5f9',
                                   color: '#475569',
-                                  fontWeight: 600
-                                }} 
-                              />
-                              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                  fontWeight: 600,
+                                  border: 'none'
+                                }}
+                              >
+                                {index + 1}-savol
+                              </Tag>
+                              <div style={{ display: 'flex', alignItems: 'center' }}>
                                 {isCorrect ? (
-                                  <CheckCircleIcon sx={{ color: '#10b981', mr: 1 }} />
+                                  <CheckCircleOutlined style={{ color: '#10b981', marginRight: '4px' }} />
                                 ) : (
-                                  <CancelIcon sx={{ color: '#ef4444', mr: 1 }} />
+                                  <CloseCircleOutlined style={{ color: '#ef4444', marginRight: '4px' }} />
                                 )}
-                                <Typography variant="body2" sx={{ 
+                                <Text style={{
                                   color: isCorrect ? '#10b981' : '#ef4444',
                                   fontWeight: 600
                                 }}>
                                   {isCorrect ? 'To\'g\'ri' : 'Noto\'g\'ri'}
-                                </Typography>
-                              </Box>
-                            </Box>
+                                </Text>
+                              </div>
+                            </div>
 
-                            <Typography variant="h6" sx={{ 
-                              color: '#1e293b', 
-                              fontWeight: 600, 
-                              mb: 2,
+                            <Title level={5} style={{
+                              color: '#1e293b',
+                              fontWeight: 600,
+                              marginBottom: '16px',
                               fontSize: '1rem'
                             }}>
                               {question.question_text}
-                            </Typography>
+                            </Title>
 
                             {/* Question Image */}
                             {question.image && (
-                              <Box sx={{ mb: 2, textAlign: 'center' }}>
+                              <div style={{ marginBottom: '16px', textAlign: 'center' }}>
                                 <img
                                   src={question.image}
                                   alt="Question"
@@ -447,73 +445,48 @@ const TestResults = () => {
                                   onError={(e) => {
                                     console.error('Image failed to load:', question.image);
                                     e.target.style.display = 'none';
-                                    // Show error message instead of broken image
-                                    const errorDiv = document.createElement('div');
-                                    errorDiv.style.cssText = `
-                                      padding: 15px;
-                                      background: #f3f4f6;
-                                      border: 2px dashed #d1d5db;
-                                      border-radius: 8px;
-                                      color: #6b7280;
-                                      font-size: 12px;
-                                      text-align: center;
-                                      margin: 10px 0;
-                                    `;
-                                    errorDiv.textContent = 'Rasm yuklanmadi.';
-                                    e.target.parentNode.appendChild(errorDiv);
-                                  }}
-                                  onLoad={() => {
-                                    console.log('Image loaded successfully:', question.image);
                                   }}
                                 />
-                              </Box>
+                              </div>
                             )}
 
-                              {question.explanation && (
-                                <Box sx={{ mt: 2 }}>
-                                  <Typography variant="body2" sx={{
-                                    color: '#64748b',
-                                    fontWeight: 600,
-                                    mb: 1
-                                  }}>
-                                    Tushuntirish:
-                                  </Typography>
-                                  <Typography variant="body2" sx={{
-                                    color: '#334155',
-                                    backgroundColor: '#f8fafc',
-                                    p: 2,
-                                    borderRadius: '4px',
-                                    border: '1px solid #e2e8f0'
-                                  }}>
-                                    {question.explanation}
-                                  </Typography>
-                                </Box>
-                              )}
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                  </Box>
-                ) : (
-                  <Typography sx={{ color: '#64748b', fontStyle: 'italic' }}>
-                    Bu test uchun savollar topilmadi.
-                  </Typography>
-                )}
-              </Box>
-            );
-          })()}
-        </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
-          <Button onClick={handleCloseDialog} sx={{ 
-            color: '#374151',
-            fontWeight: 600,
-            textTransform: 'none'
-          }}>
-            Yopish
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+                            {question.explanation && (
+                              <div style={{ marginTop: '16px' }}>
+                                <Text style={{
+                                  color: '#64748b',
+                                  fontWeight: 600,
+                                  marginBottom: '8px',
+                                  display: 'block'
+                                }}>
+                                  Tushuntirish:
+                                </Text>
+                                <div style={{
+                                  color: '#334155',
+                                  backgroundColor: '#f8fafc',
+                                  padding: '16px',
+                                  borderRadius: '4px',
+                                  border: '1px solid #e2e8f0'
+                                }}>
+                                  {question.explanation}
+                                </div>
+                              </div>
+                            )}
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <Text style={{ color: '#64748b', fontStyle: 'italic' }}>
+                      Bu test uchun savollar topilmadi.
+                    </Text>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+        )}
+      </Modal>
+    </div>
   );
 };
 

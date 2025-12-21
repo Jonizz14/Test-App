@@ -1,34 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Box,
   Typography,
   Card,
-  CardContent,
   Button,
-  Grid,
-  Chip,
-  Container,
+  Row,
+  Col,
+  Tag,
   Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from '@mui/material';
+  Modal,
+  Badge,
+} from 'antd';
 import {
-  ArrowBack as ArrowBackIcon,
-  Star as StarIcon,
-  ShoppingCart as ShoppingCartIcon,
-} from '@mui/icons-material';
+  ArrowLeftOutlined,
+  StarOutlined,
+  ShoppingCartOutlined,
+} from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
+
+const { Title, Text } = Typography;
 
 const PricingPage = () => {
   const navigate = useNavigate();
@@ -57,8 +49,8 @@ const PricingPage = () => {
 
         // Transform pricing data
         const transformedPricing = pricingResponse.map(plan => ({
-          id: plan.plan_type,
-          title: plan.plan_name,
+          key: plan.plan_type,
+          planType: plan.plan_name,
           originalPrice: `$${plan.original_price}`,
           discountedPrice: `$${plan.discounted_price}`,
           discount: `${plan.discount_percentage}% Chegirma`,
@@ -69,7 +61,7 @@ const PricingPage = () => {
 
         // Transform star packages data
         const transformedStars = starResponse.map(pkg => ({
-          id: `stars_${pkg.stars}`,
+          key: `stars_${pkg.stars}`,
           stars: pkg.stars,
           originalPrice: `$${pkg.original_price}`,
           price: `$${pkg.discounted_price}`,
@@ -93,7 +85,6 @@ const PricingPage = () => {
 
     loadPricingData();
   }, [currentUser]);
-
 
   const handlePurchase = (planId) => {
     window.open('https://t.me/jonizz_devvvv', '_blank');
@@ -159,400 +150,427 @@ const PricingPage = () => {
     }
   };
 
+  // Table columns for pricing plans
+  const pricingColumns = [
+    {
+      title: 'Obuna turi',
+      dataIndex: 'planType',
+      key: 'planType',
+      render: (text, record) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Text style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.875rem' }}>
+            {text}
+          </Text>
+          {record.popular && (
+            <Tag
+              style={{
+                backgroundColor: '#d97706',
+                color: 'white',
+                fontWeight: 600,
+                fontSize: '0.7rem',
+                margin: 0,
+                height: '20px',
+                lineHeight: '20px'
+              }}
+            >
+              Eng mashhur
+            </Tag>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: 'Narx',
+      dataIndex: 'discountedPrice',
+      key: 'discountedPrice',
+      render: (text, record) => (
+        <div>
+          <Title level={4} style={{
+            fontWeight: 700,
+            color: record.color,
+            marginBottom: '4px',
+            marginTop: 0
+          }}>
+            {text}
+          </Title>
+          <Text style={{
+            color: '#64748b',
+            textDecoration: 'line-through',
+            fontSize: '0.75rem'
+          }}>
+            {record.originalPrice}
+          </Text>
+        </div>
+      ),
+    },
+    {
+      title: 'Chegirma',
+      dataIndex: 'discount',
+      key: 'discount',
+      render: (text) => (
+        <Tag
+          style={{
+            backgroundColor: '#ecfdf5',
+            color: '#059669',
+            fontWeight: 600,
+            fontSize: '0.75rem',
+            margin: 0
+          }}
+        >
+          {text}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Harakat',
+      key: 'action',
+      render: (_, record) => (
+        <Button
+          type="primary"
+          size="small"
+          onClick={() => handlePurchase(record.key)}
+          style={{
+            backgroundColor: record.color,
+            color: 'white',
+            fontWeight: 600,
+            border: 'none',
+            fontSize: '0.75rem',
+            padding: '4px 8px',
+            height: 'auto'
+          }}
+        >
+          Sotib olish
+        </Button>
+      ),
+    },
+  ];
+
+  // Table columns for star packages
+  const starColumns = [
+    {
+      title: 'Yulduzlar soni',
+      dataIndex: 'stars',
+      key: 'stars',
+      render: (text, record) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <StarOutlined style={{ color: record.color }} />
+          <Text style={{
+            fontWeight: 700,
+            color: record.color,
+            fontSize: '1.125rem'
+          }}>
+            {text}
+          </Text>
+          {record.popular && (
+            <Tag
+              style={{
+                backgroundColor: '#d97706',
+                color: 'white',
+                fontWeight: 600,
+                fontSize: '0.7rem',
+                margin: 0,
+                height: '20px',
+                lineHeight: '20px'
+              }}
+            >
+              Mashhur
+            </Tag>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: 'Narx',
+      dataIndex: 'price',
+      key: 'price',
+      render: (text, record) => (
+        <div>
+          <Title level={4} style={{
+            fontWeight: 700,
+            color: '#1e293b',
+            marginBottom: '4px',
+            marginTop: 0
+          }}>
+            {text}
+          </Title>
+          <Text style={{
+            color: '#64748b',
+            textDecoration: 'line-through',
+            fontSize: '0.75rem'
+          }}>
+            {record.originalPrice}
+          </Text>
+        </div>
+      ),
+    },
+    {
+      title: 'Chegirma',
+      dataIndex: 'discount',
+      key: 'discount',
+      render: (text) => (
+        <Tag
+          style={{
+            backgroundColor: '#ecfdf5',
+            color: '#059669',
+            fontWeight: 600,
+            fontSize: '0.75rem',
+            margin: 0
+          }}
+        >
+          {text}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Harakat',
+      key: 'action',
+      render: (_, record) => (
+        <Button
+          type="primary"
+          size="small"
+          onClick={() => handlePurchase(record.key)}
+          style={{
+            backgroundColor: record.color,
+            color: 'white',
+            fontWeight: 600,
+            border: 'none',
+            fontSize: '0.75rem',
+            padding: '4px 8px',
+            height: 'auto'
+          }}
+        >
+          Sotib olish
+        </Button>
+      ),
+    },
+  ];
+
+  const getRarityColor = (rarity) => {
+    switch (rarity) {
+      case 'common':
+        return { bg: '#f3f4f6', color: '#374151' };
+      case 'rare':
+        return { bg: '#dbeafe', color: '#1e40af' };
+      case 'epic':
+        return { bg: '#f3e8ff', color: '#7c3aed' };
+      case 'legendary':
+        return { bg: '#fef3c7', color: '#d97706' };
+      default:
+        return { bg: '#f3f4f6', color: '#374151' };
+    }
+  };
+
   return (
-    <Container maxWidth={false} sx={{ py: 4, maxWidth: '1800px' }}>
-      <Box sx={{
+    <div style={{ 
+      paddingTop: '24px', 
+      paddingBottom: '24px', 
+      maxWidth: '1800px', 
+      margin: '0 auto' 
+    }}>
+      <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        mb: 6,
-        pb: 4,
+        marginBottom: '24px',
+        paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
       }}>
-        <Typography sx={{
+        <Title level={2} style={{
           fontSize: '2.5rem',
           fontWeight: 700,
-          color: '#1e293b'
+          color: '#1e293b',
+          marginBottom: '8px'
         }}>
-          Premium Obuna
-        </Typography>
+          Narxlar va paketlar
+        </Title>
+        <Text style={{
+          fontSize: '1.125rem',
+          color: '#64748b',
+          fontWeight: 400
+        }}>
+          Premium xizmatlar narxlari va paketlar
+        </Text>
 
         <Button
-          startIcon={<ArrowBackIcon />}
+          icon={<ArrowLeftOutlined />}
           onClick={() => navigate(-1)}
-          sx={{
+          style={{
             color: '#2563eb',
-            '&:hover': {
-              backgroundColor: '#eff6ff'
-            }
+            border: 'none',
+            backgroundColor: 'transparent'
           }}
         >
           Orqaga
         </Button>
-      </Box>
+      </div>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 4 }}>
-          {error}
-        </Alert>
+        <Alert 
+          message={error}
+          type="error" 
+          style={{ marginBottom: '16px' }}
+        />
       )}
 
       {loading ? (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography>Yuklanmoqda...</Typography>
-        </Box>
+        <div style={{ textAlign: 'center', padding: '32px 0' }}>
+          <Text>Yuklanmoqda...</Text>
+        </div>
       ) : (
         <>
           {/* Premium Plans Section */}
-          <Box sx={{ mb: 6 }}>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 600,
-            color: '#374151',
-            mb: 3,
-            textAlign: 'left'
-          }}
-        >
-          💎 Premium Obunalar
-        </Typography>
+          <div style={{ marginBottom: '32px' }}>
+            <Title level={3} style={{
+              fontWeight: 600,
+              color: '#374151',
+              marginBottom: '16px',
+              textAlign: 'left'
+            }}>
+              💎 Premium Obunalar
+            </Title>
 
-        <TableContainer component={Paper} sx={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          width: '100%'
-        }}>
-          <Table sx={{ width: '100%' }}>
-            <TableHead>
-              <TableRow sx={{
-                backgroundColor: '#f8fafc',
-                '& th': {
-                  fontWeight: 700,
-                  fontSize: '0.875rem',
-                  color: '#1e293b',
-                  borderBottom: '1px solid #e2e8f0',
-                  padding: '16px'
-                }
-              }}>
-                <TableCell>Obuna turi</TableCell>
-                <TableCell>Narx</TableCell>
-                <TableCell>Chegirma</TableCell>
-                <TableCell>Harakat</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {pricingPlans.map((plan) => (
-                <TableRow key={plan.id} sx={{
-                  '&:hover': {
+            <Card style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              overflow: 'hidden'
+            }}>
+              <Table
+                columns={pricingColumns}
+                dataSource={pricingPlans}
+                pagination={false}
+                style={{
+                  '& .ant-table-thead > tr > th': {
                     backgroundColor: '#f8fafc',
+                    fontWeight: 700,
+                    fontSize: '0.875rem',
+                    color: '#1e293b',
+                    borderBottom: '1px solid #e2e8f0',
+                    padding: '16px'
                   },
-                  '& td': {
+                  '& .ant-table-tbody > tr > td': {
                     borderBottom: '1px solid #f1f5f9',
                     padding: '16px',
                     fontSize: '0.875rem',
                     color: '#334155'
-                  }
-                }}>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Typography sx={{
-                        fontWeight: 600,
-                        color: '#1e293b',
-                        fontSize: '0.875rem'
-                      }}>
-                        {plan.title}
-                      </Typography>
-                      {plan.popular && (
-                        <Chip
-                          label="Eng mashhur"
-                          sx={{
-                            backgroundColor: '#d97706',
-                            color: 'white',
-                            fontWeight: 600,
-                            fontSize: '0.7rem',
-                            ml: 1,
-                            height: '20px'
-                          }}
-                        />
-                      )}
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Box>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontWeight: 700,
-                          color: plan.color,
-                          mb: 0.5
-                        }}
-                      >
-                        {plan.discountedPrice}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: '#64748b',
-                          textDecoration: 'line-through',
-                          fontSize: '0.75rem'
-                        }}
-                      >
-                        {plan.originalPrice}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={plan.discount}
-                      size="small"
-                      sx={{
-                        backgroundColor: '#ecfdf5',
-                        color: '#059669',
-                        fontWeight: 600,
-                        fontSize: '0.75rem'
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="contained"
-                      size="small"
-                      onClick={() => handlePurchase(plan.id)}
-                      sx={{
-                        backgroundColor: plan.color,
-                        color: 'white',
-                        fontWeight: 600,
-                        textTransform: 'none',
-                        fontSize: '0.75rem',
-                        px: 2,
-                        py: 0.5,
-                        borderRadius: '6px',
-                        '&:hover': {
-                          backgroundColor: plan.color,
-                          opacity: 0.9
-                        }
-                      }}
-                    >
-                      Sotib olish
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-
-      {/* Stars Section */}
-      <Box sx={{ mb: 6 }}>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 600,
-            color: '#374151',
-            mb: 3,
-            textAlign: 'left'
-          }}
-        >
-          ⭐ Yulduzlar
-        </Typography>
-
-        <TableContainer component={Paper} sx={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          width: '100%'
-        }}>
-          <Table sx={{ width: '100%' }}>
-            <TableHead>
-              <TableRow sx={{
-                backgroundColor: '#f8fafc',
-                '& th': {
-                  fontWeight: 700,
-                  fontSize: '0.875rem',
-                  color: '#1e293b',
-                  borderBottom: '1px solid #e2e8f0',
-                  padding: '16px'
-                }
-              }}>
-                <TableCell>Yulduzlar soni</TableCell>
-                <TableCell>Narx</TableCell>
-                <TableCell>Chegirma</TableCell>
-                <TableCell>Harakat</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {starPackages.map((starPackage) => (
-                <TableRow key={starPackage.id} sx={{
-                  '&:hover': {
-                    backgroundColor: '#f8fafc',
                   },
-                  '& td': {
+                  '& .ant-table-tbody > tr:hover > td': {
+                    backgroundColor: '#f8fafc'
+                  }
+                }}
+              />
+            </Card>
+          </div>
+
+          {/* Stars Section */}
+          <div style={{ marginBottom: '32px' }}>
+            <Title level={3} style={{
+              fontWeight: 600,
+              color: '#374151',
+              marginBottom: '16px',
+              textAlign: 'left'
+            }}>
+              ⭐ Yulduzlar
+            </Title>
+
+            <Card style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              overflow: 'hidden'
+            }}>
+              <Table
+                columns={starColumns}
+                dataSource={starPackages}
+                pagination={false}
+                style={{
+                  '& .ant-table-thead > tr > th': {
+                    backgroundColor: '#f8fafc',
+                    fontWeight: 700,
+                    fontSize: '0.875rem',
+                    color: '#1e293b',
+                    borderBottom: '1px solid #e2e8f0',
+                    padding: '16px'
+                  },
+                  '& .ant-table-tbody > tr > td': {
                     borderBottom: '1px solid #f1f5f9',
                     padding: '16px',
                     fontSize: '0.875rem',
                     color: '#334155'
+                  },
+                  '& .ant-table-tbody > tr:hover > td': {
+                    backgroundColor: '#f8fafc'
                   }
-                }}>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <StarIcon sx={{ color: starPackage.color, mr: 1 }} />
-                      <Typography sx={{
-                        fontWeight: 700,
-                        color: starPackage.color,
-                        fontSize: '1.125rem'
-                      }}>
-                        {starPackage.stars}
-                      </Typography>
-                      {starPackage.popular && (
-                        <Chip
-                          label="Mashhur"
-                          sx={{
-                            backgroundColor: '#d97706',
-                            color: 'white',
-                            fontWeight: 600,
-                            fontSize: '0.7rem',
-                            ml: 1,
-                            height: '20px'
-                          }}
-                        />
-                      )}
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Box>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontWeight: 700,
-                          color: '#1e293b',
-                          mb: 0.5
-                        }}
-                      >
-                        {starPackage.price}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: '#64748b',
-                          textDecoration: 'line-through',
-                          fontSize: '0.75rem'
-                        }}
-                      >
-                        {starPackage.originalPrice}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={starPackage.discount}
-                      size="small"
-                      sx={{
-                        backgroundColor: '#ecfdf5',
-                        color: '#059669',
-                        fontWeight: 600,
-                        fontSize: '0.75rem'
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="contained"
-                      size="small"
-                      onClick={() => handlePurchase(starPackage.id)}
-                      sx={{
-                        backgroundColor: starPackage.color,
-                        color: 'white',
-                        fontWeight: 600,
-                        textTransform: 'none',
-                        fontSize: '0.75rem',
-                        px: 2,
-                        py: 0.5,
-                        borderRadius: '6px',
-                        '&:hover': {
-                          backgroundColor: starPackage.color,
-                          opacity: 0.9
-                        }
-                      }}
-                    >
-                      Sotib olish
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-          </Box>
+                }}
+              />
+            </Card>
+          </div>
 
           {/* Gifts Section */}
-          <Box sx={{ mt: 6 }}>
-            <Box sx={{
+          <div style={{ marginTop: '32px' }}>
+            <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              mb: 3
+              marginBottom: '16px'
             }}>
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 600,
-                  color: '#374151',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1
-                }}
-              >
+              <Title level={3} style={{
+                fontWeight: 600,
+                color: '#374151',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: 0
+              }}>
                 🎁 Sovg'alar do'koni
-              </Typography>
-              <Box sx={{
+              </Title>
+              <div style={{
                 backgroundColor: '#fef3c7',
                 borderRadius: '12px',
                 padding: '8px 16px',
                 border: '1px solid #f59e0b',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1
+                gap: '8px'
               }}>
-                <StarIcon sx={{ color: '#f59e0b' }} />
-                <Typography sx={{
+                <StarOutlined style={{ color: '#f59e0b' }} />
+                <Text style={{
                   fontWeight: 700,
                   color: '#92400e'
                 }}>
                   {userStars} yulduz
-                </Typography>
-              </Box>
-            </Box>
+                </Text>
+              </div>
+            </div>
 
             {successMessage && (
               <Alert
-                severity="success"
-                sx={{
-                  mb: 4,
+                message={`✅ ${successMessage}`}
+                type="success"
+                style={{
+                  marginBottom: '16px',
                   backgroundColor: '#ecfdf5',
                   border: '1px solid #10b981',
                   color: '#059669',
                   borderRadius: '12px',
                   boxShadow: '0 4px 12px rgba(16, 185, 129, 0.15)'
                 }}
-              >
-                ✅ {successMessage}
-              </Alert>
+              />
             )}
 
-            <Grid container spacing={3}>
+            <Row gutter={[16, 16]}>
               {gifts.map((gift) => {
                 const alreadyPurchased = hasPurchasedGift(gift.id);
                 const canAfford = userStars >= gift.star_cost;
                 const isSoldOut = gift.gift_count === 0;
+                const rarityColors = getRarityColor(gift.rarity);
 
                 return (
-                  <Grid item xs={12} sm={6} md={4} lg={3} key={gift.id}>
+                  <Col xs={24} sm={12} md={8} lg={6} key={gift.id}>
                     <Card
-                      sx={{
+                      style={{
                         backgroundColor: '#ffffff',
                         border: '1px solid #e2e8f0',
                         borderRadius: '12px',
@@ -560,14 +578,18 @@ const PricingPage = () => {
                         transition: 'all 0.2s ease',
                         aspectRatio: '1/1',
                         display: 'flex',
-                        flexDirection: 'column',
-                        '&:hover': {
-                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                          transform: 'translateY(-2px)'
-                        }
+                        flexDirection: 'column'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
+                        e.currentTarget.style.transform = 'translateY(0)';
                       }}
                     >
-                      <Box sx={{
+                      <div style={{
                         height: '50%',
                         backgroundColor: '#f8fafc',
                         borderRadius: '12px 12px 0 0',
@@ -588,57 +610,53 @@ const PricingPage = () => {
                             }}
                           />
                         ) : (
-                          <Typography sx={{ color: '#64748b', fontSize: '3rem' }}>
+                          <Text style={{ color: '#64748b', fontSize: '3rem' }}>
                             🎁
-                          </Typography>
+                          </Text>
                         )}
 
                         {/* Rarity badge */}
-                        <Chip
-                          label={gift.rarity_display || 'Oddiy'}
-                          size="small"
-                          sx={{
+                        <Tag
+                          style={{
                             position: 'absolute',
                             top: 8,
                             right: 8,
-                            backgroundColor: gift.rarity === 'common' ? '#f3f4f6' :
-                                           gift.rarity === 'rare' ? '#dbeafe' :
-                                           gift.rarity === 'epic' ? '#f3e8ff' :
-                                           gift.rarity === 'legendary' ? '#fef3c7' : '#f3f4f6',
-                            color: gift.rarity === 'common' ? '#374151' :
-                                  gift.rarity === 'rare' ? '#1e40af' :
-                                  gift.rarity === 'epic' ? '#7c3aed' :
-                                  gift.rarity === 'legendary' ? '#d97706' : '#374151',
+                            backgroundColor: rarityColors.bg,
+                            color: rarityColors.color,
                             fontWeight: 600,
                             fontSize: '0.7rem',
+                            margin: 0,
+                            border: 'none',
                             backdropFilter: 'blur(4px)'
                           }}
-                        />
-                      </Box>
+                        >
+                          {gift.rarity_display || 'Oddiy'}
+                        </Tag>
+                      </div>
 
-                      <CardContent sx={{
+                      <div style={{
                         flexGrow: 1,
                         display: 'flex',
                         flexDirection: 'column',
-                        p: 2.5
+                        padding: '16px'
                       }}>
-                        <Typography sx={{
+                        <Text style={{
                           fontWeight: 600,
                           color: '#1e293b',
                           fontSize: '1rem',
-                          mb: 1,
+                          marginBottom: '8px',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap'
                         }}>
                           {gift.name}
-                        </Typography>
+                        </Text>
 
                         {gift.description && (
-                          <Typography sx={{
+                          <Text style={{
                             color: '#64748b',
                             fontSize: '0.85rem',
-                            mb: 2,
+                            marginBottom: '16px',
                             flexGrow: 1,
                             display: '-webkit-box',
                             WebkitLineClamp: 2,
@@ -646,260 +664,246 @@ const PricingPage = () => {
                             overflow: 'hidden'
                           }}>
                             {gift.description}
-                          </Typography>
+                          </Text>
                         )}
 
-                        <Box sx={{
+                        <div style={{
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          mb: 2
+                          marginBottom: '16px'
                         }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <StarIcon sx={{ mr: 0.5, color: '#f59e0b', fontSize: '1.1rem' }} />
-                            <Typography sx={{
+                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <StarOutlined style={{ marginRight: '4px', color: '#f59e0b', fontSize: '1.1rem' }} />
+                            <Text style={{
                               fontWeight: 700,
                               color: '#d97706',
                               fontSize: '1rem'
                             }}>
                               {gift.star_cost}
-                            </Typography>
-                          </Box>
+                            </Text>
+                          </div>
 
                           {alreadyPurchased && (
-                            <Chip
-                              label="Sotib olingan"
-                              size="small"
-                              sx={{
+                            <Tag
+                              style={{
                                 backgroundColor: '#ecfdf5',
                                 color: '#059669',
                                 fontWeight: 600,
-                                fontSize: '0.7rem'
+                                fontSize: '0.7rem',
+                                margin: 0
                               }}
-                            />
+                            >
+                              Sotib olingan
+                            </Tag>
                           )}
-                        </Box>
+                        </div>
 
                         {/* Quantity display */}
-                        <Box sx={{ mb: 2 }}>
-                            <Typography sx={{
-                              color: '#dc2626',
-                              fontSize: '0.875rem',
-                              fontWeight: 600,
-                              textAlign: 'center'
-                            }}>
-                              Tugadi
-                            </Typography>
-                        </Box>
+                        <div style={{ marginBottom: '16px' }}>
+                          <Text style={{
+                            color: '#dc2626',
+                            fontSize: '0.875rem',
+                            fontWeight: 600,
+                            textAlign: 'center'
+                          }}>
+                            Tugadi
+                          </Text>
+                        </div>
 
                         <Button
-                          variant="contained"
-                          fullWidth
-                          startIcon={<ShoppingCartIcon />}
+                          type="primary"
+                          block
+                          icon={<ShoppingCartOutlined />}
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent card click
                             handleGiftPurchaseClick(gift);
                           }}
                           disabled={alreadyPurchased || !canAfford || isSoldOut}
-                          sx={{
+                          style={{
                             backgroundColor: alreadyPurchased ? '#10b981' : '#f59e0b',
                             color: '#ffffff',
                             fontWeight: 600,
-                            textTransform: 'none',
+                            border: 'none',
                             borderRadius: '8px',
-                            fontSize: '0.85rem',
-                            py: 1,
-                            '&:hover': {
-                              backgroundColor: alreadyPurchased ? '#059669' : '#d97706'
-                            },
-                            '&:disabled': {
-                              backgroundColor: '#d1d5db',
-                              color: '#9ca3af'
-                            }
+                            fontSize: '0.85rem'
                           }}
                         >
                           {alreadyPurchased ? 'Qolmadi' :
                            !canAfford ? 'Yulduz yetmaydi' :
                            isSoldOut ? 'Tugadi' : 'Sotib olish'}
                         </Button>
-                      </CardContent>
+                      </div>
                     </Card>
-                  </Grid>
+                  </Col>
                 );
               })}
-            </Grid>
+            </Row>
 
             {gifts.length === 0 && (
-              <Box sx={{ textAlign: 'center', py: 8 }}>
-                <Typography sx={{
+              <div style={{ textAlign: 'center', padding: '32px 0' }}>
+                <Text style={{
                   fontSize: '3rem',
-                  mb: 2
+                  marginBottom: '8px',
+                  display: 'block'
                 }}>
                   🎁
-                </Typography>
-                <Typography sx={{
+                </Text>
+                <Title level={3} style={{
                   fontSize: '1.5rem',
                   fontWeight: 600,
                   color: '#1e293b',
-                  mb: 2
+                  marginBottom: '8px'
                 }}>
                   Hozircha sovg'alar yo'q
-                </Typography>
-                <Typography sx={{ color: '#64748b' }}>
+                </Title>
+                <Text style={{ color: '#64748b' }}>
                   Admin tez orada yangi sovg'alar qo'shadi!
-                </Typography>
-              </Box>
+                </Text>
+              </div>
             )}
-          </Box>
+          </div>
         </>
       )}
 
       {/* Gift Purchase Confirmation Dialog */}
-      <Dialog
+      <Modal
+        title={
+          <div style={{ textAlign: 'center', fontWeight: 600, color: '#1e293b', fontSize: '1.25rem' }}>
+            🎁 Sovg'ani sotib olish
+          </div>
+        }
         open={purchaseDialogOpen}
-        onClose={handleClosePurchaseDialog}
-        maxWidth="sm"
-        fullWidth
+        onCancel={handleClosePurchaseDialog}
+        footer={null}
+        width={400}
       >
-        <DialogTitle sx={{
-          fontWeight: 600,
-          color: '#1e293b',
-          fontSize: '1.25rem',
-          textAlign: 'center'
-        }}>
-          🎁 Sovg'ani sotib olish
-        </DialogTitle>
-        <DialogContent>
-          {selectedGift && (
-            <Box sx={{ textAlign: 'center' }}>
-              <Box sx={{
-                width: '120px',
-                height: '120px',
-                backgroundColor: '#f8fafc',
-                borderRadius: '12px',
+        {selectedGift && (
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              width: '120px',
+              height: '120px',
+              backgroundColor: '#f8fafc',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              margin: '0 auto 16px',
+              border: '1px solid #e2e8f0'
+            }}>
+              {selectedGift.image_url ? (
+                <img
+                  src={selectedGift.image_url}
+                  alt={selectedGift.name}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+              ) : (
+                <Text style={{ fontSize: '3rem' }}>🎁</Text>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <Text style={{
+                fontWeight: 600,
+                color: '#1e293b',
+                fontSize: '1.2rem'
+              }}>
+                {selectedGift.name}
+              </Text>
+              <Tag
+                style={{
+                  backgroundColor: getRarityColor(selectedGift.rarity).bg,
+                  color: getRarityColor(selectedGift.rarity).color,
+                  fontWeight: 600,
+                  fontSize: '0.75rem',
+                  margin: 0
+                }}
+              >
+                {selectedGift.rarity_display || 'Oddiy'}
+              </Tag>
+            </div>
+
+            {selectedGift.description && (
+              <Text style={{
+                color: '#64748b',
+                marginBottom: '16px',
+                fontSize: '0.95rem',
+                display: 'block'
+              }}>
+                {selectedGift.description}
+              </Text>
+            )}
+
+            <div style={{
+              backgroundColor: '#fef3c7',
+              borderRadius: '8px',
+              padding: '12px',
+              marginBottom: '16px',
+              border: '1px solid #f59e0b'
+            }}>
+              <Text style={{
+                fontWeight: 600,
+                color: '#92400e',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                overflow: 'hidden',
-                mx: 'auto',
-                mb: 3,
-                border: '1px solid #e2e8f0'
+                gap: '8px'
               }}>
-                {selectedGift.image_url ? (
-                  <img
-                    src={selectedGift.image_url}
-                    alt={selectedGift.name}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover'
-                    }}
-                  />
-                ) : (
-                  <Typography sx={{ fontSize: '3rem' }}>🎁</Typography>
-                )}
-              </Box>
+                <StarOutlined />
+                {selectedGift.star_cost} yulduz
+              </Text>
+            </div>
 
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography sx={{
-                  fontWeight: 600,
-                  color: '#1e293b',
-                  fontSize: '1.2rem'
-                }}>
-                  {selectedGift.name}
-                </Typography>
-                <Chip
-                  label={selectedGift.rarity_display || 'Oddiy'}
-                  size="small"
-                  sx={{
-                    backgroundColor: selectedGift.rarity === 'common' ? '#f3f4f6' :
-                                   selectedGift.rarity === 'rare' ? '#dbeafe' :
-                                   selectedGift.rarity === 'epic' ? '#f3e8ff' :
-                                   selectedGift.rarity === 'legendary' ? '#fef3c7' : '#f3f4f6',
-                    color: selectedGift.rarity === 'common' ? '#374151' :
-                          selectedGift.rarity === 'rare' ? '#1e40af' :
-                          selectedGift.rarity === 'epic' ? '#7c3aed' :
-                          selectedGift.rarity === 'legendary' ? '#d97706' : '#374151',
-                    fontWeight: 600,
-                    fontSize: '0.75rem'
-                  }}
-                />
-              </Box>
+            <Text style={{
+              color: '#374151',
+              fontSize: '0.95rem'
+            }}>
+              Haqiqatan ham bu sovg'ani sotib olmoqchimisiz? Yulduzlaringizdan {selectedGift.star_cost} ta ayriladi.
+            </Text>
+          </div>
+        )}
 
-              {selectedGift.description && (
-                <Typography sx={{
-                  color: '#64748b',
-                  mb: 3,
-                  fontSize: '0.95rem'
-                }}>
-                  {selectedGift.description}
-                </Typography>
-              )}
-
-              <Box sx={{
-                backgroundColor: '#fef3c7',
-                borderRadius: '8px',
-                p: 2,
-                mb: 3,
-                border: '1px solid #f59e0b'
-              }}>
-                <Typography sx={{
-                  fontWeight: 600,
-                  color: '#92400e',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 1
-                }}>
-                  <StarIcon />
-                  {selectedGift.star_cost} yulduz
-                </Typography>
-              </Box>
-
-              <Typography sx={{
-                color: '#374151',
-                fontSize: '0.95rem'
-              }}>
-                Haqiqatan ham bu sovg'ani sotib olmoqchimisiz? Yulduzlaringizdan {selectedGift.star_cost} ta ayriladi.
-              </Typography>
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: 'center', gap: 2, pb: 3 }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          gap: '16px', 
+          marginTop: '24px',
+          paddingBottom: '16px'
+        }}>
           <Button
             onClick={handleClosePurchaseDialog}
-            variant="outlined"
-            sx={{
+            style={{
               borderColor: '#d1d5db',
               color: '#374151',
-              px: 4,
-              py: 1.5,
+              padding: '8px 24px',
               borderRadius: '8px',
               fontWeight: 600,
-              textTransform: 'none',
-              '&:hover': { backgroundColor: '#f9fafb' }
+              border: '1px solid #d1d5db'
             }}
           >
             Bekor qilish
           </Button>
           <Button
             onClick={handleGiftPurchaseConfirm}
-            variant="contained"
-            sx={{
+            type="primary"
+            style={{
               backgroundColor: '#f59e0b',
-              px: 4,
-              py: 1.5,
+              border: 'none',
+              padding: '8px 24px',
               borderRadius: '8px',
-              fontWeight: 600,
-              textTransform: 'none',
-              '&:hover': { backgroundColor: '#d97706' }
+              fontWeight: 600
             }}
           >
             Sotib olish
           </Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+        </div>
+      </Modal>
+    </div>
   );
 };
 

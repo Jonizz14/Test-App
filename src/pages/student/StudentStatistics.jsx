@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Box, Paper, Grid, Card, CardContent, Alert, Button } from '@mui/material';
+import { Typography, Card, Row, Col, Alert, Button } from 'antd';
+import {
+  SearchOutlined,
+  BarChartOutlined,
+  RiseOutlined,
+} from '@ant-design/icons';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,11 +20,6 @@ import {
 import { Bar, Pie, Line } from 'react-chartjs-2';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import {
-  Search as SearchIcon,
-  Assessment as AssessmentIcon,
-  TrendingUp as TrendingUpIcon,
-} from '@mui/icons-material';
 import apiService from '../../data/apiService';
 
 ChartJS.register(
@@ -33,6 +33,8 @@ ChartJS.register(
   LineElement,
   PointElement
 );
+
+const { Title: AntTitle, Text } = Typography;
 
 const StudentStatistics = () => {
   const { currentUser } = useAuth();
@@ -189,246 +191,252 @@ const StudentStatistics = () => {
     .slice(0, 10);
 
   const StatCard = ({ title, value, icon, color }) => (
-    <Card sx={{
+    <Card style={{
       backgroundColor: '#ffffff',
       border: '1px solid #e2e8f0',
       borderRadius: '12px',
       boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
       transition: 'none',
-      '&:hover': {
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-      },
-    }}>
-      <CardContent sx={{
-        p: 4,
-        '&:last-child': { pb: 4 }
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
+    }}
+    >
+      <div style={{
+        padding: '24px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
       }}>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Box flex={1}>
-            <Typography
-              sx={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                color: '#64748b',
-                mb: 1
-              }}
-            >
-              {title}
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: '2.5rem',
-                fontWeight: 700,
-                color: '#1e293b',
-                lineHeight: 1.2
-              }}
-            >
-              {value}
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              backgroundColor: color === 'primary.main' ? '#eff6ff' :
-                              color === 'secondary.main' ? '#f0fdf4' :
-                              color === 'success.main' ? '#ecfdf5' :
-                              color === 'warning.main' ? '#fffbeb' :
-                              '#f8fafc',
-              borderRadius: '12px',
-              padding: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              ml: 2
-            }}
-          >
-            {React.cloneElement(icon, {
-              sx: {
-                fontSize: '2rem',
-                color: color === 'primary.main' ? '#2563eb' :
-                       color === 'secondary.main' ? '#16a34a' :
-                       color === 'success.main' ? '#059669' :
-                       color === 'warning.main' ? '#d97706' :
-                       '#64748b'
-              }
-            })}
-          </Box>
-        </Box>
-      </CardContent>
+        <div style={{ flex: 1 }}>
+          <Text style={{
+            fontSize: '0.75rem',
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            color: '#64748b',
+            marginBottom: '4px',
+            display: 'block'
+          }}>
+            {title}
+          </Text>
+          <AntTitle level={1} style={{
+            fontSize: '2.5rem',
+            fontWeight: 700,
+            color: '#1e293b',
+            lineHeight: 1.2,
+            marginBottom: 0
+          }}>
+            {value}
+          </AntTitle>
+        </div>
+        <div style={{
+          backgroundColor: color === 'primary.main' ? '#eff6ff' :
+                          color === 'secondary.main' ? '#f0fdf4' :
+                          color === 'success.main' ? '#ecfdf5' :
+                          color === 'warning.main' ? '#fffbeb' :
+                          '#f8fafc',
+          borderRadius: '12px',
+          padding: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginLeft: '8px'
+        }}>
+          {React.cloneElement(icon, {
+            style: {
+              fontSize: '2rem',
+              color: color === 'primary.main' ? '#2563eb' :
+                     color === 'secondary.main' ? '#16a34a' :
+                     color === 'success.main' ? '#059669' :
+                     color === 'warning.main' ? '#d97706' :
+                     '#64748b'
+            }
+          })}
+        </div>
+      </div>
     </Card>
   );
 
   if (loading) {
     return (
-      <Box sx={{ 
-        py: 4,
+      <div style={{ 
+        paddingTop: '16px',
+        paddingBottom: '16px',
         backgroundColor: '#ffffff'
       }}>
-        <Typography sx={{
+        <AntTitle level={1} style={{
           fontSize: '2.5rem',
           fontWeight: 700,
           color: '#1e293b'
         }}>
           Mening statistikam
-        </Typography>
-        <Typography sx={{ color: '#64748b' }}>Yuklanmoqda...</Typography>
-      </Box>
+        </AntTitle>
+        <Text style={{ color: '#64748b' }}>Yuklanmoqda...</Text>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box sx={{ 
-        py: 4,
+      <div style={{ 
+        paddingTop: '16px',
+        paddingBottom: '16px',
         backgroundColor: '#ffffff'
       }}>
-        <Typography sx={{
+        <AntTitle level={1} style={{
           fontSize: '2.5rem',
           fontWeight: 700,
           color: '#1e293b',
-          mb: 4
+          marginBottom: '16px'
         }}>
           Mening statistikam
-        </Typography>
-        <Alert severity="error" sx={{ 
-          backgroundColor: '#fef2f2',
-          border: '1px solid #fecaca',
-          color: '#991b1b'
-        }}>
-          {error}
-        </Alert>
-      </Box>
+        </AntTitle>
+        <Alert 
+          message={error}
+          type="error" 
+          style={{ 
+            backgroundColor: '#fef2f2',
+            border: '1px solid #fecaca',
+            color: '#991b1b'
+          }}
+        />
+      </div>
     );
   }
 
   return (
-    <Box sx={{
-      py: 4,
+    <div style={{
+      paddingTop: '16px',
+      paddingBottom: '16px',
       backgroundColor: '#ffffff'
     }}>
-      <Box sx={{
-        mb: 6,
-        pb: 4,
+      <div style={{
+        marginBottom: '24px',
+        paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
       }}
       >
-        <Box sx={{
+        <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          mb: 2
+          marginBottom: '8px'
         }}>
-          <Typography
-            sx={{
-              fontSize: '2.5rem',
-              fontWeight: 700,
-              color: '#1e293b',
-              mb: 2
-            }}
-          >
+          <AntTitle level={1} style={{
+            fontSize: '2.5rem',
+            fontWeight: 700,
+            color: '#1e293b',
+            marginBottom: '8px'
+          }}>
             Mening statistikam
-          </Typography>
+          </AntTitle>
           <Button
-            variant="contained"
-            startIcon={<SearchIcon />}
+            type="primary"
+            icon={<SearchOutlined />}
             onClick={() => navigate('/student/search')}
-            sx={{
+            style={{
               backgroundColor: '#2563eb',
               color: '#ffffff',
               padding: '12px 24px',
               borderRadius: '8px',
               fontWeight: 600,
-              textTransform: 'none',
-              '&:hover': {
-                backgroundColor: '#1d4ed8',
-              }
+              border: 'none'
             }}
-            >
-              O'qituvchilarni topish
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#1d4ed8';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = '#2563eb';
+            }}
+          >
+            O'qituvchilarni topish
           </Button>
-        </Box>
-        <Typography sx={{
+        </div>
+        <Text style={{
           fontSize: '1.125rem',
           color: '#64748b',
           fontWeight: 400
         }}>
           Test natijalaringiz va statistik ma'lumotlari
-        </Typography>
-      </Box>
-
+        </Text>
+      </div>
 
       {/* Main Statistics Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={3}>
+      <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
+        <Col xs={24} md={12} lg={6}>
           <div>
             <StatCard
               title="Topshirilgan testlar"
               value={totalTests}
-              icon={<AssessmentIcon fontSize="large" />}
+              icon={<BarChartOutlined />}
               color="primary.main"
             />
           </div>
-        </Grid>
-        <Grid item xs={12} md={3}>
+        </Col>
+        <Col xs={24} md={12} lg={6}>
           <div>
             <StatCard
               title="O'rtacha ball"
               value={`${averageScore}%`}
-              icon={<TrendingUpIcon fontSize="large" />}
+              icon={<RiseOutlined />}
               color="success.main"
             />
           </div>
-        </Grid>
-        <Grid item xs={12} md={3}>
+        </Col>
+        <Col xs={24} md={12} lg={6}>
           <div>
             <StatCard
               title="Eng yuqori ball"
               value={`${highestScore}%`}
-              icon={<TrendingUpIcon fontSize="large" />}
+              icon={<RiseOutlined />}
               color="warning.main"
             />
           </div>
-        </Grid>
-        <Grid item xs={12} md={3}>
+        </Col>
+        <Col xs={24} md={12} lg={6}>
           <div>
             <StatCard
               title="Eng past ball"
               value={`${lowestScore}%`}
-              icon={<TrendingUpIcon fontSize="large" />}
+              icon={<RiseOutlined />}
               color="error.main"
             />
           </div>
-        </Grid>
-      </Grid>
+        </Col>
+      </Row>
 
-      <Box sx={{ mt: 4 }}>
-        <Box sx={{
+      <div style={{ marginTop: '16px' }}>
+        <div style={{
           backgroundColor: '#eff6ff',
           borderRadius: '12px',
           padding: '16px 20px',
-          mb: 3,
+          marginBottom: '16px',
           border: '1px solid #e2e8f0'
         }}
         >
-          <Typography sx={{
+          <AntTitle level={3} style={{
             fontSize: '1.25rem',
             fontWeight: 600,
             color: '#1e293b',
             display: 'flex',
             alignItems: 'center',
-            gap: 1
+            gap: '8px',
+            marginBottom: 0
           }}>
-            <AssessmentIcon sx={{ color: '#2563eb' }} />
+            <BarChartOutlined style={{ color: '#2563eb' }} />
             Statistik ma'lumotlar va tahlillar
-          </Typography>
-        </Box>
+          </AntTitle>
+        </div>
 
-        <Grid container spacing={4}>
+        <Row gutter={[16, 16]}>
         {/* Score Distribution Chart */}
-        <Grid item xs={12} md={6}>
+        <Col xs={24} lg={12}>
           <div>
-            <Card sx={{
+            <Card style={{
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
               borderRadius: '12px',
@@ -438,16 +446,16 @@ const StudentStatistics = () => {
               display: 'flex',
               flexDirection: 'column'
             }}>
-              <CardContent sx={{ p: 4, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <Typography sx={{
+              <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <AntTitle level={4} style={{
                   fontWeight: 600,
                   color: '#1e293b',
                   fontSize: '1.25rem',
-                  mb: 3
+                  marginBottom: '12px'
                 }}>
                   Ballar taqsimoti
-                </Typography>
-                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                </AntTitle>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Bar
                     data={scoreDistributionData}
                     options={{
@@ -468,16 +476,16 @@ const StudentStatistics = () => {
                       }
                     }}
                   />
-                </Box>
-              </CardContent>
+                </div>
+              </div>
             </Card>
           </div>
-        </Grid>
+        </Col>
 
         {/* Performance by Subject */}
-        <Grid item xs={12} md={6}>
+        <Col xs={24} lg={12}>
           <div>
-            <Card sx={{
+            <Card style={{
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
               borderRadius: '12px',
@@ -487,16 +495,16 @@ const StudentStatistics = () => {
               display: 'flex',
               flexDirection: 'column'
             }}>
-              <CardContent sx={{ p: 4, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <Typography sx={{
+              <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <AntTitle level={4} style={{
                   fontWeight: 600,
                   color: '#1e293b',
                   fontSize: '1.25rem',
-                  mb: 3
+                  marginBottom: '12px'
                 }}>
                   Fanlar bo'yicha natijalar
-                </Typography>
-                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                </AntTitle>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Pie
                     data={subjectPerformanceData}
                     options={{
@@ -509,16 +517,16 @@ const StudentStatistics = () => {
                       },
                     }}
                   />
-                </Box>
-              </CardContent>
+                </div>
+              </div>
             </Card>
           </div>
-        </Grid>
+        </Col>
 
         {/* Score Trend */}
-        <Grid item xs={12}>
+        <Col span={24}>
           <div>
-            <Card sx={{
+            <Card style={{
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
               borderRadius: '12px',
@@ -527,16 +535,16 @@ const StudentStatistics = () => {
               display: 'flex',
               flexDirection: 'column'
             }}>
-              <CardContent sx={{ p: 4, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <Typography sx={{
+              <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <AntTitle level={4} style={{
                   fontWeight: 600,
                   color: '#1e293b',
                   fontSize: '1.25rem',
-                  mb: 3
+                  marginBottom: '12px'
                 }}>
                   Ballar tendensiyasi (oxirgi 10 ta test)
-                </Typography>
-                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                </AntTitle>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Line
                     data={scoreTrendData}
                     options={{
@@ -555,16 +563,16 @@ const StudentStatistics = () => {
                       }
                     }}
                   />
-                </Box>
-              </CardContent>
+                </div>
+              </div>
             </Card>
           </div>
-        </Grid>
+        </Col>
 
         {/* Performance Summary */}
-        <Grid item xs={12}>
+        <Col span={24}>
           <div>
-            <Card sx={{
+            <Card style={{
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
               borderRadius: '12px',
@@ -574,154 +582,174 @@ const StudentStatistics = () => {
               display: 'flex',
               flexDirection: 'column'
             }}>
-              <CardContent sx={{ p: 4, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <Typography sx={{
+              <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <AntTitle level={4} style={{
                   fontWeight: 600,
                   color: '#1e293b',
                   fontSize: '1.25rem',
-                  mb: 3
+                  marginBottom: '12px'
                 }}>
                   Natija umumlashtiruvi
-                </Typography>
-                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', p: 2 }}>
-                  <Typography variant="body2" gutterBottom sx={{ color: '#334155', fontWeight: 500 }}>
+                </AntTitle>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '8px' }}>
+                  <Text style={{ color: '#334155', fontWeight: 500, marginBottom: '8px' }}>
                     <strong>Jami testlar:</strong> {totalTests}
-                  </Typography>
-                  <Typography variant="body2" gutterBottom sx={{ color: '#334155', fontWeight: 500 }}>
+                  </Text>
+                  <Text style={{ color: '#334155', fontWeight: 500, marginBottom: '8px' }}>
                     <strong>O'rtacha ball:</strong> {averageScore}%
-                  </Typography>
-                  <Typography variant="body2" gutterBottom sx={{ color: '#334155', fontWeight: 500 }}>
+                  </Text>
+                  <Text style={{ color: '#334155', fontWeight: 500, marginBottom: '8px' }}>
                     <strong>Eng yuqori ball:</strong> {highestScore}%
-                  </Typography>
-                  <Typography variant="body2" gutterBottom sx={{ color: '#334155', fontWeight: 500 }}>
+                  </Text>
+                  <Text style={{ color: '#334155', fontWeight: 500, marginBottom: '12px' }}>
                     <strong>Eng past ball:</strong> {lowestScore}%
-                  </Typography>
-                  <Typography variant="body2" sx={{ mt: 3, color: '#64748b', fontWeight: 500 }}>
+                  </Text>
+                  <Text style={{ color: '#64748b', fontWeight: 500 }}>
                     {averageScore >= 80 ? 'Ajoyib natija! Davom eting!' :
                      averageScore >= 60 ? 'Yaxshi natija! Yanada yaxshilashingiz mumkin.' :
                      'Ko\'proq mashq qiling va bilim oling!'}
-                  </Typography>
-                </Box>
-              </CardContent>
+                  </Text>
+                </div>
+              </div>
             </Card>
           </div>
-        </Grid>
-      </Grid>
+        </Col>
+      </Row>
+      </div>
 
       {/* Quick Actions */}
-      <Box sx={{
+      <div style={{
         backgroundColor: '#f8fafc',
         borderRadius: '12px',
         padding: '16px 20px',
-        mt: 3,
+        marginTop: '16px',
         border: '1px solid #e2e8f0'
       }}
       >
-        <Typography sx={{
+        <AntTitle level={3} style={{
           fontSize: '1.25rem',
           fontWeight: 600,
           color: '#1e293b',
           display: 'flex',
           alignItems: 'center',
-          gap: 1,
-          mb: 3
+          gap: '8px',
+          marginBottom: '16px'
         }}>
-          <AssessmentIcon sx={{ color: '#2563eb' }} />
+          <BarChartOutlined style={{ color: '#2563eb' }} />
           Tezkor amallar
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={3}>
+        </AntTitle>
+        <Row gutter={[8, 8]}>
+          <Col xs={24} md={12} lg={6}>
             <Button
               variant="outlined"
               fullWidth
-              startIcon={<SearchIcon />}
+              icon={<SearchOutlined />}
               onClick={() => navigate('/student/search')}
-              sx={{
+              style={{
                 borderColor: '#e2e8f0',
                 color: '#374151',
                 borderRadius: '8px',
                 padding: '12px 16px',
                 fontWeight: 600,
-                textTransform: 'none',
-                '&:hover': {
-                  borderColor: '#2563eb',
-                  backgroundColor: '#f8fafc',
-                }
+                border: '1px solid #e2e8f0',
+                backgroundColor: 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.borderColor = '#2563eb';
+                e.target.style.backgroundColor = '#f8fafc';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.borderColor = '#e2e8f0';
+                e.target.style.backgroundColor = 'transparent';
               }}
             >
               O'qituvchilarni topish
             </Button>
-          </Grid>
-          <Grid item xs={12} md={3}>
+          </Col>
+          <Col xs={24} md={12} lg={6}>
             <Button
               variant="outlined"
               fullWidth
-              startIcon={<AssessmentIcon />}
+              icon={<BarChartOutlined />}
               onClick={() => navigate('/student/results')}
-              sx={{
+              style={{
                 borderColor: '#e2e8f0',
                 color: '#374151',
                 borderRadius: '8px',
                 padding: '12px 16px',
                 fontWeight: 600,
-                textTransform: 'none',
-                '&:hover': {
-                  borderColor: '#2563eb',
-                  backgroundColor: '#f8fafc',
-                }
+                border: '1px solid #e2e8f0',
+                backgroundColor: 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.borderColor = '#2563eb';
+                e.target.style.backgroundColor = '#f8fafc';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.borderColor = '#e2e8f0';
+                e.target.style.backgroundColor = 'transparent';
               }}
             >
               Test natijalari
             </Button>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          </Col>
+          <Col xs={24} md={12} lg={6}>
             <Button
               variant="outlined"
               fullWidth
-              startIcon={<TrendingUpIcon />}
+              icon={<RiseOutlined />}
               onClick={() => navigate('/student')}
-              sx={{
+              style={{
                 borderColor: '#e2e8f0',
                 color: '#374151',
                 borderRadius: '8px',
                 padding: '12px 16px',
                 fontWeight: 600,
-                textTransform: 'none',
-                '&:hover': {
-                  borderColor: '#2563eb',
-                  backgroundColor: '#f8fafc',
-                }
+                border: '1px solid #e2e8f0',
+                backgroundColor: 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.borderColor = '#2563eb';
+                e.target.style.backgroundColor = '#f8fafc';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.borderColor = '#e2e8f0';
+                e.target.style.backgroundColor = 'transparent';
               }}
             >
               Bosh sahifa
             </Button>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          </Col>
+          <Col xs={24} md={12} lg={6}>
             <Button
               variant="outlined"
               fullWidth
-              startIcon={<AssessmentIcon />}
+              icon={<BarChartOutlined />}
               onClick={() => navigate('/student/profile')}
-              sx={{
+              style={{
                 borderColor: '#e2e8f0',
                 color: '#374151',
                 borderRadius: '8px',
                 padding: '12px 16px',
                 fontWeight: 600,
-                textTransform: 'none',
-                '&:hover': {
-                  borderColor: '#2563eb',
-                  backgroundColor: '#f8fafc',
-                }
+                border: '1px solid #e2e8f0',
+                backgroundColor: 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.borderColor = '#2563eb';
+                e.target.style.backgroundColor = '#f8fafc';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.borderColor = '#e2e8f0';
+                e.target.style.backgroundColor = 'transparent';
               }}
             >
               Mening profilim
             </Button>
-          </Grid>
-        </Grid>
-      </Box>
-      </Box>
-    </Box>
+          </Col>
+        </Row>
+      </div>
+    </div>
   );
 };
 

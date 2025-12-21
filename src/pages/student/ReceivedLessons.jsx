@@ -1,22 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Typography,
-  Box,
-  Paper,
-  Chip,
-  Alert,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from '@mui/material';
-import {
-  School as SchoolIcon,
-  AccessTime as TimeIcon,
-} from '@mui/icons-material';
+import { Card, Typography, Table, Tag, Alert } from 'antd';
+import { BookOutlined } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
+
+const { Title, Text } = Typography;
 
 const ReceivedLessons = () => {
   const { currentUser } = useAuth();
@@ -58,9 +45,9 @@ const ReceivedLessons = () => {
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
-      case 'easy': return 'success';
-      case 'medium': return 'warning';
-      case 'hard': return 'error';
+      case 'easy': return 'green';
+      case 'medium': return 'orange';
+      case 'hard': return 'red';
       default: return 'default';
     }
   };
@@ -86,154 +73,196 @@ const ReceivedLessons = () => {
 
   if (loading) {
     return (
-      <Box sx={{ 
-        pl: { xs: 0, md: 35 }, 
-        pr: 4,
-        py: 4,
+      <div style={{ 
+        paddingLeft: '35px', 
+        paddingRight: '16px',
+        paddingTop: '16px',
+        paddingBottom: '16px',
         backgroundColor: '#ffffff'
       }}>
-        <Typography sx={{
+        <Title level={2} style={{ 
           fontSize: '2.5rem',
           fontWeight: 700,
-          color: '#1e293b'
+          color: '#1e293b',
+          marginBottom: '8px'
         }}>
-          Qabul qilingan darslar
-        </Typography>
-        <Typography sx={{ color: '#64748b' }}>Yuklanmoqda...</Typography>
-      </Box>
+          Olingan darslar
+        </Title>
+        <Text style={{
+          fontSize: '1.125rem',
+          color: '#64748b',
+          fontWeight: 400
+        }}>
+          Sizga yuborilgan dars materiallari va topshiriqlar
+        </Text>
+        <Text style={{ color: '#64748b' }}>Yuklanmoqda...</Text>
+      </div>
     );
   }
 
+  const columns = [
+    {
+      title: 'Dars mavzusi',
+      dataIndex: 'topic',
+      key: 'topic',
+      render: (topic, record) => (
+        <div>
+          <Text strong style={{
+            fontWeight: 600,
+            color: '#1e293b',
+            fontSize: '0.875rem'
+          }}>
+            {topic}
+          </Text>
+          {record.description && (
+            <Text style={{
+              fontSize: '0.75rem',
+              color: '#64748b',
+              display: 'block',
+              marginTop: '4px'
+            }}>
+              {record.description.length > 50 ? record.description.substring(0, 50) + '...' : record.description}
+            </Text>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: 'Fan',
+      dataIndex: 'subject',
+      key: 'subject',
+      render: (subject) => (
+        <Tag
+          style={{
+            fontWeight: 500,
+            fontSize: '0.75rem'
+          }}
+        >
+          {subject}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Sana va vaqt',
+      key: 'datetime',
+      render: (_, record) => (
+        <div>
+          <Text style={{
+            fontWeight: 500,
+            color: '#1e293b',
+            fontSize: '0.875rem'
+          }}>
+            {record.lessonDate}
+          </Text>
+          <br />
+          <Text style={{
+            fontSize: '0.75rem',
+            color: '#64748b'
+          }}>
+            {record.lessonTime}
+          </Text>
+        </div>
+      ),
+    },
+    {
+      title: 'Hona',
+      dataIndex: 'room',
+      key: 'room',
+      render: (room) => (
+        <Text style={{
+          fontWeight: 500,
+          color: '#1e293b',
+          fontSize: '0.875rem'
+        }}>
+          {room}
+        </Text>
+      ),
+    },
+    {
+      title: 'O\'qituvchi',
+      dataIndex: 'teacherName',
+      key: 'teacherName',
+      render: (teacherName) => (
+        <Text style={{
+          fontWeight: 500,
+          color: '#1e293b',
+          fontSize: '0.875rem'
+        }}>
+          {teacherName}
+        </Text>
+      ),
+    },
+    {
+      title: 'Yuborilgan sana',
+      dataIndex: 'sentAt',
+      key: 'sentAt',
+      render: (sentAt) => formatDate(sentAt),
+    },
+  ];
+
   return (
-    <Box sx={{
-      py: 4,
+    <div style={{
+      paddingTop: '16px',
+      paddingBottom: '16px',
       backgroundColor: '#ffffff'
     }}>
       {/* Header */}
-      <Box sx={{
+      <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        mb: 6,
-        pb: 4,
+        marginBottom: '24px',
+        paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
       }}
       >
-        <Typography sx={{
+        <Title level={2} style={{
           fontSize: '2.5rem',
           fontWeight: 700,
-          color: '#1e293b'
+          color: '#1e293b',
+          marginBottom: '8px'
         }}>
-          Qabul qilingan darslar
-        </Typography>
-      </Box>
+          Olingan darslar
+        </Title>
+        <Text style={{
+          fontSize: '1.125rem',
+          color: '#64748b',
+          fontWeight: 400
+        }}>
+          Sizga yuborilgan dars materiallari va topshiriqlar
+        </Text>
+      </div>
 
       {lessons.length === 0 ? (
-        <div>
-          <Paper sx={{ p: 4, textAlign: 'center', bgcolor: '#f8f9fa' }}>
-            <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-            <Typography variant="h6" color="textSecondary" gutterBottom>
-              Hozircha qo'shimcha darslar yo'q
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              O'qituvchingiz test natijalaringizga qarab qo'shimcha dars yuborishi mumkin
-            </Typography>
-          </Paper>
-        </div>
+        <Card style={{ textAlign: 'center', backgroundColor: '#f8f9fa' }}>
+          <BookOutlined style={{ fontSize: 64, color: '#94a3b8', marginBottom: 16 }} />
+          <Title level={4} style={{ marginBottom: 8, color: '#64748b' }}>
+            Hozircha qo'shimcha darslar yo'q
+          </Title>
+          <Text style={{ color: '#94a3b8' }}>
+            O'qituvchingiz test natijalaringizga qarab qo'shimcha dars yuborishi mumkin
+          </Text>
+        </Card>
       ) : (
-        <Box>
-          <Alert severity="info" sx={{ mb: 3 }}>
-            Sizga {lessons.length} ta qo'shimcha dars yuborilgan. Har bir darsni o'rganib, bilimlaringizni mustahkamlang!
-          </Alert>
+        <div>
+          <Alert 
+            message={`Sizga ${lessons.length} ta qo'shimcha dars yuborilgan. Har bir darsni o'rganib, bilimlaringizni mustahkamlang!`} 
+            type="info" 
+            style={{ marginBottom: '16px' }}
+          />
 
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Dars mavzusi</TableCell>
-                  <TableCell>Fan</TableCell>
-                  <TableCell>Sana va vaqt</TableCell>
-                  <TableCell>Hona</TableCell>
-                  <TableCell>O'qituvchi</TableCell>
-                  <TableCell>Yuborilgan sana</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {lessons.map((lesson) => (
-                  <TableRow key={lesson.id}>
-                    <TableCell>
-                      <Typography sx={{
-                        fontWeight: 600,
-                        color: '#1e293b',
-                        fontSize: '0.875rem'
-                      }}>
-                        {lesson.topic}
-                      </Typography>
-                      {lesson.description && (
-                        <Typography sx={{
-                          fontSize: '0.75rem',
-                          color: '#64748b',
-                          mt: 0.5
-                        }}>
-                          {lesson.description.length > 50 ? lesson.description.substring(0, 50) + '...' : lesson.description}
-                        </Typography>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={lesson.subject}
-                        size="small"
-                        variant="outlined"
-                        sx={{
-                          fontWeight: 500,
-                          fontSize: '0.75rem'
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Typography sx={{
-                        fontWeight: 500,
-                        color: '#1e293b',
-                        fontSize: '0.875rem'
-                      }}>
-                        {lesson.lessonDate}
-                      </Typography>
-                      <Typography sx={{
-                        fontSize: '0.75rem',
-                        color: '#64748b'
-                      }}>
-                        {lesson.lessonTime}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography sx={{
-                        fontWeight: 500,
-                        color: '#1e293b',
-                        fontSize: '0.875rem'
-                      }}>
-                        {lesson.room}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography sx={{
-                        fontWeight: 500,
-                        color: '#1e293b',
-                        fontSize: '0.875rem'
-                      }}>
-                        {lesson.teacherName}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      {formatDate(lesson.sentAt)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
+          <Card>
+            <Table
+              columns={columns}
+              dataSource={lessons.map(lesson => ({ ...lesson, key: lesson.id }))}
+              loading={loading}
+              pagination={false}
+              size="middle"
+            />
+          </Card>
+        </div>
       )}
-    </Box>
+    </div>
   );
 };
 

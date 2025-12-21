@@ -1,33 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Card, Typography, Button, Avatar, Tag, Row, Col, Alert } from 'antd';
 import {
-  Typography,
-  Box,
-  Paper,
-  Button,
-  Avatar,
-  Chip,
-  Grid,
-  Card,
-  CardContent,
-  Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from '@mui/material';
-import {
-  ArrowBack as ArrowBackIcon,
-  CheckCircle as CheckCircleIcon,
-  EmojiEvents as TrophyIcon,
-  Assessment as AssessmentIcon,
-  School as SchoolIcon,
-  PhotoCamera as PhotoIcon,
-  Edit as EditIcon,
-} from '@mui/icons-material';
+  ArrowLeftOutlined,
+  CheckCircleOutlined,
+  TrophyOutlined,
+  BarChartOutlined,
+  EditOutlined,
+} from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
 import { shouldShowPremiumFeatures } from '../../utils/premiumVisibility';
+
+const { Title, Text } = Typography;
 
 const StudentProfileView = () => {
   const { id } = useParams();
@@ -110,25 +95,27 @@ const StudentProfileView = () => {
 
   if (loading) {
     return (
-      <Box sx={{
-        py: 8,
+      <div style={{
+        paddingTop: '32px',
+        paddingBottom: '32px',
         backgroundColor: '#ffffff',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '400px',
-        gap: 3
+        gap: '16px'
       }}>
-        <Typography>Yuklanmoqda...</Typography>
-      </Box>
+        <Text>Yuklanmoqda...</Text>
+      </div>
     );
   }
 
   if (error || !student) {
     return (
-      <Box sx={{
-        py: 8,
+      <div style={{
+        paddingTop: '32px',
+        paddingBottom: '32px',
         backgroundColor: '#ffffff',
         display: 'flex',
         flexDirection: 'column',
@@ -136,101 +123,121 @@ const StudentProfileView = () => {
         alignItems: 'center',
         minHeight: '400px'
       }}>
-        <Typography color="error">{error || 'O\'quvchi topilmadi'}</Typography>
+        <Text type="danger">{error || 'O\'quvchi topilmadi'}</Text>
         <Button
-          startIcon={<ArrowBackIcon />}
+          icon={<ArrowLeftOutlined />}
           onClick={() => navigate(-1)}
-          sx={{ mt: 2 }}
+          style={{ marginTop: '8px' }}
         >
           Orqaga
         </Button>
-      </Box>
+      </div>
     );
   }
 
+  const profileBackgroundStyle = shouldShowPremiumFeatures(student, currentUser) && student.background_gradient
+    ? { 
+        background: (typeof student.background_gradient === 'string'
+            ? JSON.parse(student.background_gradient).css
+            : student.background_gradient.css)
+      }
+    : shouldShowPremiumFeatures(student, currentUser)
+      ? {
+          background: `
+            radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+            linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)
+          `
+        }
+      : { background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' };
+
   return (
-    <Box sx={{ py: 4, backgroundColor: '#ffffff' }}>
+    <div style={{ paddingTop: '16px', paddingBottom: '16px', backgroundColor: '#ffffff' }}>
       {/* Header */}
-      <Box sx={{
-        mb: 4,
+      <div style={{
         display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        gap: 2
-      }}
-      >
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(-1)}
-          variant="outlined"
-          sx={{
-            borderColor: '#2563eb',
-            color: '#2563eb',
-            '&:hover': {
-              backgroundColor: '#eff6ff',
-              borderColor: '#1d4ed8'
-            }
-          }}
-        >
-          Orqaga
-        </Button>
-        <Typography variant="h4" sx={{ fontWeight: 700, color: '#1e293b' }}>
-          {student.name} - Profil
-        </Typography>
-      </Box>
+        marginBottom: '24px',
+        paddingBottom: '16px',
+        borderBottom: '1px solid #e2e8f0'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate(-1)}
+            style={{
+              borderColor: '#2563eb',
+              color: '#2563eb',
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#eff6ff';
+              e.target.style.borderColor = '#1d4ed8';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = 'transparent';
+              e.target.style.borderColor = '#2563eb';
+            }}
+          >
+            Orqaga
+          </Button>
+        </div>
+        <Title level={2} style={{
+          fontSize: '2.5rem',
+          fontWeight: 700,
+          color: '#1e293b',
+          marginBottom: '8px'
+        }}>
+          Sinfdosh profili
+        </Title>
+        <Text style={{
+          fontSize: '1.125rem',
+          color: '#64748b',
+          fontWeight: 400
+        }}>
+          Sinfdoshning shaxsiy ma'lumotlari va natijalari
+        </Text>
+      </div>
 
       {/* Premium Profile Card */}
-      <Paper sx={{
-        p: 0,
-        mb: 4,
-        background: shouldShowPremiumFeatures(student, currentUser) && student.background_gradient
-          ? (typeof student.background_gradient === 'string'
-              ? JSON.parse(student.background_gradient).css
-              : student.background_gradient.css)
-          : shouldShowPremiumFeatures(student, currentUser)
-            ? `
-              radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-              radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-              linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)
-            `
-            : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+      <Card style={{
+        marginBottom: '16px',
+        ...profileBackgroundStyle,
         borderRadius: '20px',
         overflow: 'hidden',
         position: 'relative',
         minHeight: '300px',
         boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
         border: '1px solid rgba(255, 255, 255, 0.1)'
-      }}
-      >
+      }}>
         {/* Premium Badge */}
         {shouldShowPremiumFeatures(student, currentUser) && (
-          <Box sx={{
+          <div style={{
             position: 'absolute',
             top: 20,
             right: 20,
             zIndex: 2
           }}>
-            <Chip
-              icon={<TrophyIcon />}
-              label="PREMIUM"
-              sx={{
+            <Tag
+              icon={<TrophyOutlined />}
+              style={{
                 backgroundColor: 'rgba(255, 255, 255, 0.9)',
                 color: '#d97706',
                 fontWeight: 'bold',
                 fontSize: '0.8rem',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                '& .MuiChip-icon': {
-                  color: '#d97706'
-                }
               }}
-            />
-          </Box>
+            >
+              PREMIUM
+            </Tag>
+          </div>
         )}
 
-        <Box sx={{
+        <div style={{
           display: 'flex',
           flexDirection: { xs: 'column', md: 'row' },
           alignItems: 'center',
-          p: 4,
+          padding: '24px',
           minHeight: '300px',
           position: 'relative',
           overflow: 'hidden'
@@ -260,7 +267,7 @@ const StudentProfileView = () => {
           
           {/* Emoji Background for Premium Users */}
           {shouldShowPremiumFeatures(student, currentUser) && student.selected_emojis && student.selected_emojis.length > 0 && (
-            <Box sx={{
+            <div style={{
               position: 'absolute',
               top: 0,
               left: 0,
@@ -271,7 +278,7 @@ const StudentProfileView = () => {
               overflow: 'hidden'
             }}>
               {/* Floating emoji animation container */}
-              <Box sx={{
+              <div style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
@@ -291,9 +298,9 @@ const StudentProfileView = () => {
                   };
                   
                   return (
-                    <Box
+                    <div
                       key={`emoji-${index}`}
-                      sx={{
+                      style={{
                         position: 'absolute',
                         fontSize: '3rem',
                         opacity: 0.25 + (index % 3) * 0.05,
@@ -308,99 +315,51 @@ const StudentProfileView = () => {
                       }}
                     >
                       {emoji}
-                    </Box>
+                    </div>
                   );
                 })}
-                
-                {/* Additional floating emojis for density */}
-                {Array.from({ length: Math.min(8, student.selected_emojis.length * 2) }).map((_, index) => {
-                  const originalIndex = index % student.selected_emojis.length;
-                  const position = {
-                    left: Math.random() * 100,
-                    top: Math.random() * 100,
-                    delay: Math.random() * 8,
-                    duration: 12 + Math.random() * 8,
-                    scale: 0.5 + Math.random() * 0.5,
-                    rotation: Math.random() * 360
-                  };
-                  
-                  return (
-                    <Box
-                      key={`extra-emoji-${index}`}
-                      sx={{
-                        position: 'absolute',
-                        fontSize: '2.2rem',
-                        opacity: 0.15 + (index % 2) * 0.03,
-                        color: 'rgba(255, 255, 255, 0.7)',
-                        filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))',
-                        left: `${position.left}%`,
-                        top: `${position.top}%`,
-                        transform: `rotate(${position.rotation}deg) scale(${position.scale})`,
-                        animation: `swimAllEmojis-${(index + 10) % 20} ${position.duration}s infinite ease-in-out`,
-                        animationDelay: `${position.delay}s`,
-                        zIndex: 1
-                      }}
-                    >
-                      {student.selected_emojis[originalIndex]}
-                    </Box>
-                  );
-                })}
-              </Box>
-              
-              {/* Animated gradient overlay for depth */}
-              <Box sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: 'linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.02) 50%, transparent 70%)',
-                animation: 'shimmer 8s infinite',
-                pointerEvents: 'none'
-              }} />
-            </Box>
+              </div>
+            </div>
           )}
+
           {/* Profile Photo */}
-          <Box sx={{
+          <div style={{
             position: 'relative',
-            mb: { xs: 3, md: 0 },
-            mr: { xs: 0, md: 4 },
+            marginBottom: { xs: '12px', md: 0 },
+            marginRight: { xs: 0, md: '16px' },
             zIndex: 3
           }}>
             {student.profile_photo ? (
               <Avatar
                 src={student.profile_photo}
-                sx={{
-                  width: 150,
-                  height: 150,
+                size={150}
+                style={{
                   border: '4px solid rgba(255, 255, 255, 0.8)',
                   boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
                   backgroundColor: shouldShowPremiumFeatures(student, currentUser) ? '#ffffff' : '#2563eb'
-                }}
-                imgProps={{
-                  style: { objectFit: 'cover' }
                 }}
               >
                 {student.name.charAt(0).toUpperCase()}
               </Avatar>
             ) : (
-              <Avatar sx={{
-                width: 150,
-                height: 150,
-                fontSize: '4rem',
-                fontWeight: 'bold',
-                border: '4px solid rgba(255, 255, 255, 0.8)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                backgroundColor: shouldShowPremiumFeatures(student, currentUser) ? '#ffffff' : '#2563eb',
-                color: shouldShowPremiumFeatures(student, currentUser) ? '#2563eb' : '#ffffff'
-              }}>
+              <Avatar
+                size={150}
+                style={{
+                  fontSize: '4rem',
+                  fontWeight: 'bold',
+                  border: '4px solid rgba(255, 255, 255, 0.8)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+                  backgroundColor: shouldShowPremiumFeatures(student, currentUser) ? '#ffffff' : '#2563eb',
+                  color: shouldShowPremiumFeatures(student, currentUser) ? '#2563eb' : '#ffffff'
+                }}
+              >
                 {student.name.charAt(0).toUpperCase()}
               </Avatar>
             )}
 
             {/* Premium Checkmark */}
             {shouldShowPremiumFeatures(student, currentUser) && (
-              <Box sx={{
+              <div style={{
                 position: 'absolute',
                 bottom: 10,
                 right: 10,
@@ -414,358 +373,332 @@ const StudentProfileView = () => {
                 border: '3px solid rgba(255, 255, 255, 0.8)',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
               }}>
-                <CheckCircleIcon sx={{ color: 'white', fontSize: '1.2rem' }} />
-              </Box>
+                <CheckCircleOutlined style={{ color: 'white', fontSize: '1.2rem' }} />
+              </div>
             )}
-          </Box>
+          </div>
 
           {/* Profile Info */}
-          <Box sx={{
+          <div style={{
             textAlign: { xs: 'center', md: 'left' },
             flex: 1,
             color: student.is_premium ? '#ffffff' : '#1e293b',
             position: 'relative',
             zIndex: 2
           }}>
-            <Typography variant="h3" sx={{
+            <Title level={2} style={{
               fontWeight: 700,
-              mb: 2,
-              textShadow: student.is_premium ? '0 2px 4px rgba(0,0,0,0.3)' : 'none'
+              marginBottom: '8px',
+              textShadow: student.is_premium ? '0 2px 4px rgba(0,0,0,0.3)' : 'none',
+              color: student.is_premium ? '#ffffff' : '#1e293b'
             }}>
               {student.name}
-            </Typography>
+            </Title>
 
             {student.profile_status && (
-              <Typography variant="h6" sx={{
-                mb: 3,
+              <Title level={4} style={{
+                marginBottom: '16px',
                 fontStyle: 'italic',
                 opacity: 0.9,
-                textShadow: student.is_premium ? '0 1px 2px rgba(0,0,0,0.3)' : 'none'
+                textShadow: student.is_premium ? '0 1px 2px rgba(0,0,0,0.3)' : 'none',
+                color: student.is_premium ? '#ffffff' : '#1e293b'
               }}>
                 "{student.profile_status}"
-              </Typography>
+              </Title>
             )}
 
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: { xs: 'center', md: 'flex-start' } }}>
-              <Chip
-                label="O'quvchi"
-                sx={{
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: { xs: 'center', md: 'flex-start' } }}>
+              <Tag
+                style={{
                   backgroundColor: student.is_premium ? 'rgba(255, 255, 255, 0.2)' : '#ecfdf5',
                   color: student.is_premium ? '#ffffff' : '#059669',
                   border: student.is_premium ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
                   fontWeight: 600
                 }}
-              />
-              <Chip
-                label={`${student.class_group || 'Noma\'lum'} sinf`}
-                sx={{
+              >
+                O'quvchi
+              </Tag>
+              <Tag
+                style={{
                   backgroundColor: student.is_premium ? 'rgba(255, 255, 255, 0.2)' : '#eff6ff',
                   color: student.is_premium ? '#ffffff' : '#2563eb',
                   border: student.is_premium ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
                   fontWeight: 600
                 }}
-              />
-              <Chip
-                label={student.direction === 'natural' ? 'Tabiiy fanlar' : student.direction === 'exact' ? 'Aniq fanlar' : 'Yo\'nalish yo\'q'}
-                sx={{
+              >
+                {student.class_group || 'Noma\'lum'} sinf
+              </Tag>
+              <Tag
+                style={{
                   backgroundColor: student.is_premium ? 'rgba(255, 255, 255, 0.2)' : '#f3f4f6',
                   color: student.is_premium ? '#ffffff' : '#374151',
                   border: student.is_premium ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
                   fontWeight: 600
                 }}
-              />
-            </Box>
-          </Box>
-        </Box>
-      </Paper>
+              >
+                {student.direction === 'natural' ? 'Tabiiy fanlar' : student.direction === 'exact' ? 'Aniq fanlar' : 'Yo\'nalish yo\'q'}
+              </Tag>
+            </div>
+          </div>
+        </div>
+      </Card>
 
       {/* Statistics Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{
+      <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
+        <Col xs={24} sm={12} md={6}>
+          <Card style={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            transition: 'none',
             minHeight: '140px',
             display: 'flex',
-            flexDirection: 'column',
-            '&:hover': {
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            },
-          }}>
-            <CardContent sx={{
-              p: 3,
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              '&:last-child': { pb: 3 }
-            }}>
-              <Box display="flex" alignItems="center" justifyContent="space-between" flex={1}>
-                <Box flex={1}>
-                  <Typography
-                    sx={{
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                      color: '#64748b',
-                      mb: 1
-                    }}
-                  >
+            flexDirection: 'column'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
+          }}
+          >
+            <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
+                <div style={{ flex: 1 }}>
+                  <Text style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    color: '#64748b',
+                    marginBottom: '4px',
+                    display: 'block'
+                  }}>
                     Topshirilgan testlar
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: '2rem',
-                      fontWeight: 700,
-                      color: '#1e293b',
-                      lineHeight: 1.2
-                    }}
-                  >
+                  </Text>
+                  <Title level={2} style={{
+                    fontSize: '2rem',
+                    fontWeight: 700,
+                    color: '#1e293b',
+                    lineHeight: 1.2,
+                    marginBottom: 0
+                  }}>
                     {totalTests}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    backgroundColor: '#eff6ff',
-                    borderRadius: '12px',
-                    padding: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    ml: 2
-                  }}
-                >
-                  <AssessmentIcon sx={{ fontSize: '1.5rem', color: '#2563eb' }} />
-                </Box>
-              </Box>
-            </CardContent>
+                  </Title>
+                </div>
+                <div style={{
+                  backgroundColor: '#eff6ff',
+                  borderRadius: '12px',
+                  padding: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginLeft: '8px'
+                }}>
+                  <BarChartOutlined style={{ fontSize: '1.5rem', color: '#2563eb' }} />
+                </div>
+              </div>
+            </div>
           </Card>
-        </Grid>
+        </Col>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{
+        <Col xs={24} sm={12} md={6}>
+          <Card style={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            transition: 'none',
             minHeight: '140px',
             display: 'flex',
-            flexDirection: 'column',
-            '&:hover': {
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            },
-          }}>
-            <CardContent sx={{
-              p: 3,
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              '&:last-child': { pb: 3 }
-            }}>
-              <Box display="flex" alignItems="center" justifyContent="space-between" flex={1}>
-                <Box flex={1}>
-                  <Typography
-                    sx={{
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                      color: '#64748b',
-                      mb: 1
-                    }}
-                  >
+            flexDirection: 'column'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
+          }}
+          >
+            <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
+                <div style={{ flex: 1 }}>
+                  <Text style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    color: '#64748b',
+                    marginBottom: '4px',
+                    display: 'block'
+                  }}>
                     O'rtacha ball
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: '2rem',
-                      fontWeight: 700,
-                      color: '#1e293b',
-                      lineHeight: 1.2
-                    }}
-                  >
+                  </Text>
+                  <Title level={2} style={{
+                    fontSize: '2rem',
+                    fontWeight: 700,
+                    color: '#1e293b',
+                    lineHeight: 1.2,
+                    marginBottom: 0
+                  }}>
                     {averageScore}%
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    backgroundColor: '#ecfdf5',
-                    borderRadius: '12px',
-                    padding: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    ml: 2
-                  }}
-                >
-                  <TrophyIcon sx={{ fontSize: '1.5rem', color: '#059669' }} />
-                </Box>
-              </Box>
-            </CardContent>
+                  </Title>
+                </div>
+                <div style={{
+                  backgroundColor: '#ecfdf5',
+                  borderRadius: '12px',
+                  padding: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginLeft: '8px'
+                }}>
+                  <TrophyOutlined style={{ fontSize: '1.5rem', color: '#059669' }} />
+                </div>
+              </div>
+            </div>
           </Card>
-        </Grid>
+        </Col>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{
+        <Col xs={24} sm={12} md={6}>
+          <Card style={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            transition: 'none',
             minHeight: '140px',
             display: 'flex',
-            flexDirection: 'column',
-            '&:hover': {
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            },
-          }}>
-            <CardContent sx={{
-              p: 3,
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              '&:last-child': { pb: 3 }
-            }}>
-              <Box display="flex" alignItems="center" justifyContent="space-between" flex={1}>
-                <Box flex={1}>
-                  <Typography
-                    sx={{
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                      color: '#64748b',
-                      mb: 1
-                    }}
-                  >
+            flexDirection: 'column'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
+          }}
+          >
+            <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
+                <div style={{ flex: 1 }}>
+                  <Text style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    color: '#64748b',
+                    marginBottom: '4px',
+                    display: 'block'
+                  }}>
                     Eng yuqori ball
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: '2rem',
-                      fontWeight: 700,
-                      color: '#1e293b',
-                      lineHeight: 1.2
-                    }}
-                  >
+                  </Text>
+                  <Title level={2} style={{
+                    fontSize: '2rem',
+                    fontWeight: 700,
+                    color: '#1e293b',
+                    lineHeight: 1.2,
+                    marginBottom: 0
+                  }}>
                     {highestScore}%
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    backgroundColor: '#fef3c7',
-                    borderRadius: '12px',
-                    padding: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    ml: 2
-                  }}
-                >
-                  <TrophyIcon sx={{ fontSize: '1.5rem', color: '#d97706' }} />
-                </Box>
-              </Box>
-            </CardContent>
+                  </Title>
+                </div>
+                <div style={{
+                  backgroundColor: '#fef3c7',
+                  borderRadius: '12px',
+                  padding: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginLeft: '8px'
+                }}>
+                  <TrophyOutlined style={{ fontSize: '1.5rem', color: '#d97706' }} />
+                </div>
+              </div>
+            </div>
           </Card>
-        </Grid>
+        </Col>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{
+        <Col xs={24} sm={12} md={6}>
+          <Card style={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            transition: 'none',
             minHeight: '140px',
             display: 'flex',
-            flexDirection: 'column',
-            '&:hover': {
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            },
-          }}>
-            <CardContent sx={{
-              p: 3,
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              '&:last-child': { pb: 3 }
-            }}>
-              <Box display="flex" alignItems="center" justifyContent="space-between" flex={1}>
-                <Box flex={1}>
-                  <Typography
-                    sx={{
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                      color: '#64748b',
-                      mb: 1
-                    }}
-                  >
+            flexDirection: 'column'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
+          }}
+          >
+            <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
+                <div style={{ flex: 1 }}>
+                  <Text style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    color: '#64748b',
+                    marginBottom: '4px',
+                    display: 'block'
+                  }}>
                     Premium status
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: '1.2rem',
-                      fontWeight: 700,
-                      color: student.is_premium ? '#d97706' : '#64748b',
-                      lineHeight: 1.2,
-                      mb: student.is_premium ? 0 : 2
-                    }}
-                  >
+                  </Text>
+                  <Title level={3} style={{
+                    fontSize: '1.2rem',
+                    fontWeight: 700,
+                    color: student.is_premium ? '#d97706' : '#64748b',
+                    lineHeight: 1.2,
+                    marginBottom: student.is_premium ? 0 : '8px'
+                  }}>
                     {student.is_premium ? 'Faol' : 'Yo\'q'}
-                  </Typography>
+                  </Title>
                   {!student.is_premium && (
                     <Button
-                      variant="contained"
                       size="small"
                       onClick={() => navigate('/student/pricing')}
-                      sx={{
+                      style={{
                         backgroundColor: '#2563eb',
                         color: '#ffffff',
                         fontWeight: 600,
-                        textTransform: 'none',
                         borderRadius: '8px',
-                        px: 2,
-                        py: 0.5,
+                        padding: '2px 8px',
                         fontSize: '0.8rem',
-                        '&:hover': {
-                          backgroundColor: '#1d4ed8',
-                        }
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = '#1d4ed8';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = '#2563eb';
                       }}
                     >
                       Sotib olish
                     </Button>
                   )}
-                </Box>
-                <Box
-                  sx={{
-                    backgroundColor: student.is_premium ? '#fef3c7' : '#f3f4f6',
-                    borderRadius: '12px',
-                    padding: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    ml: 2
-                  }}
-                >
-                  <TrophyIcon sx={{
+                </div>
+                <div style={{
+                  backgroundColor: student.is_premium ? '#fef3c7' : '#f3f4f6',
+                  borderRadius: '12px',
+                  padding: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginLeft: '8px'
+                }}>
+                  <TrophyOutlined style={{
                     fontSize: '1.5rem',
                     color: student.is_premium ? '#d97706' : '#6b7280'
                   }} />
-                </Box>
-              </Box>
-            </CardContent>
+                </div>
+              </div>
+            </div>
           </Card>
-        </Grid>
-      </Grid>
-
-
-    </Box>
+        </Col>
+      </Row>
+    </div>
   );
 };
 

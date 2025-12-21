@@ -1,51 +1,24 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
+import { Card, Typography, Row, Col, Button, Tag, Avatar, Radio, Input, Progress, Modal, Alert, Select, Table, Space, Checkbox } from 'antd';
 import {
-  Typography,
-  Box,
-  Paper,
-  Grid,
-  Card,
-  CardContent,
-  Button,
-  Chip,
-  Avatar,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  TextField,
-  LinearProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Alert,
-  Select,
-  MenuItem,
-  InputAdornment,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Checkbox,
-} from '@mui/material';
-import {
-  Person as PersonIcon,
-  Assessment as AssessmentIcon,
-  AccessTime as TimeIcon,
-  CheckCircle as CheckCircleIcon,
-  PlayArrow as PlayArrowIcon,
-  Sort as SortIcon,
-  Search as SearchIcon,
-  Info as InfoIcon,
-} from '@mui/icons-material';
+  UserOutlined,
+  ClockCircleOutlined,
+  CheckCircleOutlined,
+  PlayCircleOutlined,
+  SortAscendingOutlined,
+  SearchOutlined,
+  InfoCircleOutlined,
+} from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import { useServerTest } from '../../context/ServerTestContext';
 import apiService from '../../data/apiService';
 import LaTeXPreview from '../../components/LaTeXPreview';
 import MathSymbols from '../../components/MathSymbols';
+
+const { Title, Text } = Typography;
+const { Search } = Input;
+const { Option } = Select;
 
 const TakeTest = () => {
   const { currentUser } = useAuth();
@@ -68,16 +41,17 @@ const TakeTest = () => {
 
   if (!currentUser) {
     return (
-      <Box sx={{
-        py: 4,
+      <div style={{
+        paddingTop: '16px',
+        paddingBottom: '16px',
         backgroundColor: '#ffffff',
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-        <Paper sx={{
-          p: 4,
+        <Card style={{
+          padding: '24px',
           textAlign: 'center',
           backgroundColor: '#ffffff',
           border: '1px solid #e2e8f0',
@@ -86,20 +60,20 @@ const TakeTest = () => {
           maxWidth: '500px',
           width: '100%'
         }}>
-          <Typography sx={{
+          <Title level={2} style={{
             fontSize: '2rem',
             fontWeight: 700,
             color: '#1e293b',
-            mb: 3
+            marginBottom: '16px'
           }}>
             Yuklanmoqda...
-          </Typography>
-          <LinearProgress sx={{ mb: 2, height: 8, borderRadius: 4 }} />
-          <Typography variant="body1" sx={{ color: '#64748b' }}>
+          </Title>
+          <Progress percent={100} status="active" style={{ marginBottom: '8px' }} />
+          <Text style={{ color: '#64748b' }}>
             Iltimos kuting, sahifa yuklanmoqda...
-          </Typography>
-        </Paper>
-      </Box>
+          </Text>
+        </Card>
+      </div>
     );
   }
 
@@ -257,7 +231,6 @@ const TakeTest = () => {
     }
   }, [hasTimeRemaining, sessionStarted]);
 
-
   const continueTestFromSession = async (session, testId) => {
     if (!session || !testId) {
       alert("Sessiya yoki test ID topilmadi. Iltimos, sahifani yangilang yoki administratorga murojaat qiling.");
@@ -359,10 +332,6 @@ const TakeTest = () => {
   const hasStudentTakenTest = (testId) => {
     return takenTests.has(testId);
   };
-
-
-
-
 
   const startTest = async (test) => {
     if (!test || !test.id) {
@@ -472,7 +441,6 @@ const TakeTest = () => {
     setMathSymbolsOpen(false);
   };
 
-
   const handleSubmitTest = () => {
     // Navigate to separate submission page
     navigate('/student/submit-test');
@@ -490,64 +458,67 @@ const TakeTest = () => {
   // Show loading during session recovery
   if (sessionRecovering) {
     return (
-      <Box sx={{ 
-        py: 4,
+      <div style={{ 
+        paddingTop: '16px',
+        paddingBottom: '16px',
         backgroundColor: '#ffffff'
       }}>
-        <Typography sx={{
+        <Title level={2} style={{
           fontSize: '2.5rem',
           fontWeight: 700,
           color: '#1e293b',
           textAlign: 'center',
-          mb: 4
+          marginBottom: '16px'
         }}>
           Test davom ettirilmoqda...
-        </Typography>
-        <Paper sx={{ 
-          p: 4, 
+        </Title>
+        <Card style={{ 
+          padding: '24px', 
           textAlign: 'center',
           backgroundColor: '#ffffff',
           border: '1px solid #e2e8f0',
           borderRadius: '12px',
           boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
         }}>
-          <LinearProgress sx={{ mb: 2 }} />
-          <Typography variant="body1">
+          <Progress percent={100} status="active" style={{ marginBottom: '8px' }} />
+          <Text>
             Iltimos kuting, sizning test seansingiz tiklanmoqda...
-          </Typography>
-        </Paper>
-      </Box>
+          </Text>
+        </Card>
+      </div>
     );
   }
 
   if (testCompleted) {
     return (
-      <Box sx={{
-        py: 4,
+      <div style={{
+        paddingTop: '16px',
+        paddingBottom: '16px',
         backgroundColor: '#ffffff'
       }}>
         {/* Header */}
-        <Box sx={{
+        <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          mb: 6,
-          pb: 4,
+          marginBottom: '24px',
+          paddingBottom: '16px',
           borderBottom: '1px solid #e2e8f0'
         }}
         >
-          <Typography sx={{
+          <Title level={2} style={{
             fontSize: '2.5rem',
             fontWeight: 700,
-            color: '#1e293b'
+            color: '#1e293b',
+            marginBottom: 0
           }}>
             Test natijasi
-          </Typography>
-        </Box>
+          </Title>
+        </div>
 
         <div>
-          <Paper sx={{
-            p: 4,
+          <Card style={{
+            padding: '24px',
             textAlign: 'center',
             background: score >= 70
               ? 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)'
@@ -556,41 +527,40 @@ const TakeTest = () => {
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
           }}>
-          <Typography variant="h3" sx={{
-            fontWeight: 700,
-            color: score >= 70 ? 'success.main' : 'error.main',
-            mb: 2
-          }}>
-            {score}%
-          </Typography>
+            <Title level={1} style={{
+              fontWeight: 700,
+              color: score >= 70 ? '#22c55e' : '#dc2626',
+              marginBottom: '8px'
+            }}>
+              {score}%
+            </Title>
 
-          <Typography variant="h6" gutterBottom>
-            {selectedTest?.title}
-          </Typography>
+            <Title level={4} style={{ marginBottom: '16px' }}>
+              {selectedTest?.title}
+            </Title>
 
-          <Typography variant="body1" sx={{ mb: 3 }}>
-            {score >= 70 ? 'Tabriklaymiz! Testni muvaffaqiyatli topshirdingiz.' : 'Testni qayta topshirib ko\'ring.'}
-          </Typography>
+            <Text style={{ marginBottom: '16px', display: 'block' }}>
+              {score >= 70 ? 'Tabriklaymiz! Testni muvaffaqiyatli topshirdingiz.' : 'Testni qayta topshirib ko\'ring.'}
+            </Text>
 
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-            <Button
-              variant="contained"
-              onClick={resetTest}
-              sx={{ cursor: 'pointer' }}
-            >
-              Boshqa test topshirish
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={() => window.location.href = '/student/results'}
-              sx={{ cursor: 'pointer' }}
-            >
-              Natijalarimni ko'rish
-            </Button>
-          </Box>
-        </Paper>
+            <Space size="middle">
+              <Button
+                type="primary"
+                onClick={resetTest}
+                style={{ cursor: 'pointer' }}
+              >
+                Boshqa test topshirish
+              </Button>
+              <Button
+                onClick={() => window.location.href = '/student/results'}
+                style={{ cursor: 'pointer' }}
+              >
+                Natijalarimni ko'rish
+              </Button>
+            </Space>
+          </Card>
         </div>
-      </Box>
+      </div>
     );
   }
 
@@ -601,109 +571,114 @@ const TakeTest = () => {
     // If questions are not loaded yet or current question is undefined, show loading
     if (!testQuestions.length || !currentQuestion) {
       return (
-        <Box sx={{ 
-          py: 4,
+        <div style={{ 
+          paddingTop: '16px',
+          paddingBottom: '16px',
           backgroundColor: '#ffffff'
         }}>
-          <Typography sx={{
+          <Title level={2} style={{
             fontSize: '2.5rem',
             fontWeight: 700,
-            color: '#1e293b'
+            color: '#1e293b',
+            marginBottom: 0
           }}>
             Test yuklanmoqda...
-          </Typography>
-          <Paper sx={{ 
-            p: 4, 
+          </Title>
+          <Card style={{ 
+            padding: '24px', 
             textAlign: 'center',
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
           }}>
-            <Typography variant="body1">
+            <Text>
               Iltimos kuting, test savollari yuklanmoqda...
-            </Typography>
-          </Paper>
-        </Box>
+            </Text>
+          </Card>
+        </div>
       );
     }
 
     return (
-      <Box sx={{
-        py: 4,
+      <div style={{
+        paddingTop: '16px',
+        paddingBottom: '16px',
         backgroundColor: '#ffffff'
       }}>
         {/* Error Display */}
         {error && (
-          <Alert severity="error" sx={{ mb: 3 }} onClose={() => {}}>
-            {error}
-          </Alert>
+          <Alert message={error} type="error" style={{ marginBottom: '16px' }} showIcon />
         )}
 
-        <Box sx={{
+        <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          mb: 3,
-          p: 2,
+          marginBottom: '12px',
+          padding: '8px',
           background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-          borderRadius: 2,
+          borderRadius: '8px',
           border: '1px solid rgba(148, 163, 184, 0.2)'
         }}
         >
-          <Typography variant="h6">
+          <Title level={5} style={{ marginBottom: 0 }}>
             {selectedTest.title}
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography variant="body2" color="textSecondary">
+          </Title>
+          <Space size="middle">
+            <Text style={{ color: '#64748b' }}>
               {currentQuestionIndex + 1} / {selectedTest.total_questions}
-            </Typography>
-            <Chip
-              icon={<TimeIcon />}
-              label={formatTime(timeRemaining)}
-              color={timeRemaining < 300 ? 'error' : 'primary'}
-              size="small"
-            />
-          </Box>
-        </Box>
+            </Text>
+            <Tag
+              icon={<ClockCircleOutlined />}
+              color={timeRemaining < 300 ? 'red' : 'blue'}
+              style={{ margin: 0 }}
+            >
+              {formatTime(timeRemaining)}
+            </Tag>
+          </Space>
+        </div>
 
-        <LinearProgress
-          variant="determinate"
-          value={(currentQuestionIndex + 1) / selectedTest.total_questions * 100}
-          sx={{ mb: 3, height: 8, borderRadius: 4 }}
+        <Progress
+          percent={(currentQuestionIndex + 1) / selectedTest.total_questions * 100}
+          style={{ marginBottom: '16px' }}
         />
 
         {/* Exit Test Button */}
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
           <Button
-            variant="outlined"
-            color="error"
+            danger
             onClick={() => setExitDialogOpen(true)}
-            sx={{ 
+            style={{ 
               borderColor: '#ef4444',
               color: '#ef4444',
-              '&:hover': { 
-                backgroundColor: '#fef2f2',
-                borderColor: '#dc2626'
-              }
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#fef2f2';
+              e.target.style.borderColor = '#dc2626';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = 'transparent';
+              e.target.style.borderColor = '#ef4444';
             }}
           >
             Testdan chiqish
           </Button>
-        </Box>
+        </div>
 
-        <Paper
-          sx={{
-            p: 4,
+        <Card
+          style={{
+            padding: '24px',
             backgroundColor: '#ffffff',
             border: '1px solid #e9ecef',
-            borderRadius: 3,
+            borderRadius: '12px',
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            marginBottom: '16px'
           }}
         >
           {/* Image displayed at the top - bigger */}
           {currentQuestion.image && (
-            <Box sx={{ mb: 4, textAlign: 'center' }}>
+            <div style={{ marginBottom: '16px', textAlign: 'center' }}>
               <img
                 src={currentQuestion.image}
                 alt="Question"
@@ -738,247 +713,234 @@ const TakeTest = () => {
                   console.log('Image loaded successfully:', currentQuestion.image);
                 }}
               />
-            </Box>
+            </div>
           )}
 
-          <Box sx={{ mb: 3 }}>
-            <Typography
-              variant="h6"
-              gutterBottom
-              sx={{
-                fontSize: '1.25rem',
-                fontWeight: 600,
-                color: 'text.primary',
-                mb: 2
-              }}
-            >
+          <div style={{ marginBottom: '16px' }}>
+            <Title level={5} style={{
+              fontSize: '1.25rem',
+              fontWeight: 600,
+              color: '#1e293b',
+              marginBottom: '8px'
+            }}>
               Savol:
-            </Typography>
+            </Title>
             <LaTeXPreview
               text={currentQuestion.question_text}
-              sx={{
+              style={{
                 fontSize: '1.1rem',
                 lineHeight: 1.6,
                 color: '#1e293b'
               }}
             />
-          </Box>
+          </div>
 
           {currentQuestion.question_type === 'multiple_choice' && (
-            <RadioGroup
+            <Radio.Group
               value={answers[currentQuestion.id] || ''}
               onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
-              sx={{ mt: 2 }}
+              style={{ width: '100%', marginTop: '8px' }}
             >
               {currentQuestion.options.map((option, index) => {
                 const optionImageField = ['option_a_image', 'option_b_image', 'option_c_image', 'option_d_image'][index];
                 const optionImage = currentQuestion[optionImageField];
 
                 return (
-                  <FormControlLabel
+                  <Radio
                     key={index}
                     value={option.text}
-                    control={<Radio sx={{
-                      cursor: 'pointer',
-                      color: 'primary.main',
-                      '&.Mui-checked': {
-                        color: 'primary.main',
-                      }
-                    }} />}
-                    label={
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
-                        <LaTeXPreview text={option.text} />
-                        {optionImage && (
-                          <img
-                            src={optionImage}
-                            alt={`Option ${String.fromCharCode(65 + index)}`}
-                            style={{
-                              maxWidth: '100px',
-                              maxHeight: '60px',
-                              borderRadius: '4px',
-                              border: '1px solid #e2e8f0',
-                              objectFit: 'contain'
-                            }}
-                            onError={(e) => {
-                              console.error('Option image failed to load:', optionImage);
-                              e.target.style.display = 'none';
-                            }}
-                          />
-                        )}
-                      </Box>
-                    }
-                    sx={{
-                      cursor: 'pointer',
-                      mb: 1,
-                      p: 2,
-                      border: '1px solid #f0f0f0',
-                      borderRadius: 2,
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
                       width: '100%',
-                      m: 0,
-                      transition: 'none',
-                      '&:hover': { backgroundColor: 'transparent' }
+                      marginBottom: '4px',
+                      padding: '8px',
+                      border: '1px solid #f0f0f0',
+                      borderRadius: '8px',
+                      cursor: 'pointer'
                     }}
-                  />
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '8px' }}>
+                      <LaTeXPreview text={option.text} />
+                      {optionImage && (
+                        <img
+                          src={optionImage}
+                          alt={`Option ${String.fromCharCode(65 + index)}`}
+                          style={{
+                            maxWidth: '100px',
+                            maxHeight: '60px',
+                            borderRadius: '4px',
+                            border: '1px solid #e2e8f0',
+                            objectFit: 'contain'
+                          }}
+                          onError={(e) => {
+                            console.error('Option image failed to load:', optionImage);
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                      )}
+                    </div>
+                  </Radio>
                 );
               })}
-            </RadioGroup>
+            </Radio.Group>
           )}
 
           {currentQuestion.question_type === 'short_answer' && (
-            <Box sx={{ mt: 3 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <Typography variant="body2" sx={{ flex: 1 }}>
+            <div style={{ marginTop: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+                <Text style={{ flex: 1 }}>
                   Javobingiz:
-                </Typography>
+                </Text>
                 <Button
                   size="small"
-                  variant="outlined"
                   onClick={() => setMathSymbolsOpen(true)}
-                  sx={{
+                  style={{
                     minWidth: 'auto',
-                    px: 2,
-                    py: 0.5,
-                    fontSize: '0.75rem',
-                    textTransform: 'none'
+                    padding: '2px 8px',
+                    fontSize: '0.75rem'
                   }}
                 >
                   🧮 Belgilar
                 </Button>
-              </Box>
-              <TextField
-                fullWidth
-                variant="outlined"
+              </div>
+              <Input.TextArea
                 placeholder="Javobingizni kiriting (LaTeX uchun $...$ dan foydalaning)"
                 value={answers[currentQuestion.id] || ''}
                 onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    backgroundColor: '#fafafa',
-                  }
+                rows={3}
+                style={{
+                  borderRadius: '8px',
+                  backgroundColor: '#fafafa',
                 }}
               />
               {(answers[currentQuestion.id] || '').trim() && (
-                <Paper sx={{
-                  p: 2,
-                  mt: 2,
+                <Card style={{
+                  padding: '8px',
+                  marginTop: '8px',
                   backgroundColor: '#f8fafc',
                   border: '1px solid #e2e8f0'
                 }}>
-                  <Typography variant="body2" sx={{ mb: 1, color: '#64748b', fontWeight: 500 }}>
+                  <Text style={{ marginBottom: '4px', color: '#64748b', fontWeight: 500, display: 'block' }}>
                     Sizning javobingiz ko'rinishi:
-                  </Typography>
+                  </Text>
                   <LaTeXPreview text={answers[currentQuestion.id]} />
-                </Paper>
+                </Card>
               )}
-            </Box>
+            </div>
           )}
 
-          <Box sx={{
+          <div style={{
             display: 'flex',
             justifyContent: 'space-between',
-            mt: 4,
-            gap: 2
+            marginTop: '24px',
+            gap: '8px'
           }}>
             <Button
-              variant="outlined"
               onClick={handlePrevious}
               disabled={currentQuestionIndex === 0}
-              sx={{
+              style={{
                 cursor: currentQuestionIndex === 0 ? 'not-allowed' : 'pointer',
-                borderRadius: 2,
-                px: 4,
-                py: 1.5,
+                borderRadius: '8px',
+                padding: '8px 16px',
                 fontWeight: 600,
                 borderColor: '#d1d5db',
                 color: currentQuestionIndex === 0 ? '#9ca3af' : '#374151',
-                '&:hover': { backgroundColor: 'transparent' }
+              }}
+              onMouseEnter={(e) => {
+                if (currentQuestionIndex !== 0) {
+                  e.target.style.backgroundColor = 'transparent';
+                }
               }}
             >
               Oldingi
             </Button>
 
             {currentQuestionIndex === selectedTest.total_questions - 1 ? (
-              <Box sx={{ display: 'flex', gap: 1 }}>
+              <Space size="small">
                 <Button
-                  variant="contained"
-                  color="success"
+                  type="primary"
                   onClick={handleSubmitTest}
                   disabled={isLoading}
-                  sx={{
+                  style={{
                     cursor: 'pointer',
-                    borderRadius: 2,
-                    px: 4,
-                    py: 1.5,
+                    borderRadius: '8px',
+                    padding: '8px 16px',
                     fontWeight: 600,
                     backgroundColor: '#10b981',
-                    '&:hover': { backgroundColor: '#10b981' }
+                    borderColor: '#10b981'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#10b981';
                   }}
                 >
                   Testni topshirish
                 </Button>
                 <Button
-                  variant="outlined"
-                  color="warning"
                   onClick={() => setUrgentSubmitDialogOpen(true)}
-                  sx={{
+                  style={{
                     cursor: 'pointer',
-                    borderRadius: 2,
-                    px: 3,
-                    py: 1.5,
+                    borderRadius: '8px',
+                    padding: '6px 12px',
                     fontWeight: 600,
                     borderColor: '#f59e0b',
                     color: '#f59e0b',
-                    '&:hover': { 
-                      backgroundColor: '#fef3c7',
-                      borderColor: '#d97706'
-                    }
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#fef3c7';
+                    e.target.style.borderColor = '#d97706';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = 'transparent';
+                    e.target.style.borderColor = '#f59e0b';
                   }}
                 >
                   Tez tugatish
                 </Button>
-              </Box>
+              </Space>
             ) : (
               <Button
-                variant="contained"
+                type="primary"
                 onClick={handleNext}
-                sx={{
+                style={{
                   cursor: 'pointer',
-                  borderRadius: 2,
-                  px: 4,
-                  py: 1.5,
+                  borderRadius: '8px',
+                  padding: '8px 16px',
                   fontWeight: 600,
-                  backgroundColor: 'primary.main',
-                  '&:hover': { backgroundColor: 'primary.main' }
+                  backgroundColor: '#3b82f6',
+                  borderColor: '#3b82f6'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#3b82f6';
                 }}
               >
                 Keyingi
               </Button>
             )}
-          </Box>
-        </Paper>
+          </div>
+        </Card>
 
         {/* Question Navigation Panel */}
-        <Box sx={{ mt: 3 }}>
-          <Typography variant="h6" sx={{ mb: 2, color: '#1e293b', fontWeight: 600 }}>
+        <div style={{ marginTop: '16px' }}>
+          <Title level={5} style={{ marginBottom: '8px', color: '#1e293b', fontWeight: 600 }}>
             Savollar ro'yxati:
-          </Typography>
-          <Box sx={{
+          </Title>
+          <div style={{
             display: 'flex',
             flexWrap: 'wrap',
-            gap: 1,
+            gap: '4px',
             backgroundColor: '#ffffff',
-            p: 2,
+            padding: '8px',
             borderRadius: '8px',
             border: '1px solid #e2e8f0'
           }}>
             {testQuestions.map((_, index) => (
               <Button
                 key={index}
-                variant={currentQuestionIndex === index ? 'contained' : 'outlined'}
+                type={currentQuestionIndex === index ? 'primary' : 'default'}
                 size="small"
                 onClick={() => handleQuestionNavigation(index)}
-                sx={{
+                style={{
                   minWidth: '50px',
                   height: '40px',
                   borderRadius: '6px',
@@ -986,444 +948,83 @@ const TakeTest = () => {
                   backgroundColor: currentQuestionIndex === index ? '#3b82f6' : 'transparent',
                   color: currentQuestionIndex === index ? '#ffffff' : '#64748b',
                   borderColor: currentQuestionIndex === index ? '#3b82f6' : '#d1d5db',
-                  '&:hover': {
-                    backgroundColor: currentQuestionIndex === index ? '#2563eb' : '#f8fafc',
-                    borderColor: currentQuestionIndex === index ? '#2563eb' : '#94a3b8'
+                }}
+                onMouseEnter={(e) => {
+                  if (currentQuestionIndex === index) {
+                    e.target.style.backgroundColor = '#2563eb';
+                  } else {
+                    e.target.style.backgroundColor = '#f8fafc';
+                    e.target.style.borderColor = '#94a3b8';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (currentQuestionIndex === index) {
+                    e.target.style.backgroundColor = '#3b82f6';
+                  } else {
+                    e.target.style.backgroundColor = 'transparent';
+                    e.target.style.borderColor = '#d1d5db';
                   }
                 }}
               >
                 {index + 1}
               </Button>
             ))}
-          </Box>
-        </Box>
+          </div>
+        </div>
 
         {/* Exit Test Dialog */}
-        <Dialog
+        <Modal
+          title={
+            <span style={{ color: '#ef4444', fontWeight: 600 }}>
+              Testdan chiqish
+            </span>
+          }
           open={exitDialogOpen}
-          onClose={() => setExitDialogOpen(false)}
-          maxWidth="sm"
-          fullWidth
-        >
-          <DialogTitle sx={{ color: '#ef4444', fontWeight: 600 }}>
-            Testdan chiqish
-          </DialogTitle>
-          <DialogContent>
-            <Typography sx={{ color: '#374151' }}>
-              Agar testdan chiqsangiz, vaqt davom etadi va sizning javoblaringiz saqlanmaydi. 
-              Rostdan ham chiqishni xohlaysizmi?
-            </Typography>
-          </DialogContent>
-          <DialogActions sx={{ p: 3 }}>
-            <Button onClick={() => setExitDialogOpen(false)} sx={{ color: '#64748b' }}>
+          onCancel={() => setExitDialogOpen(false)}
+          footer={[
+            <Button key="cancel" onClick={() => setExitDialogOpen(false)} style={{ color: '#64748b' }}>
               Bekor qilish
-            </Button>
-            <Button 
-              onClick={handleExitTest}
-              variant="contained"
-              color="error"
-              sx={{ ml: 1 }}
-            >
+            </Button>,
+            <Button key="submit" danger onClick={handleExitTest} style={{ marginLeft: '8px' }}>
               Chiqish
             </Button>
-          </DialogActions>
-        </Dialog>
+          ]}
+        >
+          <Text style={{ color: '#374151' }}>
+            Agar testdan chiqsangiz, vaqt davom etadi va sizning javoblaringiz saqlanmaydi. 
+            Rostdan ham chiqishni xohlaysizmi?
+          </Text>
+        </Modal>
 
         {/* Urgent Submit Dialog */}
-        <Dialog
+        <Modal
+          title={
+            <span style={{ color: '#dc2626', fontWeight: 600 }}>
+              Testni tez tugatish
+            </span>
+          }
           open={urgentSubmitDialogOpen}
-          onClose={() => setUrgentSubmitDialogOpen(false)}
-          maxWidth="sm"
-          fullWidth
-        >
-          <DialogTitle sx={{ color: '#dc2626', fontWeight: 600 }}>
-            Testni tez tugatish
-          </DialogTitle>
-          <DialogContent>
-            <Typography sx={{ color: '#374151' }}>
-              Testni tugatish uchun tugmani bosing. Bu sizning oxirgi imkoniyatingiz!
-            </Typography>
-          </DialogContent>
-          <DialogActions sx={{ p: 3 }}>
-            <Button onClick={() => setUrgentSubmitDialogOpen(false)} sx={{ color: '#64748b' }}>
+          onCancel={() => setUrgentSubmitDialogOpen(false)}
+          footer={[
+            <Button key="cancel" onClick={() => setUrgentSubmitDialogOpen(false)} style={{ color: '#64748b' }}>
               Bekor qilish
-            </Button>
-            <Button
+            </Button>,
+            <Button 
+              key="submit" 
               onClick={() => {
                 setUrgentSubmitDialogOpen(false);
                 handleSubmitTest();
               }}
-              variant="contained"
-              color="warning"
-              sx={{ ml: 1 }}
+              style={{ marginLeft: '8px', backgroundColor: '#f59e0b', borderColor: '#f59e0b' }}
             >
               Testni tugatish
             </Button>
-          </DialogActions>
-        </Dialog>
-
-
-
-
-      </Box>
-    );
-  }
-
-  return (
-    <Box sx={{
-      py: 4,
-      backgroundColor: '#ffffff'
-    }}>
-      {/* Error Display */}
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-      )}
-
-      {/* Header */}
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        mb: 6,
-        pb: 4,
-        borderBottom: '1px solid #e2e8f0'
-      }}
-      >
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b'
-        }}>
-          Test topshirish
-        </Typography>
-      </Box>
-
-      {/* Barcha testlar section with table layout */}
-      <Box sx={{ mb: 6 }}>
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 4
-        }}>
-          <Typography sx={{
-            fontSize: '1.5rem',
-            fontWeight: 700,
-            color: '#1e293b'
-          }}>
-            📋 Barcha testlar
-          </Typography>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <SortIcon sx={{ color: '#64748b' }} />
-            <Select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              sx={{
-                minWidth: 120,
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '8px',
-                }
-              }}
-            >
-              <MenuItem value="date">Sana bo'yicha</MenuItem>
-              <MenuItem value="name">Nomi bo'yicha</MenuItem>
-              <MenuItem value="difficulty">Qiyinchilik bo'yicha</MenuItem>
-              <MenuItem value="easy">Oson</MenuItem>
-              <MenuItem value="medium">O'rtacha</MenuItem>
-              <MenuItem value="hard">Qiyin</MenuItem>
-            </Select>
-          </Box>
-        </Box>
-
-        {/* Search Input */}
-        <Box sx={{ mb: 4 }}>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder="Test nomini, fanini yoki o'qituvchi nomini qidirish..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon sx={{ color: '#64748b' }} />
-                </InputAdornment>
-              ),
-            }}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '8px',
-                backgroundColor: '#ffffff',
-                borderColor: '#e2e8f0',
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#2563eb'
-                },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#2563eb'
-                }
-              }
-            }}
-          />
-          {searchTerm && (
-            <Typography sx={{ mt: 1, color: '#64748b', fontSize: '0.875rem' }}>
-              {getFilteredTests().length} ta test topildi
-            </Typography>
-          )}
-        </Box>
-
-        <div>
-          <TableContainer component={Paper} sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          }}>
-            <Table>
-              <TableHead>
-                <TableRow sx={{
-                  backgroundColor: '#f8fafc',
-                  '& th': {
-                    fontWeight: 700,
-                    fontSize: '0.875rem',
-                    color: '#1e293b',
-                    borderBottom: '1px solid #e2e8f0',
-                    padding: '16px'
-                  }
-                }}>
-                  <TableCell>Test nomi</TableCell>
-                  <TableCell>Fan</TableCell>
-                  <TableCell>Sana</TableCell>
-                  <TableCell>Qiyinchilik</TableCell>
-                  <TableCell>O'qituvchi</TableCell>
-                  <TableCell>Vaqt</TableCell>
-                  <TableCell>Savollar</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Harakatlar</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {getFilteredTests().map((test) => {
-                  const alreadyTaken = hasStudentTakenTest(test.id);
-                  const hasActiveSession = !!activeTestSessions[test.id];
-
-                  // Determine button state
-                  let buttonText = 'Testni boshlash';
-                  let buttonIcon = <PlayArrowIcon />;
-                  let buttonColor = '#2563eb';
-                  let buttonDisabled = false;
-                  let buttonAction = () => startTest(test);
-
-                  if (hasActiveSession) {
-                    // Has active session - allow continuing
-                    buttonText = 'Davom ettirish';
-                    buttonIcon = <PlayArrowIcon />;
-                    buttonColor = '#059669'; // Green for continue
-                    buttonAction = () => continueTest(test);
-                  } else if (alreadyTaken) {
-                    // Test already completed
-                    buttonText = 'Topshirilgan';
-                    buttonIcon = <CheckCircleIcon />;
-                    buttonColor = '#059669';
-                    buttonDisabled = true;
-                  }
-
-                  return (
-                    <TableRow key={test.id} sx={{
-                      '&:hover': {
-                        backgroundColor: '#f8fafc',
-                      },
-                      '& td': {
-                        borderBottom: '1px solid #f1f5f9',
-                        padding: '16px',
-                        fontSize: '0.875rem',
-                        color: '#334155'
-                      }
-                    }}>
-                      <TableCell>
-                        <Typography sx={{
-                          fontWeight: 600,
-                          color: '#1e293b',
-                          fontSize: '0.875rem'
-                        }}>
-                          {test.title}
-                        </Typography>
-                        {test.description && (
-                          <Typography sx={{
-                            fontSize: '0.75rem',
-                            color: '#64748b',
-                            mt: 0.5
-                          }}>
-                            {test.description}
-                          </Typography>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Typography sx={{
-                          fontWeight: 500,
-                          color: '#1e293b',
-                          fontSize: '0.875rem'
-                        }}>
-                          {test.subject}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography sx={{
-                          fontWeight: 600,
-                          color: '#2563eb',
-                          fontSize: '0.875rem'
-                        }}>
-                          {new Date(test.created_at).toLocaleDateString('uz-UZ')}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={difficultyLabels[test.difficulty] || test.difficulty}
-                          color={
-                            test.difficulty === 'easy' ? 'success' :
-                            test.difficulty === 'medium' ? 'warning' : 'error'
-                          }
-                          size="small"
-                          sx={{
-                            fontWeight: 600,
-                            borderRadius: '6px',
-                            fontSize: '0.75rem'
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Typography sx={{
-                          fontWeight: 500,
-                          color: '#1e293b',
-                          fontSize: '0.875rem'
-                        }}>
-                          {test.teacherName}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography sx={{
-                          fontWeight: 600,
-                          color: '#2563eb',
-                          fontSize: '0.875rem'
-                        }}>
-                          {test.time_limit} daq
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography sx={{
-                          fontWeight: 600,
-                          color: '#059669',
-                          fontSize: '0.875rem'
-                        }}>
-                          {test.total_questions}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        {hasActiveSession ? (
-                          <Chip
-                            label="Faol"
-                            size="small"
-                            sx={{
-                              backgroundColor: '#ecfdf5',
-                              color: '#059669',
-                              fontWeight: 600,
-                              borderRadius: '6px',
-                              fontSize: '0.75rem'
-                            }}
-                          />
-                        ) : alreadyTaken ? (
-                          <Chip
-                            label="Topshirilgan"
-                            size="small"
-                            sx={{
-                              backgroundColor: '#f3f4f6',
-                              color: '#6b7280',
-                              fontWeight: 600,
-                              borderRadius: '6px',
-                              fontSize: '0.75rem'
-                            }}
-                          />
-                        ) : (
-                          <Chip
-                            label="Mavjud"
-                            size="small"
-                            sx={{
-                              backgroundColor: '#eff6ff',
-                              color: '#2563eb',
-                              fontWeight: 600,
-                              borderRadius: '6px',
-                              fontSize: '0.75rem'
-                            }}
-                          />
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                          {!alreadyTaken && (
-                            <Button
-                              size="small"
-                              variant="contained"
-                              onClick={buttonAction}
-                              disabled={buttonDisabled}
-                              sx={{
-                                fontSize: '0.75rem',
-                                padding: '4px 8px',
-                                minWidth: 'auto',
-                                backgroundColor: buttonColor,
-                                '&:hover': {
-                                  backgroundColor: buttonColor,
-                                }
-                              }}
-                              startIcon={buttonIcon}
-                            >
-                              {buttonText}
-                            </Button>
-                          )}
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </div>
-
-        {getFilteredTests().length === 0 && getSortedTests().length > 0 && (
-          <div>
-            <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
-              <Typography variant="h6" color="textSecondary">
-                Qidiruv natijasi bo'yicha test topilmadi
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                Qidiruv so'zini o'zgartirib ko'ring
-              </Typography>
-            </Paper>
-          </div>
-        )}
-
-        {getSortedTests().length === 0 && (
-          <div>
-            <Paper sx={{ p: 3, textAlign: 'center', mt: 2 }}>
-              <Typography variant="h6" color="textSecondary">
-                {sortBy === 'easy' || sortBy === 'medium' || sortBy === 'hard'
-                  ? `${difficultyLabels[sortBy]} testlar topilmadi`
-                  : 'Hozircha testlar mavjud emas'
-                }
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                {sortBy === 'easy' || sortBy === 'medium' || sortBy === 'hard'
-                  ? 'Boshqa qiyinchilik darajasini tanlang'
-                  : 'Admin o\'qituvchilarni va testlarni qo\'shishi kerak'
-                }
-              </Typography>
-            </Paper>
-          </div>
-        )}
-
-
+          ]}
+        >
+          <Text style={{ color: '#374151' }}>
+            Testni tugatish uchun tugmani bosing. Bu sizning oxirgi imkoniyatingiz!
+          </Text>
+        </Modal>
 
         {/* Math Symbols Dialog */}
         <MathSymbols
@@ -1431,8 +1032,405 @@ const TakeTest = () => {
           onClose={() => setMathSymbolsOpen(false)}
           onSymbolSelect={handleSymbolSelect}
         />
-      </Box>
-    </Box>
+      </div>
+    );
+  }
+
+  const testColumns = [
+    {
+      title: 'Test nomi',
+      dataIndex: 'title',
+      key: 'title',
+      render: (title, test) => (
+        <div>
+          <Text style={{
+            fontWeight: 600,
+            color: '#1e293b',
+            fontSize: '0.875rem'
+          }}>
+            {title}
+          </Text>
+          {test.description && (
+            <Text style={{
+              fontSize: '0.75rem',
+              color: '#64748b',
+              display: 'block',
+              marginTop: '2px'
+            }}>
+              {test.description}
+            </Text>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: 'Fan',
+      dataIndex: 'subject',
+      key: 'subject',
+      render: (subject) => (
+        <Text style={{
+          fontWeight: 500,
+          color: '#1e293b',
+          fontSize: '0.875rem'
+        }}>
+          {subject}
+        </Text>
+      ),
+    },
+    {
+      title: 'Sana',
+      dataIndex: 'created_at',
+      key: 'created_at',
+      render: (created_at) => (
+        <Text style={{
+          fontWeight: 600,
+          color: '#2563eb',
+          fontSize: '0.875rem'
+        }}>
+          {new Date(created_at).toLocaleDateString('uz-UZ')}
+        </Text>
+      ),
+    },
+    {
+      title: 'Qiyinchilik',
+      dataIndex: 'difficulty',
+      key: 'difficulty',
+      render: (difficulty) => (
+        <Tag
+          color={
+            difficulty === 'easy' ? 'green' :
+            difficulty === 'medium' ? 'orange' : 'red'
+          }
+          style={{
+            fontWeight: 600,
+            borderRadius: '6px',
+            fontSize: '0.75rem',
+            margin: 0
+          }}
+        >
+          {difficultyLabels[difficulty] || difficulty}
+        </Tag>
+      ),
+    },
+    {
+      title: 'O\'qituvchi',
+      dataIndex: 'teacherName',
+      key: 'teacherName',
+      render: (teacherName) => (
+        <Text style={{
+          fontWeight: 500,
+          color: '#1e293b',
+          fontSize: '0.875rem'
+        }}>
+          {teacherName}
+        </Text>
+      ),
+    },
+    {
+      title: 'Vaqt',
+      dataIndex: 'time_limit',
+      key: 'time_limit',
+      render: (time_limit) => (
+        <Text style={{
+          fontWeight: 600,
+          color: '#2563eb',
+          fontSize: '0.875rem'
+        }}>
+          {time_limit} daq
+        </Text>
+      ),
+    },
+    {
+      title: 'Savollar',
+      dataIndex: 'total_questions',
+      key: 'total_questions',
+      render: (total_questions) => (
+        <Text style={{
+          fontWeight: 600,
+          color: '#059669',
+          fontSize: '0.875rem'
+        }}>
+          {total_questions}
+        </Text>
+      ),
+    },
+    {
+      title: 'Status',
+      key: 'status',
+      render: (_, test) => {
+        const alreadyTaken = hasStudentTakenTest(test.id);
+        const hasActiveSession = !!activeTestSessions[test.id];
+
+        if (hasActiveSession) {
+          return (
+            <Tag
+              style={{
+                backgroundColor: '#ecfdf5',
+                color: '#059669',
+                fontWeight: 600,
+                borderRadius: '6px',
+                fontSize: '0.75rem',
+                margin: 0
+              }}
+            >
+              Faol
+            </Tag>
+          );
+        } else if (alreadyTaken) {
+          return (
+            <Tag
+              style={{
+                backgroundColor: '#f3f4f6',
+                color: '#6b7280',
+                fontWeight: 600,
+                borderRadius: '6px',
+                fontSize: '0.75rem',
+                margin: 0
+              }}
+            >
+              Topshirilgan
+            </Tag>
+          );
+        } else {
+          return (
+            <Tag
+              style={{
+                backgroundColor: '#eff6ff',
+                color: '#2563eb',
+                fontWeight: 600,
+                borderRadius: '6px',
+                fontSize: '0.75rem',
+                margin: 0
+              }}
+            >
+              Mavjud
+            </Tag>
+          );
+        }
+      },
+    },
+    {
+      title: 'Harakatlar',
+      key: 'actions',
+      render: (_, test) => {
+        const alreadyTaken = hasStudentTakenTest(test.id);
+        const hasActiveSession = !!activeTestSessions[test.id];
+
+        // Determine button state
+        let buttonText = 'Testni boshlash';
+        let buttonIcon = <PlayCircleOutlined />;
+        let buttonColor = '#2563eb';
+        let buttonDisabled = false;
+        let buttonAction = () => startTest(test);
+
+        if (hasActiveSession) {
+          // Has active session - allow continuing
+          buttonText = 'Davom ettirish';
+          buttonIcon = <PlayCircleOutlined />;
+          buttonColor = '#059669'; // Green for continue
+          buttonAction = () => continueTest(test);
+        } else if (alreadyTaken) {
+          // Test already completed
+          buttonText = 'Topshirilgan';
+          buttonIcon = <CheckCircleOutlined />;
+          buttonColor = '#059669';
+          buttonDisabled = true;
+        }
+
+        return (
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {!alreadyTaken && (
+              <Button
+                size="small"
+                type="primary"
+                onClick={buttonAction}
+                disabled={buttonDisabled}
+                style={{
+                  fontSize: '0.75rem',
+                  padding: '4px 8px',
+                  minWidth: 'auto',
+                  backgroundColor: buttonColor,
+                  borderColor: buttonColor
+                }}
+                icon={buttonIcon}
+                onMouseEnter={(e) => {
+                  if (!buttonDisabled) {
+                    e.target.style.backgroundColor = buttonColor;
+                  }
+                }}
+              >
+                {buttonText}
+              </Button>
+            )}
+          </div>
+        );
+      },
+    },
+  ];
+
+  return (
+    <div style={{
+      paddingTop: '16px',
+      paddingBottom: '16px',
+      backgroundColor: '#ffffff'
+    }}>
+      {/* Error Display */}
+      {error && (
+        <Alert message={error} type="error" style={{ marginBottom: '16px' }} showIcon />
+      )}
+
+      {/* Header */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '24px',
+        paddingBottom: '16px',
+        borderBottom: '1px solid #e2e8f0'
+      }}
+      >
+        <Title level={2} style={{
+          fontSize: '2.5rem',
+          fontWeight: 700,
+          color: '#1e293b',
+          marginBottom: '8px'
+        }}>
+          Test topshirish
+        </Title>
+        <Text style={{
+          fontSize: '1.125rem',
+          color: '#64748b',
+          fontWeight: 400
+        }}>
+          Mavjud testlarni ko'rish va test topshirish
+        </Text>
+      </div>
+
+      {/* Barcha testlar section with table layout */}
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '16px'
+        }}>
+          <Title level={4} style={{
+            fontSize: '1.5rem',
+            fontWeight: 700,
+            color: '#1e293b',
+            marginBottom: 0
+          }}>
+            📋 Barcha testlar
+          </Title>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <SortAscendingOutlined style={{ color: '#64748b' }} />
+            <Select
+              value={sortBy}
+              onChange={setSortBy}
+              style={{
+                minWidth: 120,
+              }}
+            >
+              <Option value="date">Sana bo'yicha</Option>
+              <Option value="name">Nomi bo'yicha</Option>
+              <Option value="difficulty">Qiyinchilik bo'yicha</Option>
+              <Option value="easy">Oson</Option>
+              <Option value="medium">O'rtacha</Option>
+              <Option value="hard">Qiyin</Option>
+            </Select>
+          </div>
+        </div>
+
+        {/* Search Input */}
+        <div style={{ marginBottom: '16px' }}>
+          <Search
+            placeholder="Test nomini, fanini yoki o'qituvchi nomini qidirish..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            prefix={<SearchOutlined style={{ color: '#64748b' }} />}
+            style={{
+              borderRadius: '8px',
+              backgroundColor: '#ffffff',
+              borderColor: '#e2e8f0'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = '#2563eb';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = '#e2e8f0';
+            }}
+          />
+          {searchTerm && (
+            <Text style={{ marginTop: '4px', color: '#64748b', fontSize: '0.875rem', display: 'block' }}>
+              {getFilteredTests().length} ta test topildi
+            </Text>
+          )}
+        </div>
+
+        <Card style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        }}>
+          <Table
+            columns={testColumns}
+            dataSource={getFilteredTests().map(test => ({ ...test, key: test.id }))}
+            pagination={false}
+            size="middle"
+            bordered={false}
+            style={{
+              '& .ant-table-thead > tr > th': {
+                backgroundColor: '#f8fafc',
+                fontWeight: 700,
+                fontSize: '0.875rem',
+                color: '#1e293b',
+                borderBottom: '1px solid #e2e8f0',
+                padding: '16px'
+              },
+              '& .ant-table-tbody > tr > td': {
+                borderBottom: '1px solid #f1f5f9',
+                padding: '16px',
+                fontSize: '0.875rem',
+                color: '#334155'
+              },
+              '& .ant-table-tbody > tr:hover > td': {
+                backgroundColor: '#f8fafc'
+              }
+            }}
+          />
+        </Card>
+
+        {getFilteredTests().length === 0 && getSortedTests().length > 0 && (
+          <Card style={{ padding: '16px', textAlign: 'center', marginTop: '8px' }}>
+            <Title level={5} style={{ color: '#64748b' }}>
+              Qidiruv natijasi bo'yicha test topilmadi
+            </Title>
+            <Text style={{ color: '#64748b' }}>
+              Qidiruv so'zini o'zgartirib ko'ring
+            </Text>
+          </Card>
+        )}
+
+        {getSortedTests().length === 0 && (
+          <Card style={{ padding: '16px', textAlign: 'center', marginTop: '8px' }}>
+            <Title level={5} style={{ color: '#64748b' }}>
+              {sortBy === 'easy' || sortBy === 'medium' || sortBy === 'hard'
+                ? `${difficultyLabels[sortBy]} testlar topilmadi`
+                : 'Hozircha testlar mavjud emas'
+              }
+            </Title>
+            <Text style={{ color: '#64748b' }}>
+              {sortBy === 'easy' || sortBy === 'medium' || sortBy === 'hard'
+                ? 'Boshqa qiyinchilik darajasini tanlang'
+                : 'Admin o\'qituvchilarni va testlarni qo\'shishi kerak'
+              }
+            </Text>
+          </Card>
+        )}
+      </div>
+    </div>
   );
 };
 
