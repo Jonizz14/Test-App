@@ -1281,22 +1281,25 @@ const TakeTest = () => {
 
       {/* Header */}
       <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
-      }}
-      >
-        <Title level={2} style={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          marginBottom: '8px'
+      }}>
+        {/* Title */}
+        <div style={{
+          marginBottom: '16px'
         }}>
-          Test topshirish
-        </Title>
+          <Title level={2} style={{
+            fontSize: '2.5rem',
+            fontWeight: 700,
+            color: '#1e293b',
+            marginBottom: '4px'
+          }}>
+            Test topshirish
+          </Title>
+        </div>
+        
+        {/* Description */}
         <Text style={{
           fontSize: '1.125rem',
           color: '#64748b',

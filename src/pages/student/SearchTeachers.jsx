@@ -368,18 +368,27 @@ const SearchTeachers = () => {
     <div style={{ padding: '32px 0', backgroundColor: '#ffffff' }}>
       {/* Header */}
       <div style={{
-        marginBottom: '32px',
+        marginBottom: '24px',
         paddingBottom: '16px',
+        marginTop: '-16px',
         borderBottom: '1px solid #e2e8f0'
       }}>
-        <Title level={2} style={{ color: '#1e293b', marginBottom: '8px' }}>
+        <Title level={2} style={{
+          fontSize: '2.5rem',
+          fontWeight: 700,
+          color: '#1e293b',
+          marginBottom: '16px'
+        }}>
           O'qituvchilarni qidirish
         </Title>
-        <Text style={{ fontSize: '1.125rem', color: '#64748b', fontWeight: 400 }}>
-          O'qituvchilarni toping va ularning testlarini ko'ring
+        <Text style={{
+          fontSize: '1.125rem',
+          color: '#64748b',
+          fontWeight: 400
+        }}>
+          O'qituvchilarni qidirish va mavjud testlarni ko'rish
         </Text>
       </div>
-
       {/* Search and filter section */}
       <div style={{ marginBottom: '32px' }}>
         <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>

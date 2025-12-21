@@ -455,6 +455,14 @@ class ApiService {
     return this.delete(`/contact-messages/${messageId}/delete_message/`);
   }
 
+  // Delete profile picture and status for specific student
+  async deleteStudentProfileData(studentId) {
+    return this.patch(`/users/${studentId}/delete_profile_data/`, {
+      delete_profile_photo: true,
+      delete_profile_status: true
+    });
+  }
+
 }
 
 const apiService = new ApiService();

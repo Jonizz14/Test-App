@@ -74,27 +74,31 @@ const ReceivedLessons = () => {
   if (loading) {
     return (
       <div style={{ 
-        paddingLeft: '35px', 
-        paddingRight: '16px',
         paddingTop: '16px',
         paddingBottom: '16px',
         backgroundColor: '#ffffff'
       }}>
-        <Title level={2} style={{ 
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          marginBottom: '8px'
+        <div style={{
+          marginBottom: '24px',
+          paddingBottom: '16px',
+          borderBottom: '1px solid #e2e8f0'
         }}>
-          Olingan darslar
-        </Title>
-        <Text style={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400
-        }}>
-          Sizga yuborilgan dars materiallari va topshiriqlar
-        </Text>
+          <Title level={2} style={{ 
+            fontSize: '2.5rem',
+            fontWeight: 700,
+            color: '#1e293b',
+            marginBottom: '8px'
+          }}>
+            Olingan darslar
+          </Title>
+          <Text style={{
+            fontSize: '1.125rem',
+            color: '#64748b',
+            fontWeight: 400
+          }}>
+            Sizga yuborilgan dars materiallari va topshiriqlar
+          </Text>
+        </div>
         <Text style={{ color: '#64748b' }}>Yuklanmoqda...</Text>
       </div>
     );
@@ -208,22 +212,25 @@ const ReceivedLessons = () => {
     }}>
       {/* Header */}
       <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
-      }}
-      >
-        <Title level={2} style={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          marginBottom: '8px'
+      }}>
+        {/* Title */}
+        <div style={{
+          marginBottom: '16px'
         }}>
-          Olingan darslar
-        </Title>
+          <Title level={2} style={{
+            fontSize: '2.5rem',
+            fontWeight: 700,
+            color: '#1e293b',
+            marginBottom: '8px'
+          }}>
+            Olingan darslar
+          </Title>
+        </div>
+        
+        {/* Description */}
         <Text style={{
           fontSize: '1.125rem',
           color: '#64748b',

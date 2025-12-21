@@ -472,6 +472,48 @@ class UserViewSet(viewsets.ModelViewSet):
             'message': 'Premium status revoked successfully'
         })
 
+    @action(detail=True, methods=['patch'], permission_classes=[IsAuthenticated])
+    def delete_profile_data(self, request, pk=None):
+        """Delete profile picture and status for a specific student"""
+        user = self.get_object()
+        
+        # Check if the request contains the expected data
+        delete_profile_photo = request.data.get('delete_profile_photo', False)
+        delete_profile_status = request.data.get('delete_profile_status', False)
+        
+        if not (delete_profile_photo or delete_profile_status):
+            return Response({'error': 'At least one deletion flag must be true'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Delete profile picture if requested
+        if delete_profile_photo:
+            if user.profile_photo:
+                # Delete the file from filesystem
+                import os
+                from django.conf import settings
+                if user.profile_photo.path and os.path.exists(user.profile_photo.path):
+                    try:
+                        os.remove(user.profile_photo.path)
+                    except Exception as e:
+                        print(f"Error deleting profile photo file: {e}")
+                user.profile_photo = None
+                user.profile_photo_url = None
+        
+        # Delete profile status if requested
+        if delete_profile_status:
+            user.profile_status = None
+        
+        user.save()
+        
+        serializer = UserSerializer(user)
+        return Response({
+            'user': serializer.data,
+            'message': 'Profile data deleted successfully',
+            'deleted': {
+                'profile_photo': delete_profile_photo,
+                'profile_status': delete_profile_status
+            }
+        })
+
 class TestViewSet(viewsets.ModelViewSet):
     queryset = Test.objects.all()
     serializer_class = TestSerializer

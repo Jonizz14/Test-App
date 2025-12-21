@@ -150,38 +150,52 @@ const SubmitTest = () => {
       }}>
         {/* Header */}
         <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
           marginBottom: '24px',
           paddingBottom: '16px',
           borderBottom: '1px solid #e2e8f0'
-        }}
-        >
-          <Title level={2} style={{
-            fontSize: '2.5rem',
-            fontWeight: 700,
-            color: '#1e293b',
-            marginBottom: 0
+        }}>
+          {/* Title, Description, and Button */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            marginBottom: '16px'
           }}>
-            Test natijasi
-          </Title>
-          <Button
-            icon={<ArrowLeftOutlined />}
-            onClick={handleBackToTests}
-            style={{
-              borderColor: '#d1d5db',
-              color: '#374151',
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#f9fafb';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'transparent';
-            }}
-          >
-            Testlarga qaytish
-          </Button>
+            <div style={{ flex: 1 }}>
+              <Title level={2} style={{
+                fontSize: '2.5rem',
+                fontWeight: 700,
+                color: '#1e293b',
+                marginBottom: '4px'
+              }}>
+                Test natijasi
+              </Title>
+              <Text style={{
+                fontSize: '1.125rem',
+                color: '#64748b',
+                fontWeight: 400
+              }}>
+                Testni topshirish natijasi va ballaringiz
+              </Text>
+            </div>
+            <Button
+              icon={<ArrowLeftOutlined />}
+              onClick={handleBackToTests}
+              style={{
+                borderColor: '#d1d5db',
+                color: '#374151',
+                marginLeft: '16px'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#f9fafb';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'transparent';
+              }}
+            >
+              Testlarga qaytish
+            </Button>
+          </div>
         </div>
 
         <div>

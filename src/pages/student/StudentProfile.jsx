@@ -10,11 +10,14 @@ import {
   BookOutlined,
   ClockCircleOutlined,
   StarOutlined,
+  ShoppingOutlined,
+  DeleteOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
 import { useCountdown } from '../../hooks/useCountdown';
+import { shouldShowPremiumFeatures } from '../../utils/premiumVisibility';
 
 const { Title, Text } = Typography;
 
@@ -31,6 +34,7 @@ const StudentProfile = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     loadStudentStats();
@@ -136,6 +140,42 @@ const StudentProfile = () => {
     }
   };
 
+  const handleDeleteProfileData = async () => {
+    if (!currentUser) return;
+
+    // Only allow deletion for the specific student ID
+    if (currentUser.id !== 'TO\'XTAYEVJT9-03-AE114') {
+      alert('Bu funksiya faqat ma\'lum o\'quvchi uchun mavjud!');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      '⚠️ Diqqat! Bu amalni bajarishdan oldin o\'ylab ko\'ring:\n\n' +
+      '• Profil rasmi o\'chiriladi\n' +
+      '• Status xabari o\'chiriladi\n' +
+      '• Bu amalni bekor qilib bo\'lmaydi!\n\n' +
+      'Davom etishni xohlaysizmi?'
+    );
+
+    if (!confirmed) return;
+
+    setDeleteLoading(true);
+    try {
+      await apiService.deleteStudentProfileData(currentUser.id);
+      
+      // Refresh user data
+      const updatedUser = await apiService.getUser(currentUser.id);
+      setCurrentUserData(updatedUser);
+      
+      alert('✅ Profil ma\'lumotlari muvaffaqiyatli o\'chirildi!');
+    } catch (error) {
+      console.error('Failed to delete profile data:', error);
+      alert('❌ Profil ma\'lumotlarini o\'chirishda xatolik yuz berdi');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   const StatCard = ({ title, value, icon, color, suffix }) => (
     <Card
       style={{
@@ -206,54 +246,132 @@ const StudentProfile = () => {
     }}>
       {/* Header */}
       <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
       }}>
-        <Title level={2} style={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          marginBottom: '8px'
+        {/* Main Content with Flex Layout */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
         }}>
-          Mening ma'lumotlarim
-        </Title>
-        <Text style={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400
-        }}>
-          Shaxsiy ma'lumotlaringizni ko'rish va tahrirlash
-        </Text>
+          {/* Title and Description */}
+          <div style={{
+            flex: 1
+          }}>
+            <Title level={2} style={{
+              fontSize: '2.5rem',
+              fontWeight: 700,
+              color: '#1e293b',
+              marginBottom: '12px'
+            }}>
+              Mening ma'lumotlarim
+            </Title>
+            <Text style={{
+              fontSize: '1.125rem',
+              color: '#64748b',
+              fontWeight: 400
+            }}>
+              Shaxsiy ma'lumotlaringizni ko'rish va tahrirlash
+            </Text>
+          </div>
+          
+          {/* Market Button */}
+          <div style={{
+            marginLeft: '16px'
+          }}>
+            <Button
+              size="large"
+              icon={<ShoppingOutlined />}
+              onClick={() => navigate('/student/pricing')}
+              style={{
+                backgroundColor: '#f59e0b',
+                color: 'white',
+                fontSize: '1.1rem',
+                fontWeight: 600,
+                padding: '12px 24px',
+                borderRadius: '12px',
+                boxShadow: '0 4px 20px rgba(245, 158, 11, 0.3)',
+                borderColor: '#f59e0b',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#d97706';
+                e.target.style.boxShadow = '0 8px 30px rgba(245, 158, 11, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#f59e0b';
+                e.target.style.boxShadow = '0 4px 20px rgba(245, 158, 11, 0.3)';
+              }}
+            >
+              Market
+            </Button>
+          </div>
+        </div>
 
-        <Button
-          size="large"
-          type="primary"
-          icon={<EditOutlined />}
-          onClick={() => setEditDialogOpen(true)}
-          style={{
-            backgroundColor: '#2563eb',
-            color: 'white',
-            fontSize: '1.1rem',
-            fontWeight: 600,
-            padding: '12px 24px',
-            borderRadius: '12px',
-            boxShadow: '0 4px 20px rgba(37, 99, 235, 0.3)',
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.backgroundColor = '#1d4ed8';
-            e.target.style.boxShadow = '0 8px 30px rgba(37, 99, 235, 0.4)';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.backgroundColor = '#2563eb';
-            e.target.style.boxShadow = '0 4px 20px rgba(37, 99, 235, 0.3)';
-          }}
-        >
-          Tahrirlash
-        </Button>
+        {/* Other Action Buttons */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'flex-end' }}>
+          {/* Edit Button - Only for premium users */}
+          {shouldShowPremiumFeatures(currentUser, currentUser) && (
+            <Button
+              size="large"
+              icon={<EditOutlined />}
+              onClick={() => setEditDialogOpen(true)}
+              style={{
+                backgroundColor: '#10b981',
+                color: 'white',
+                fontSize: '1.1rem',
+                fontWeight: 600,
+                padding: '12px 24px',
+                borderRadius: '12px',
+                boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
+                borderColor: '#10b981',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#059669';
+                e.target.style.boxShadow = '0 8px 30px rgba(16, 185, 129, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#10b981';
+                e.target.style.boxShadow = '0 4px 20px rgba(16, 185, 129, 0.3)';
+              }}
+            >
+              Tahrirlash
+            </Button>
+          )}
+          
+          {/* Delete Profile Data Button - Only for specific student */}
+          {currentUser?.id === 'TO\'XTAYEVJT9-03-AE114' && (
+            <Button
+              size="large"
+              icon={<DeleteOutlined />}
+              onClick={handleDeleteProfileData}
+              loading={deleteLoading}
+              style={{
+                backgroundColor: '#dc2626',
+                color: 'white',
+                fontSize: '1.1rem',
+                fontWeight: 600,
+                padding: '12px 24px',
+                borderRadius: '12px',
+                boxShadow: '0 4px 20px rgba(220, 38, 38, 0.3)',
+                borderColor: '#dc2626',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#b91c1c';
+                e.target.style.boxShadow = '0 8px 30px rgba(220, 38, 38, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#dc2626';
+                e.target.style.boxShadow = '0 4px 20px rgba(220, 38, 38, 0.3)';
+              }}
+            >
+              Profilni tozalash
+            </Button>
+          )}
+          
+
+        </div>
       </div>
 
       {/* Success Message */}

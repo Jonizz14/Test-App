@@ -155,48 +155,65 @@ const StudentProfileView = () => {
     <div style={{ paddingTop: '16px', paddingBottom: '16px', backgroundColor: '#ffffff' }}>
       {/* Header */}
       <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Button
-            icon={<ArrowLeftOutlined />}
-            onClick={() => navigate(-1)}
-            style={{
-              borderColor: '#2563eb',
-              color: '#2563eb',
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#eff6ff';
-              e.target.style.borderColor = '#1d4ed8';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'transparent';
-              e.target.style.borderColor = '#2563eb';
-            }}
-          >
-            Orqaga
-          </Button>
+        {/* Main Content with Flex Layout */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '16px'
+        }}>
+          {/* Left Side - Back Button and Title/Description */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            flex: 1
+          }}>
+            <Button
+              icon={<ArrowLeftOutlined />}
+              onClick={() => navigate(-1)}
+              style={{
+                borderColor: '#2563eb',
+                color: '#2563eb',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#eff6ff';
+                e.target.style.borderColor = '#1d4ed8';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'transparent';
+                e.target.style.borderColor = '#2563eb';
+              }}
+            >
+              Orqaga
+            </Button>
+            
+            {/* Title and Description */}
+            <div style={{
+              marginLeft: '8px'
+            }}>
+              <Title level={2} style={{
+                fontSize: '2.5rem',
+                fontWeight: 700,
+                color: '#1e293b',
+                marginBottom: '8px'
+              }}>
+                Sinfdosh profili
+              </Title>
+              <Text style={{
+                fontSize: '1.125rem',
+                color: '#64748b',
+                fontWeight: 400
+              }}>
+                Sinfdoshning shaxsiy ma'lumotlari va natijalari
+              </Text>
+            </div>
+          </div>
         </div>
-        <Title level={2} style={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          marginBottom: '8px'
-        }}>
-          Sinfdosh profili
-        </Title>
-        <Text style={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400
-        }}>
-          Sinfdoshning shaxsiy ma'lumotlari va natijalari
-        </Text>
       </div>
 
       {/* Premium Profile Card */}

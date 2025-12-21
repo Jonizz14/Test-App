@@ -199,16 +199,25 @@ const StudentOverview = () => {
       <div style={{
         marginBottom: '24px',
         paddingBottom: '16px',
+        marginTop: '-6px',
         borderBottom: '1px solid #e2e8f0'
       }}>
-        <Title level={1} style={{ margin: 0, color: '#1e293b', marginBottom: '8px' }}>
-          O'quvchi umumiy ko'rinishi
+        <Title level={2} style={{
+          fontSize: '2.5rem',
+          fontWeight: 700,
+          color: '#1e293b',
+          marginBottom: '16px'
+        }}>
+          Talaba boshqaruv paneli
         </Title>
-        <Text style={{ fontSize: '18px', color: '#64748b' }}>
-          Sizning test natijalaringiz va faoliyatingiz
+        <Text style={{
+          fontSize: '1.125rem',
+          color: '#64748b',
+          fontWeight: 400
+        }}>
+          O'quv faoliyatingiz haqida umumiy ma'lumot
         </Text>
       </div>
-
       {/* Statistics Cards */}
       <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={12} md={6}>

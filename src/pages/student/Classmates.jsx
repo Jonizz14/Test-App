@@ -312,21 +312,30 @@ const Classmates = () => {
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
       }}>
-        <Title level={2} style={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          marginBottom: '8px'
+        {/* Title, Description, and Button */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
         }}>
-          Sinfdoshlarim
-        </Title>
-        <Text style={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400
-        }}>
-          {currentUser?.class_group} sinfidagi sinfdoshlaringizni toping va ularning profilini ko'ring
-        </Text>
+          <div style={{ flex: 1 }}>
+            <Title level={2} style={{
+              fontSize: '2.5rem',
+              fontWeight: 700,
+              color: '#1e293b',
+
+            }}>
+              Sinfdoshlarim
+            </Title>
+            <Text style={{
+              fontSize: '1.125rem',
+              color: '#64748b',
+              fontWeight: 400,
+            }}>
+              {currentUser?.class_group} sinfidagi sinfdoshlaringizni toping va ularning profilini ko'ring
+            </Text>
+          </div>
+        </div>
       </div>
 
       {/* Search section */}
