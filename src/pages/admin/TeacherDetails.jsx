@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Typography,
-  Box,
-  Paper,
-  Button,
-  Chip,
-  Avatar,
-  Grid,
   Card,
-  CardContent,
-} from '@mui/material';
+  Button,
+  Typography,
+  Avatar,
+  Tag,
+  Row,
+  Col,
+  Alert,
+} from 'antd';
 import {
-  ArrowBack as ArrowBackIcon,
-  Assessment as AssessmentIcon,
-  School as SchoolIcon,
-} from '@mui/icons-material';
+  ArrowLeftOutlined,
+  FileTextOutlined,
+  ClockCircleOutlined,
+  TeamOutlined,
+  TrophyOutlined,
+} from '@ant-design/icons';
 import apiService from '../../data/apiService';
+
+const { Title, Text } = Typography;
 
 const TeacherDetails = () => {
   const { id } = useParams();
@@ -47,218 +50,204 @@ const TeacherDetails = () => {
 
   if (loading) {
     return (
-      <Box sx={{
-        py: 8,
-        backgroundColor: '#ffffff',
+      <div style={{
+        padding: '24px',
         display: 'flex',
-        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        minHeight: '400px',
-        gap: 3
+        minHeight: '400px'
       }}>
-        <Typography>Yuklanmoqda...</Typography>
-      </Box>
+        <div>Yuklanmoqda...</div>
+      </div>
     );
   }
 
   if (!teacher) {
     return (
-      <Box sx={{
-        py: 8,
-        backgroundColor: '#ffffff',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '400px'
-      }}>
-        <Typography>O'qituvchi topilmadi</Typography>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/admin/teachers')}
-          sx={{ mt: 2 }}
-        >
-          Orqaga
-        </Button>
-      </Box>
+      <div style={{ padding: '24px' }}>
+        <div style={{ textAlign: 'center', padding: '48px 0' }}>
+          <Text>O'qituvchi topilmadi</Text>
+          <br />
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate('/admin/teachers')}
+            style={{ marginTop: '16px' }}
+          >
+            Orqaga
+          </Button>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Box sx={{ py: 4, backgroundColor: '#ffffff' }}>
-      <Box sx={{
-        mb: 4,
+    <div style={{ padding: '24px 0' }}>
+      {/* Header */}
+      <div style={{
+        marginBottom: '24px',
         display: 'flex',
         alignItems: 'center',
-        gap: 2
+        gap: '16px'
       }}>
         <Button
-          startIcon={<ArrowBackIcon />}
+          icon={<ArrowLeftOutlined />}
           onClick={() => navigate('/admin/teachers')}
-          variant="outlined"
-          sx={{
+          style={{
             borderColor: '#2563eb',
-            color: '#2563eb',
-            '&:hover': {
-              backgroundColor: '#eff6ff',
-              borderColor: '#1d4ed8'
-            }
+            color: '#2563eb'
           }}
         >
           Orqaga
         </Button>
-        <Typography variant="h4" sx={{ fontWeight: 700, color: '#1e293b' }}>
+        <Title level={2} style={{ margin: 0, color: '#1e293b' }}>
           {teacher.name} - Batafsil ma'lumotlar
-        </Typography>
-      </Box>
+        </Title>
+      </div>
 
-      <Paper sx={{
-        p: 4,
-        mb: 4,
-        backgroundColor: '#f8fafc',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px'
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 3 }}>
-          <Avatar sx={{
-            width: 80,
-            height: 80,
-            bgcolor: '#2563eb',
-            fontSize: '2rem',
-            fontWeight: 700
-          }}>
-            {teacher.name.charAt(0).toUpperCase()}
-          </Avatar>
-          <Box>
-            <Typography variant="h5" sx={{ fontWeight: 700, color: '#1e293b', mb: 1 }}>
-              {teacher.name}
-            </Typography>
-            <Typography sx={{ color: '#64748b', mb: 1 }}>
-              ID: {teacher.id}
-            </Typography>
-            <Chip
-              label="O'qituvchi"
-              sx={{
-                backgroundColor: '#ecfdf5',
-                color: '#059669',
-                fontWeight: 600
+      {/* Teacher Info Card */}
+      <Card
+        style={{
+          marginBottom: '24px',
+          backgroundColor: '#f8fafc',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+        }}
+        bodyStyle={{ padding: '32px' }}
+      >
+        <Row gutter={24} align="middle">
+          <Col>
+            <Avatar
+              size={80}
+              style={{
+                backgroundColor: '#2563eb',
+                fontSize: '32px',
+                fontWeight: 700
               }}
-            />
-          </Box>
-        </Box>
+            >
+              {teacher.name.charAt(0).toUpperCase()}
+            </Avatar>
+          </Col>
+          <Col flex="auto">
+            <Title level={3} style={{ margin: 0, marginBottom: '8px', color: '#1e293b' }}>
+              {teacher.name}
+            </Title>
+            <Text style={{ color: '#64748b', marginBottom: '16px', display: 'block' }}>
+              ID: {teacher.id}
+            </Text>
+            <Tag color="green" style={{ fontWeight: 600 }}>
+              O'qituvchi
+            </Tag>
+          </Col>
+        </Row>
 
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Box sx={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-              p: 3
-            }}>
-              <Typography variant="h6" sx={{ mb: 2, color: '#1e293b', fontWeight: 600 }}>
-                Oxirgi kirish
-              </Typography>
-              <Typography sx={{ color: '#64748b', fontSize: '1rem' }}>
-                {teacher.last_login ? new Date(teacher.last_login).toLocaleString('uz-UZ') : 'Ma\'lumot yo\'q'}
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Box sx={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-              p: 3
-            }}>
-              <Typography variant="h6" sx={{ mb: 2, color: '#1e293b', fontWeight: 600 }}>
-                Ro'yxatdan o'tgan sana
-              </Typography>
-              <Typography sx={{ color: '#64748b', fontSize: '1rem' }}>
-                {teacher.registration_date ? new Date(teacher.registration_date).toLocaleString('uz-UZ') : 'Ma\'lumot yo\'q'}
-              </Typography>
-            </Box>
-          </Grid>
-        </Grid>
-      </Paper>
+        <Row gutter={24} style={{ marginTop: '24px' }}>
+          <Col xs={24} md={12}>
+            <Card
+              size="small"
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+              }}
+            >
+              <div style={{ textAlign: 'center' }}>
+                <Title level={5} style={{ margin: 0, marginBottom: '8px', color: '#1e293b' }}>
+                  Oxirgi kirish
+                </Title>
+                <Text style={{ color: '#64748b' }}>
+                  {teacher.last_login ? new Date(teacher.last_login).toLocaleString('uz-UZ') : 'Ma\'lumot yo\'q'}
+                </Text>
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} md={12}>
+            <Card
+              size="small"
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+              }}
+            >
+              <div style={{ textAlign: 'center' }}>
+                <Title level={5} style={{ margin: 0, marginBottom: '8px', color: '#1e293b' }}>
+                  Ro'yxatdan o'tgan sana
+                </Title>
+                <Text style={{ color: '#64748b' }}>
+                  {teacher.registration_date ? new Date(teacher.registration_date).toLocaleString('uz-UZ') : 'Ma\'lumot yo\'q'}
+                </Text>
+              </div>
+            </Card>
+          </Col>
+        </Row>
+      </Card>
 
-      <Paper sx={{
-        p: 4,
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px'
-      }}>
-        <Typography variant="h5" sx={{ mb: 3, fontWeight: 700, color: '#1e293b' }}>
-          Yaratilgan testlar ({tests.length})
-        </Typography>
-
+      {/* Tests Created */}
+      <Card
+        title={`Yaratilgan testlar (${tests.length})`}
+        style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+        }}
+      >
         {tests.length === 0 ? (
-          <Box sx={{
+          <div style={{
             textAlign: 'center',
-            py: 6,
+            padding: '48px 24px',
             backgroundColor: '#f8fafc',
             borderRadius: '8px',
             border: '1px solid #e2e8f0'
           }}>
-            <AssessmentIcon sx={{ fontSize: '3rem', color: '#cbd5e1', mb: 2 }} />
-            <Typography sx={{ color: '#64748b', fontSize: '1.1rem' }}>
+            <FileTextOutlined style={{ fontSize: '48px', color: '#cbd5e1', marginBottom: '16px' }} />
+            <Text style={{ color: '#64748b', fontSize: '16px' }}>
               Hali testlar yaratilmagan
-            </Typography>
-          </Box>
+            </Text>
+          </div>
         ) : (
-          <Grid container spacing={3}>
-            {tests.map((test, index) => (
-              <Grid item xs={12} md={6} key={test.id}>
-                <Card sx={{
-                  height: '100%',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
-                  '&:hover': {
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                    borderColor: '#2563eb'
-                  }
-                }}>
-                  <CardContent sx={{ p: 3 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 600, color: '#1e293b', mb: 2 }}>
-                      {test.title}
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-                      <Chip
-                        label={test.subject}
-                        size="small"
-                        sx={{
-                          backgroundColor: '#eff6ff',
-                          color: '#2563eb',
-                          fontWeight: 500
-                        }}
-                      />
-                      <Chip
-                        label={`${test.total_questions} savol`}
-                        size="small"
-                        sx={{
-                          backgroundColor: '#f0fdf4',
-                          color: '#166534',
-                          fontWeight: 500
-                        }}
-                      />
-                    </Box>
-                    <Typography sx={{ color: '#64748b', fontSize: '0.875rem', mb: 1 }}>
+          <Row gutter={[24, 24]}>
+            {tests.map((test) => (
+              <Col xs={24} md={12} key={test.id}>
+                <Card
+                  hoverable
+                  style={{
+                    height: '100%',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                  }}
+                >
+                  <Title level={5} style={{ margin: 0, marginBottom: '16px', color: '#1e293b' }}>
+                    {test.title}
+                  </Title>
+                  <div style={{ marginBottom: '16px' }}>
+                    <Tag color="blue" style={{ marginRight: '8px', marginBottom: '4px' }}>
+                      {test.subject}
+                    </Tag>
+                    <Tag color="green" style={{ marginBottom: '4px' }}>
+                      {test.total_questions} savol
+                    </Tag>
+                  </div>
+                  <div style={{ color: '#64748b', fontSize: '14px', lineHeight: '1.5' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+                      <ClockCircleOutlined style={{ marginRight: '8px' }} />
                       Vaqt: {test.time_limit} daqiqa
-                    </Typography>
-                    <Typography sx={{ color: '#64748b', fontSize: '0.875rem', mb: 1 }}>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+                      <TeamOutlined style={{ marginRight: '8px' }} />
                       Urinishlar: {test.attempt_count || 0}
-                    </Typography>
-                    <Typography sx={{ color: '#64748b', fontSize: '0.875rem' }}>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <TrophyOutlined style={{ marginRight: '8px' }} />
                       O'rtacha ball: {(test.average_score || 0).toFixed(1)}%
-                    </Typography>
-                  </CardContent>
+                    </div>
+                  </div>
                 </Card>
-              </Grid>
+              </Col>
             ))}
-          </Grid>
+          </Row>
         )}
-      </Paper>
-    </Box>
+      </Card>
+    </div>
   );
 };
 

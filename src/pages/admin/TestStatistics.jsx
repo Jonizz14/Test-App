@@ -1,42 +1,27 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  Typography,
-  Box,
-  Card,
-  CardContent,
-  Grid,
-  Chip,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Stack,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
   Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Avatar,
-  IconButton,
-} from '@mui/material';
+  Card,
+  Button,
+  Select,
+  Tag,
+  Typography,
+  Space,
+  Row,
+  Col,
+} from 'antd';
 import {
-  Assessment as AssessmentIcon,
-  People as PeopleIcon,
-  Visibility as VisibilityIcon,
-  Close as CloseIcon,
-  Warning as WarningIcon,
-  Block as BlockIcon,
-  School as SchoolIcon,
-} from '@mui/icons-material';
-import { CircularProgress } from '@mui/material';
+  EyeOutlined,
+  FileTextOutlined,
+  ClockCircleOutlined,
+  TeamOutlined,
+  TrophyOutlined,
+} from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
+
+const { Title, Text } = Typography;
+const { Option } = Select;
 
 const TestStatistics = () => {
   const navigate = useNavigate();
@@ -51,11 +36,11 @@ const TestStatistics = () => {
   const [scoreOrder, setScoreOrder] = useState('');
   const [attemptOrder, setAttemptOrder] = useState('');
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const loadTests = async () => {
       try {
         const allTestsData = await apiService.getTests();
-        // Handle both array and object with results property
         const allTests = allTestsData.results || allTestsData;
         setTests(allTests);
 
@@ -134,336 +119,284 @@ const TestStatistics = () => {
     });
   }, [filteredTests, scoreOrder, attemptOrder]);
 
-
-  // Debug logging (remove in production)
-  // console.log('Total tests:', Array.isArray(tests) ? tests.length : 'Not an array');
-  // console.log('Filtered tests:', filteredTests.length);
-  // console.log('Sorted tests:', sortedTests.length);
+  const columns = [
+    {
+      title: 'Test nomi',
+      dataIndex: 'title',
+      key: 'title',
+      render: (text) => (
+        <Text strong style={{ color: '#1e293b' }}>
+          {text}
+        </Text>
+      ),
+    },
+    {
+      title: 'O\'qituvchi',
+      dataIndex: 'teacher_name',
+      key: 'teacher_name',
+      render: (text, record) => (
+        <Text style={{ color: '#64748b' }}>
+          {text || ''} {record.teacher_surname || ''}
+        </Text>
+      ),
+    },
+    {
+      title: 'Fan',
+      dataIndex: 'subject',
+      key: 'subject',
+      render: (subject) => (
+        <Tag color="blue" style={{ fontWeight: 500 }}>
+          {subject}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Savollar',
+      dataIndex: 'total_questions',
+      key: 'total_questions',
+      render: (value) => (
+        <Text style={{ fontWeight: 700, color: '#2563eb' }}>
+          {value}
+        </Text>
+      ),
+    },
+    {
+      title: 'Vaqt (daqiqa)',
+      dataIndex: 'time_limit',
+      key: 'time_limit',
+      render: (value) => (
+        <Text style={{ fontWeight: 700, color: '#059669' }}>
+          {value}
+        </Text>
+      ),
+    },
+    {
+      title: 'Urinishlar',
+      dataIndex: 'attempt_count',
+      key: 'attempt_count',
+      render: (value) => (
+        <Text style={{ fontWeight: 700, color: '#2563eb' }}>
+          {value || 0}
+        </Text>
+      ),
+    },
+    {
+      title: 'O\'rtacha ball',
+      dataIndex: 'average_score',
+      key: 'average_score',
+      render: (value) => (
+        <Text style={{ fontWeight: 700, color: '#059669' }}>
+          {(value || 0).toFixed(1)}%
+        </Text>
+      ),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'is_active',
+      key: 'status',
+      render: (isActive) => (
+        <Tag color={isActive ? 'green' : 'default'}>
+          {isActive ? 'Faol' : 'Nofaol'}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Harakatlar',
+      key: 'actions',
+      render: (_, record) => (
+        <Button
+          type="primary"
+          icon={<EyeOutlined />}
+          onClick={() => navigate(`/admin/test-details/${record.id}`)}
+          style={{
+            backgroundColor: '#059669',
+            borderColor: '#059669',
+            fontWeight: 600
+          }}
+        >
+          Batafsil
+        </Button>
+      ),
+    },
+  ];
 
   if (loading) {
     return (
-      <Box sx={{
-        py: 8,
-        backgroundColor: '#ffffff',
+      <div style={{
+        padding: '24px',
         display: 'flex',
-        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '400px',
-        gap: 3
+        flexDirection: 'column'
       }}>
-        <CircularProgress
-          size={60}
-          thickness={4}
-          sx={{
-            color: '#2563eb',
-            '& .MuiCircularProgress-circle': {
-              strokeLinecap: 'round',
-            }
-          }}
-        />
-        <Typography
-          sx={{
-            fontSize: '1.125rem',
-            color: '#64748b',
-            fontWeight: 500,
-            textAlign: 'center'
-          }}
-        >
+        <div>Yuklanmoqda...</div>
+        <Text style={{ marginTop: '16px', color: '#64748b' }}>
           Testlar yuklanmoqda...
-        </Typography>
-      </Box>
+        </Text>
+      </div>
     );
   }
 
   return (
-    <Box sx={{
-      width: '100%',
-      py: 4,
-      backgroundColor: '#ffffff'
-    }}>
-      <Box sx={{
-        mb: 6,
-        pb: 4,
+    <div style={{ padding: '24px 0' }}>
+      {/* Header */}
+      <div style={{
+        marginBottom: '24px',
+        paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
       }}>
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          mb: 2
-        }}>
+        <Title level={1} style={{ margin: 0, color: '#1e293b', marginBottom: '8px' }}>
           Testlar statistikasi
-        </Typography>
-        <Typography sx={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400
-        }}>
+        </Title>
+        <Text style={{ fontSize: '18px', color: '#64748b' }}>
           Barcha testlarning batafsil statistikasi va natijalari
-        </Typography>
-      </Box>
+        </Text>
+      </div>
 
-      <Box sx={{
-        mb: 4,
-        p: 4,
-        backgroundColor: '#f8fafc',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 3,
-        alignItems: 'center'
-      }}>
-        <FormControl size="small" sx={{ 
-          minWidth: 150,
-          '& .MuiOutlinedInput-root': {
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-          }
-        }}>
-          <InputLabel>Ustoz</InputLabel>
-          <Select value={selectedTeacher} label="Ustoz" onChange={(e) => setSelectedTeacher(e.target.value)}>
-            <MenuItem value="">Barcha</MenuItem>
-            {teachers.map(teacher => (
-              <MenuItem key={teacher} value={teacher}>{teacher}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControl size="small" sx={{ 
-          minWidth: 150,
-          '& .MuiOutlinedInput-root': {
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-          }
-        }}>
-          <InputLabel>Fan</InputLabel>
-          <Select value={selectedSubject} label="Fan" onChange={(e) => setSelectedSubject(e.target.value)}>
-            <MenuItem value="">Barcha</MenuItem>
-            {subjects.map(subject => (
-              <MenuItem key={subject} value={subject}>{subject}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControl size="small" sx={{ 
-          minWidth: 120,
-          '& .MuiOutlinedInput-root': {
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-          }
-        }}>
-          <InputLabel>Sinf</InputLabel>
-          <Select 
-            value={selectedGrade} 
-            label="Sinf" 
-            onChange={(e) => {
-              setSelectedGrade(e.target.value);
-              setSelectedSubGrade('');
-            }}
-          >
-            <MenuItem value="">Barcha sinflar</MenuItem>
-            {[5,6,7,8,9,10,11].map(grade => (
-              <MenuItem key={grade} value={grade.toString()}>{grade}-sinf</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        {selectedGrade && subGrades[selectedGrade] && (
-          <FormControl size="small" sx={{ 
-            minWidth: 140,
-            '& .MuiOutlinedInput-root': {
-              backgroundColor: '#ffffff',
-              borderRadius: '8px',
-            }
-          }}>
-            <InputLabel>Yo'nalish</InputLabel>
-            <Select 
-              value={selectedSubGrade} 
-              label="Yo'nalish" 
-              onChange={(e) => setSelectedSubGrade(e.target.value)}
+      {/* Filters */}
+      <Card
+        style={{
+          marginBottom: '24px',
+          backgroundColor: '#f8fafc',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+        }}
+        bodyStyle={{ padding: '24px' }}
+      >
+        <Row gutter={[16, 16]} align="middle">
+          <Col xs={24} sm={12} md={6}>
+            <div style={{ marginBottom: '8px' }}>
+              <Text style={{ fontWeight: 600, color: '#1e293b' }}>Ustoz</Text>
+            </div>
+            <Select
+              value={selectedTeacher}
+              onChange={(value) => setSelectedTeacher(value)}
+              style={{ width: '100%' }}
+              placeholder="Barcha"
             >
-              <MenuItem value="">Barcha yo'nalishlar</MenuItem>
-              {subGrades[selectedGrade].map(sub => (
-                <MenuItem key={sub} value={sub}>{selectedGrade}-{sub}</MenuItem>
+              <Option value="">Barcha</Option>
+              {teachers.map(teacher => (
+                <Option key={teacher} value={teacher}>{teacher}</Option>
               ))}
             </Select>
-          </FormControl>
-        )}
+          </Col>
 
-        <FormControl size="small" sx={{ 
-          minWidth: 220,
-          '& .MuiOutlinedInput-root': {
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-          }
-        }}>
-          <InputLabel>Ball bo'yicha tartiblash</InputLabel>
-          <Select 
-            value={scoreOrder} 
-            label="Ball bo'yicha tartiblash" 
-            onChange={(e) => setScoreOrder(e.target.value)}
-          >
-            <MenuItem value="">Tartiblanmagan</MenuItem>
-            <MenuItem value="desc">Eng baland ball</MenuItem>
-            <MenuItem value="asc">Eng past ball</MenuItem>
-          </Select>
-        </FormControl>
+          <Col xs={24} sm={12} md={6}>
+            <div style={{ marginBottom: '8px' }}>
+              <Text style={{ fontWeight: 600, color: '#1e293b' }}>Fan</Text>
+            </div>
+            <Select
+              value={selectedSubject}
+              onChange={(value) => setSelectedSubject(value)}
+              style={{ width: '100%' }}
+              placeholder="Barcha"
+            >
+              <Option value="">Barcha</Option>
+              {subjects.map(subject => (
+                <Option key={subject} value={subject}>{subject}</Option>
+              ))}
+            </Select>
+          </Col>
 
-        <FormControl size="small" sx={{ 
-          minWidth: 220,
-          '& .MuiOutlinedInput-root': {
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-          }
-        }}>
-          <InputLabel>Urinishlar soni bo'yicha</InputLabel>
-          <Select 
-            value={attemptOrder} 
-            label="Urinishlar soni bo'yicha" 
-            onChange={(e) => setAttemptOrder(e.target.value)}
-          >
-            <MenuItem value="">Tartiblanmagan</MenuItem>
-            <MenuItem value="asc">Eng kam ishlangan</MenuItem>
-            <MenuItem value="desc">Eng ko'p ishlangan</MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
+          <Col xs={24} sm={12} md={6}>
+            <div style={{ marginBottom: '8px' }}>
+              <Text style={{ fontWeight: 600, color: '#1e293b' }}>Sinf</Text>
+            </div>
+            <Select
+              value={selectedGrade}
+              onChange={(value) => {
+                setSelectedGrade(value);
+                setSelectedSubGrade('');
+              }}
+              style={{ width: '100%' }}
+              placeholder="Barcha sinflar"
+            >
+              <Option value="">Barcha sinflar</Option>
+              {[5,6,7,8,9,10,11].map(grade => (
+                <Option key={grade} value={grade.toString()}>{grade}-sinf</Option>
+              ))}
+            </Select>
+          </Col>
 
+          {selectedGrade && subGrades[selectedGrade] && (
+            <Col xs={24} sm={12} md={6}>
+              <div style={{ marginBottom: '8px' }}>
+                <Text style={{ fontWeight: 600, color: '#1e293b' }}>Yo'nalish</Text>
+              </div>
+              <Select
+                value={selectedSubGrade}
+                onChange={(value) => setSelectedSubGrade(value)}
+                style={{ width: '100%' }}
+                placeholder="Barcha yo'nalishlar"
+              >
+                <Option value="">Barcha yo'nalishlar</Option>
+                {subGrades[selectedGrade].map(sub => (
+                  <Option key={sub} value={sub}>{selectedGrade}-{sub}</Option>
+                ))}
+              </Select>
+            </Col>
+          )}
 
-      <TableContainer component={Paper} sx={{
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-      }}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{
-              backgroundColor: '#f8fafc',
-              '& th': {
-                fontWeight: 700,
-                fontSize: '0.875rem',
-                color: '#1e293b',
-                borderBottom: '1px solid #e2e8f0',
-                padding: '16px'
-              }
-            }}>
-              <TableCell>Test nomi</TableCell>
-              <TableCell>O'qituvchi</TableCell>
-              <TableCell>Fan</TableCell>
-              <TableCell>Savollar</TableCell>
-              <TableCell>Vaqt (daqiqa)</TableCell>
-              <TableCell>Urinishlar</TableCell>
-              <TableCell>O'rtacha ball</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Harakatlar</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {sortedTests.map((test, index) => (
-              <TableRow key={test.id} sx={{
-                backgroundColor: index % 2 === 0 ? '#ffffff' : '#f8fafc',
-                '&:hover': {
-                  backgroundColor: '#eff6ff',
-                },
-                '& td': {
-                  borderBottom: '1px solid #e2e8f0',
-                  padding: '16px',
-                  fontSize: '0.875rem',
-                  color: '#334155'
-                }
-              }}>
-                <TableCell>
-                  <Typography sx={{ fontWeight: 600, color: '#1e293b' }}>
-                    {test.title}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography sx={{ fontWeight: 500 }}>
-                    {test.teacher_name || ''} {test.teacher_surname || ''}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={test.subject}
-                    size="small"
-                    sx={{
-                      backgroundColor: '#eff6ff',
-                      color: '#2563eb',
-                      fontWeight: 500,
-                    }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Typography sx={{ fontWeight: 700, color: '#2563eb' }}>
-                    {test.total_questions}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography sx={{ fontWeight: 700, color: '#059669' }}>
-                    {test.time_limit}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography sx={{ fontWeight: 700, color: '#2563eb' }}>
-                    {test.attempt_count || 0}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography sx={{ fontWeight: 700, color: '#059669' }}>
-                    {(test.average_score || 0).toFixed(1)}%
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={test.is_active ? 'Faol' : 'Nofaol'}
-                    size="small"
-                    sx={{
-                      backgroundColor: test.is_active ? '#ecfdf5' : '#f1f5f9',
-                      color: test.is_active ? '#059669' : '#64748b',
-                      fontWeight: 600,
-                    }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<VisibilityIcon />}
-                    onClick={() => navigate(`/admin/test-details/${test.id}`)}
-                    sx={{
-                      fontSize: '0.75rem',
-                      py: 0.5,
-                      px: 2,
-                      borderColor: '#059669',
-                      color: '#059669',
-                      '&:hover': {
-                        borderColor: '#047857',
-                        backgroundColor: '#ecfdf5',
-                      }
-                    }}
-                  >
-                    Batafsil
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          <Col xs={24} sm={12} md={6}>
+            <div style={{ marginBottom: '8px' }}>
+              <Text style={{ fontWeight: 600, color: '#1e293b' }}>Ball bo'yicha tartiblash</Text>
+            </div>
+            <Select
+              value={scoreOrder}
+              onChange={(value) => setScoreOrder(value)}
+              style={{ width: '100%' }}
+              placeholder="Tartiblanmagan"
+            >
+              <Option value="">Tartiblanmagan</Option>
+              <Option value="desc">Eng baland ball</Option>
+              <Option value="asc">Eng past ball</Option>
+            </Select>
+          </Col>
 
-      {!loading && tests.length === 0 && (
-        <Box sx={{ textAlign: 'center', mt: 4 }}>
-          <Typography variant="h6" color="textSecondary">
-            Testlar topilmadi
-          </Typography>
-        </Box>
-      )}
+          <Col xs={24} sm={12} md={6}>
+            <div style={{ marginBottom: '8px' }}>
+              <Text style={{ fontWeight: 600, color: '#1e293b' }}>Urinishlar soni bo'yicha</Text>
+            </div>
+            <Select
+              value={attemptOrder}
+              onChange={(value) => setAttemptOrder(value)}
+              style={{ width: '100%' }}
+              placeholder="Tartiblanmagan"
+            >
+              <Option value="">Tartiblanmagan</Option>
+              <Option value="asc">Eng kam ishlangan</Option>
+              <Option value="desc">Eng ko'p ishlangan</Option>
+            </Select>
+          </Col>
+        </Row>
+      </Card>
 
-
-    </Box>
+      {/* Table */}
+      <Card
+        style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <Table
+          columns={columns}
+          dataSource={sortedTests}
+          rowKey="id"
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total) => `Jami ${total} ta test`,
+          }}
+          locale={{
+            emptyText: 'Testlar topilmadi'
+          }}
+        />
+      </Card>
+    </div>
   );
 };
 

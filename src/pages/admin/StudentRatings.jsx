@@ -1,26 +1,23 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from 'react';
 import {
-  Typography,
-  Box,
   Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
+  Card,
+  Typography,
+  Tag,
+  Button,
+  Space,
   Collapse,
-  Chip,
-  Tooltip,
-} from "@mui/material";
+} from 'antd';
 import {
-  KeyboardArrowDown as KeyboardArrowDownIcon,
-  KeyboardArrowUp as KeyboardArrowUpIcon,
-  ArrowUpward as ArrowUpwardIcon,
-  ArrowDownward as ArrowDownwardIcon,
-} from "@mui/icons-material";
-import apiService from "../../data/apiService";
+  DownOutlined,
+  UpOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+} from '@ant-design/icons';
+import apiService from '../../data/apiService';
+
+const { Title, Text } = Typography;
+const { Panel } = Collapse;
 
 const StudentRatings = () => {
   const [originalStudents, setOriginalStudents] = useState([]);
@@ -33,31 +30,29 @@ const StudentRatings = () => {
     const loadStudents = async () => {
       try {
         const allUsers = await apiService.getUsers();
-        const studentUsers = allUsers.filter((user) => user.role === "student");
-        
+        const studentUsers = allUsers.filter((user) => user.role === 'student');
+
         const allAttempts = await apiService.getAttempts();
         setAttempts(allAttempts);
-        
 
-        
         // Calculate test statistics for each student
         const studentsWithStats = studentUsers.map(student => {
           const studentAttempts = allAttempts.filter(attempt => attempt.student === student.id);
           const testCount = studentAttempts.length;
-          const averageScore = testCount > 0 
+          const averageScore = testCount > 0
             ? studentAttempts.reduce((sum, attempt) => sum + (attempt.score || 0), 0) / testCount
             : 0;
-          
+
           return {
             ...student,
             total_tests_taken: testCount,
             average_score: averageScore
           };
         });
-        
+
         setOriginalStudents(studentsWithStats);
       } catch (error) {
-        console.error("Failed to load students:", error);
+        console.error('Failed to load students:', error);
       }
     };
     loadStudents();
@@ -145,339 +140,257 @@ const StudentRatings = () => {
     }
   };
 
-  return (
-    <Box
-      sx={{
-        py: 4,
-        backgroundColor: "#ffffff",
-      }}
-    >
-      <Box
-        sx={{
-          mb: 6,
-          pb: 4,
-          borderBottom: "1px solid #e2e8f0",
-        }}
-      >
-        <Typography
-          sx={{
-            fontSize: "2.5rem",
+  const columns = [
+    {
+      title: '',
+      key: 'expand',
+      width: 50,
+      render: (_, record) => (
+        <Button
+          type="text"
+          icon={expanded[record.id] ? <UpOutlined /> : <DownOutlined />}
+          onClick={() => handleExpandClick(record.id)}
+          style={{ color: '#64748b' }}
+        />
+      ),
+    },
+    {
+      title: (
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('name')}>
+          Ism
+          {sortField === 'name' && (
+            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
+          )}
+        </div>
+      ),
+      dataIndex: 'name',
+      key: 'name',
+      render: (text, record) => (
+        <Text strong style={{ color: '#1e293b' }}>
+          {text || record.username}
+        </Text>
+      ),
+    },
+    {
+      title: (
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('class_group')}>
+          Sinflar
+          {sortField === 'class_group' && (
+            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
+          )}
+        </div>
+      ),
+      dataIndex: 'class_group',
+      key: 'class_group',
+      render: (text) => (
+        <Text style={{ color: '#1e293b', fontWeight: 500 }}>
+          {text}
+        </Text>
+      ),
+    },
+    {
+      title: (
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('total_tests_taken')}>
+          Testlar soni
+          {sortField === 'total_tests_taken' && (
+            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
+          )}
+        </div>
+      ),
+      dataIndex: 'total_tests_taken',
+      key: 'total_tests_taken',
+      render: (value, record) => (
+        <Text
+          style={{
             fontWeight: 700,
-            color: "#1e293b",
+            color: '#2563eb',
+            fontSize: '18px',
+            cursor: 'pointer'
           }}
+          onClick={() => handleTestCountClick(record.id)}
         >
-          O'quvchilar reytingi
-        </Typography>
-      </Box>
-
-      <div>
-        <TableContainer
-          component={Paper}
-          sx={{
-            backgroundColor: "#ffffff",
-            border: "1px solid #e2e8f0",
-            borderRadius: "12px",
-            boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
+          {value || 0}
+        </Text>
+      ),
+    },
+    {
+      title: (
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('average_score')}>
+          O'rtacha ball
+          {sortField === 'average_score' && (
+            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
+          )}
+        </div>
+      ),
+      dataIndex: 'average_score',
+      key: 'average_score',
+      render: (value, record) => (
+        <Text
+          style={{
+            fontWeight: 700,
+            color: '#059669',
+            fontSize: '18px',
+            cursor: 'pointer'
           }}
+          onClick={() => handleAverageScoreClick(record.id)}
         >
-        <Table>
-          <TableHead>
-            <TableRow
-              sx={{
-                backgroundColor: "#f8fafc",
-                "& th": {
-                  fontWeight: 700,
-                  fontSize: "0.875rem",
-                  color: "#1e293b",
-                  borderBottom: "1px solid #e2e8f0",
-                  padding: "16px",
-                  cursor: "pointer",
-                  userSelect: "none",
-                  "&:hover": {
-                    backgroundColor: "#f1f5f9",
-                  },
-                },
-              }}
+          {(value || 0).toFixed(1)}%
+        </Text>
+      ),
+    },
+    {
+      title: (
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('direction')}>
+          Yo'nalish
+          {sortField === 'direction' && (
+            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
+          )}
+        </div>
+      ),
+      dataIndex: 'direction',
+      key: 'direction',
+      render: (direction) => {
+        if (direction) {
+          return (
+            <Tag
+              color={direction === 'natural' ? 'green' : 'blue'}
+              style={{ fontWeight: 600 }}
             >
-              <TableCell />
-              <TableCell onClick={() => handleSort('name')}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  Ism
-                  {sortField === 'name' && (
-                    sortDirection === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />
-                  )}
-                </Box>
-              </TableCell>
-              <TableCell onClick={() => handleSort('class_group')}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  Sinflar
-                  {sortField === 'class_group' && (
-                    sortDirection === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />
-                  )}
-                </Box>
-              </TableCell>
-              <TableCell onClick={() => handleSort('total_tests_taken')}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  Testlar soni
-                  {sortField === 'total_tests_taken' && (
-                    sortDirection === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />
-                  )}
-                </Box>
-              </TableCell>
-              <TableCell onClick={() => handleSort('average_score')}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  O'rtacha ball
-                  {sortField === 'average_score' && (
-                    sortDirection === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />
-                  )}
-                </Box>
-              </TableCell>
-              <TableCell onClick={() => handleSort('direction')}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  Yo'nalish
-                  {sortField === 'direction' && (
-                    sortDirection === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />
-                  )}
-                </Box>
-              </TableCell>
-              <TableCell onClick={() => handleSort('registration_date')}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  Ro'yxatdan o'tgan sana
-                  {sortField === 'registration_date' && (
-                    sortDirection === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />
-                  )}
-                </Box>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {students.map((student) => (
-              <React.Fragment key={student.id}>
-                <TableRow
-                  sx={{
-                    "&:hover": {
-                      backgroundColor: "#f8fafc",
-                    },
-                    "& td": {
-                      borderBottom: "1px solid #f1f5f9",
-                      padding: "16px",
-                      fontSize: "0.875rem",
-                      color: "#334155",
-                    },
-                  }}
-                >
-                  <TableCell>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleExpandClick(student.id)}
-                      sx={{
-                        color: "#64748b",
-                        "&:hover": {
-                          backgroundColor: "#f1f5f9",
-                          color: "#2563eb",
-                        },
-                      }}
-                    >
-                      {expanded[student.id] ? (
-                        <KeyboardArrowUpIcon />
-                      ) : (
-                        <KeyboardArrowDownIcon />
-                      )}
-                    </IconButton>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                        color: "#1e293b",
-                        fontSize: "0.875rem",
-                      }}
-                    >
-                      {student.name || student.username}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      sx={{
-                        fontWeight: 500,
-                        color: "#1e293b",
-                      }}
-                    >
-                      {student.class_group}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      onClick={() => handleTestCountClick(student.id)}
-                      sx={{
-                        fontWeight: 700,
-                        color: "#2563eb",
-                        fontSize: "1.125rem",
-                        cursor: "pointer",
-                        "&:hover": {
-                          textDecoration: "underline",
-                          color: "#1d4ed8",
-                        },
-                      }}
-                    >
-                      {student.total_tests_taken || 0}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      onClick={() => handleAverageScoreClick(student.id)}
-                      sx={{
-                        fontWeight: 700,
-                        color: "#059669",
-                        fontSize: "1.125rem",
-                        cursor: "pointer",
-                        "&:hover": {
-                          textDecoration: "underline",
-                          color: "#047857",
-                        },
-                      }}
-                    >
-                      {(student.average_score || 0).toFixed(1)}%
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    {student.direction ? (
-                      <Chip
-                        label={student.direction === 'natural' ? 'Tabiiy fanlar' : 'Aniq fanlar'}
-                        size="small"
-                        sx={{
-                          backgroundColor: student.direction === 'natural' ? '#ecfdf5' : '#eff6ff',
-                          color: student.direction === 'natural' ? '#059669' : '#2563eb',
-                          fontWeight: 600,
-                          borderRadius: '6px',
-                          fontSize: '0.75rem'
-                        }}
-                      />
-                    ) : (
-                      <Typography sx={{ 
-                        fontSize: '0.875rem', 
-                        color: '#64748b',
-                        fontStyle: 'italic'
-                      }}>
-                        To'ldirilmagan
-                      </Typography>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      sx={{
-                        fontWeight: 500,
-                        color: student.registration_date ? "#1e293b" : "#64748b"
-                      }}
-                    >
-                      {student.registration_date
-                        ? new Date(student.registration_date).toLocaleDateString()
-                        : "To'ldirilmagan"}
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell
-                    style={{ paddingBottom: 0, paddingTop: 0 }}
-                    colSpan={7}
-                  >
-                    <Collapse
-                      in={expanded[student.id]}
-                      timeout="auto"
-                      unmountOnExit
-                    >
-                      <Box
-                        sx={{
-                          margin: 1,
-                          p: 3,
-                          backgroundColor: "#f8fafc",
-                          borderRadius: "8px",
-                          border: "1px solid #e2e8f0",
-                        }}
-                      >
-                        <Typography
-                          variant="h6"
-                          gutterBottom
-                          component="div"
-                          sx={{
-                            fontSize: "1.125rem",
-                            fontWeight: 600,
-                            color: "#1e293b",
-                            mb: 2,
-                          }}
-                        >
-                          Batafsil ma'lumotlar
-                        </Typography>
-                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
-                          <Box>
-                            <Typography
-                              sx={{
-                                fontSize: "0.75rem",
-                                fontWeight: 600,
-                                color: "#64748b",
-                                mb: 1,
-                                textTransform: "uppercase",
-                                letterSpacing: "0.5px",
-                              }}
-                            >
-                              Display ID
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontSize: "0.875rem",
-                                fontWeight: 500,
-                                color: "#1e293b",
-                                fontFamily: 'monospace'
-                              }}
-                            >
-                              {student.display_id || student.username}
-                            </Typography>
-                          </Box>
-                          <Box>
-                            <Typography
-                              sx={{
-                                fontSize: "0.75rem",
-                                fontWeight: 600,
-                                color: "#64748b",
-                                mb: 1,
-                                textTransform: "uppercase",
-                                letterSpacing: "0.5px",
-                              }}
-                            >
-                              Status
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontSize: "0.875rem",
-                                fontWeight: 500,
-                                color: "#1e293b",
-                              }}
-                            >
-                              {student.is_active ? 'Faol' : 'Nofaol'}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </Box>
-                    </Collapse>
-                  </TableCell>
-                </TableRow>
-              </React.Fragment>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              {direction === 'natural' ? 'Tabiiy fanlar' : 'Aniq fanlar'}
+            </Tag>
+          );
+        }
+        return (
+          <Text style={{ color: '#64748b', fontStyle: 'italic' }}>
+            To'ldirilmagan
+          </Text>
+        );
+      },
+    },
+    {
+      title: (
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('registration_date')}>
+          Ro'yxatdan o'tgan sana
+          {sortField === 'registration_date' && (
+            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
+          )}
+        </div>
+      ),
+      dataIndex: 'registration_date',
+      key: 'registration_date',
+      render: (date) => (
+        <Text style={{
+          fontWeight: 500,
+          color: date ? '#1e293b' : '#64748b'
+        }}>
+          {date ? new Date(date).toLocaleDateString() : 'To\'ldirilmagan'}
+        </Text>
+      ),
+    },
+  ];
+
+  return (
+    <div style={{ padding: '24px 0' }}>
+      {/* Header */}
+      <div style={{
+        marginBottom: '24px',
+        paddingBottom: '16px',
+        borderBottom: '1px solid #e2e8f0'
+      }}>
+        <Title level={1} style={{ margin: 0, color: '#1e293b' }}>
+          O'quvchilar reytingi
+        </Title>
       </div>
 
-      {students.length === 0 && (
-        <div>
-          <Box sx={{ textAlign: "center", mt: 4 }}>
-            <Typography variant="h6" color="textSecondary">
-              O'quvchilar topilmadi
-            </Typography>
-          </Box>
-        </div>
-      )}
-    </Box>
+      {/* Table */}
+      <Card
+        style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <Table
+          columns={columns}
+          dataSource={students}
+          rowKey="id"
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total) => `Jami ${total} ta o'quvchi`,
+          }}
+          expandable={{
+            expandedRowKeys: Object.keys(expanded).filter(key => expanded[key]),
+            onExpandedRowsChange: (keys) => {
+              const newExpanded = {};
+              keys.forEach(key => newExpanded[key] = true);
+              setExpanded(newExpanded);
+            },
+            expandedRowRender: (record) => (
+              <div style={{
+                padding: '24px',
+                backgroundColor: '#f8fafc',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+                margin: '16px 0'
+              }}>
+                <Title level={4} style={{ marginBottom: '16px', color: '#1e293b' }}>
+                  Batafsil ma'lumotlar
+                </Title>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px' }}>
+                  <div>
+                    <Text style={{
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      color: '#64748b',
+                      marginBottom: '8px',
+                      display: 'block',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
+                      Display ID
+                    </Text>
+                    <Text style={{
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      color: '#1e293b',
+                      fontFamily: 'monospace'
+                    }}>
+                      {record.display_id || record.username}
+                    </Text>
+                  </div>
+                  <div>
+                    <Text style={{
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      color: '#64748b',
+                      marginBottom: '8px',
+                      display: 'block',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
+                      Status
+                    </Text>
+                    <Text style={{
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      color: '#1e293b'
+                    }}>
+                      {record.is_active ? 'Faol' : 'Nofaol'}
+                    </Text>
+                  </div>
+                </div>
+              </div>
+            ),
+          }}
+          locale={{
+            emptyText: 'O\'quvchilar mavjud emas'
+          }}
+        />
+      </Card>
+    </div>
   );
 };
 

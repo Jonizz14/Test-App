@@ -1,32 +1,22 @@
 import React, { useState } from 'react';
-import {
-  Typography,
-  Box,
-  TextField,
-  Button,
-  Alert,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Paper,
-  CircularProgress,
-} from '@mui/material';
-import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
+import { Form, Input, Select, Button, Alert, Spin, Typography, Card, DatePicker } from 'antd';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiService from '../../data/apiService';
+import dayjs from 'dayjs';
 
 const AddStudent = () => {
   const navigate = useNavigate();
   const { id } = useParams(); // Get student ID from URL for editing
   const isEditMode = !!id; // Check if we're in edit mode
+  const [form] = Form.useForm();
 
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     classGroup: '',
     direction: 'natural', // Will be auto-set based on class suffix
-    registrationDate: new Date().toISOString().split('T')[0], // Default to today
+    registrationDate: dayjs(), // Default to today
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -44,13 +34,15 @@ const AddStudent = () => {
             const firstName = nameParts[0] || '';
             const lastName = nameParts.slice(1).join(' ') || '';
 
-            setFormData({
+            const data = {
               firstName,
               lastName,
               classGroup: student.class_group || '',
               direction: student.direction || 'natural',
-              registrationDate: student.registration_date ? student.registration_date.split('T')[0] : new Date().toISOString().split('T')[0],
-            });
+              registrationDate: student.registration_date ? dayjs(student.registration_date.split('T')[0]) : dayjs(),
+            };
+            setFormData(data);
+            form.setFieldsValue(data);
           }
         } catch (error) {
           console.error('Failed to load student data:', error);
@@ -62,45 +54,20 @@ const AddStudent = () => {
 
       loadStudentData();
     }
-  }, [id, isEditMode]);
+  }, [id, isEditMode, form]);
 
   // ID generation is now handled by backend with admin-specific isolation
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    if (name === 'classGroup') {
-      // Auto-set direction based on class suffix (after the last dash)
-      const direction = value.endsWith('-A') ? 'exact' : value.endsWith('-T') ? 'natural' : 'natural';
-      setFormData({
-        ...formData,
-        classGroup: value,
-        direction: direction
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value
-      });
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (values) => {
     setError('');
     setSuccess('');
-
-    if (!formData.firstName || !formData.lastName || !formData.classGroup) {
-      setError('Barcha maydonlarni to\'ldiring');
-      return;
-    }
 
     try {
       const studentData = {
         name: `${formData.firstName} ${formData.lastName}`,
         class_group: formData.classGroup,
         direction: formData.direction,
-        registration_date: formData.registrationDate,
+        registration_date: formData.registrationDate.format('YYYY-MM-DD'),
       };
 
       if (isEditMode) {
@@ -131,7 +98,7 @@ const AddStudent = () => {
           lastName: '',
           classGroup: '',
           direction: 'natural', // Will be auto-set based on class suffix
-          registrationDate: new Date().toISOString().split('T')[0],
+          registrationDate: dayjs(),
         });
       }
 
@@ -143,193 +110,174 @@ const AddStudent = () => {
 
   if (loading) {
     return (
-      <Box sx={{
+      <div style={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         height: '400px'
       }}>
-        <CircularProgress />
-        <Typography variant="body1" sx={{ ml: 2 }}>
+        <Spin size="large" />
+        <Typography.Text style={{ marginLeft: 16 }}>
           Ma'lumotlar yuklanmoqda...
-        </Typography>
-      </Box>
+        </Typography.Text>
+      </div>
     );
   }
 
   return (
-    <Box sx={{ py: 4, backgroundColor: '#ffffff' }}>
+    <div style={{ padding: '24px', backgroundColor: '#ffffff' }}>
       {/* Header */}
-      <Box sx={{
-        mb: 6,
-        pb: 4,
+      <div style={{
+        marginBottom: '24px',
+        paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
       }}>
         <Button
-          variant="outlined"
-          startIcon={<ArrowBackIcon />}
+          type="default"
+          icon={<ArrowLeftOutlined />}
           onClick={() => navigate('/admin/students')}
-          sx={{ mr: 3, mb: 2 }}
+          style={{ marginRight: '12px', marginBottom: '8px' }}
         >
           O'quvchilarni boshqarishga qaytish
         </Button>
-        <Typography
-          sx={{
-            fontSize: '2.5rem',
-            fontWeight: 700,
-            color: '#1e293b',
-            mb: 2
-          }}
-        >
+        <Typography.Title level={1} style={{ color: '#1e293b', marginBottom: '8px' }}>
           {isEditMode ? 'O\'quvchi ma\'lumotlarini tahrirlash' : 'Yangi o\'quvchi qo\'shish'}
-        </Typography>
-        <Typography sx={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400
-        }}>
+        </Typography.Title>
+        <Typography.Text style={{ fontSize: '18px', color: '#64748b' }}>
           {isEditMode ? 'O\'quvchi ma\'lumotlarini yangilang' : 'Yangi o\'quvchi ma\'lumotlarini kiriting'}
-        </Typography>
-      </Box>
+        </Typography.Text>
+      </div>
 
       {/* Success Message */}
       {success && (
         <Alert
-          severity="success"
-          sx={{
-            mb: 4,
-            backgroundColor: '#ecfdf5',
-            border: '1px solid #10b981',
-            color: '#059669',
-            borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.15)'
-          }}
-        >
-          ✅ {success}
-        </Alert>
+          message="Muvaffaqiyat"
+          description={success}
+          type="success"
+          showIcon
+          style={{ marginBottom: '24px' }}
+        />
       )}
 
       {/* Error Message */}
       {error && (
-        <Alert severity="error" sx={{ mb: 4 }}>
-          {error}
-        </Alert>
+        <Alert
+          message="Xatolik"
+          description={error}
+          type="error"
+          showIcon
+          style={{ marginBottom: '24px' }}
+        />
       )}
 
       {/* Form */}
-      <Paper sx={{
-        p: 4,
+      <Card style={{
+        padding: '24px',
         backgroundColor: '#ffffff',
         border: '1px solid #e2e8f0',
         borderRadius: '12px',
         maxWidth: '600px',
-        mx: 'auto'
+        margin: '0 auto'
       }}>
-        <form onSubmit={handleSubmit}>
-          <TextField
-            autoFocus
-            margin="normal"
+        <Form form={form} onFinish={handleSubmit} layout="vertical">
+          <Form.Item
             label="Ism"
             name="firstName"
-            fullWidth
-            variant="outlined"
-            value={formData.firstName}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-          />
+            rules={[{ required: true, message: 'Ismni kiriting' }]}
+            style={{ marginBottom: '16px' }}
+          >
+            <Input
+              autoFocus
+              value={formData.firstName}
+              onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+            />
+          </Form.Item>
 
-          <TextField
-            margin="normal"
+          <Form.Item
             label="Familiya"
             name="lastName"
-            fullWidth
-            variant="outlined"
-            value={formData.lastName}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-          />
+            rules={[{ required: true, message: 'Familiyani kiriting' }]}
+            style={{ marginBottom: '16px' }}
+          >
+            <Input
+              value={formData.lastName}
+              onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+            />
+          </Form.Item>
 
-          <FormControl fullWidth margin="normal" sx={{ mb: 2 }}>
-            <InputLabel>Sinf</InputLabel>
+          <Form.Item
+            label="Sinf"
+            name="classGroup"
+            rules={[{ required: true, message: 'Sinfni tanlang' }]}
+            style={{ marginBottom: '16px' }}
+          >
             <Select
-              name="classGroup"
               value={formData.classGroup}
-              label="Sinf"
-              onChange={handleChange}
+              onChange={(value) => {
+                const direction = value.endsWith('-A') ? 'exact' : value.endsWith('-T') ? 'natural' : 'natural';
+                setFormData({ ...formData, classGroup: value, direction });
+              }}
             >
               {[5,6,7,8,9,10,11].flatMap(grade =>
                 [1,2,3,4].flatMap(num => {
                   const baseClass = `${grade}-${String(num).padStart(2,'0')}`;
                   return ['A', 'T'].map(suffix => {
                     const classGroup = `${baseClass}-${suffix}`;
-                    return <MenuItem key={classGroup} value={classGroup}>{classGroup}</MenuItem>;
+                    return <Select.Option key={classGroup} value={classGroup}>{classGroup}</Select.Option>;
                   });
                 })
               )}
             </Select>
-          </FormControl>
+          </Form.Item>
 
-          <TextField
-            margin="normal"
-            label="Ro'yxatdan o'tgan sana"
-            name="registrationDate"
-            type="date"
-            fullWidth
-            variant="outlined"
-            value={formData.registrationDate}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-            InputLabelProps={{ shrink: true }}
-          />
+          <Form.Item label="Ro'yxatdan o'tgan sana" style={{ marginBottom: '16px' }}>
+            <DatePicker
+              value={formData.registrationDate}
+              onChange={(date) => setFormData({ ...formData, registrationDate: date })}
+              style={{ width: '100%' }}
+            />
+          </Form.Item>
 
           {formData.firstName && formData.lastName && formData.classGroup && (
-            <Alert severity="info" sx={{ mt: 2, mb: 2 }}>
-              <strong>Yo'nalish:</strong> {formData.direction === 'exact' ? 'Aniq fanlar' : 'Tabiiy fanlar'}
-              <br />
-              <strong>ID va parol:</strong> Backend tomonidan admin-specific tarzda generatsiya qilinadi
-              <br />
-              <strong>ID format:</strong> ADM[AdminID]_[IsmFamiliya]...@test
-              <br />
-              <strong>Parol:</strong> 12 ta belgidan iborat tasodifiy parol
-            </Alert>
+            <Alert
+              message="Ma'lumot"
+              description={
+                <>
+                  <strong>Yo'nalish:</strong> {formData.direction === 'exact' ? 'Aniq fanlar' : 'Tabiiy fanlar'}
+                  <br />
+                  <strong>ID va parol:</strong> Backend tomonidan admin-specific tarzda generatsiya qilinadi
+                  <br />
+                  <strong>ID format:</strong> ADM[AdminID]_[IsmFamiliya]...@test
+                  <br />
+                  <strong>Parol:</strong> 12 ta belgidan iborat tasodifiy parol
+                </>
+              }
+              type="info"
+              showIcon
+              style={{ marginTop: '16px', marginBottom: '16px' }}
+            />
           )}
 
-          <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+          <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
             <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              sx={{
-                backgroundColor: '#2563eb',
-                '&:hover': {
-                  backgroundColor: '#1d4ed8'
-                },
-                py: 1.5,
-                fontWeight: 600
-              }}
+              type="primary"
+              htmlType="submit"
+              block
+              style={{ padding: '12px', fontWeight: 600 }}
             >
               {isEditMode ? 'O\'quvchi ma\'lumotlarini saqlash' : 'O\'quvchi qo\'shish'}
             </Button>
             <Button
-              variant="outlined"
-              fullWidth
+              block
               onClick={() => navigate('/admin/students')}
-              sx={{
-                borderColor: '#64748b',
-                color: '#64748b',
-                '&:hover': {
-                  backgroundColor: '#f8fafc',
-                  borderColor: '#64748b'
-                },
-                py: 1.5
-              }}
+              style={{ padding: '12px' }}
             >
               Bekor qilish
             </Button>
-          </Box>
-        </form>
-      </Paper>
-    </Box>
+          </div>
+        </Form>
+      </Card>
+    </div>
   );
 };
 

@@ -1,40 +1,32 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  Typography,
-  Box,
   Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
+  Card,
   Button,
+  Input,
   Alert,
-  CircularProgress,
-  Chip,
+  Typography,
+  Space,
   Avatar,
-  TextField,
-  InputAdornment,
-  IconButton,
+  Tag,
   Collapse,
   Tooltip,
-} from '@mui/material';
+} from 'antd';
 import {
-  School as SchoolIcon,
-  People as PeopleIcon,
-  Assessment as AssessmentIcon,
-  TrendingUp as TrendingUpIcon,
-  Visibility as VisibilityIcon,
-  Person as PersonIcon,
-  Search as SearchIcon,
-  KeyboardArrowDown as KeyboardArrowDownIcon,
-  KeyboardArrowUp as KeyboardArrowUpIcon,
-  ArrowUpward as ArrowUpwardIcon,
-  ArrowDownward as ArrowDownwardIcon,
-} from '@mui/icons-material';
+  SearchOutlined,
+  EyeOutlined,
+  DownOutlined,
+  UpOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+  TeamOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
+
+const { Title, Text } = Typography;
+const { Panel } = Collapse;
 
 const ClassStatistics = () => {
   const [originalClasses, setOriginalClasses] = useState([]);
@@ -231,475 +223,366 @@ const ClassStatistics = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '400px'
-      }}>
-        <CircularProgress />
-        <Typography variant="body1" sx={{ ml: 2 }}>
-          Ma'lumotlar yuklanmoqda...
-        </Typography>
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ p: 4 }}>
-        <Alert severity="error" sx={{ mt: 2 }}>
-          {error}
-        </Alert>
-      </Box>
-    );
-  }
-
-  return (
-    <Box sx={{ py: 4, backgroundColor: '#ffffff' }}>
-      {/* Header */}
-      <Box sx={{
-        mb: 6,
-        pb: 4,
-        borderBottom: '1px solid #e2e8f0'
-      }}>
-        <Typography
-          sx={{
-            fontSize: '2.5rem',
+  const columns = [
+    {
+      title: '',
+      key: 'expand',
+      width: 50,
+      render: (_, record) => (
+        <Button
+          type="text"
+          icon={expanded[record.name] ? <UpOutlined /> : <DownOutlined />}
+          onClick={() => handleExpandClick(record.name)}
+          style={{ color: '#64748b' }}
+        />
+      ),
+    },
+    {
+      title: (
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('name')}>
+          Sinf
+          {sortField === 'name' && (
+            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
+          )}
+        </div>
+      ),
+      dataIndex: 'name',
+      key: 'name',
+      render: (text, record, index) => (
+        <Space>
+          <div style={{
+            width: 32,
+            height: 32,
+            borderRadius: '50%',
+            backgroundColor: index === 0 ? '#fbbf24' : index === 1 ? '#e5e7eb' : index === 2 ? '#cd7f32' : '#f3f4f6',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             fontWeight: 700,
-            color: '#1e293b',
-            mb: 2
+            fontSize: '14px',
+            color: index < 3 ? '#ffffff' : '#64748b',
+          }}>
+            {index + 1}
+          </div>
+          <div>
+            <Text strong style={{ color: '#1e293b' }}>
+              {text}
+            </Text>
+          </div>
+        </Space>
+      ),
+    },
+    {
+      title: (
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('curator')}>
+          Sinf rahbari
+          {sortField === 'curator' && (
+            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
+          )}
+        </div>
+      ),
+      key: 'curator',
+      render: (_, record) => {
+        if (record.curator) {
+          return (
+            <Space>
+              <Avatar
+                src={record.curator.is_premium && record.curator.profile_photo_url ? record.curator.profile_photo_url : undefined}
+                style={{
+                  backgroundColor: record.curator.is_premium && record.curator.profile_photo_url ? undefined : '#f1f5f9',
+                  color: '#64748b',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                }}
+              >
+                {!record.curator.is_premium || !record.curator.profile_photo_url ? record.curator.name?.charAt(0) : undefined}
+              </Avatar>
+              <Text style={{ color: '#64748b', fontWeight: 600 }}>
+                {record.curator.name}
+              </Text>
+            </Space>
+          );
+        }
+        return (
+          <Text style={{ color: '#94a3b8', fontStyle: 'italic' }}>
+            Rahbar yo'q
+          </Text>
+        );
+      },
+    },
+    {
+      title: (
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('totalStudents')}>
+          O'quvchilar soni
+          {sortField === 'totalStudents' && (
+            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
+          )}
+        </div>
+      ),
+      dataIndex: ['statistics', 'totalStudents'],
+      key: 'totalStudents',
+      render: (value) => (
+        <Text style={{ fontWeight: 500, color: '#1e293b' }}>
+          {value}
+        </Text>
+      ),
+    },
+    {
+      title: (
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('activeStudents')}>
+          Faol o'quvchilar
+          {sortField === 'activeStudents' && (
+            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
+          )}
+        </div>
+      ),
+      dataIndex: ['statistics', 'activeStudents'],
+      key: 'activeStudents',
+      render: (value) => (
+        <Text style={{ fontWeight: 500, color: '#059669' }}>
+          {value}
+        </Text>
+      ),
+    },
+    {
+      title: (
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('totalAttempts')}>
+          Testlar soni
+          {sortField === 'totalAttempts' && (
+            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
+          )}
+        </div>
+      ),
+      dataIndex: ['statistics', 'totalAttempts'],
+      key: 'totalAttempts',
+      render: (value, record) => (
+        <Text
+          style={{
+            fontWeight: 700,
+            color: '#2563eb',
+            fontSize: '18px',
+            cursor: 'pointer'
+          }}
+          onClick={() => handleTestCountClick(record.name)}
+        >
+          {value || 0}
+        </Text>
+      ),
+    },
+    {
+      title: (
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('averageScore')}>
+          O'rtacha ball
+          {sortField === 'averageScore' && (
+            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
+          )}
+        </div>
+      ),
+      dataIndex: ['statistics', 'averageScore'],
+      key: 'averageScore',
+      render: (value, record) => (
+        <Text
+          style={{
+            fontWeight: 700,
+            color: '#059669',
+            fontSize: '18px',
+            cursor: 'pointer'
+          }}
+          onClick={() => handleAverageScoreClick(record.name)}
+        >
+          {value?.toFixed(1) || 0}%
+        </Text>
+      ),
+    },
+    {
+      title: 'Amallar',
+      key: 'actions',
+      render: (_, record) => (
+        <Button
+          type="primary"
+          icon={<EyeOutlined />}
+          onClick={() => handleViewDetails(record.name)}
+          style={{
+            backgroundColor: '#2563eb',
+            borderColor: '#2563eb',
+            fontWeight: 600
           }}
         >
+          Ko'rish
+        </Button>
+      ),
+    },
+  ];
+
+  return (
+    <div style={{ padding: '24px 0' }}>
+      {/* Header */}
+      <div style={{
+        marginBottom: '24px',
+        paddingBottom: '16px',
+        borderBottom: '1px solid #e2e8f0'
+      }}>
+        <Title level={1} style={{ margin: 0, color: '#1e293b', marginBottom: '8px' }}>
           Sinflar reytingi
-        </Typography>
-        <Typography sx={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400
-        }}>
+        </Title>
+        <Text style={{ fontSize: '18px', color: '#64748b' }}>
           Sinflarning o'zaro reytingi va statistik ko'rsatkichlari
-        </Typography>
-      </Box>
+        </Text>
+      </div>
+
+      {/* Alerts */}
+      {error && (
+        <Alert
+          message={error}
+          type="error"
+          showIcon
+          style={{ marginBottom: '16px' }}
+          closable
+          onClose={() => setError('')}
+        />
+      )}
 
       {/* Search */}
-      <Box sx={{ mb: 4 }}>
-        <TextField
-          fullWidth
-          variant="outlined"
+      <div style={{ marginBottom: '24px' }}>
+        <Input
           placeholder="Sinf yoki rahbar nomini qidirish..."
+          prefix={<SearchOutlined />}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon sx={{ color: '#64748b' }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '8px',
-              backgroundColor: '#ffffff',
-              borderColor: '#e2e8f0',
-              '&:hover .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#2563eb'
-              },
-              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#2563eb'
-              }
-            }
+          style={{
+            borderRadius: '8px',
+            maxWidth: '400px'
           }}
         />
-      </Box>
+      </div>
 
-      {/* Data Table */}
-      <TableContainer
-        component={Paper}
-        sx={{
-          backgroundColor: "#ffffff",
-          border: "1px solid #e2e8f0",
-          borderRadius: "12px",
-          boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
+      {/* Table */}
+      <Card
+        style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
         }}
       >
-        <Table>
-          <TableHead>
-            <TableRow
-              sx={{
-                backgroundColor: "#f8fafc",
-                "& th": {
-                  fontWeight: 700,
-                  fontSize: "0.875rem",
-                  color: "#1e293b",
-                  borderBottom: "1px solid #e2e8f0",
-                  padding: "16px",
-                  cursor: "pointer",
-                  userSelect: "none",
-                  "&:hover": {
-                    backgroundColor: "#f1f5f9",
-                  },
-                },
-              }}
-            >
-              <TableCell />
-              <TableCell onClick={() => handleSort('name')}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  Sinf
-                  {sortField === 'name' && (
-                    sortDirection === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />
-                  )}
-                </Box>
-              </TableCell>
-              <TableCell onClick={() => handleSort('curator')}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  Sinf rahbari
-                  {sortField === 'curator' && (
-                    sortDirection === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />
-                  )}
-                </Box>
-              </TableCell>
-              <TableCell onClick={() => handleSort('totalStudents')}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  O'quvchilar soni
-                  {sortField === 'totalStudents' && (
-                    sortDirection === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />
-                  )}
-                </Box>
-              </TableCell>
-              <TableCell onClick={() => handleSort('activeStudents')}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  Faol o'quvchilar
-                  {sortField === 'activeStudents' && (
-                    sortDirection === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />
-                  )}
-                </Box>
-              </TableCell>
-              <TableCell onClick={() => handleSort('totalAttempts')}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  Testlar soni
-                  {sortField === 'totalAttempts' && (
-                    sortDirection === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />
-                  )}
-                </Box>
-              </TableCell>
-              <TableCell onClick={() => handleSort('averageScore')}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  O'rtacha ball
-                  {sortField === 'averageScore' && (
-                    sortDirection === 'asc' ? <ArrowUpwardIcon sx={{ fontSize: 16 }} /> : <ArrowDownwardIcon sx={{ fontSize: 16 }} />
-                  )}
-                </Box>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {classes.map((classGroup, index) => (
-              <React.Fragment key={classGroup.name}>
-                <TableRow
-                  sx={{
-                    "&:hover": {
-                      backgroundColor: "#f8fafc",
-                    },
-                    "& td": {
-                      borderBottom: "1px solid #f1f5f9",
-                      padding: "16px",
-                      fontSize: "0.875rem",
-                      color: "#334155",
-                    },
-                  }}
-                >
-                  <TableCell>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleExpandClick(classGroup.name)}
-                      sx={{
-                        color: "#64748b",
-                        "&:hover": {
-                          backgroundColor: "#f1f5f9",
-                          color: "#2563eb",
-                        },
-                      }}
-                    >
-                      {expanded[classGroup.name] ? (
-                        <KeyboardArrowUpIcon />
-                      ) : (
-                        <KeyboardArrowDownIcon />
-                      )}
-                    </IconButton>
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Box sx={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: '50%',
-                        backgroundColor: index === 0 ? '#fbbf24' : index === 1 ? '#e5e7eb' : index === 2 ? '#cd7f32' : '#f3f4f6',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 700,
-                        fontSize: '0.875rem',
-                        color: index < 3 ? '#ffffff' : '#64748b',
-                        mr: 2
-                      }}>
-                        {index + 1}
-                      </Box>
-                      <Box>
-                        <Typography
-                          sx={{
-                            fontWeight: 600,
-                            color: "#1e293b",
-                            fontSize: "0.875rem",
-                          }}
-                        >
-                          {classGroup.name}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    {classGroup.curator ? (
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        {classGroup.curator.is_premium && classGroup.curator.profile_photo_url ? (
-                          <Avatar
-                            src={classGroup.curator.profile_photo_url}
-                            sx={{
-                              width: 32,
-                              height: 32,
-                              border: '2px solid #e2e8f0',
-                              mr: 2
-                            }}
-                            imgProps={{
-                              style: { objectFit: 'cover' }
-                            }}
-                          />
-                        ) : (
-                          <Avatar sx={{
-                            width: 32,
-                            height: 32,
-                            backgroundColor: '#f1f5f9',
-                            color: '#64748b',
-                            fontSize: '0.875rem',
-                            fontWeight: 600,
-                            mr: 2
-                          }}>
-                            {classGroup.curator.name ? classGroup.curator.name.charAt(0) : 'R'}
-                          </Avatar>
-                        )}
-                        <Typography sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.875rem' }}>
-                          {classGroup.curator.name}
-                        </Typography>
-                      </Box>
-                    ) : (
-                      <Typography sx={{
-                        color: '#94a3b8',
-                        fontStyle: 'italic',
-                        fontSize: '0.875rem'
-                      }}>
-                        Rahbar yo'q
-                      </Typography>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      sx={{
-                        fontWeight: 500,
-                        color: "#1e293b",
-                      }}
-                    >
-                      {classGroup.statistics.totalStudents}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      sx={{
-                        fontWeight: 500,
-                        color: "#059669",
-                      }}
-                    >
-                      {classGroup.statistics.activeStudents}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      onClick={() => handleTestCountClick(classGroup.name)}
-                      sx={{
-                        fontWeight: 700,
-                        color: "#2563eb",
-                        fontSize: "1.125rem",
-                        cursor: "pointer",
-                        "&:hover": {
-                          textDecoration: "underline",
-                          color: "#1d4ed8",
-                        },
-                      }}
-                    >
-                      {classGroup.statistics.totalAttempts || 0}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      onClick={() => handleAverageScoreClick(classGroup.name)}
-                      sx={{
-                        fontWeight: 700,
-                        color: "#059669",
-                        fontSize: "1.125rem",
-                        cursor: "pointer",
-                        "&:hover": {
-                          textDecoration: "underline",
-                          color: "#047857",
-                        },
-                      }}
-                    >
-                      {(classGroup.statistics.averageScore || 0).toFixed(1)}%
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell
-                    style={{ paddingBottom: 0, paddingTop: 0 }}
-                    colSpan={8}
+        <Table
+          columns={columns}
+          dataSource={classes}
+          rowKey="name"
+          loading={loading}
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total) => `Jami ${total} ta sinf`,
+          }}
+          expandable={{
+            expandedRowKeys: Object.keys(expanded).filter(key => expanded[key]),
+            onExpandedRowsChange: (keys) => {
+              const newExpanded = {};
+              keys.forEach(key => newExpanded[key] = true);
+              setExpanded(newExpanded);
+            },
+            expandedRowRender: (record) => (
+              <div style={{
+                padding: '24px',
+                backgroundColor: '#f8fafc',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+                margin: '16px 0'
+              }}>
+                <Title level={4} style={{ marginBottom: '16px', color: '#1e293b' }}>
+                  Batafsil ma'lumotlar
+                </Title>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px' }}>
+                  <div>
+                    <Text style={{
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      color: '#64748b',
+                      marginBottom: '8px',
+                      display: 'block',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
+                      Sinf kodi
+                    </Text>
+                    <Text style={{
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      color: '#1e293b',
+                      fontFamily: 'monospace'
+                    }}>
+                      {record.name}
+                    </Text>
+                  </div>
+                  <div>
+                    <Text style={{
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      color: '#64748b',
+                      marginBottom: '8px',
+                      display: 'block',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
+                      Rahbar
+                    </Text>
+                    <Text style={{
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      color: '#1e293b'
+                    }}>
+                      {record.curator ? record.curator.name : 'Yo\'q'}
+                    </Text>
+                  </div>
+                  <div>
+                    <Text style={{
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      color: '#64748b',
+                      marginBottom: '8px',
+                      display: 'block',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
+                      Test muvaffaqiyati
+                    </Text>
+                    <Text style={{
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      color: '#1e293b'
+                    }}>
+                      {record.statistics.totalAttempts > 0 ?
+                        `${(record.statistics.averageScore / 100).toFixed(1)}%` :
+                        'Testlar yo\'q'
+                      }
+                    </Text>
+                  </div>
+                </div>
+                <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end' }}>
+                  <Button
+                    type="primary"
+                    icon={<EyeOutlined />}
+                    onClick={() => handleViewDetails(record.name)}
+                    style={{
+                      backgroundColor: '#2563eb',
+                      borderColor: '#2563eb',
+                      fontWeight: 600
+                    }}
                   >
-                    <Collapse
-                      in={expanded[classGroup.name]}
-                      timeout="auto"
-                      unmountOnExit
-                    >
-                      <Box
-                        sx={{
-                          margin: 1,
-                          p: 3,
-                          backgroundColor: "#f8fafc",
-                          borderRadius: "8px",
-                          border: "1px solid #e2e8f0",
-                        }}
-                      >
-                        <Typography
-                          variant="h6"
-                          gutterBottom
-                          component="div"
-                          sx={{
-                            fontSize: "1.125rem",
-                            fontWeight: 600,
-                            color: "#1e293b",
-                            mb: 2,
-                          }}
-                        >
-                          Batafsil ma'lumotlar
-                        </Typography>
-                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
-                          <Box>
-                            <Typography
-                              sx={{
-                                fontSize: "0.75rem",
-                                fontWeight: 600,
-                                color: "#64748b",
-                                mb: 1,
-                                textTransform: "uppercase",
-                                letterSpacing: "0.5px",
-                              }}
-                            >
-                              Sinf kodi
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontSize: "0.875rem",
-                                fontWeight: 500,
-                                color: "#1e293b",
-                                fontFamily: 'monospace'
-                              }}
-                            >
-                              {classGroup.name}
-                            </Typography>
-                          </Box>
-                          <Box>
-                            <Typography
-                              sx={{
-                                fontSize: "0.75rem",
-                                fontWeight: 600,
-                                color: "#64748b",
-                                mb: 1,
-                                textTransform: "uppercase",
-                                letterSpacing: "0.5px",
-                              }}
-                            >
-                              Rahbar
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontSize: "0.875rem",
-                                fontWeight: 500,
-                                color: "#1e293b",
-                              }}
-                            >
-                              {classGroup.curator ? classGroup.curator.name : 'Yo\'q'}
-                            </Typography>
-                          </Box>
-                          <Box>
-                            <Typography
-                              sx={{
-                                fontSize: "0.75rem",
-                                fontWeight: 600,
-                                color: "#64748b",
-                                mb: 1,
-                                textTransform: "uppercase",
-                                letterSpacing: "0.5px",
-                              }}
-                            >
-                              Test muvaffaqiyati
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontSize: "0.875rem",
-                                fontWeight: 500,
-                                color: "#1e293b",
-                              }}
-                            >
-                              {classGroup.statistics.totalAttempts > 0 ?
-                                `${((classGroup.statistics.averageScore || 0) / 100).toFixed(1)}%` :
-                                'Testlar yo\'q'
-                              }
-                            </Typography>
-                          </Box>
-                        </Box>
-                        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                          <Button
-                            variant="contained"
-                            onClick={() => handleViewDetails(classGroup.name)}
-                            startIcon={<VisibilityIcon />}
-                            sx={{
-                              backgroundColor: '#2563eb',
-                              '&:hover': {
-                                backgroundColor: '#1d4ed8'
-                              },
-                              borderRadius: '8px',
-                              fontWeight: 600
-                            }}
-                          >
-                            To'liq ko'rish
-                          </Button>
-                        </Box>
-                      </Box>
-                    </Collapse>
-                  </TableCell>
-                </TableRow>
-              </React.Fragment>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {classes.length === 0 && (
-        <Box sx={{ textAlign: "center", mt: 4 }}>
-          <Typography variant="h6" color="textSecondary">
-            Sinflar topilmadi
-          </Typography>
-        </Box>
-      )}
-    </Box>
+                    To'liq ko'rish
+                  </Button>
+                </div>
+              </div>
+            ),
+          }}
+          locale={{
+            emptyText: 'Sinflar mavjud emas'
+          }}
+        />
+      </Card>
+    </div>
   );
 };
 

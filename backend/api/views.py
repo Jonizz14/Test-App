@@ -404,8 +404,7 @@ class UserViewSet(viewsets.ModelViewSet):
             user.save()
 
             # Add commission to seller earnings (10% of discounted price)
-            from decimal import Decimal
-            commission = pricing.discounted_price * Decimal('0.1')
+            commission = pricing.discounted_price * 0.1
             request.user.seller_earnings += commission
             request.user.save()
 
@@ -1253,4 +1252,5 @@ Professional ta'lim platformasi
         message.delete()
         
         return Response({'message': 'Xabar muvaffaqiyatli o\'chirildi'})
+
 

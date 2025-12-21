@@ -1,30 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Typography,
-  Box,
   Card,
-  CardContent,
-  Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Chip,
   Button,
-  TextField,
-  InputAdornment,
+  Typography,
+  Select,
+  Input,
   Alert,
-} from '@mui/material';
+  Collapse,
+  Space,
+  Tag,
+} from 'antd';
 import {
-  ExpandMore as ExpandMoreIcon,
-  Search as SearchIcon,
-  Sort as SortIcon,
-  Lock as LockIcon,
-} from '@mui/icons-material';
+  LockOutlined,
+  SearchOutlined,
+  ClearOutlined,
+  DownOutlined,
+  UpOutlined,
+} from '@ant-design/icons';
 import apiService from '../../data/apiService';
+
+const { Title, Text } = Typography;
+const { Option } = Select;
+const { Panel } = Collapse;
 
 const Questions = () => {
   const [tests, setTests] = useState([]);
@@ -188,553 +185,437 @@ const Questions = () => {
   // Password protection
   if (!isAuthenticated) {
     return (
-      <Box sx={{
+      <div style={{
         minHeight: '100vh',
         backgroundColor: '#f8fafc',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        py: 6,
-        px: 3
+        padding: '24px'
       }}>
-        <Card sx={{
-          maxWidth: 400,
-          width: '100%',
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '16px',
-          boxShadow: '0 8px 25px -5px rgba(0, 0, 0, 0.1)',
-          overflow: 'hidden'
-        }}>
-          <Box sx={{
+        <Card
+          style={{
+            maxWidth: 400,
+            width: '100%',
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '16px',
+            boxShadow: '0 8px 25px -5px rgba(0, 0, 0, 0.1)',
+            overflow: 'hidden'
+          }}
+        >
+          <div style={{
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             color: 'white',
-            p: 4,
+            padding: '32px',
             textAlign: 'center'
           }}>
-            <LockIcon sx={{ fontSize: '3rem', mb: 2 }} />
-            <Typography variant="h5" sx={{ fontWeight: 700 }}>
+            <LockOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
+            <Title level={4} style={{ margin: 0, color: 'white', fontWeight: 700 }}>
               Parol kiritish
-            </Typography>
-            <Typography variant="body1" sx={{ opacity: 0.9, mt: 1 }}>
+            </Title>
+            <Text style={{ opacity: 0.9, display: 'block', marginTop: '8px', color: 'white' }}>
               Davom etish uchun parolni kiriting
-            </Typography>
-          </Box>
+            </Text>
+          </div>
 
-          <CardContent sx={{ p: 4 }}>
+          <Card style={{ border: 'none', boxShadow: 'none' }} bodyStyle={{ padding: '32px' }}>
             {passwordError && (
-              <Alert severity="error" sx={{ mb: 3 }}>
-                {passwordError}
-              </Alert>
+              <Alert
+                message={passwordError}
+                type="error"
+                showIcon
+                style={{ marginBottom: '24px' }}
+              />
             )}
 
-            <Box component="form" onSubmit={handlePasswordSubmit}>
-              <TextField
-                fullWidth
-                label="Parol"
-                type="password"
+            <form onSubmit={handlePasswordSubmit}>
+              <Input.Password
+                placeholder="Parol"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoFocus
-                sx={{
-                  mb: 3,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px'
-                  }
+                style={{
+                  marginBottom: '24px',
+                  borderRadius: '12px',
+                  padding: '12px'
                 }}
               />
 
               <Button
-                type="submit"
-                fullWidth
-                variant="contained"
+                type="primary"
+                htmlType="submit"
+                block
                 size="large"
-                sx={{
+                style={{
                   backgroundColor: '#2563eb',
-                  color: 'white',
-                  py: 1.5,
-                  fontSize: '1.1rem',
+                  borderColor: '#2563eb',
+                  padding: '12px',
+                  fontSize: '16px',
                   fontWeight: 600,
                   borderRadius: '12px',
-                  textTransform: 'none',
-                  '&:hover': {
-                    backgroundColor: '#1d4ed8',
-                  }
+                  height: 'auto'
                 }}
               >
                 Kirish
               </Button>
-            </Box>
-          </CardContent>
+            </form>
+          </Card>
         </Card>
-      </Box>
+      </div>
     );
   }
 
   if (loading) {
     return (
-      <Box sx={{
-        py: 4,
-        backgroundColor: '#ffffff',
+      <div style={{
+        padding: '24px',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '400px'
       }}>
-        <Typography>Yuklanmoqda...</Typography>
-      </Box>
+        <div>Yuklanmoqda...</div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box sx={{
-        py: 4,
-        backgroundColor: '#ffffff'
-      }}>
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          mb: 4
-        }}>
+      <div style={{ padding: '24px' }}>
+        <Title level={1} style={{ marginBottom: '24px', color: '#1e293b' }}>
           Savollar
-        </Typography>
-        <div style={{
-          backgroundColor: '#fef2f2',
-          border: '1px solid #fecaca',
-          borderRadius: '12px',
-          padding: '16px',
-          color: '#991b1b'
-        }}>
-          {error}
-        </div>
-      </Box>
+        </Title>
+        <Alert
+          message={error}
+          type="error"
+          showIcon
+        />
+      </div>
     );
   }
 
   return (
-    <Box sx={{
-      py: 4,
-      backgroundColor: '#ffffff'
-    }}>
+    <div style={{ padding: '24px 0' }}>
       {/* Header */}
-      <Box sx={{
-        mb: 6,
-        pb: 4,
+      <div style={{
+        marginBottom: '24px',
+        paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
       }}>
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b'
-        }}>
+        <Title level={1} style={{ margin: 0, color: '#1e293b' }}>
           Barcha Savollar
-        </Typography>
-        <Typography sx={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400,
-          mt: 1
-        }}>
+        </Title>
+        <Text style={{ fontSize: '18px', color: '#64748b', display: 'block', marginTop: '8px' }}>
           Barcha testlar va ularning to'g'ri javoblari
-        </Typography>
-      </Box>
+        </Text>
+      </div>
 
       {/* Filters and Search */}
-      <Box sx={{
-        mb: 4,
-        p: 4,
-        backgroundColor: '#f8fafc',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 3,
-        alignItems: 'center'
-      }}>
-        <TextField
-          placeholder="Qidirish..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          sx={{
-            minWidth: 250,
-            '& .MuiOutlinedInput-root': {
-              backgroundColor: '#ffffff',
-              borderRadius: '8px',
-            }
-          }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
+      <Card
+        style={{
+          marginBottom: '24px',
+          backgroundColor: '#f8fafc',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+        }}
+        bodyStyle={{ padding: '24px' }}
+      >
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
+          <Input
+            placeholder="Qidirish..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            prefix={<SearchOutlined />}
+            style={{
+              minWidth: 250,
+              borderRadius: '8px'
+            }}
+          />
 
-        <FormControl size="small" sx={{
-          minWidth: 150,
-          '& .MuiOutlinedInput-root': {
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-          }
-        }}>
-          <InputLabel>Fan</InputLabel>
           <Select
             value={subjectFilter}
-            label="Fan"
-            onChange={(e) => setSubjectFilter(e.target.value)}
+            onChange={(value) => setSubjectFilter(value)}
+            placeholder="Barcha fanlar"
+            style={{ minWidth: 150 }}
           >
-            <MenuItem value="">Barcha fanlar</MenuItem>
+            <Option value="">Barcha fanlar</Option>
             {subjects.map(subject => (
-              <MenuItem key={subject} value={subject}>{subject}</MenuItem>
+              <Option key={subject} value={subject}>{subject}</Option>
             ))}
           </Select>
-        </FormControl>
 
-        <FormControl size="small" sx={{
-          minWidth: 150,
-          '& .MuiOutlinedInput-root': {
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-          }
-        }}>
-          <InputLabel>Ustoz</InputLabel>
           <Select
             value={teacherFilter}
-            label="Ustoz"
-            onChange={(e) => setTeacherFilter(e.target.value)}
+            onChange={(value) => setTeacherFilter(value)}
+            placeholder="Barcha ustozlar"
+            style={{ minWidth: 150 }}
           >
-            <MenuItem value="">Barcha ustozlar</MenuItem>
+            <Option value="">Barcha ustozlar</Option>
             {teachers.map(teacher => (
-              <MenuItem key={teacher} value={teacher}>{teacher}</MenuItem>
+              <Option key={teacher} value={teacher}>{teacher}</Option>
             ))}
           </Select>
-        </FormControl>
 
-        <FormControl size="small" sx={{
-          minWidth: 120,
-          '& .MuiOutlinedInput-root': {
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-          }
-        }}>
-          <InputLabel>Sinf</InputLabel>
           <Select
             value={gradeFilter}
-            label="Sinf"
-            onChange={(e) => setGradeFilter(e.target.value)}
+            onChange={(value) => setGradeFilter(value)}
+            placeholder="Barcha sinflar"
+            style={{ minWidth: 120 }}
           >
-            <MenuItem value="">Barcha sinflar</MenuItem>
+            <Option value="">Barcha sinflar</Option>
             {grades.map(grade => (
-              <MenuItem key={grade} value={grade}>{grade}-sinf</MenuItem>
+              <Option key={grade} value={grade}>{grade}-sinf</Option>
             ))}
           </Select>
-        </FormControl>
 
-        <FormControl size="small" sx={{
-          minWidth: 180,
-          '& .MuiOutlinedInput-root': {
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-          }
-        }}>
-          <InputLabel>Saralash</InputLabel>
           <Select
             value={`${sortBy}_${sortOrder}`}
-            label="Saralash"
-            onChange={(e) => {
-              const [field, order] = e.target.value.split('_');
+            onChange={(value) => {
+              const [field, order] = value.split('_');
               setSortBy(field);
               setSortOrder(order);
             }}
+            placeholder="Saralash"
+            style={{ minWidth: 180 }}
           >
-            <MenuItem value="created_at_desc">Yangi avval</MenuItem>
-            <MenuItem value="created_at_asc">Eski avval</MenuItem>
-            <MenuItem value="title_asc">Sarlavha (A-Z)</MenuItem>
-            <MenuItem value="title_desc">Sarlavha (Z-A)</MenuItem>
-            <MenuItem value="subject_asc">Fan (A-Z)</MenuItem>
-            <MenuItem value="subject_desc">Fan (Z-A)</MenuItem>
-            <MenuItem value="target_grades_asc">Sinflar (1-11)</MenuItem>
-            <MenuItem value="target_grades_desc">Sinflar (11-1)</MenuItem>
+            <Option value="created_at_desc">Yangi avval</Option>
+            <Option value="created_at_asc">Eski avval</Option>
+            <Option value="title_asc">Sarlavha (A-Z)</Option>
+            <Option value="title_desc">Sarlavha (Z-A)</Option>
+            <Option value="subject_asc">Fan (A-Z)</Option>
+            <Option value="subject_desc">Fan (Z-A)</Option>
+            <Option value="target_grades_asc">Sinflar (1-11)</Option>
+            <Option value="target_grades_desc">Sinflar (11-1)</Option>
           </Select>
-        </FormControl>
 
-        <Button
-          variant="outlined"
-          startIcon={<SortIcon />}
-          onClick={() => {
-            setSubjectFilter('');
-            setTeacherFilter('');
-            setGradeFilter('');
-            setSearchQuery('');
-            setSortBy('created_at');
-            setSortOrder('desc');
-          }}
-          sx={{
-            borderColor: '#e2e8f0',
-            color: '#374151',
-            '&:hover': {
-              borderColor: '#2563eb',
-              backgroundColor: '#f8fafc',
-            }
-          }}
-        >
-          Tozalash
-        </Button>
-      </Box>
+          <Button
+            icon={<ClearOutlined />}
+            onClick={() => {
+              setSubjectFilter('');
+              setTeacherFilter('');
+              setGradeFilter('');
+              setSearchQuery('');
+              setSortBy('created_at');
+              setSortOrder('desc');
+            }}
+            style={{
+              borderColor: '#e2e8f0',
+              color: '#374151'
+            }}
+          >
+            Tozalash
+          </Button>
+        </div>
+      </Card>
 
       {/* Results Summary */}
-      <Box sx={{ mb: 4 }}>
-        <Typography sx={{ color: '#64748b' }}>
+      <div style={{ marginBottom: '24px' }}>
+        <Text style={{ color: '#64748b' }}>
           Jami: {filteredAndSortedTests.length} ta test topildi
-        </Typography>
-      </Box>
+        </Text>
+      </div>
 
       {/* Tests List */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {filteredAndSortedTests.map((test, index) => {
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {filteredAndSortedTests.map((test) => {
           const testQuestions = getTestQuestions(test.id);
 
           return (
             <Card
               key={test.id}
-              sx={{
+              style={{
                 backgroundColor: '#ffffff',
                 border: '1px solid #e2e8f0',
                 borderRadius: '12px',
                 boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-                overflow: 'visible'
               }}
             >
-              <CardContent sx={{ p: 0 }}>
-                <Accordion
-                  sx={{
-                    '&:before': { display: 'none' },
-                    boxShadow: 'none',
-                    '& .MuiAccordionSummary-root': {
-                      px: 4,
-                      py: 3,
-                      '&:hover': {
-                        backgroundColor: '#f8fafc'
-                      }
-                    },
-                    '& .MuiAccordionDetails-root': {
-                      px: 4,
-                      pb: 4
-                    }
-                  }}
-                >
-                  <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    sx={{
-                      '& .MuiAccordionSummary-content': {
-                        alignItems: 'center',
-                        gap: 2
-                      }
-                    }}
-                  >
-                    <Box sx={{ flex: 1 }}>
-                      <Typography sx={{
-                        fontSize: '1.25rem',
-                        fontWeight: 600,
-                        color: '#1e293b',
-                        mb: 1
-                      }}>
+              <Collapse
+                ghost
+                expandIcon={({ isActive }) => isActive ? <UpOutlined /> : <DownOutlined />}
+              >
+                <Panel
+                  header={
+                    <div style={{ width: '100%' }}>
+                      <Title level={4} style={{ margin: 0, marginBottom: '8px', color: '#1e293b' }}>
                         {test.title}
-                      </Typography>
-                      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-                        <Chip
-                          label={test.subject}
-                          size="small"
-                          sx={{
-                            backgroundColor: test.subject === 'Ingliz tili' ? '#3b82f6' : '#eff6ff',
-                            color: test.subject === 'Ingliz tili' ? '#ffffff' : '#2563eb',
-                            fontWeight: 600,
-                            borderColor: test.subject === 'Ingliz tili' ? '#3b82f6' : undefined
-                          }}
-                        />
-                        <Typography sx={{
-                          fontSize: '0.875rem',
-                          color: '#64748b'
-                        }}>
+                      </Title>
+                      <Space wrap>
+                        <Tag
+                          color={test.subject === 'Ingliz tili' ? 'blue' : 'default'}
+                          style={{ fontWeight: 600 }}
+                        >
+                          {test.subject}
+                        </Tag>
+                        <Text style={{ color: '#64748b' }}>
                           {test.teacher_name || 'Noma\'lum ustoz'}
-                        </Typography>
-                        <Typography sx={{
-                          fontSize: '0.875rem',
-                          color: '#64748b'
-                        }}>
+                        </Text>
+                        <Text style={{ color: '#64748b' }}>
                           {test.total_questions} ta savol
-                        </Typography>
-                        <Typography sx={{
-                          fontSize: '0.875rem',
-                          color: '#64748b'
-                        }}>
+                        </Text>
+                        <Text style={{ color: '#64748b' }}>
                           Sinflar: {test.target_grades && Array.isArray(test.target_grades) && test.target_grades.length > 0 ? test.target_grades.join(', ') : 'Barcha sinflar'}
-                        </Typography>
-                        <Typography sx={{
-                          fontSize: '0.875rem',
-                          color: '#64748b'
-                        }}>
+                        </Text>
+                        <Text style={{ color: '#64748b' }}>
                           {new Date(test.created_at).toLocaleDateString('uz-UZ')}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </AccordionSummary>
+                        </Text>
+                      </Space>
+                    </div>
+                  }
+                  key={test.id}
+                >
+                  {testQuestions.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', paddingTop: '16px' }}>
+                      {testQuestions.map((question, qIndex) => (
+                        <Card
+                          key={question.id}
+                          size="small"
+                          style={{
+                            backgroundColor: '#f8fafc',
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '8px',
+                          }}
+                        >
+                          <Title level={5} style={{ margin: 0, marginBottom: '16px', color: '#1e293b' }}>
+                            {qIndex + 1}. {question.text}
+                          </Title>
 
-                  <AccordionDetails>
-                    {testQuestions.length > 0 ? (
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                        {testQuestions.map((question, qIndex) => (
-                          <Box
-                            key={question.id}
-                            sx={{
-                              p: 3,
-                              backgroundColor: '#f8fafc',
-                              border: '1px solid #e2e8f0',
-                              borderRadius: '8px'
+                          {question.image && (
+                            <div style={{ marginBottom: '16px' }}>
+                              <img
+                                src={question.image}
+                                alt="Savol rasmi"
+                                style={{
+                                  maxWidth: '100%',
+                                  maxHeight: '200px',
+                                  borderRadius: '8px',
+                                  border: '1px solid #e2e8f0'
+                                }}
+                              />
+                            </div>
+                          )}
+
+                          {question.options && question.options.length > 0 && (
+                            <div style={{ marginBottom: '16px' }}>
+                              <Text style={{
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                color: '#64748b',
+                                marginBottom: '8px',
+                                display: 'block'
+                              }}>
+                                Variantlar:
+                              </Text>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                {question.options.map((option, oIndex) => {
+                                  const optionImageField = ['option_a_image', 'option_b_image', 'option_c_image', 'option_d_image'][oIndex];
+                                  const optionImage = question[optionImageField];
+
+                                  return (
+                                    <div
+                                      key={oIndex}
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '12px',
+                                        padding: '8px',
+                                        borderRadius: '4px',
+                                        backgroundColor: option.is_correct ? '#ecfdf5' : '#ffffff',
+                                        border: option.is_correct ? '1px solid #10b981' : '1px solid #e2e8f0'
+                                      }}
+                                    >
+                                      <Text style={{
+                                        fontSize: '14px',
+                                        fontWeight: option.is_correct ? 600 : 400,
+                                        color: option.is_correct ? '#059669' : '#374151'
+                                      }}>
+                                        {String.fromCharCode(65 + oIndex)}. {option.text || option.option_text || option.answer || 'Variant yo\'q'}
+                                        {option.is_correct && ' ✓'}
+                                      </Text>
+                                      {optionImage && (
+                                        <img
+                                          src={optionImage}
+                                          alt={`Option ${String.fromCharCode(65 + oIndex)}`}
+                                          style={{
+                                            maxWidth: '60px',
+                                            maxHeight: '40px',
+                                            borderRadius: '4px',
+                                            border: '1px solid #e2e8f0',
+                                            objectFit: 'contain'
+                                          }}
+                                          onError={(e) => {
+                                            console.error('Option image failed to load:', optionImage);
+                                            e.target.style.display = 'none';
+                                          }}
+                                        />
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+
+                          <Card
+                            size="small"
+                            style={{
+                              backgroundColor: getCorrectAnswer(question) === 'Noma\'lum' ? '#fefce8' : '#ecfdf5',
+                              border: `1px solid ${getCorrectAnswer(question) === 'Noma\'lum' ? '#eab308' : '#10b981'}`,
+                              borderRadius: '6px',
                             }}
                           >
-                            <Typography sx={{
+                            <Text style={{
+                              fontSize: '14px',
                               fontWeight: 600,
-                              color: '#1e293b',
-                              mb: 2
+                              color: getCorrectAnswer(question) === 'Noma\'lum' ? '#92400e' : '#059669',
+                              marginBottom: '8px',
+                              display: 'block'
                             }}>
-                              {qIndex + 1}. {question.text}
-                            </Typography>
-
-                            {question.image && (
-                              <Box sx={{ mb: 2 }}>
-                                <img
-                                  src={question.image}
-                                  alt="Savol rasmi"
-                                  style={{
-                                    maxWidth: '100%',
-                                    maxHeight: '200px',
-                                    borderRadius: '8px',
-                                    border: '1px solid #e2e8f0'
-                                  }}
-                                />
-                              </Box>
-                            )}
-
-                            {question.options && question.options.length > 0 && (
-                              <Box sx={{ mb: 2 }}>
-                                <Typography sx={{
-                                  fontSize: '0.875rem',
-                                  fontWeight: 600,
-                                  color: '#64748b',
-                                  mb: 1
-                                }}>
-                                  Variantlar:
-                                </Typography>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                  {question.options.map((option, oIndex) => {
-                                    const optionImageField = ['option_a_image', 'option_b_image', 'option_c_image', 'option_d_image'][oIndex];
-                                    const optionImage = question[optionImageField];
-
-                                    return (
-                                      <Box
-                                        key={oIndex}
-                                        sx={{
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          gap: 2,
-                                          p: 1,
-                                          borderRadius: '4px',
-                                          backgroundColor: option.is_correct ? '#ecfdf5' : '#ffffff',
-                                          border: option.is_correct ? '1px solid #10b981' : '1px solid #e2e8f0'
-                                        }}
-                                      >
-                                        <Typography sx={{
-                                          fontSize: '0.875rem',
-                                          fontWeight: option.is_correct ? 600 : 400,
-                                          color: option.is_correct ? '#059669' : '#374151'
-                                        }}>
-                                          {String.fromCharCode(65 + oIndex)}. {option.text || option.option_text || option.answer || 'Variant yo\'q'}
-                                          {option.is_correct && ' ✓'}
-                                        </Typography>
-                                        {optionImage && (
-                                          <img
-                                            src={optionImage}
-                                            alt={`Option ${String.fromCharCode(65 + oIndex)}`}
-                                            style={{
-                                              maxWidth: '60px',
-                                              maxHeight: '40px',
-                                              borderRadius: '4px',
-                                              border: '1px solid #e2e8f0',
-                                              objectFit: 'contain'
-                                            }}
-                                            onError={(e) => {
-                                              console.error('Option image failed to load:', optionImage);
-                                              e.target.style.display = 'none';
-                                            }}
-                                          />
-                                        )}
-                                      </Box>
-                                    );
-                                  })}
-                                </Box>
-                              </Box>
-                            )}
-
-                            <Box sx={{
-                              p: 2,
-                              backgroundColor: getCorrectAnswer(question) === 'Noma\'lum' ? '#fef3c7' : '#ecfdf5',
-                              border: `1px solid ${getCorrectAnswer(question) === 'Noma\'lum' ? '#f59e0b' : '#10b981'}`,
-                              borderRadius: '6px'
+                              To'g'ri javob:
+                            </Text>
+                            <Text style={{
+                              fontSize: '16px',
+                              fontWeight: 600,
+                              color: getCorrectAnswer(question) === 'Noma\'lum' ? '#b45309' : '#047857'
                             }}>
-                              <Typography sx={{
-                                fontSize: '0.875rem',
-                                fontWeight: 600,
-                                color: getCorrectAnswer(question) === 'Noma\'lum' ? '#92400e' : '#059669',
-                                mb: 1
+                              {getCorrectAnswer(question)}
+                            </Text>
+                            {getCorrectAnswer(question) === 'Noma\'lum' && (
+                              <Text style={{
+                                fontSize: '12px',
+                                color: '#92400e',
+                                marginTop: '8px',
+                                fontStyle: 'italic',
+                                display: 'block'
                               }}>
-                                To'g'ri javob:
-                              </Typography>
-                              <Typography sx={{
-                                fontSize: '1rem',
-                                fontWeight: 600,
-                                color: getCorrectAnswer(question) === 'Noma\'lum' ? '#b45309' : '#047857'
-                              }}>
-                                {getCorrectAnswer(question)}
-                              </Typography>
-                              {getCorrectAnswer(question) === 'Noma\'lum' && (
-                                <Typography sx={{
-                                  fontSize: '0.75rem',
-                                  color: '#92400e',
-                                  mt: 1,
-                                  fontStyle: 'italic'
-                                }}>
-                                  ⚠️ Bu savol uchun to'g'ri javob o'rnatilmagan
-                                </Typography>
-                              )}
-                            </Box>
-                          </Box>
-                        ))}
-                      </Box>
-                    ) : (
-                      <Typography sx={{ color: '#64748b', fontStyle: 'italic' }}>
-                        Bu test uchun savollar topilmadi
-                      </Typography>
-                    )}
-                  </AccordionDetails>
-                </Accordion>
-              </CardContent>
+                                ⚠️ Bu savol uchun to'g'ri javob o'rnatilmagan
+                              </Text>
+                            )}
+                          </Card>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <Text style={{ color: '#64748b', fontStyle: 'italic' }}>
+                      Bu test uchun savollar topilmadi
+                    </Text>
+                  )}
+                </Panel>
+              </Collapse>
             </Card>
           );
         })}
-      </Box>
+      </div>
 
       {filteredAndSortedTests.length === 0 && (
-        <Box sx={{ textAlign: 'center', mt: 4 }}>
-          <Typography variant="h6" color="textSecondary">
+        <div style={{ textAlign: 'center', marginTop: '32px' }}>
+          <Text style={{ fontSize: '16px', color: '#64748b' }}>
             Testlar topilmadi
-          </Typography>
-        </Box>
+          </Text>
+        </div>
       )}
-    </Box>
+    </div>
   );
 };
 
