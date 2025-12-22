@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Typography, Input, Button, Alert, Row, Col, Avatar, Table, Tag, Space } from 'antd';
+import { Card, Typography, Input, Button, Alert, Row, Col, Avatar, Table, Tag, Space, Select } from 'antd';
 import {
   TeamOutlined,
   UserOutlined,
   CheckCircleOutlined,
   SearchOutlined,
   TrophyOutlined,
+  SortAscendingOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
 
 const { Title, Text } = Typography;
 const { Search } = Input;
+const { Option } = Select;
 
 const Classmates = () => {
   const navigate = useNavigate();
@@ -21,6 +23,7 @@ const Classmates = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sortBy, setSortBy] = useState('name');
 
   useEffect(() => {
     const loadClassmates = async () => {
@@ -340,46 +343,61 @@ const Classmates = () => {
 
       {/* Search section */}
       <div style={{ marginBottom: '24px' }}>
-        <div>
-          <Text style={{
-            fontWeight: 600,
-            color: '#374151',
-            fontSize: '0.875rem',
-            marginBottom: '4px',
-            display: 'block'
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '16px'
+        }}>
+          <Title level={4} style={{
+            fontSize: '1.5rem',
+            fontWeight: 700,
+            color: '#1e293b',
+            marginBottom: 0
           }}>
-            Sinfdosh ismi bo'yicha qidirish
-          </Text>
-          <Search
-            placeholder="Sinfdosh nomini kiriting..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            prefix={<SearchOutlined style={{ color: '#64748b' }} />}
-            style={{
-              borderRadius: '8px',
-              backgroundColor: '#ffffff',
-              borderColor: '#e2e8f0'
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#2563eb';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = '#e2e8f0';
-            }}
-          />
+            👥 Sinfdoshlarni qidirish
+          </Title>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <SortAscendingOutlined style={{ color: '#64748b' }} />
+            <Select
+              value={sortBy}
+              onChange={setSortBy}
+              style={{
+                minWidth: 120,
+              }}
+            >
+              <Option value="date">Sana bo'yicha</Option>
+              <Option value="name">Nomi bo'yicha</Option>
+              <Option value="difficulty">Qiyinchilik bo'yicha</Option>
+              <Option value="easy">Oson</Option>
+              <Option value="medium">O'rtacha</Option>
+              <Option value="hard">Qiyin</Option>
+            </Select>
+          </div>
         </div>
+
+        <Search
+          placeholder="Sinfdosh nomini kiriting..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          prefix={<SearchOutlined style={{ color: '#64748b' }} />}
+          style={{
+            borderRadius: '8px',
+            backgroundColor: '#ffffff',
+            borderColor: '#e2e8f0'
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = '#2563eb';
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = '#e2e8f0';
+          }}
+        />
       </div>
 
       {/* Classmates section */}
       <div style={{ marginBottom: '24px' }}>
-        <Title level={4} style={{
-          fontSize: '1.25rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          marginBottom: '16px'
-        }}>
-          👥 {filteredClassmates.length} ta sinfdosh topildi
-        </Title>
 
         <Card style={{
           backgroundColor: '#ffffff',

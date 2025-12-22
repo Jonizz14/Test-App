@@ -1346,7 +1346,7 @@ const TakeTest = () => {
         </div>
 
         {/* Search Input */}
-        <div style={{ marginBottom: '16px' }}>
+        <div style={{ marginBottom: '24px' }}>
           <Search
             placeholder="Test nomini, fanini yoki o'qituvchi nomini qidirish..."
             value={searchTerm}
@@ -1364,11 +1364,6 @@ const TakeTest = () => {
               e.target.style.borderColor = '#e2e8f0';
             }}
           />
-          {searchTerm && (
-            <Text style={{ marginTop: '4px', color: '#64748b', fontSize: '0.875rem', display: 'block' }}>
-              {getFilteredTests().length} ta test topildi
-            </Text>
-          )}
         </div>
 
         <Card style={{

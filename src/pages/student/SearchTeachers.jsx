@@ -12,11 +12,13 @@ import {
   Space,
   Alert,
   Spin,
+  Select,
 } from 'antd';
 import {
   SearchOutlined,
   UserOutlined,
   PlayCircleOutlined,
+  SortAscendingOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import { useServerTest } from '../../context/ServerTestContext';
@@ -24,6 +26,7 @@ import apiService from '../../data/apiService';
 
 const { Title, Text } = Typography;
 const { Search } = Input;
+const { Option } = Select;
 
 // SearchTeachers Component - Student interface for finding and taking tests
 // Allows students to search teachers, filter by subjects, and access available tests
@@ -44,6 +47,7 @@ const SearchTeachers = () => {
   const [error, setError] = useState(null);
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [teacherTests, setTeacherTests] = useState([]);
+  const [sortBy, setSortBy] = useState('name');
 
   // Load initial data from API on component mount
   useEffect(() => {
@@ -158,15 +162,45 @@ const SearchTeachers = () => {
   };
 
   // Filter teachers based on search term and subject filter
-  const filteredTeachers = teachers.filter(teacher => {
-    const teacherName = teacher.name || '';
-    const matchesName = teacherName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSubject = !subjectFilter ||
-      teacher.subjects?.some(subject =>
-        subject.toLowerCase().includes(subjectFilter.toLowerCase())
-      );
-    return matchesName && matchesSubject;
-  });
+  const getFilteredTeachers = () => {
+    return teachers.filter(teacher => {
+      const teacherName = teacher.name || '';
+      const matchesName = teacherName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSubject = !subjectFilter ||
+        teacher.subjects?.some(subject =>
+          subject.toLowerCase().includes(subjectFilter.toLowerCase())
+        );
+      return matchesName && matchesSubject;
+    });
+  };
+
+  // Sort teachers
+  const getSortedTeachers = () => {
+    const filteredTeachers = getFilteredTeachers();
+    
+    if (sortBy === 'subjects') {
+      return filteredTeachers.sort((a, b) => {
+        const subjectA = a.subjects?.[0] || '';
+        const subjectB = b.subjects?.[0] || '';
+        return subjectA.localeCompare(subjectB);
+      });
+    } else if (sortBy === 'test_count') {
+      return filteredTeachers.sort((a, b) => {
+        const testCountA = getTeacherTests(a.id).length;
+        const testCountB = getTeacherTests(b.id).length;
+        return testCountB - testCountA; // Highest first
+      });
+    } else if (sortBy === 'active_sessions') {
+      return filteredTeachers.sort((a, b) => {
+        const sessionsA = getActiveSessionsCountForTeacher(a.id);
+        const sessionsB = getActiveSessionsCountForTeacher(b.id);
+        return sessionsB - sessionsA; // Highest first
+      });
+    } else {
+      // Default: sort by name
+      return filteredTeachers.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    }
+  };
 
   // Collect all tests from all teachers with teacher information
   const allTests = [];
@@ -389,72 +423,61 @@ const SearchTeachers = () => {
           O'qituvchilarni qidirish va mavjud testlarni ko'rish
         </Text>
       </div>
-      {/* Search and filter section */}
-      <div style={{ marginBottom: '32px' }}>
-        <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
-          {/* Teacher name search */}
-          <Col xs={24} md={12}>
-            <div>
-              <Text style={{ fontWeight: 600, color: '#374151', fontSize: '0.875rem', display: 'block', marginBottom: '8px' }}>
-                O'qituvchi ismi bo'yicha qidirish
-              </Text>
-              <Search
-                placeholder="O'qituvchi nomini kiriting..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ width: '100%' }}
-                prefix={<SearchOutlined style={{ color: '#64748b' }} />}
-              />
-            </div>
-          </Col>
+      {/* Search section */}
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '16px'
+        }}>
+          <Title level={4} style={{
+            fontSize: '1.5rem',
+            fontWeight: 700,
+            color: '#1e293b',
+            marginBottom: 0
+          }}>
+            📚 O'qituvchilarni qidirish
+          </Title>
 
-          {/* Subject filter */}
-          <Col xs={24} md={12}>
-            <div>
-              <Text style={{ fontWeight: 600, color: '#374151', fontSize: '0.875rem', display: 'block', marginBottom: '8px' }}>
-                Fan bo'yicha filtr
-              </Text>
-              <Input
-                placeholder="masalan: Matematika, Fizika"
-                value={subjectFilter}
-                onChange={(e) => setSubjectFilter(e.target.value)}
-              />
-            </div>
-          </Col>
-        </Row>
-
-        {/* Popular subjects quick filters */}
-        <div>
-          <Text style={{ fontWeight: 600, color: '#374151', fontSize: '0.875rem', display: 'block', marginBottom: '16px' }}>
-            Mashhur fanlar:
-          </Text>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {allSubjects.slice(0, 8).map((subject) => (
-              <Tag
-                key={subject}
-                style={{
-                  cursor: 'pointer',
-                  backgroundColor: subjectFilter === subject ? '#2563eb' : 'transparent',
-                  color: subjectFilter === subject ? '#ffffff' : '#374151',
-                  borderColor: subjectFilter === subject ? '#2563eb' : '#e2e8f0',
-                  fontWeight: 500,
-                  fontSize: '0.75rem',
-                  borderRadius: '6px'
-                }}
-                onClick={() => setSubjectFilter(subjectFilter === subject ? '' : subject)}
-              >
-                {subject}
-              </Tag>
-            ))}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <SortAscendingOutlined style={{ color: '#64748b' }} />
+            <Select
+              value={sortBy}
+              onChange={setSortBy}
+              style={{
+                minWidth: 120,
+              }}
+            >
+              <Option value="name">Nomi bo'yicha</Option>
+              <Option value="subjects">Fan bo'yicha</Option>
+              <Option value="test_count">Testlar soni</Option>
+              <Option value="active_sessions">Faol seanslar</Option>
+            </Select>
           </div>
         </div>
+
+        <Search
+          placeholder="O'qituvchi nomi yoki fan bo'yicha qidirish..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          prefix={<SearchOutlined style={{ color: '#64748b' }} />}
+          style={{
+            borderRadius: '8px',
+            backgroundColor: '#ffffff',
+            borderColor: '#e2e8f0'
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = '#2563eb';
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = '#e2e8f0';
+          }}
+        />
       </div>
 
       {/* Teachers section */}
       <div style={{ marginBottom: '32px' }}>
-        <Title level={4} style={{ color: '#1e293b', marginBottom: '24px' }}>
-          📚 {filteredTeachers.length} ta o'qituvchi topildi
-        </Title>
 
         <Card
           style={{
@@ -466,7 +489,7 @@ const SearchTeachers = () => {
         >
           <Table
             columns={columns}
-            dataSource={filteredTeachers.map(teacher => ({ ...teacher, key: teacher.id }))}
+            dataSource={getSortedTeachers().map(teacher => ({ ...teacher, key: teacher.id }))}
             pagination={{
               pageSize: 10,
               showSizeChanger: true,
@@ -479,7 +502,7 @@ const SearchTeachers = () => {
       </div>
 
       {/* No results message */}
-      {filteredTeachers.length === 0 && allTests.length === 0 && (
+      {getSortedTeachers().length === 0 && allTests.length === 0 && (
         <Card
           style={{
             backgroundColor: '#ffffff',

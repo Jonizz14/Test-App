@@ -9,15 +9,21 @@ import {
   Space,
   Alert,
   Spin,
+  Input,
+  Select,
 } from 'antd';
 import {
   CheckCircleOutlined,
   CloseCircleOutlined,
+  SearchOutlined,
+  SortAscendingOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
 
 const { Title, Text } = Typography;
+const { Search } = Input;
+const { Option } = Select;
 
 const TestResults = () => {
   const { currentUser } = useAuth();
@@ -28,6 +34,8 @@ const TestResults = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [questions, setQuestions] = useState([]);
   const [questionsLoading, setQuestionsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('date');
 
   useEffect(() => {
     loadResults();
@@ -99,6 +107,49 @@ const TestResults = () => {
     if (score >= 70) return 'Yaxshi';
     if (score >= 50) return 'Qoniqarli';
     return 'Qoniqarsiz';
+  };
+
+  // Filter results based on search term
+  const getFilteredResults = () => {
+    if (!searchTerm) return results;
+
+    const searchLower = searchTerm.toLowerCase();
+    return results.filter(result => {
+      const test = getTestById(result.test);
+      const testTitle = test?.title || '';
+      const testSubject = test?.subject || '';
+      const score = result.score?.toString() || '';
+
+      return testTitle.toLowerCase().includes(searchLower) ||
+             testSubject.toLowerCase().includes(searchLower) ||
+             score.includes(searchLower);
+    });
+  };
+
+  // Sort results
+  const getSortedResults = () => {
+    const filteredResults = getFilteredResults();
+    
+    if (sortBy === 'score_high') {
+      return filteredResults.sort((a, b) => b.score - a.score);
+    } else if (sortBy === 'score_low') {
+      return filteredResults.sort((a, b) => a.score - b.score);
+    } else if (sortBy === 'subject') {
+      return filteredResults.sort((a, b) => {
+        const testA = getTestById(a.test);
+        const testB = getTestById(b.test);
+        return (testA?.subject || '').localeCompare(testB?.subject || '');
+      });
+    } else if (sortBy === 'name') {
+      return filteredResults.sort((a, b) => {
+        const testA = getTestById(a.test);
+        const testB = getTestById(b.test);
+        return (testA?.title || '').localeCompare(testB?.title || '');
+      });
+    } else {
+      // Default: sort by date (newest first)
+      return filteredResults.sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+    }
   };
 
   const columns = [
@@ -274,7 +325,61 @@ const TestResults = () => {
         </Text>
       </div>
 
-      {results.length === 0 ? (
+      {/* Search section */}
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '16px'
+        }}>
+          <Title level={4} style={{
+            fontSize: '1.5rem',
+            fontWeight: 700,
+            color: '#1e293b',
+            marginBottom: 0
+          }}>
+            📊 Mening natijalarim
+          </Title>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <SortAscendingOutlined style={{ color: '#64748b' }} />
+            <Select
+              value={sortBy}
+              onChange={setSortBy}
+              style={{
+                minWidth: 120,
+              }}
+            >
+              <Option value="date">Sana bo'yicha</Option>
+              <Option value="name">Nomi bo'yicha</Option>
+              <Option value="subject">Fan bo'yicha</Option>
+              <Option value="score_high">Bal yuqori</Option>
+              <Option value="score_low">Bal past</Option>
+            </Select>
+          </div>
+        </div>
+
+        <Search
+          placeholder="Test nomi, fan yoki ball bo'yicha qidirish..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          prefix={<SearchOutlined style={{ color: '#64748b' }} />}
+          style={{
+            borderRadius: '8px',
+            backgroundColor: '#ffffff',
+            borderColor: '#e2e8f0'
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = '#2563eb';
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = '#e2e8f0';
+          }}
+        />
+      </div>
+
+      {results.length === 0 || getSortedResults().length === 0 ? (
         <Card
           style={{
             backgroundColor: '#ffffff',
@@ -286,10 +391,13 @@ const TestResults = () => {
           }}
         >
           <Title level={4} style={{ color: '#64748b', marginBottom: '16px' }}>
-            Hozircha test natijalari yo'q
+            {results.length === 0 ? 'Hozircha test natijalari yo\'q' : 'Qidiruv natijasi bo\'yicha natija topilmadi'}
           </Title>
           <Text style={{ color: '#64748b' }}>
-            Test topshirgandan keyin natijalaringiz shu yerda ko'rinadi
+            {results.length === 0 
+              ? 'Test topshirgandan keyin natijalaringiz shu yerda ko\'rinadi'
+              : 'Qidiruv so\'zini o\'zgartirib ko\'ring'
+            }
           </Text>
         </Card>
       ) : (
@@ -304,8 +412,7 @@ const TestResults = () => {
         >
           <Table
             columns={columns}
-            dataSource={results
-              .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
+            dataSource={getSortedResults()
               .map(result => ({ ...result, key: result.id }))
             }
             pagination={{

@@ -162,10 +162,6 @@ const StudentDashboard = () => {
         </div>
 
         <Space>
-          <Typography.Text style={{ color: '#374151' }}>
-            Salom, {currentUser?.name}
-            {currentUser?.is_premium && <CheckCircleFilled style={{ color: '#10b981', marginLeft: 8 }} />}
-          </Typography.Text>
           {sessionStarted && (
             <Typography.Text style={{
               color: '#dc2626',
@@ -178,11 +174,10 @@ const StudentDashboard = () => {
               ⚠️ Test faol
             </Typography.Text>
           )}
-          <NotificationCenter />
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
             <Space style={{ cursor: 'pointer' }}>
               <Avatar
-                size="small"
+                size="large"
                 src={currentUser?.profile_photo_url}
                 style={{
                   backgroundColor: currentUser?.is_premium ? '#ffffff' : '#2563eb',

@@ -153,8 +153,7 @@ const SubmitTest = () => {
           marginBottom: '24px',
           paddingBottom: '16px',
           borderBottom: '1px solid #e2e8f0'
-        }}>
-          {/* Title, Description, and Button */}
+        }}>          {/* Title, Description, and Button */}
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
