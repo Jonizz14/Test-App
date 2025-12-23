@@ -147,22 +147,21 @@ const TeacherDetails = () => {
         paddingBottom: '24px',
         backgroundColor: '#ffffff'
       }}>
-        <Title level={2} style={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          marginBottom: '8px'
-        }}>
-          O'qituvchi ma'lumotlari
-        </Title>
-        <Text style={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400
-        }}>
-          O'qituvchi haqida to'liq ma'lumot va uning testlari
-        </Text>
-        <Text style={{ color: '#64748b', marginTop: '16px', display: 'block' }}>Yuklanmoqda...</Text>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
+          <Button
+            onClick={handleBack}
+            icon={<ArrowLeftOutlined />}
+            style={{ marginRight: '8px', color: '#64748b' }}
+          >
+            Orqaga qaytish
+          </Button>
+        </div>
+        <div style={{ textAlign: 'center', padding: '48px 0' }}>
+          <ReloadOutlined style={{ fontSize: '32px', color: '#2563eb' }} spin />
+          <Title level={4} style={{ marginTop: '16px', color: '#64748b' }}>
+            Ma'lumotlar yuklanmoqda...
+          </Title>
+        </div>
       </div>
     );
   }
@@ -400,40 +399,42 @@ const TeacherDetails = () => {
       paddingBottom: '24px',
       backgroundColor: '#ffffff'
     }}>
-      {/* Header with back button */}
+      {/* Header */}
       <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         marginBottom: '24px',
         paddingBottom: '16px',
+        marginTop: '-6px',
         borderBottom: '1px solid #e2e8f0'
       }}>
-        <Title level={2} style={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          marginBottom: '8px'
-        }}>
-          O'qituvchi ma'lumotlari
-        </Title>
-        <Text style={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400
-        }}>
-          O'qituvchi haqida to'liq ma'lumot va uning testlari
-        </Text>
-        <Button
-          onClick={handleBack}
-          icon={<ArrowLeftOutlined />}
-          style={{
-            borderColor: '#e2e8f0',
-            color: '#64748b'
-          }}
-        >
-          O'qituvchilarni qidirishga qaytish
-        </Button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <Title level={2} style={{
+              fontSize: '2.5rem',
+              fontWeight: 700,
+              color: '#1e293b',
+              marginBottom: '16px'
+            }}>
+              O'qituvchi ma'lumotlari
+            </Title>
+            <Text style={{
+              fontSize: '1.125rem',
+              color: '#64748b',
+              fontWeight: 400
+            }}>
+              O'qituvchi haqida to'liq ma'lumot va uning testlari
+            </Text>
+          </div>
+          <Button
+            onClick={handleBack}
+            icon={<ArrowLeftOutlined />}
+            style={{
+              borderColor: '#e2e8f0',
+              color: '#64748b'
+            }}
+          >
+            O'qituvchilarni qidirishga qaytish
+          </Button>
+        </div>
       </div>
 
       {/* Teacher information section */}

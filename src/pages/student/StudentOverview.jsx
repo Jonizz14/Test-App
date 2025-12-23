@@ -397,13 +397,13 @@ const StudentOverview = () => {
             borderRadius: '12px',
             boxShadow: isDragged ? '0 8px 25px rgba(0,0,0,0.15)' : '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
             transition: 'all 0.3s ease',
-            cursor: isSwapping ? 'pointer' : 'default',
-            transform: isDragged ? 'rotate(5deg)' : 'none',
+            cursor: isSwapping ? 'pointer' : isLongPressActive ? 'grabbing' : 'grab',
+            transform: isDragged ? 'rotate(5deg)' : isLongPressActive ? 'scale(1.05)' : 'scale(1)',
             opacity: isDragged ? 0.8 : 1,
           }}
           styles={{ body: { padding: '24px' } }}
-          hoverable={!isSwapping}
-          draggable={!isSwapping}
+          hoverable={!isSwapping && !isLongPressActive}
+          draggable={!isSwapping && !isLongPressActive}
           onDragStart={(e) => handleDragStart(e, cardConfig.id)}
           onDragOver={handleDragOver}
           onDrop={(e) => handleDrop(e, cardConfig.id)}

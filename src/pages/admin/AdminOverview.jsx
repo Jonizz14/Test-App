@@ -228,9 +228,9 @@ const AdminOverview = () => {
         </Text>
       </div>
 
-      {/* Statistics Cards */}
+      {/* All Statistics Cards in a responsive AntD Row/Col grid */}
       <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
-        <Col xs={24} sm={12} md={5}>
+        <Col xs={24} sm={12} md={6}>
           <StatCard
             title="Jami foydalanuvchilar"
             value={stats.totalUsers}
@@ -238,7 +238,7 @@ const AdminOverview = () => {
             color="#2563eb"
           />
         </Col>
-        <Col xs={24} sm={12} md={5}>
+        <Col xs={24} sm={12} md={6}>
           <StatCard
             title="O'qituvchilar"
             value={stats.totalTeachers}
@@ -246,7 +246,7 @@ const AdminOverview = () => {
             color="#16a34a"
           />
         </Col>
-        <Col xs={24} sm={12} md={5}>
+        <Col xs={24} sm={12} md={6}>
           <StatCard
             title="O'quvchilar"
             value={stats.totalStudents}
@@ -254,7 +254,7 @@ const AdminOverview = () => {
             color="#059669"
           />
         </Col>
-        <Col xs={24} sm={12} md={5}>
+        <Col xs={24} sm={12} md={6}>
           <StatCard
             title="Jami testlar"
             value={stats.totalTests}
@@ -262,7 +262,7 @@ const AdminOverview = () => {
             color="#7c3aed"
           />
         </Col>
-        <Col xs={24} sm={12} md={5}>
+        <Col xs={24} sm={12} md={6}>
           <StatCard
             title="Jami urinishlar"
             value={stats.totalAttempts}
@@ -270,7 +270,7 @@ const AdminOverview = () => {
             color="#2563eb"
           />
         </Col>
-        <Col xs={24} sm={12} md={5}>
+        <Col xs={24} sm={12} md={6}>
           <StatCard
             title="Faol testlar"
             value={stats.activeTests}
@@ -278,7 +278,7 @@ const AdminOverview = () => {
             color="#d97706"
           />
         </Col>
-        <Col xs={24} sm={12} md={5}>
+        <Col xs={24} sm={12} md={6}>
           <StatCard
             title="O'rtacha ball"
             value={stats.averageScore}
@@ -287,7 +287,7 @@ const AdminOverview = () => {
             color="#16a34a"
           />
         </Col>
-        <Col xs={24} sm={12} md={5}>
+        <Col xs={24} sm={12} md={6}>
           <StatCard
             title="Eng yuqori ball"
             value={stats.highestScore}
@@ -296,7 +296,7 @@ const AdminOverview = () => {
             color="#059669"
           />
         </Col>
-        <Col xs={24} sm={12} md={5}>
+        <Col xs={24} sm={12} md={6}>
           <StatCard
             title="Eng past ball"
             value={stats.lowestScore}

@@ -484,8 +484,9 @@ const ManageTeachers = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
-            width: '300px',
-            borderRadius: '8px'
+            width: '100%',
+            borderRadius: '8px',
+            marginRight: '8px'
           }}
         />
         <Space>
