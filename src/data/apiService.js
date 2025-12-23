@@ -42,7 +42,7 @@ class ApiService {
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
           try {
-            const refreshResponse = await fetch(`${this.baseURL}/api/token/refresh/`, {
+            const refreshResponse = await fetch(`${this.baseURL}/token/refresh/`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ refresh: refreshToken }),

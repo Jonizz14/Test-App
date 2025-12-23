@@ -451,7 +451,7 @@ const ClassStatistics = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
             borderRadius: '8px',
-            maxWidth: '400px'
+            maxWidth: '100%'
           }}
         />
       </div>

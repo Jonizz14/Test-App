@@ -7,12 +7,14 @@ import {
   Button,
   Space,
   Collapse,
+  Input,
 } from 'antd';
 import {
   DownOutlined,
   UpOutlined,
   ArrowUpOutlined,
   ArrowDownOutlined,
+  SearchOutlined,
 } from '@ant-design/icons';
 import apiService from '../../data/apiService';
 
@@ -25,6 +27,7 @@ const StudentRatings = () => {
   const [expanded, setExpanded] = useState({});
   const [sortField, setSortField] = useState('average_score');
   const [sortDirection, setSortDirection] = useState('desc');
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const loadStudents = async () => {
@@ -61,7 +64,19 @@ const StudentRatings = () => {
   const students = useMemo(() => {
     if (originalStudents.length === 0) return [];
 
-    return [...originalStudents].sort((a, b) => {
+    let filteredStudents = [...originalStudents];
+
+    // Apply search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filteredStudents = filteredStudents.filter(student =>
+        (student.class_group && student.class_group.toLowerCase().includes(term)) ||
+        (student.name && student.name.toLowerCase().includes(term)) ||
+        (student.username && student.username.toLowerCase().includes(term))
+      );
+    }
+
+    return filteredStudents.sort((a, b) => {
       let aValue, bValue;
 
       switch (sortField) {
@@ -111,7 +126,7 @@ const StudentRatings = () => {
         return bValue - aValue;
       }
     });
-  }, [sortField, sortDirection, originalStudents]);
+  }, [sortField, sortDirection, originalStudents, searchTerm]);
 
   const handleExpandClick = (id) => {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -297,9 +312,26 @@ const StudentRatings = () => {
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
       }}>
-        <Title level={1} style={{ margin: 0, color: '#1e293b' }}>
+        <Title level={1} style={{ margin: 0, color: '#1e293b', marginBottom: '8px' }}>
           O'quvchilar reytingi
         </Title>
+        <Text style={{ fontSize: '18px', color: '#64748b' }}>
+          Sinf va yo'nalish bo'yicha o'quvchilarni ularning test natijalari asosida reytinglash
+        </Text>
+      </div>
+
+      {/* Search Input */}
+      <div style={{ marginBottom: '24px' }}>
+        <Input
+          placeholder="Sinf yoki rahbar nomini qidirish..."
+          prefix={<SearchOutlined />}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            borderRadius: '8px',
+            maxWidth: '100%'
+          }}
+        />
       </div>
 
       {/* Table */}

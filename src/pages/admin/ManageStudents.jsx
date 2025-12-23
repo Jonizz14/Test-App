@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Table,
   Card,
@@ -48,13 +48,14 @@ const ManageStudents = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [studentToDelete, setStudentToDelete] = useState(null);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [exportModalVisible, setExportModalVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedClasses, setExpandedClasses] = useState(new Set());
   const [importing, setImporting] = useState(false);
+  const [pageSize, setPageSize] = useState(10);
+  const [classesPageSize, setClassesPageSize] = useState(10);
+  const fileInputRef = useRef(null);
 
   const generateStudentId = (firstName, lastName, classGroup, direction, randomDigits) => {
     const lastNameUpper = lastName.toUpperCase().replace("'", '');
@@ -124,10 +125,6 @@ const ManageStudents = () => {
     }
   };
 
-  const handleDeleteClick = (student) => {
-    setStudentToDelete(student);
-    setDeleteModalVisible(true);
-  };
 
   const handleEditClick = (student) => {
     navigate(`/admin/edit-student/${student.id}`);
@@ -583,17 +580,23 @@ const ManageStudents = () => {
           )}
           <Popconfirm
             title="O'quvchini o'chirishni tasdiqlang"
-            description="Haqiqatan ham ushbu o'quvchini o'chirishni xohlaysizmi?"
+            description={
+              <div>
+                <div>Haqiqatan ham ushbu o'quvchini o'chirishni xohlaysizmi?</div>
+                <div style={{ marginTop: '8px', fontWeight: 'bold' }}>{record.name}</div>
+                <div style={{ fontSize: '12px', color: '#666' }}>ID: {record.display_id || record.username}</div>
+              </div>
+            }
             onConfirm={() => handleDelete(record.id)}
-            okText="Ha"
+            okText="Ha, o'chirish"
             cancelText="Yo'q"
             okButtonProps={{ danger: true }}
+            placement="topRight"
           >
             <Tooltip title="O'chirish">
               <Button
                 type="text"
                 icon={<DeleteOutlined />}
-                onClick={() => handleDeleteClick(record)}
                 style={{ color: '#dc2626' }}
               />
             </Tooltip>
@@ -807,10 +810,12 @@ const ManageStudents = () => {
               rowKey="id"
               loading={loading}
               pagination={{
-                pageSize: 10,
+                pageSize: pageSize,
                 showSizeChanger: true,
                 showQuickJumper: true,
                 showTotal: (total) => `Jami ${total} ta o'quvchi`,
+                pageSizeOptions: ['10', '20', '50', '100'],
+                onShowSizeChange: (current, size) => setPageSize(size),
               }}
               locale={{
                 emptyText: 'O\'quvchilar mavjud emas'
@@ -834,10 +839,12 @@ const ManageStudents = () => {
               rowKey="classGroup"
               loading={loading}
               pagination={{
-                pageSize: 10,
+                pageSize: classesPageSize,
                 showSizeChanger: true,
                 showQuickJumper: true,
                 showTotal: (total) => `Jami ${total} ta sinf`,
+                pageSizeOptions: ['10', '20', '50', '100'],
+                onShowSizeChange: (current, size) => setClassesPageSize(size),
               }}
               locale={{
                 emptyText: 'Sinflar mavjud emas'
@@ -907,39 +914,6 @@ const ManageStudents = () => {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
-      <Modal
-        title="O'quvchini o'chirishni tasdiqlang"
-        open={deleteModalVisible}
-        onOk={() => handleDelete(studentToDelete?.id)}
-        onCancel={() => setDeleteModalVisible(false)}
-        okText="O'chirish"
-        cancelText="Bekor qilish"
-        okButtonProps={{ danger: true }}
-      >
-        <div>
-          <Text>Haqiqatan ham ushbu o'quvchini o'chirishni xohlaysizmi?</Text>
-          {studentToDelete && (
-            <div style={{
-              marginTop: '16px',
-              padding: '16px',
-              backgroundColor: '#f5f5f5',
-              borderRadius: '8px'
-            }}>
-              <Text strong>{studentToDelete.name}</Text>
-              <br />
-              <Text type="secondary">ID: {studentToDelete.display_id || studentToDelete.username}</Text>
-            </div>
-          )}
-          <Alert
-            message="E'tibor"
-            description="Bu amal qaytarib bo'lmaydi. O'quvchi va uning barcha test natijalari o'chiriladi."
-            type="warning"
-            showIcon
-            style={{ marginTop: '16px' }}
-          />
-        </div>
-      </Modal>
 
       {/* Export Modal */}
       <Modal
@@ -976,15 +950,9 @@ const ManageStudents = () => {
             type="primary"
             loading={importing}
             disabled={importing}
+            onClick={() => fileInputRef.current?.click()}
           >
             {importing ? 'Import qilinmoqda...' : 'Fayl tanlash (.xlsx)'}
-            <input
-              type="file"
-              accept=".xlsx"
-              style={{ display: 'none' }}
-              onChange={handleImportFromExcel}
-              disabled={importing}
-            />
           </Button>
         ]}
         maskClosable={!importing}
@@ -1041,6 +1009,15 @@ const ManageStudents = () => {
           />
         </div>
       </Modal>
+
+      {/* Hidden file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept=".xlsx"
+        style={{ display: 'none' }}
+        onChange={handleImportFromExcel}
+      />
     </div>
   );
 };
