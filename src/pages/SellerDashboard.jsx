@@ -125,9 +125,6 @@ const SellerDashboard = () => {
         </div>
 
         <Space size="middle">
-          <Typography.Text style={{ color: '#6b7280' }}>
-            Salom, {currentUser?.name}
-          </Typography.Text>
           
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
             <Space style={{ cursor: 'pointer' }}>
@@ -136,9 +133,6 @@ const SellerDashboard = () => {
                 icon={<UserOutlined />}
                 style={{ backgroundColor: '#1890ff' }}
               />
-              <Typography.Text style={{ color: '#374151' }}>
-                {currentUser?.name}
-              </Typography.Text>
             </Space>
           </Dropdown>
         </Space>

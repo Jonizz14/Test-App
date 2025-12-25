@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Card, Row, Col } from 'antd';
+import { Typography, Card, Row, Col, Statistic } from 'antd';
 import { TeamOutlined, StarOutlined } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
@@ -64,19 +64,23 @@ const SellerOverview = () => {
             >
               {title}
             </Typography.Text>
-            <Typography.Title level={1} style={{ margin: 0, color: '#1e293b', lineHeight: 1.2 }}>
-              {loading ? '...' : value}
-            </Typography.Title>
+            <Statistic
+              value={loading ? '...' : value}
+              styles={{
+                content: {
+                  fontSize: '24px',
+                  fontWeight: 700,
+                  color: '#1e293b',
+                  lineHeight: 1.2
+                }
+              }}
+            />
           </div>
           <div
             style={{
-              backgroundColor: color === 'primary.main' ? '#eff6ff' :
-                              color === 'secondary.main' ? '#f0fdf4' :
-                              color === 'success.main' ? '#ecfdf5' :
-                              color === 'warning.main' ? '#fffbeb' :
-                              '#f8fafc',
+              backgroundColor: color,
               borderRadius: '12px',
-              padding: '16px',
+              padding: '12px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -85,12 +89,8 @@ const SellerOverview = () => {
           >
             {React.cloneElement(icon, {
               style: {
-                fontSize: '32px',
-                color: color === 'primary.main' ? '#2563eb' :
-                       color === 'secondary.main' ? '#16a34a' :
-                       color === 'success.main' ? '#059669' :
-                       color === 'warning.main' ? '#d97706' :
-                       '#64748b'
+                fontSize: '24px',
+                color: '#ffffff'
               }
             })}
           </div>
@@ -116,42 +116,25 @@ const SellerOverview = () => {
       </div>
 
       {/* Stats Cards */}
-      <Row gutter={16} style={{ marginBottom: '16px' }}>
-        <Col xs={24} sm={12} md={8}>
+      <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
+        <Col xs={24} sm={12} md={6}>
           <StatCard
             title="Jami o'quvchilar"
             value={stats.totalStudents}
             icon={<TeamOutlined />}
-            color="primary.main"
+            color="#2563eb"
           />
         </Col>
-        <Col xs={24} sm={12} md={8}>
+        <Col xs={24} sm={12} md={6}>
           <StatCard
             title="Premium o'quvchilar"
             value={stats.premiumStudents}
             icon={<StarOutlined />}
-            color="warning.main"
+            color="#d97706"
           />
         </Col>
       </Row>
 
-      {/* Welcome Message */}
-      <Card
-        style={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
-        }}
-      >
-        <Typography.Title level={4} style={{ marginBottom: '8px', color: '#1e293b' }}>
-          Xush kelibsiz, {currentUser?.name}!
-        </Typography.Title>
-        <Typography.Text style={{ color: '#334155', lineHeight: 1.6 }}>
-          Bu seller panel orqali siz o'quvchilarga premium status berishingiz va narxlarni boshqarishingiz mumkin.
-          Chap menudan kerakli bo'limni tanlang.
-        </Typography.Text>
-      </Card>
     </div>
   );
 };

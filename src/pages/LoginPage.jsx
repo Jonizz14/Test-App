@@ -102,12 +102,6 @@ const LoginPage = () => {
         <div>
           <div className="login-card" style={{ maxWidth: 660 }}>
             <div className="login-header">
-              <div className="login-logo">
-                <div className="examify-logo">
-                  <span className="material-symbols-outlined logo">school</span>
-                  <span className="examify-text">Examify</span>
-                </div>
-              </div>
               <div className="login-icon">
                 <span className="material-symbols-outlined">
                   login
