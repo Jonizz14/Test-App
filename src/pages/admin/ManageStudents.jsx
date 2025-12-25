@@ -287,9 +287,8 @@ const ManageStudents = () => {
 
           // Create student
           const studentData = {
-            username: displayId,
             email: email,
-            password: displayId,
+            password: 'temp_password',
             name: fullName,
             role: 'student',
             class_group: classGroup,

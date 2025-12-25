@@ -192,9 +192,8 @@ const ManageTeachers = () => {
 
           // Create teacher
           const teacherData = {
-            username: displayId,
             email: email,
-            password: displayId,
+            password: 'temp_password',
             name: fullName,
             role: 'teacher',
             subjects: subjectsArray,

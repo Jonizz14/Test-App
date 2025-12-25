@@ -95,19 +95,22 @@ class UserViewSet(viewsets.ModelViewSet):
             user = serializer.save()
             print(f"User created: {user.username}, display_id: {user.display_id}, password: {data['password']}")  # Debug logging
 
-            # For admin users, if password was provided in request, use it; otherwise use display_id
+            # Set created_by_admin if the creator is an admin
+            if request.user.is_authenticated and request.user.role in ['admin', 'head_admin']:
+                user.created_by_admin = request.user if request.user.role == 'admin' else None
+                # Force regeneration of display_id with admin prefix
+                user.display_id = ''
+                user.username = f"temp_{user.id}"
+                user.save()
+                print(f"Set created_by_admin to: {user.created_by_admin}")  # Debug logging
+
+            # Set password after all user data is finalized
             if user.role == 'admin' and 'password' in data and data['password'] and data['password'] != 'temp_password':
                 user.set_password(data['password'])
             else:
                 # Set password to display_id for easy login
                 user.set_password(user.display_id)
             user.save()
-
-            # Set created_by_admin if the creator is an admin
-            if request.user.is_authenticated and request.user.role in ['admin', 'head_admin']:
-                user.created_by_admin = request.user if request.user.role == 'admin' else None
-                user.save()
-                print(f"Set created_by_admin to: {user.created_by_admin}")  # Debug logging
 
             # Return user data with appropriate password for frontend
             user_data = UserSerializer(user).data
