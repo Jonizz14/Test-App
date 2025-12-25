@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Box, Paper, Grid, Card, CardContent } from '@mui/material';
+import { Typography, Card, Row, Col, Statistic, Spin } from 'antd';
 import {
-  Assessment as AssessmentIcon,
-  People as PeopleIcon,
-  TrendingUp as TrendingUpIcon,
-  School as SchoolIcon,
-  Quiz as QuizIcon,
-  EmojiPeople as EmojiPeopleIcon,
-} from '@mui/icons-material';
+  BarChartOutlined as AssessmentIcon,
+  TeamOutlined as PeopleIcon,
+  RiseOutlined as TrendingUpIcon,
+  BookOutlined as SchoolIcon,
+  FileTextOutlined as QuizIcon,
+  UserOutlined as EmojiPeopleIcon,
+} from '@ant-design/icons';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -223,239 +223,191 @@ const TeacherStatistics = () => {
     }
   };
 
-  const StatCard = ({ title, value, icon, color, subtitle }) => (
-    <Card sx={{
-      backgroundColor: '#ffffff',
-      border: '1px solid #e2e8f0',
-      borderRadius: '12px',
-      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-      transition: 'none',
-      '&:hover': {
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-      },
-    }}>
-      <CardContent sx={{ 
-        p: 4,
-        '&:last-child': { pb: 4 }
-      }}>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Box flex={1}>
-            <Typography
-              sx={{
-                fontSize: '0.75rem',
+  const StatCard = ({ title, value, icon, color, suffix }) => (
+    <Col xs={24} sm={12} md={6}>
+      <Card
+        style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        }}
+        hoverable
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ flex: 1 }}>
+            <Typography.Text
+              style={{
+                fontSize: '12px',
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
                 color: '#64748b',
-                mb: 1
+                display: 'block',
+                marginBottom: '8px'
               }}
             >
               {title}
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: '2.5rem',
+            </Typography.Text>
+            <Statistic
+              value={value}
+              suffix={suffix}
+              valueStyle={{
+                fontSize: '32px',
                 fontWeight: 700,
                 color: '#1e293b',
-                lineHeight: 1.2,
-                mb: 1
+                lineHeight: 1.2
               }}
-            >
-              {value}
-            </Typography>
-            {subtitle && (
-              <Typography
-                sx={{
-                  fontSize: '0.875rem',
-                  color: '#64748b',
-                  fontWeight: 500
-                }}
-              >
-                {subtitle}
-              </Typography>
-            )}
-          </Box>
-          <Box
-            sx={{
-              backgroundColor: color === 'primary.main' ? '#eff6ff' : 
-                               color === 'secondary.main' ? '#f0fdf4' :
-                               color === 'success.main' ? '#ecfdf5' :
-                               color === 'warning.main' ? '#fffbeb' :
-                               color === 'info.main' ? '#f0f9ff' :
-                               '#f8fafc',
+            />
+          </div>
+          <div
+            style={{
+              backgroundColor: color,
               borderRadius: '12px',
-              padding: '16px',
+              padding: '12px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              ml: 2
+              marginLeft: '16px'
             }}
           >
             {React.cloneElement(icon, {
-              sx: { 
-                fontSize: '2rem', 
-                color: color === 'primary.main' ? '#2563eb' : 
-                       color === 'secondary.main' ? '#16a34a' :
-                       color === 'success.main' ? '#059669' :
-                       color === 'warning.main' ? '#d97706' :
-                       color === 'info.main' ? '#0ea5e9' :
-                       '#64748b'
+              style: {
+                fontSize: '24px',
+                color: '#ffffff'
               }
             })}
-          </Box>
-        </Box>
-      </CardContent>
-    </Card>
+          </div>
+        </div>
+      </Card>
+    </Col>
   );
 
   if (loading) {
     return (
-      <Box sx={{ 
-        pl: { xs: 0, md: 35 }, 
-        pr: 4,
-        py: 4,
-        backgroundColor: '#ffffff'
+      <div style={{
+        padding: '32px 0',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '400px'
       }}>
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b'
-        }}>
-          O'qituvchi statistikasi
-        </Typography>
-        <Typography sx={{ color: '#64748b', mt: 2 }}>Yuklanmoqda...</Typography>
-      </Box>
+        <Spin size="large" />
+        <Typography.Text style={{ marginLeft: '16px' }}>
+          Ma'lumotlar yuklanmoqda...
+        </Typography.Text>
+      </div>
     );
   }
 
   return (
-    <Box sx={{
+    <div style={{
       width: '100%',
-      py: 4,
+      padding: '32px 0',
       backgroundColor: '#ffffff'
     }}>
-      <Box sx={{
-        mb: 6,
-        pb: 4,
+      <div style={{
+        marginBottom: '48px',
+        paddingBottom: '32px',
         borderBottom: '1px solid #e2e8f0'
       }}>
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          mb: 2
-        }}>
+        <Typography.Title
+          level={1}
+          style={{
+            fontSize: '40px',
+            fontWeight: 700,
+            color: '#1e293b',
+            marginBottom: '16px',
+            margin: 0
+          }}
+        >
           O'qituvchi statistikasi
-        </Typography>
-        <Typography sx={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400
-        }}>
+        </Typography.Title>
+        <Typography.Text
+          style={{
+            fontSize: '18px',
+            color: '#64748b',
+            fontWeight: 400
+          }}
+        >
           Testlaringiz va o'quvchilaringizning batafsil statistikasi
-        </Typography>
-      </Box>
+        </Typography.Text>
+      </div>
 
       {/* Main Statistics Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={4}>
-          <div>
-            <StatCard
-              title="Jami yaratilgan testlar"
-              value={totalTestsCreated}
-              icon={<AssessmentIcon />}
-              color="primary.main"
-              subtitle={`${activeTests} ta faol`}
-            />
-          </div>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <div>
-            <StatCard
-              title="Jami urinishlar"
-              value={totalAttempts}
-              icon={<EmojiPeopleIcon />}
-              color="secondary.main"
-              subtitle={`${uniqueStudents} ta o'quvchi`}
-            />
-          </div>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <div>
-            <StatCard
-              title="O'rtacha ball"
-              value={`${averageScore}%`}
-              icon={<TrendingUpIcon />}
-              color="info.main"
-              subtitle="O'quvchilar natijasi"
-            />
-          </div>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <div>
-            <StatCard
-              title="Eng yuqori ball"
-              value={`${highestScore}%`}
-              icon={<TrendingUpIcon />}
-              color="success.main"
-              subtitle="O'quvchilar natijasi"
-            />
-          </div>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <div>
-            <StatCard
-              title="Eng past ball"
-              value={`${lowestScore}%`}
-              icon={<TrendingUpIcon />}
-              color="warning.main"
-              subtitle="O'quvchilar natijasi"
-            />
-          </div>
-        </Grid>
-      </Grid>
+      <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
+        <StatCard
+          title="Jami yaratilgan testlar"
+          value={totalTestsCreated}
+          icon={<AssessmentIcon />}
+          color="#2563eb"
+          suffix={` (${activeTests} faol)`}
+        />
+        <StatCard
+          title="Jami urinishlar"
+          value={totalAttempts}
+          icon={<EmojiPeopleIcon />}
+          color="#16a34a"
+          suffix={` (${uniqueStudents} o'quvchi)`}
+        />
+        <StatCard
+          title="O'rtacha ball"
+          value={averageScore}
+          suffix="%"
+          icon={<TrendingUpIcon />}
+          color="#0ea5e9"
+        />
+        <StatCard
+          title="Eng yuqori ball"
+          value={highestScore}
+          suffix="%"
+          icon={<TrendingUpIcon />}
+          color="#059669"
+        />
+        <StatCard
+          title="Eng past ball"
+          value={lowestScore}
+          suffix="%"
+          icon={<TrendingUpIcon />}
+          color="#d97706"
+        />
+      </Row>
 
-      <Grid container spacing={3}>
+      <Row gutter={[24, 24]}>
         {/* Score Distribution Chart */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            height: '400px',
-            p: 3
-          }}>
-            <Typography sx={{
-              fontWeight: 600,
-              color: '#1F2937',
-              fontSize: '1.25rem',
-              mb: 3
-            }}>
+        <Col xs={24} md={12}>
+          <Card
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              height: '400px',
+              padding: '24px'
+            }}
+          >
+            <Typography.Title level={4} style={{ marginBottom: '24px' }}>
               Ballar taqsimoti
-            </Typography>
+            </Typography.Title>
             <Bar data={scoreDistributionData} options={chartOptions} />
           </Card>
-        </Grid>
+        </Col>
 
         {/* Subject Performance Chart */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            height: '400px',
-            p: 3
-          }}>
-            <Typography sx={{ 
-              fontWeight: 600, 
-              color: '#1e293b',
-              fontSize: '1.25rem',
-              mb: 3
-            }}>
+        <Col xs={24} md={12}>
+          <Card
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              height: '400px',
+              padding: '24px'
+            }}
+          >
+            <Typography.Title level={4} style={{ marginBottom: '24px' }}>
               Fanlar bo'yicha natijalar
-            </Typography>
+            </Typography.Title>
             <Pie
               data={subjectPerformanceData}
               options={{
@@ -468,32 +420,9 @@ const TeacherStatistics = () => {
               }}
             />
           </Card>
-        </Grid>
-
-        {/* Test Creation Timeline */}
-        <Grid item xs={12}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            height: '400px',
-            p: 3
-          }}>
-            <Typography sx={{ 
-              fontWeight: 600, 
-              color: '#1e293b',
-              fontSize: '1.25rem',
-              mb: 3
-            }}>
-              Test yaratish dinamikasi (oxirgi 6 oy)
-            </Typography>
-            <Line data={testCreationData} options={chartOptions} />
-          </Card>
-        </Grid>
-
-      </Grid>
-    </Box>
+        </Col>
+      </Row>
+    </div>
   );
 };
 

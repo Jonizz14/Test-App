@@ -1,21 +1,16 @@
 import React, { useState } from 'react';
 import {
-  Box,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
+  Modal,
   Tabs,
-  Tab,
-  Grid,
-  IconButton,
+  Card,
   Typography,
-  Paper,
-} from '@mui/material';
+  Button,
+  Row,
+  Col,
+} from 'antd';
 import {
-  Functions as FunctionsIcon,
-  Close as CloseIcon,
-} from '@mui/icons-material';
+  CloseOutlined,
+} from '@ant-design/icons';
 
 const MathSymbols = ({ open, onClose, onSymbolSelect }) => {
   const [activeTab, setActiveTab] = useState(0);
@@ -221,115 +216,78 @@ const MathSymbols = ({ open, onClose, onSymbolSelect }) => {
     onSymbolSelect(symbol);
   };
 
+  const tabItems = symbolCategories.map((category, index) => ({
+    key: index.toString(),
+    label: (
+      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ fontSize: '1.2em' }}>{category.icon}</span>
+        <span>{category.label}</span>
+      </span>
+    ),
+    children: (
+      <div style={{ padding: '16px', height: '400px', overflow: 'auto' }}>
+        <Row gutter={[8, 8]}>
+          {symbolCategories[index].symbols.map((item, symbolIndex) => (
+            <Col xs={12} sm={8} md={6} lg={4} key={symbolIndex}>
+              <Card
+                size="small"
+                hoverable
+                style={{
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  transition: 'all 0.2s ease',
+                }}
+                bodyStyle={{ padding: '12px' }}
+                onClick={() => handleSymbolClick(item.symbol)}
+              >
+                <div style={{
+                  fontSize: '1.5rem',
+                  fontWeight: 500,
+                  marginBottom: '4px',
+                  userSelect: 'none'
+                }}>
+                  {item.symbol}
+                </div>
+                <div style={{
+                  color: '#64748b',
+                  fontSize: '0.7rem',
+                }}>
+                  {item.name}
+                </div>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </div>
+    ),
+  }));
+
   return (
-    <Dialog
+    <Modal
+      title={
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography.Text strong style={{ fontSize: '18px' }}>
+            🧮 Matematik belgilar
+          </Typography.Text>
+        </div>
+      }
       open={open}
-      onClose={onClose}
-      maxWidth="md"
-      fullWidth
-      sx={{
-        '& .MuiDialog-paper': {
-          height: '80vh',
-          maxHeight: '600px'
-        }
-      }}
+      onCancel={onClose}
+      footer={null}
+      width={800}
+      style={{ top: 20 }}
+      bodyStyle={{ padding: 0 }}
     >
-      <DialogTitle sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        pb: 1
-      }}>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>
-          🧮 Matematik belgilar
-        </Typography>
-        <IconButton onClick={onClose} size="small">
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-
-      <DialogContent sx={{ p: 0 }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs
-            value={activeTab}
-            onChange={(e, newValue) => setActiveTab(newValue)}
-            variant="scrollable"
-            scrollButtons="auto"
-            sx={{
-              minHeight: '48px',
-              '& .MuiTab-root': {
-                minHeight: '48px',
-                textTransform: 'none',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                minWidth: 'auto',
-                px: 2,
-              }
-            }}
-          >
-            {symbolCategories.map((category, index) => (
-              <Tab
-                key={index}
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <span style={{ fontSize: '1.2em' }}>{category.icon}</span>
-                    <span>{category.label}</span>
-                  </Box>
-                }
-              />
-            ))}
-          </Tabs>
-        </Box>
-
-        <Box sx={{ p: 3, height: '400px', overflow: 'auto' }}>
-          <Grid container spacing={1}>
-            {symbolCategories[activeTab].symbols.map((item, index) => (
-              <Grid item xs={6} sm={4} md={3} key={index}>
-                <Paper
-                  sx={{
-                    p: 1.5,
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    transition: 'all 0.2s ease',
-                    '&:hover': {
-                      backgroundColor: '#f8fafc',
-                      borderColor: '#2563eb',
-                      transform: 'translateY(-1px)',
-                      boxShadow: '0 4px 8px rgba(37, 99, 235, 0.1)'
-                    }
-                  }}
-                  onClick={() => handleSymbolClick(item.symbol)}
-                >
-                  <Typography
-                    variant="h4"
-                    sx={{
-                      fontSize: '1.5rem',
-                      fontWeight: 500,
-                      mb: 0.5,
-                      userSelect: 'none'
-                    }}
-                  >
-                    {item.symbol}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: '#64748b',
-                      fontSize: '0.7rem',
-                      display: 'block'
-                    }}
-                  >
-                    {item.name}
-                  </Typography>
-                </Paper>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-      </DialogContent>
-    </Dialog>
+      <Tabs
+        activeKey={activeTab.toString()}
+        onChange={(key) => setActiveTab(parseInt(key))}
+        type="card"
+        size="small"
+        items={tabItems}
+      />
+    </Modal>
   );
 };
 

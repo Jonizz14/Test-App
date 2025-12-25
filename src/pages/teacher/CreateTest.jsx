@@ -2,34 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Typography,
-  Box,
-  TextField,
-  Button,
-  Paper,
-  Grid,
-  Alert,
   Card,
-  CardContent,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  IconButton,
-  Divider,
-  MenuItem,
-  FormControl,
-  FormLabel,
-  FormGroup,
-  FormControlLabel as CheckboxLabel,
+  Button,
+  Input,
+  Select,
+  Alert,
+  Form,
+  Row,
+  Col,
   Checkbox,
-} from '@mui/material';
+  Space,
+  Divider,
+  Upload,
+} from 'antd';
 import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  CheckCircle as CorrectIcon,
-  ArrowBack as ArrowBackIcon,
-  PhotoCamera as PhotoCameraIcon,
-  Clear as ClearIcon,
-} from '@mui/icons-material';
+  PlusOutlined as AddIcon,
+  DeleteOutlined as DeleteIcon,
+  CheckCircleOutlined as CorrectIcon,
+  ArrowLeftOutlined as ArrowBackIcon,
+  CameraOutlined as PhotoCameraIcon,
+  CloseOutlined as ClearIcon,
+} from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
 import MathSymbols from '../../components/MathSymbols';
@@ -51,6 +44,7 @@ const CreateTest = () => {
   const [questions, setQuestions] = useState([{
     question_text: '',
     question_type: 'multiple_choice',
+    question_image: null,
     options: [
       { text: 'A)', image: null },
       { text: 'B)', image: null },
@@ -124,6 +118,7 @@ const CreateTest = () => {
             id: q.id,
             question_text: q.question_text,
             question_type: q.question_type,
+            question_image: null, // Will be loaded separately if needed
             options: Array.isArray(parsedOptions) ? parsedOptions.map((opt, idx) => {
               if (typeof opt === 'object' && opt !== null) {
                 return { text: opt.text || `(${String.fromCharCode(65 + idx)})` };
@@ -171,6 +166,7 @@ const CreateTest = () => {
     setQuestions([...questions, {
       question_text: '',
       question_type: 'multiple_choice',
+      question_image: null,
       options: [
         { text: 'A)', image: null },
         { text: 'B)', image: null },
@@ -205,6 +201,18 @@ const CreateTest = () => {
   const removeOptionImage = (questionIndex, optionIndex) => {
     const updatedQuestions = [...questions];
     updatedQuestions[questionIndex].options[optionIndex].image = null;
+    setQuestions(updatedQuestions);
+  };
+
+  const handleQuestionImageUpload = (questionIndex, file) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[questionIndex].question_image = file;
+    setQuestions(updatedQuestions);
+  };
+
+  const removeQuestionImage = (questionIndex) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[questionIndex].question_image = null;
     setQuestions(updatedQuestions);
   };
 
@@ -337,6 +345,11 @@ const CreateTest = () => {
           if (question.formula) questionData.append('formula', question.formula);
           if (question.code) questionData.append('code', question.code);
 
+          // Add question image
+          if (question.question_image) {
+            questionData.append('image', question.question_image);
+          }
+
           // Add option images
           question.options.forEach((option, index) => {
             if (option.image) {
@@ -393,6 +406,11 @@ const CreateTest = () => {
           if (question.formula) questionData.append('formula', question.formula);
           if (question.code) questionData.append('code', question.code);
 
+          // Add question image
+          if (question.question_image) {
+            questionData.append('image', question.question_image);
+          }
+
           // Add option images
           question.options.forEach((option, index) => {
             if (option.image) {
@@ -420,295 +438,332 @@ const CreateTest = () => {
   };
 
   return (
-    <Box sx={{
+    <div style={{
       width: '100%',
-      py: 4,
+      padding: '32px 0',
       backgroundColor: '#ffffff'
     }}>
-      <Box sx={{
-        mb: 6,
-        pb: 4,
+      <div style={{
+        marginBottom: '48px',
+        paddingBottom: '32px',
         borderBottom: '1px solid #e2e8f0'
       }}>
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          mb: 2
-        }}>
+        <Typography.Title
+          level={1}
+          style={{
+            fontSize: '40px',
+            fontWeight: 700,
+            color: '#1e293b',
+            marginBottom: '16px',
+            margin: 0
+          }}
+        >
           {isEditing ? 'Testni tahrirlash' : 'Yangi test yaratish'}
-        </Typography>
-        <Typography sx={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400
-        }}>
+        </Typography.Title>
+        <Typography.Text
+          style={{
+            fontSize: '18px',
+            color: '#64748b',
+            fontWeight: 400
+          }}
+        >
           {isEditing ? 'Mavjud testni o\'zgartiring va yangilang' : 'Yangi test yarating va o\'quvchilarga taqdim eting'}
-        </Typography>
-      </Box>
+        </Typography.Text>
+      </div>
 
-      <Card sx={{
-        width: '100%',
-        minHeight: '600px',
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-        '&:hover': {
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-        }
-      }}>
+      <Card
+        style={{
+          width: '100%',
+          minHeight: '600px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+        }}
+      >
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
+          <Alert
+            message={error}
+            type="error"
+            style={{ marginBottom: '16px' }}
+          />
         )}
-        
+
         {success && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            {success}
-          </Alert>
+          <Alert
+            message={success}
+            type="success"
+            style={{ marginBottom: '16px' }}
+          />
         )}
 
-        <Box sx={{ p: 4 }} component="form" onSubmit={handleSubmit}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <TextField
-                required
-                fullWidth
-                label="Test nomi"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-              />
-            </Grid>
+        <div style={{ padding: '32px' }}>
+          <Form onFinish={handleSubmit} layout="vertical">
+            <Row gutter={24}>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="Test nomi"
+                  name="title"
+                  rules={[{ required: true, message: 'Test nomi talab qilinadi' }]}
+                >
+                  <Input
+                    value={formData.title}
+                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    placeholder="Test nomini kiriting"
+                  />
+                </Form.Item>
+              </Col>
 
-            <Grid item xs={12} md={6}>
-              <TextField
-                required
-                select
-                fullWidth
-                label="Fan"
-                name="subject"
-                value={formData.subject}
-                onChange={handleChange}
-                defaultValue="Matematika"
-              >
-                <MenuItem value="Matematika">Matematika</MenuItem>
-                <MenuItem value="O'zbek tili">O'zbek tili</MenuItem>
-                <MenuItem value="Ingliz tili">Ingliz tili</MenuItem>
-                <MenuItem value="Rus tili">Rus tili</MenuItem>
-                <MenuItem value="Fizika">Fizika</MenuItem>
-                <MenuItem value="Kimyo">Kimyo</MenuItem>
-                <MenuItem value="Biologiya">Biologiya</MenuItem>
-                <MenuItem value="Tarix">Tarix</MenuItem>
-                <MenuItem value="Geografiya">Geografiya</MenuItem>
-                <MenuItem value="Adabiyot">Adabiyot</MenuItem>
-                <MenuItem value="Informatika">Informatika</MenuItem>
-                <MenuItem value="Tasviriy san'at">Tasviriy san'at</MenuItem>
-                <MenuItem value="Musiqa">Musiqa</MenuItem>
-                <MenuItem value="Jismoniy tarbiya">Jismoniy tarbiya</MenuItem>
-                <MenuItem value="Texnologiya">Texnologiya</MenuItem>
-              </TextField>
-            </Grid>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="Fan"
+                  name="subject"
+                  rules={[{ required: true, message: 'Fan tanlash talab qilinadi' }]}
+                >
+                  <Select
+                    value={formData.subject}
+                    onChange={(value) => setFormData({...formData, subject: value})}
+                  >
+                    <Select.Option value="Matematika">Matematika</Select.Option>
+                    <Select.Option value="O'zbek tili">O'zbek tili</Select.Option>
+                    <Select.Option value="Ingliz tili">Ingliz tili</Select.Option>
+                    <Select.Option value="Rus tili">Rus tili</Select.Option>
+                    <Select.Option value="Fizika">Fizika</Select.Option>
+                    <Select.Option value="Kimyo">Kimyo</Select.Option>
+                    <Select.Option value="Biologiya">Biologiya</Select.Option>
+                    <Select.Option value="Tarix">Tarix</Select.Option>
+                    <Select.Option value="Geografiya">Geografiya</Select.Option>
+                    <Select.Option value="Adabiyot">Adabiyot</Select.Option>
+                    <Select.Option value="Informatika">Informatika</Select.Option>
+                    <Select.Option value="Tasviriy san'at">Tasviriy san'at</Select.Option>
+                    <Select.Option value="Musiqa">Musiqa</Select.Option>
+                    <Select.Option value="Jismoniy tarbiya">Jismoniy tarbiya</Select.Option>
+                    <Select.Option value="Texnologiya">Texnologiya</Select.Option>
+                  </Select>
+                </Form.Item>
+              </Col>
 
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Tavsif"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                placeholder="Test mazmuni haqida qisqa ma'lumot"
-              />
-            </Grid>
+              <Col xs={24}>
+                <Form.Item label="Tavsif" name="description">
+                  <Input.TextArea
+                    value={formData.description}
+                    onChange={(e) => setFormData({...formData, description: e.target.value})}
+                    placeholder="Test mazmuni haqida qisqa ma'lumot"
+                    rows={3}
+                  />
+                </Form.Item>
+              </Col>
 
-            <Grid item xs={12} md={6}>
-              <TextField
-                required
-                fullWidth
-                type="number"
-                label="daqiqa"
-                name="time_limit"
-                value={formData.time_limit}
-                onChange={handleChange}
-                inputProps={{ min: 5, max: 180 }}
-                helperText="Vaqt limiti (daqiqa)"
-                placeholder="30"
-              />
-            </Grid>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="Vaqt limiti (daqiqa)"
+                  name="time_limit"
+                  rules={[{ required: true, message: 'Vaqt limiti talab qilinadi' }]}
+                >
+                  <Input
+                    type="number"
+                    value={formData.time_limit}
+                    onChange={(e) => setFormData({...formData, time_limit: parseInt(e.target.value) || 30})}
+                    min={5}
+                    max={180}
+                    placeholder="30"
+                  />
+                </Form.Item>
+              </Col>
 
-            <Grid item xs={12} md={6}>
-              <TextField
-                select
-                fullWidth
-                label="Test qiyinligi"
-                name="difficulty"
-                value={formData.difficulty}
-                onChange={handleChange}
-              >
-                <MenuItem value="easy">Oson</MenuItem>
-                <MenuItem value="medium">O'rtacha</MenuItem>
-                <MenuItem value="hard">Qiyin</MenuItem>
-              </TextField>
-            </Grid>
+              <Col xs={24} md={12}>
+                <Form.Item label="Test qiyinligi" name="difficulty">
+                  <Select
+                    value={formData.difficulty}
+                    onChange={(value) => setFormData({...formData, difficulty: value})}
+                  >
+                    <Select.Option value="easy">Oson</Select.Option>
+                    <Select.Option value="medium">O'rtacha</Select.Option>
+                    <Select.Option value="hard">Qiyin</Select.Option>
+                  </Select>
+                </Form.Item>
+              </Col>
 
-            <Grid item xs={12}>
-              <FormControl component="fieldset" fullWidth>
-                <FormLabel component="legend">
-                  Maqsadlangan sinf guruhlari (barcha guruhlar uchun test yaratish uchun hech narsa tanlamang)
-                </FormLabel>
-                <FormGroup row>
-                  {[5, 6, 7, 8, 9, 10, 11].flatMap((grade) =>
-                    [1, 2, 3, 4].map((num) => {
-                      const classGroup = `${grade}-${String(num).padStart(2, '0')}`;
-                      return (
-                        <FormControlLabel
-                          key={classGroup}
-                          control={
-                            <Checkbox
-                              checked={formData.target_grades.includes(classGroup)}
-                              onChange={() => handleGradeChange(classGroup)}
-                              sx={{
-                                color: currentUser.curator_class === classGroup ? 'warning.main' : 'primary.main',
-                                '&.Mui-checked': {
-                                  color: currentUser.curator_class === classGroup ? 'warning.main' : 'primary.main',
-                                }
-                              }}
-                            />
-                          }
-                          label={classGroup}
-                        />
-                      );
-                    })
-                  )}
-                </FormGroup>
-              </FormControl>
-            </Grid>
-          </Grid>
+            </Row>
 
-          <Divider sx={{ my: 3 }} />
+            <div style={{ marginTop: '24px' }}>
+              <Typography.Text strong style={{ display: 'block', marginBottom: '16px' }}>
+                Maqsadlangan sinf guruhlari (barcha guruhlar uchun test yaratish uchun hech narsa tanlamang)
+              </Typography.Text>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                {[5, 6, 7, 8, 9, 10, 11].flatMap((grade) =>
+                  [1, 2, 3, 4].map((num) => {
+                    const classGroup = `${grade}-${String(num).padStart(2, '0')}`;
+                    return (
+                      <Checkbox
+                        key={classGroup}
+                        checked={formData.target_grades.includes(classGroup)}
+                        onChange={() => handleGradeChange(classGroup)}
+                        style={{
+                          color: currentUser.curator_class === classGroup ? '#f59e0b' : undefined,
+                        }}
+                      >
+                        {classGroup}
+                      </Checkbox>
+                    );
+                  })
+                )}
+              </div>
+            </div>
 
-          <Typography variant="h5" gutterBottom>
+          <Divider style={{ margin: '24px 0' }} />
+
+          <Typography.Title level={4} style={{ marginBottom: '16px' }}>
             Savollar ({questions.length})
-          </Typography>
+          </Typography.Title>
 
           {questions.map((question, index) => (
-            <Card key={index} sx={{ mb: 3 }}>
-              <CardContent>
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                  <Typography variant="h6">Savol {index + 1}</Typography>
-                  <IconButton
-                    color="error"
+            <Card key={index} style={{ marginBottom: '24px' }}>
+              <div style={{ padding: '24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <Typography.Title level={5} style={{ margin: 0 }}>Savol {index + 1}</Typography.Title>
+                  <Button
+                    type="text"
+                    danger
+                    icon={<DeleteIcon />}
                     onClick={() => removeQuestion(index)}
                     disabled={questions.length === 1}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
+                  />
+                </div>
 
-                <Box sx={{ mb: 2 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="body2" sx={{ flex: 1 }}>
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                    <Typography.Text style={{ flex: 1 }}>
                       Savol matni
-                    </Typography>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => handleOpenMathSymbols(index, 'question_text')}
-                      sx={{
-                        minWidth: 'auto',
-                        px: 2,
-                        py: 0.5,
-                        fontSize: '0.75rem',
-                        textTransform: 'none'
-                      }}
-                    >
-                      🧮 Belgilar
-                    </Button>
-                  </Box>
-                  <TextField
-                    fullWidth
-                    multiline
+                    </Typography.Text>
+                    <Space>
+                      <Button
+                        size="small"
+                        onClick={() => handleOpenMathSymbols(index, 'question_text')}
+                        style={{
+                          minWidth: 'auto',
+                          padding: '4px 8px',
+                          fontSize: '12px'
+                        }}
+                      >
+                        🧮 Belgilar
+                      </Button>
+                      <Upload
+                        accept="image/*"
+                        showUploadList={false}
+                        beforeUpload={(file) => {
+                          handleQuestionImageUpload(index, file);
+                          return false; // Prevent automatic upload
+                        }}
+                      >
+                        <Button
+                          size="small"
+                          icon={<PhotoCameraIcon />}
+                          style={{ padding: '4px' }}
+                        />
+                      </Upload>
+                      {question.question_image && (
+                        <Button
+                          size="small"
+                          danger
+                          icon={<ClearIcon />}
+                          onClick={() => removeQuestionImage(index)}
+                          style={{ padding: '4px' }}
+                        />
+                      )}
+                    </Space>
+                  </div>
+
+                  {/* Question Image Preview */}
+                  {question.question_image && (
+                    <div style={{ marginBottom: '16px' }}>
+                      <img
+                        src={URL.createObjectURL(question.question_image)}
+                        alt={`Question ${index + 1}`}
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: '200px',
+                          borderRadius: '8px',
+                          border: '1px solid #e2e8f0',
+                          objectFit: 'contain'
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  <Input.TextArea
                     rows={2}
                     value={question.question_text}
                     onChange={(e) => updateQuestion(index, 'question_text', e.target.value)}
                     placeholder="Savol matnini kiriting... (LaTeX uchun $...$ yoki $$...$$ dan foydalaning)"
                   />
                   {question.question_text && (
-                    <Paper sx={{
-                      p: 2,
-                      mt: 1,
+                    <Card size="small" style={{
+                      marginTop: '8px',
                       backgroundColor: '#f8fafc',
                       border: '1px solid #e2e8f0'
                     }}>
-                      <Typography variant="body2" sx={{ mb: 1, color: '#64748b', fontWeight: 500 }}>
+                      <Typography.Text style={{ color: '#64748b', fontWeight: 500, marginBottom: '8px', display: 'block' }}>
                         LaTeX ko'rinishi:
-                      </Typography>
+                      </Typography.Text>
                       <LaTeXPreview text={question.question_text} />
-                    </Paper>
+                    </Card>
                   )}
-                </Box>
+                </div>
 
-                <Grid container spacing={2} sx={{ mb: 2 }}>
-                  <Grid item xs={12}>
-                    <TextField
-                      select
-                      fullWidth
-                      label="Savol turi"
-                      value={question.question_type}
-                      onChange={(e) => updateQuestion(index, 'question_type', e.target.value)}
-                    >
-                      <MenuItem value="multiple_choice">Ko'p variantli</MenuItem>
-                      <MenuItem value="short_answer">Ochiq javob</MenuItem>
-                      <MenuItem value="formula">Formula</MenuItem>
-                      <MenuItem value="code">Kod</MenuItem>
-                    </TextField>
-                  </Grid>
-                </Grid>
+                <div style={{ marginBottom: '16px' }}>
+                  <Select
+                    style={{ width: '100%' }}
+                    value={question.question_type}
+                    onChange={(value) => updateQuestion(index, 'question_type', value)}
+                    placeholder="Savol turini tanlang"
+                  >
+                    <Select.Option value="multiple_choice">Ko'p variantli</Select.Option>
+                    <Select.Option value="short_answer">Ochiq javob</Select.Option>
+                    <Select.Option value="formula">Formula</Select.Option>
+                    <Select.Option value="code">Kod</Select.Option>
+                  </Select>
+                </div>
 
                 {question.question_type === 'multiple_choice' && (
                   <>
-                    <Typography variant="subtitle1" gutterBottom>
+                    <Typography.Text strong style={{ display: 'block', marginBottom: '16px' }}>
                       Variantlar (A, B, C, D):
-                    </Typography>
+                    </Typography.Text>
 
                     {question.options.map((option, optionIndex) => (
-                      <Box key={optionIndex} sx={{ mb: 2, p: 2, border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                        <Box display="flex" alignItems="center" sx={{ mb: 1 }}>
-                          <IconButton
+                      <div key={optionIndex} style={{ marginBottom: '16px', padding: '16px', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                          <Button
+                            type={question.correct_answer === option.text ? "primary" : "text"}
                             size="small"
-                            color={question.correct_answer === option.text ? "success" : "default"}
+                            icon={<CorrectIcon />}
                             onClick={() => toggleCorrectAnswer(index, optionIndex)}
-                            sx={{ mr: 1 }}
-                          >
-                            <CorrectIcon />
-                          </IconButton>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
-                            <TextField
+                            style={{ marginRight: '8px' }}
+                          />
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+                            <Input
                               size="small"
                               value={option.text}
                               onChange={(e) => updateQuestionOption(index, optionIndex, e.target.value)}
                               placeholder={`Variant ${String.fromCharCode(65 + optionIndex)} (LaTeX uchun $...$)`}
-                              sx={{ flex: 1 }}
+                              style={{ flex: 1 }}
                             />
-                            <IconButton
+                            <Button
                               size="small"
                               onClick={() => handleOpenMathSymbols(index, `option_${optionIndex}`)}
-                              sx={{ p: 0.5 }}
+                              style={{ padding: '4px' }}
                             >
                               🧮
-                            </IconButton>
-                            <IconButton
+                            </Button>
+                            <Button
                               size="small"
-                              component="label"
-                              sx={{ p: 0.5 }}
+                              icon={<PhotoCameraIcon />}
+                              style={{ padding: '4px' }}
                             >
-                              <PhotoCameraIcon />
                               <input
                                 type="file"
                                 accept="image/*"
-                                hidden
+                                style={{ display: 'none' }}
                                 onChange={(e) => {
                                   const file = e.target.files[0];
                                   if (file) {
@@ -716,22 +771,22 @@ const CreateTest = () => {
                                   }
                                 }}
                               />
-                            </IconButton>
+                            </Button>
                             {option.image && (
-                              <IconButton
+                              <Button
                                 size="small"
+                                danger
+                                icon={<ClearIcon />}
                                 onClick={() => removeOptionImage(index, optionIndex)}
-                                sx={{ p: 0.5, color: 'error.main' }}
-                              >
-                                <ClearIcon />
-                              </IconButton>
+                                style={{ padding: '4px' }}
+                              />
                             )}
-                          </Box>
-                        </Box>
+                          </div>
+                        </div>
 
                         {/* Image Preview */}
                         {option.image && (
-                          <Box sx={{ mb: 1 }}>
+                          <div style={{ marginBottom: '8px' }}>
                             <img
                               src={URL.createObjectURL(option.image)}
                               alt={`Option ${String.fromCharCode(65 + optionIndex)}`}
@@ -743,178 +798,156 @@ const CreateTest = () => {
                                 objectFit: 'contain'
                               }}
                             />
-                          </Box>
+                          </div>
                         )}
 
                         {/* LaTeX Preview */}
                         {option.text && option.text.trim() && (
-                          <Paper sx={{
-                            p: 1.5,
+                          <Card size="small" style={{
                             backgroundColor: '#f8fafc',
-                            border: '1px solid #e2e8f0',
-                            borderRadius: '4px'
+                            border: '1px solid #e2e8f0'
                           }}>
-                            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 500, mb: 0.5, display: 'block' }}>
+                            <Typography.Text style={{ color: '#64748b', fontWeight: 500, marginBottom: '4px', display: 'block' }}>
                               Ko'rinishi:
-                            </Typography>
-                            <LaTeXPreview text={option.text} sx={{ fontSize: '0.9rem' }} />
-                          </Paper>
+                            </Typography.Text>
+                            <LaTeXPreview text={option.text} />
+                          </Card>
                         )}
-                      </Box>
+                      </div>
                     ))}
 
-                    <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
+                    <Typography.Text style={{ fontSize: '12px', color: '#64748b', marginTop: '8px', display: 'block' }}>
                       To'g'ri javobni belgilash uchun checkbox belgisini bosing
-                    </Typography>
+                    </Typography.Text>
                   </>
                 )}
 
                 {question.question_type === 'short_answer' && (
-                  <Box sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="body2" sx={{ flex: 1 }}>
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                      <Typography.Text style={{ flex: 1 }}>
                         To'g'ri javob
-                      </Typography>
+                      </Typography.Text>
                       <Button
                         size="small"
-                        variant="outlined"
                         onClick={() => handleOpenMathSymbols(index, 'correct_answer')}
-                        sx={{
+                        style={{
                           minWidth: 'auto',
-                          px: 2,
-                          py: 0.5,
-                          fontSize: '0.75rem',
-                          textTransform: 'none'
+                          padding: '4px 8px',
+                          fontSize: '12px'
                         }}
                       >
                         🧮 Belgilar
                       </Button>
-                    </Box>
-                    <TextField
-                      fullWidth
-                      multiline
+                    </div>
+                    <Input.TextArea
                       rows={2}
                       value={question.correct_answer}
                       onChange={(e) => updateQuestion(index, 'correct_answer', e.target.value)}
                       placeholder="O'quvchi javob berishi kerak bo'lgan to'g'ri javob (LaTeX uchun $...$ dan foydalaning)"
                     />
                     {question.correct_answer && (
-                      <Paper sx={{
-                        p: 2,
-                        mt: 1,
+                      <Card size="small" style={{
+                        marginTop: '8px',
                         backgroundColor: '#f8fafc',
                         border: '1px solid #e2e8f0'
                       }}>
-                        <Typography variant="body2" sx={{ mb: 1, color: '#64748b', fontWeight: 500 }}>
+                        <Typography.Text style={{ color: '#64748b', fontWeight: 500, marginBottom: '8px', display: 'block' }}>
                           Javob ko'rinishi:
-                        </Typography>
+                        </Typography.Text>
                         <LaTeXPreview text={question.correct_answer} />
-                      </Paper>
+                      </Card>
                     )}
-                  </Box>
+                  </div>
                 )}
 
                 {question.question_type === 'formula' && (
-                  <Box sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="body2" sx={{ flex: 1 }}>
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                      <Typography.Text style={{ flex: 1 }}>
                         Formula
-                      </Typography>
+                      </Typography.Text>
                       <Button
                         size="small"
-                        variant="outlined"
                         onClick={() => handleOpenMathSymbols(index, 'formula')}
-                        sx={{
+                        style={{
                           minWidth: 'auto',
-                          px: 2,
-                          py: 0.5,
-                          fontSize: '0.75rem',
-                          textTransform: 'none'
+                          padding: '4px 8px',
+                          fontSize: '12px'
                         }}
                       >
                         🧮 Belgilar
                       </Button>
-                    </Box>
-                    <TextField
-                      fullWidth
-                      multiline
+                    </div>
+                    <Input.TextArea
                       rows={3}
                       value={question.formula}
                       onChange={(e) => updateQuestion(index, 'formula', e.target.value)}
                       placeholder="Matematik formulani kiriting (LaTeX: \frac{a}{b}, x^2, \sqrt{x}, etc.)"
                     />
                     {question.formula && (
-                      <Paper sx={{
-                        p: 2,
-                        mt: 1,
+                      <Card size="small" style={{
+                        marginTop: '8px',
                         backgroundColor: '#f8fafc',
                         border: '1px solid #e2e8f0'
                       }}>
-                        <Typography variant="body2" sx={{ mb: 1, color: '#64748b', fontWeight: 500 }}>
+                        <Typography.Text style={{ color: '#64748b', fontWeight: 500, marginBottom: '8px', display: 'block' }}>
                           Formula ko'rinishi:
-                        </Typography>
+                        </Typography.Text>
                         <LaTeXPreview text={question.formula} />
-                      </Paper>
+                      </Card>
                     )}
-                  </Box>
+                  </div>
                 )}
 
                 {question.question_type === 'code' && (
-                  <TextField
-                    fullWidth
-                    multiline
+                  <Input.TextArea
                     rows={4}
-                    label="Kod namunasi"
                     value={question.code}
                     onChange={(e) => updateQuestion(index, 'code', e.target.value)}
                     placeholder="Kod namunasi yozing"
-                    sx={{ mb: 2, fontFamily: 'monospace' }}
-                    InputProps={{
-                      style: { fontFamily: 'monospace' }
-                    }}
+                    style={{ marginBottom: '16px', fontFamily: 'monospace' }}
                   />
                 )}
 
-                <TextField
-                  fullWidth
-                  multiline
+                <Input.TextArea
                   rows={2}
-                  label="Tushuntirish (ixtiyoriy)"
                   value={question.explanation}
                   onChange={(e) => updateQuestion(index, 'explanation', e.target.value)}
-                  sx={{ mt: 2 }}
+                  placeholder="Tushuntirish (ixtiyoriy)"
+                  style={{ marginTop: '16px' }}
                 />
-              </CardContent>
+              </div>
             </Card>
           ))}
 
           <Button
-            variant="outlined"
-            startIcon={<AddIcon />}
+            type="dashed"
+            icon={<AddIcon />}
             onClick={addQuestion}
-            sx={{ mb: 3 }}
+            style={{ marginBottom: '24px', width: '100%' }}
           >
             Savol qo'shish
           </Button>
 
-          <Box sx={{ display: 'flex', gap: 2 }}>
+          <div style={{ display: 'flex', gap: '16px' }}>
             <Button
-              type="submit"
-              variant="contained"
-              disabled={loading}
-              sx={{ flex: 1 }}
+              type="primary"
+              htmlType="submit"
+              loading={loading}
+              style={{ flex: 1 }}
             >
               {loading ? (isEditing ? 'Yangilanmoqda...' : 'Yaratilmoqda...') : (isEditing ? 'Testni yangilash' : 'Test yaratish')}
             </Button>
             <Button
-              variant="outlined"
               onClick={() => navigate('/teacher/my-tests')}
-              sx={{ flex: 1 }}
+              style={{ flex: 1 }}
             >
               Bekor qilish
             </Button>
-          </Box>
-        </Box>
+          </div>
+          </Form>
+        </div>
       </Card>
 
       {/* Math Symbols Dialog */}
@@ -923,7 +956,7 @@ const CreateTest = () => {
         onClose={() => setMathSymbolsOpen(false)}
         onSymbolSelect={handleSymbolSelect}
       />
-    </Box>
+    </div>
   );
 };
 

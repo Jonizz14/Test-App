@@ -2,50 +2,36 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Typography,
-  Box,
   Card,
-  CardContent,
   Button,
-  Grid,
-  Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Row,
+  Col,
+  Tag,
+  Modal,
   Alert,
-  IconButton,
+  Table,
+  Select,
+  Space,
+  Avatar,
+  Badge,
   Tooltip,
   List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  Avatar,
   Divider,
-  Badge,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-} from '@mui/material';
+  Spin,
+  Input,
+} from 'antd';
 import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Assessment as AssessmentIcon,
-  Refresh as RefreshIcon,
-  Visibility as ViewIcon,
-  People as PeopleIcon,
-  School as SchoolIcon,
-  Person as PersonIcon,
-  Bookmark as BookmarkIcon,
-} from '@mui/icons-material';
+  PlusOutlined as AddIcon,
+  EditOutlined as EditIcon,
+  DeleteOutlined as DeleteIcon,
+  BarChartOutlined as AssessmentIcon,
+  ReloadOutlined as RefreshIcon,
+  EyeOutlined as ViewIcon,
+  TeamOutlined as PeopleIcon,
+  BookOutlined as SchoolIcon,
+  UserOutlined as PersonIcon,
+  BookOutlined as BookmarkIcon,
+} from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
 import SendLessonModal from '../../components/SendLessonModal';
@@ -71,6 +57,7 @@ const MyTests = () => {
   const [filterSubject, setFilterSubject] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterGrade, setFilterGrade] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [todoTasks, setTodoTasks] = useState([]);
 
   useEffect(() => {
@@ -368,6 +355,15 @@ const MyTests = () => {
   // Compute filtered and sorted tests
   const uniqueSubjects = [...new Set(tests.map(test => test.subject))];
   const filteredTests = tests.filter(test => {
+    // Search filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      const titleMatch = test.title?.toLowerCase().includes(searchLower);
+      const descriptionMatch = test.description?.toLowerCase().includes(searchLower);
+      const subjectMatch = test.subject?.toLowerCase().includes(searchLower);
+      if (!titleMatch && !descriptionMatch && !subjectMatch) return false;
+    }
+
     if (filterSubject && test.subject !== filterSubject) return false;
     if (filterStatus === 'active' && !test.is_active) return false;
     if (filterStatus === 'inactive' && test.is_active) return false;
@@ -426,490 +422,425 @@ const MyTests = () => {
   });
 
   return (
-    <Box sx={{
+    <div style={{
       width: '100%',
-      py: 4,
+      padding: '32px 0',
       backgroundColor: '#ffffff'
     }}>
-      <Box sx={{
-        mb: 6,
-        pb: 4,
+      <div style={{
+        marginBottom: '48px',
+        paddingBottom: '32px',
         borderBottom: '1px solid #e2e8f0',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexWrap: 'wrap',
-        gap: 2
+        gap: '16px'
       }}>
-        <Box>
-          <Typography sx={{
-            fontSize: '2.5rem',
-            fontWeight: 700,
-            color: '#1e293b',
-            mb: 2
-          }}>
+        <div>
+          <Typography.Title
+            level={1}
+            style={{
+              fontSize: '40px',
+              fontWeight: 700,
+              color: '#1e293b',
+              marginBottom: '16px',
+              margin: 0
+            }}
+          >
             Mening testlarim ({sortedTests.length})
-          </Typography>
-          <Typography sx={{
-            fontSize: '1.125rem',
-            color: '#64748b',
-            fontWeight: 400
-          }}>
+          </Typography.Title>
+          <Typography.Text
+            style={{
+              fontSize: '18px',
+              color: '#64748b',
+              fontWeight: 400
+            }}
+          >
             Barcha testlaringizni boshqaring, o'quvchilarning natijalarini kuzating
-          </Typography>
-        </Box>
-        <Box display="flex" gap={1} alignItems="center">
+          </Typography.Text>
+        </div>
+        <Space>
           <Tooltip title="Yangilash">
-            <IconButton
+            <Button
+              type="text"
+              icon={<RefreshIcon />}
               onClick={() => loadData(true)}
               disabled={refreshing}
-              sx={{
-                color: '#64748b',
-                '&:hover': {
-                  backgroundColor: '#f8fafc',
-                  color: '#2563eb'
-                }
+              style={{
+                color: '#64748b'
               }}
-            >
-              <RefreshIcon />
-            </IconButton>
+            />
           </Tooltip>
           <Button
-            variant="contained"
-            startIcon={<AddIcon />}
+            type="primary"
+            icon={<AddIcon />}
             onClick={() => navigate('/teacher/create-test')}
-            sx={{
+            style={{
               backgroundColor: '#2563eb',
-              color: '#ffffff',
-              padding: '12px 24px',
-              borderRadius: '8px',
+              borderColor: '#2563eb',
               fontWeight: 600,
-              textTransform: 'none',
-              minWidth: '200px',
-              '&:hover': {
-                backgroundColor: '#1d4ed8',
-              }
+              minWidth: '200px'
             }}
           >
             Yangi test yaratish
           </Button>
-        </Box>
-      </Box>
+        </Space>
+      </div>
 
       {/* Filters and Sort */}
-      <Box display="flex" gap={2} mb={3} flexWrap="wrap" alignItems="center">
-        <FormControl size="small" sx={{ minWidth: 140 }}>
-          <InputLabel>Sort qilish</InputLabel>
-          <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)} label="Sort qilish">
-            <MenuItem value="created_at">Yangi avval</MenuItem>
-            <MenuItem value="title">Sarlavha</MenuItem>
-            <MenuItem value="subject">Fan</MenuItem>
-            <MenuItem value="class">Sinf</MenuItem>
-            <MenuItem value="average_score">O'rtacha ball</MenuItem>
-            <MenuItem value="attempts">Urinishlar</MenuItem>
-          </Select>
-        </FormControl>
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <Input
+          placeholder="Test nomini, tavsifini yoki fanini qidirish..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ minWidth: '250px', flex: 1 }}
+          allowClear
+        />
+        <Select
+          value={sortBy}
+          onChange={(value) => setSortBy(value)}
+          placeholder="Sort qilish"
+          style={{ minWidth: '140px' }}
+        >
+          <Select.Option value="created_at">Yangi avval</Select.Option>
+          <Select.Option value="title">Sarlavha</Select.Option>
+          <Select.Option value="subject">Fan</Select.Option>
+          <Select.Option value="class">Sinf</Select.Option>
+          <Select.Option value="average_score">O'rtacha ball</Select.Option>
+          <Select.Option value="attempts">Urinishlar</Select.Option>
+        </Select>
 
-        <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel>Fan</InputLabel>
-          <Select value={filterSubject} onChange={(e) => setFilterSubject(e.target.value)} label="Fan">
-            <MenuItem value="">Barcha</MenuItem>
-            {uniqueSubjects.map(sub => <MenuItem key={sub} value={sub}>{sub}</MenuItem>)}
-          </Select>
-        </FormControl>
+        <Select
+          value={filterSubject}
+          onChange={(value) => setFilterSubject(value)}
+          placeholder="Fan"
+          style={{ minWidth: '120px' }}
+        >
+          <Select.Option value="">Barcha</Select.Option>
+          {uniqueSubjects.map(sub => <Select.Option key={sub} value={sub}>{sub}</Select.Option>)}
+        </Select>
 
-        <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel>Status</InputLabel>
-          <Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} label="Status">
-            <MenuItem value="all">Barcha</MenuItem>
-            <MenuItem value="active">Faol</MenuItem>
-            <MenuItem value="inactive">Nofaol</MenuItem>
-          </Select>
-        </FormControl>
+        <Select
+          value={filterStatus}
+          onChange={(value) => setFilterStatus(value)}
+          placeholder="Status"
+          style={{ minWidth: '120px' }}
+        >
+          <Select.Option value="all">Barcha</Select.Option>
+          <Select.Option value="active">Faol</Select.Option>
+          <Select.Option value="inactive">Nofaol</Select.Option>
+        </Select>
 
-        <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel>Sinf</InputLabel>
-          <Select value={filterGrade} onChange={(e) => setFilterGrade(e.target.value)} label="Sinf">
-            <MenuItem value="">Barcha</MenuItem>
-            {Array.from({ length: 7 }, (_, i) => i + 5).map(g => (
-              <MenuItem key={g} value={g}>{g}-sinf</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
+        <Select
+          value={filterGrade}
+          onChange={(value) => setFilterGrade(value)}
+          placeholder="Sinf"
+          style={{ minWidth: '120px' }}
+        >
+          <Select.Option value="">Barcha</Select.Option>
+          {Array.from({ length: 7 }, (_, i) => i + 5).map(g => (
+            <Select.Option key={g} value={g}>{g}-sinf</Select.Option>
+          ))}
+        </Select>
+      </div>
 
-      {loading && sortedTests.length === 0 ? (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography sx={{ color: '#64748b' }}>Testlar yuklanmoqda...</Typography>
-        </Box>
-      ) : sortedTests.length === 0 ? (
-        <Paper sx={{ p: 4, textAlign: 'center', bgcolor: '#f8f9fa' }}>
-          <AssessmentIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-          <Typography variant="h6" color="textSecondary" gutterBottom>
-            {tests.length === 0 ? 'Siz hali test yaratmagansiz' : 'Testlar topilmadi'}
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            {tests.length === 0 ? '"Yangi test yaratish" tugmasini bosib boshlang' : 'Testlar mavjud emas'}
-          </Typography>
-        </Paper>
-      ) : (
-        <Box>
-          <Alert severity="info" sx={{ mb: 3 }}>
-            Siz {sortedTests.length} ta test yaratgansiz
-          </Alert>
-        <TableContainer component={Paper} sx={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          width: '100%',
-          maxWidth: '100%',
-          overflowX: 'auto',
-        }}>
-          <Table>
-            <TableHead>
-              <TableRow sx={{
-                backgroundColor: '#f8fafc',
-                '& th': {
-                  fontWeight: 700,
-                  fontSize: '0.875rem',
-                  color: '#1e293b',
-                  borderBottom: '1px solid #e2e8f0',
-                  padding: '16px'
-                }
-              }}>
-                <TableCell>Sarlavha</TableCell>
-                <TableCell>Fan</TableCell>
-                <TableCell>Sinflar</TableCell>
-                <TableCell>Savollar</TableCell>
-                <TableCell>Vaqt</TableCell>
-                <TableCell>O'quvchilar</TableCell>
-                <TableCell>O'rtacha ball</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Harakatlar</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {sortedTests.map((test) => {
-                const stats = getTestStats(test.id);
-                return (
-                  <TableRow 
-                    key={test.id} 
-                    sx={{
-                      opacity: test.is_active ? 1 : 0.7,
-                      '&:hover': {
-                        backgroundColor: '#f8fafc',
-                      },
-                      '& td': {
-                        borderBottom: '1px solid #f1f5f9',
-                        padding: '16px',
-                        fontSize: '0.875rem',
-                        color: '#334155'
-                      }
-                    }}
-                  >
-                    <TableCell>
-                      <Typography sx={{ 
-                        fontWeight: 600, 
-                        color: '#1e293b',
-                        fontSize: '0.875rem'
-                      }}>
-                        {test.title}
-                      </Typography>
-                      {test.description && (
-                        <Typography sx={{ 
-                          fontSize: '0.75rem',
-                          color: '#64748b',
-                          mt: 0.5
-                        }}>
-                          {test.description.length > 50 ? test.description.substring(0, 50) + '...' : test.description}
-                        </Typography>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={test.subject}
-                        size="small"
-                        variant="outlined"
-                        sx={{
-                          fontWeight: 500,
-                          fontSize: '0.75rem',
-                          backgroundColor: test.subject === 'Ingliz tili' ? '#3b82f6' : undefined,
-                          color: test.subject === 'Ingliz tili' ? '#ffffff' : undefined,
-                          borderColor: test.subject === 'Ingliz tili' ? '#3b82f6' : undefined,
-                          '& .MuiChip-label': {
-                            color: test.subject === 'Ingliz tili' ? '#ffffff' : undefined,
-                          }
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      {test.target_grades && test.target_grades.length > 0 ? (
-                        <Box display="flex" flexWrap="wrap" gap={0.5}>
-                          {test.target_grades.slice(0, 3).map((grade) => (
-                            <Chip
-                              key={grade}
-                              label={`${grade.replace(/^\[|"|\]$/g, '')}`}
-                              size="small"
-                              color="info"
-                              sx={{
-                                fontWeight: 500,
-                                fontSize: '0.625rem',
-                                height: '20px'
-                              }}
-                            />
-                          ))}
-                          {test.target_grades.length > 3 && (
-                            <Chip
-                              label={`+${test.target_grades.length - 3}`}
-                              size="small"
-                              sx={{
-                                fontWeight: 500,
-                                fontSize: '0.625rem',
-                                height: '20px',
-                                backgroundColor: '#e2e8f0'
-                              }}
-                            />
-                          )}
-                        </Box>
-                      ) : (
-                        <Chip
-                          label="Barcha"
-                          size="small"
-                          variant="outlined"
-                          color="success"
-                          sx={{
-                            fontWeight: 500,
-                            fontSize: '0.625rem'
-                          }}
-                        />
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Typography sx={{ 
-                        fontWeight: 700,
-                        color: '#2563eb',
-                        fontSize: '1rem'
-                      }}>
-                        {test.total_questions || 0}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography sx={{ 
-                        fontWeight: 500,
-                        color: '#1e293b',
-                        fontSize: '0.875rem'
-                      }}>
-                        {test.time_limit} daq
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography sx={{ 
-                        fontWeight: 700,
-                        color: '#059669',
-                        fontSize: '1rem'
-                      }}>
-                        {stats.uniqueStudents}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography sx={{
-                        fontWeight: 700,
-                        color: stats.averageScore >= 60 ? '#059669' : '#dc2626',
-                        fontSize: '1rem'
-                      }}>
-                        {stats.averageScore}%
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={test.is_active ? 'Faol' : 'Nofaol'}
-                        size="small"
-                        sx={{
-                          backgroundColor: test.is_active ? '#ecfdf5' : '#f1f5f9',
-                          color: test.is_active ? '#059669' : '#64748b',
-                          fontWeight: 600,
-                          borderRadius: '6px',
-                          fontSize: '0.75rem'
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Tooltip title="Batafsil ko'rish">
-                          <IconButton
-                            size="small"
-                            onClick={() => navigate(`/teacher/test-details/${test.id}`)}
-                            sx={{
-                              color: '#2563eb',
-                              '&:hover': {
-                                backgroundColor: '#eff6ff',
-                              }
-                            }}
-                          >
-                            <ViewIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Tahrirlash">
-                          <IconButton
-                            size="small"
-                            onClick={() => navigate(`/teacher/edit-test/${test.id}`)}
-                            sx={{
-                              color: '#f59e0b',
-                              '&:hover': {
-                                backgroundColor: '#fffbeb',
-                              }
-                            }}
-                          >
-                            <EditIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title={test.is_active ? 'Nofaollashtirish' : 'Faollashtirish'}>
-                          <IconButton
-                            size="small"
-                            onClick={() => toggleTestStatus(test.id)}
-                            disabled={loading}
-                            sx={{
-                              color: test.is_active ? '#64748b' : '#059669',
-                              '&:hover': {
-                                backgroundColor: test.is_active ? '#f1f5f9' : '#ecfdf5',
-                              }
-                            }}
-                          >
-                            {test.is_active ? <AssessmentIcon /> : <AssessmentIcon />}
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="O'chirish">
-                          <IconButton
-                            size="small"
-                            onClick={() => handleDeleteTest(test)}
-                            sx={{
-                              color: '#dc2626',
-                              '&:hover': {
-                                backgroundColor: '#fef2f2',
-                              }
-                            }}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        </Box>
+      {/* Search Results Info */}
+      {searchTerm && (
+        <Typography.Text style={{ marginBottom: '16px', color: '#64748b' }}>
+          {filteredTests.length} ta test topildi
+        </Typography.Text>
       )}
 
-      {/* Student Details Dialog */}
-      <Dialog 
-        open={studentDetailDialogOpen} 
-        onClose={() => setStudentDetailDialogOpen(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          {selectedTest?.title} - O'quvchi natijalari
-        </DialogTitle>
-        <DialogContent>
-          <List>
-            {selectedTest && getStudentDetails(selectedTest.id).map((attempt, index) => {
-              const student = students.find(s => s.id === attempt.student);
-              return (
-                <React.Fragment key={`${attempt.student}-${attempt.id}`}>
-                  <ListItem>
-                    <ListItemAvatar>
-                      <Badge badgeContent={index + 1} color="primary">
-                        <Avatar>
-                          {attempt.studentName.charAt(0).toUpperCase()}
-                        </Avatar>
-                      </Badge>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
-                        <Box display="flex" justifyContent="space-between" alignItems="center">
-                          <Typography variant="subtitle1">
-                            {attempt.studentName}
-                          </Typography>
-                          <Chip
-                            label={`${attempt.score}%`}
-                            color={getScoreColor(attempt.score)}
-                            size="small"
-                          />
-                        </Box>
-                      }
-                      secondary={
-                        <Box>
-                          <Typography variant="body2" color="textSecondary">
-                            ID: {attempt.studentId}
-                          </Typography>
-                          <Typography variant="caption" color="textSecondary">
-                            Topshirilgan: {new Date(attempt.submitted_at).toLocaleString('uz-UZ')}
-                          </Typography>
-                        </Box>
-                      }
-                    />
-                    <Box display="flex" flexDirection="column" gap={0.5}>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        startIcon={<AssessmentIcon />}
-                        onClick={() => navigate(`/teacher/test-details/${selectedTest.id}`)}
-                      >
-                        Batafsil
-                      </Button>
-                      {attempt.score < 60 && student && (
-                        <Button
-                          size="small"
-                          variant="contained"
-                          color="error"
-                          startIcon={<SchoolIcon />}
-                          onClick={() => handleOpenLessonModal(student, attempt, selectedTest)}
-                        >
-                          Dars chaqirish
-                        </Button>
+      {loading && sortedTests.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '64px 0' }}>
+          <Spin size="large" />
+          <Typography.Text style={{ display: 'block', marginTop: '16px', color: '#64748b' }}>
+            Testlar yuklanmoqda...
+          </Typography.Text>
+        </div>
+      ) : sortedTests.length === 0 ? (
+        <Card style={{ textAlign: 'center', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+          <div style={{ padding: '32px' }}>
+            <AssessmentIcon style={{ fontSize: '64px', color: '#94a3b8', marginBottom: '16px' }} />
+            <Typography.Title level={4} style={{ marginBottom: '8px' }}>
+              {tests.length === 0 ? 'Siz hali test yaratmagansiz' : 'Testlar topilmadi'}
+            </Typography.Title>
+            <Typography.Text style={{ color: '#64748b' }}>
+              {tests.length === 0 ? '"Yangi test yaratish" tugmasini bosib boshlang' : 'Testlar mavjud emas'}
+            </Typography.Text>
+          </div>
+        </Card>
+      ) : (
+        <div>
+          <Alert
+            message={`Siz ${sortedTests.length} ta test yaratgansiz`}
+            type="info"
+            style={{ marginBottom: '24px' }}
+          />
+          <Table
+            dataSource={sortedTests}
+            rowKey="id"
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+            }}
+            columns={[
+              {
+                title: 'Sarlavha',
+                dataIndex: 'title',
+                key: 'title',
+                render: (text, record) => (
+                  <div>
+                    <Typography.Text strong style={{ color: '#1e293b' }}>
+                      {text}
+                    </Typography.Text>
+                    {record.description && (
+                      <div style={{ marginTop: '4px' }}>
+                        <Typography.Text style={{ fontSize: '12px', color: '#64748b' }}>
+                          {record.description.length > 50 ? record.description.substring(0, 50) + '...' : record.description}
+                        </Typography.Text>
+                      </div>
+                    )}
+                  </div>
+                ),
+              },
+              {
+                title: 'Fan',
+                dataIndex: 'subject',
+                key: 'subject',
+                render: (subject) => (
+                  <Tag
+                    style={{
+                      backgroundColor: subject === 'Ingliz tili' ? '#3b82f6' : undefined,
+                      color: subject === 'Ingliz tili' ? '#ffffff' : undefined,
+                      borderColor: subject === 'Ingliz tili' ? '#3b82f6' : undefined,
+                    }}
+                  >
+                    {subject}
+                  </Tag>
+                ),
+              },
+              {
+                title: 'Sinflar',
+                dataIndex: 'target_grades',
+                key: 'target_grades',
+                render: (grades) => {
+                  if (!grades || grades.length === 0) {
+                    return <Tag color="green">Barcha</Tag>;
+                  }
+                  return (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                      {grades.slice(0, 3).map((grade) => (
+                        <Tag key={grade} color="blue" size="small">
+                          {grade}
+                        </Tag>
+                      ))}
+                      {grades.length > 3 && (
+                        <Tag size="small" style={{ backgroundColor: '#e2e8f0' }}>
+                          +{grades.length - 3}
+                        </Tag>
                       )}
-                    </Box>
-                  </ListItem>
-                  {index < getStudentDetails(selectedTest.id).length - 1 && <Divider />}
-                </React.Fragment>
-              );
-            })}
-          </List>
-          {selectedTest && getStudentDetails(selectedTest.id).length === 0 && (
-            <Typography variant="body2" color="textSecondary" textAlign="center" sx={{ py: 3 }}>
-              Hali hech kim bu testni topshirmagan
-            </Typography>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setStudentDetailDialogOpen(false)}>Yopish</Button>
-        </DialogActions>
-      </Dialog>
+                    </div>
+                  );
+                },
+              },
+              {
+                title: 'Savollar',
+                dataIndex: 'total_questions',
+                key: 'total_questions',
+                render: (value) => (
+                  <Typography.Text strong style={{ color: '#2563eb' }}>
+                    {value || 0}
+                  </Typography.Text>
+                ),
+              },
+              {
+                title: 'Vaqt',
+                dataIndex: 'time_limit',
+                key: 'time_limit',
+                render: (value) => (
+                  <Typography.Text style={{ color: '#1e293b' }}>
+                    {value} daq
+                  </Typography.Text>
+                ),
+              },
+              {
+                title: 'O\'quvchilar',
+                key: 'students',
+                render: (_, record) => {
+                  const stats = getTestStats(record.id);
+                  return (
+                    <Typography.Text strong style={{ color: '#059669' }}>
+                      {stats.uniqueStudents}
+                    </Typography.Text>
+                  );
+                },
+              },
+              {
+                title: 'O\'rtacha ball',
+                key: 'average_score',
+                render: (_, record) => {
+                  const stats = getTestStats(record.id);
+                  return (
+                    <Typography.Text strong style={{ color: stats.averageScore >= 60 ? '#059669' : '#dc2626' }}>
+                      {stats.averageScore}%
+                    </Typography.Text>
+                  );
+                },
+              },
+              {
+                title: 'Status',
+                dataIndex: 'is_active',
+                key: 'status',
+                render: (isActive) => (
+                  <Tag
+                    color={isActive ? 'green' : 'default'}
+                    style={{
+                      backgroundColor: isActive ? '#ecfdf5' : '#f1f5f9',
+                      color: isActive ? '#059669' : '#64748b',
+                      fontWeight: 600,
+                      borderRadius: '6px',
+                    }}
+                  >
+                    {isActive ? 'Faol' : 'Nofaol'}
+                  </Tag>
+                ),
+              },
+              {
+                title: 'Harakatlar',
+                key: 'actions',
+                render: (_, record) => (
+                  <Space>
+                    <Tooltip title="Batafsil ko'rish">
+                      <Button
+                        type="text"
+                        icon={<ViewIcon />}
+                        onClick={() => navigate(`/teacher/test-details/${record.id}`)}
+                        style={{ color: '#2563eb' }}
+                      />
+                    </Tooltip>
+                    <Tooltip title="Tahrirlash">
+                      <Button
+                        type="text"
+                        icon={<EditIcon />}
+                        onClick={() => navigate(`/teacher/edit-test/${record.id}`)}
+                        style={{ color: '#f59e0b' }}
+                      />
+                    </Tooltip>
+                    <Tooltip title={record.is_active ? 'Nofaollashtirish' : 'Faollashtirish'}>
+                      <Button
+                        type="text"
+                        icon={<AssessmentIcon />}
+                        onClick={() => toggleTestStatus(record.id)}
+                        disabled={loading}
+                        style={{ color: record.is_active ? '#64748b' : '#059669' }}
+                      />
+                    </Tooltip>
+                    <Tooltip title="O'chirish">
+                      <Button
+                        type="text"
+                        icon={<DeleteIcon />}
+                        onClick={() => handleDeleteTest(record)}
+                        style={{ color: '#dc2626' }}
+                      />
+                    </Tooltip>
+                  </Space>
+                ),
+              },
+            ]}
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total) => `Jami ${total} ta test`,
+            }}
+          />
+        </div>
+      )}
+
+      {/* Student Details Modal */}
+      <Modal
+        open={studentDetailDialogOpen}
+        onCancel={() => setStudentDetailDialogOpen(false)}
+        title={`${selectedTest?.title} - O'quvchi natijalari`}
+        width={800}
+        footer={null}
+      >
+        <List>
+          {selectedTest && getStudentDetails(selectedTest.id).map((attempt, index) => {
+            const student = students.find(s => s.id === attempt.student);
+            return (
+              <List.Item key={`${attempt.student}-${attempt.id}`}>
+                <List.Item.Meta
+                  avatar={
+                    <Badge count={index + 1}>
+                      <Avatar>{attempt.studentName.charAt(0).toUpperCase()}</Avatar>
+                    </Badge>
+                  }
+                  title={
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography.Text>{attempt.studentName}</Typography.Text>
+                      <Tag color={attempt.score >= 80 ? 'green' : attempt.score >= 60 ? 'orange' : 'red'}>
+                        {attempt.score}%
+                      </Tag>
+                    </div>
+                  }
+                  description={
+                    <div>
+                      <Typography.Text type="secondary">ID: {attempt.studentId}</Typography.Text>
+                      <br />
+                      <Typography.Text type="secondary">
+                        Topshirilgan: {new Date(attempt.submitted_at).toLocaleString('uz-UZ')}
+                      </Typography.Text>
+                    </div>
+                  }
+                />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <Button
+                    size="small"
+                    onClick={() => navigate(`/teacher/test-details/${selectedTest.id}`)}
+                  >
+                    Batafsil
+                  </Button>
+                  {attempt.score < 60 && student && (
+                    <Button
+                      size="small"
+                      type="primary"
+                      danger
+                      onClick={() => handleOpenLessonModal(student, attempt, selectedTest)}
+                    >
+                      Dars chaqirish
+                    </Button>
+                  )}
+                </div>
+              </List.Item>
+            );
+          })}
+        </List>
+        {selectedTest && getStudentDetails(selectedTest.id).length === 0 && (
+          <Typography.Text type="secondary" style={{ textAlign: 'center', display: 'block', padding: '24px' }}>
+            Hali hech kim bu testni topshirmagan
+          </Typography.Text>
+        )}
+      </Modal>
 
       {/* Test Details Modal */}
-      <Dialog 
-        open={testDetailsModalOpen} 
-        onClose={handleCloseTestDetails}
-        maxWidth="lg"
-        fullWidth
+      <Modal
+        open={testDetailsModalOpen}
+        onCancel={handleCloseTestDetails}
+        title={
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography.Text>{selectedTest?.title} - To'liq ma'lumotlar</Typography.Text>
+            <Tag color={selectedTest?.is_active ? 'green' : 'default'}>
+              {selectedTest?.is_active ? 'Faol' : 'Nofaol'}
+            </Tag>
+          </div>
+        }
+        width={1000}
+        footer={null}
       >
-        <DialogTitle>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">
-              {selectedTest?.title} - To'liq ma'lumotlar
-            </Typography>
-            <Chip
-              label={selectedTest?.is_active ? 'Faol' : 'Nofaol'}
-              color={selectedTest?.is_active ? 'success' : 'default'}
-              size="small"
-            />
-          </Box>
-        </DialogTitle>
-        <DialogContent>
           {selectedTest && (
             <Box>
               {/* Basic Test Information */}
@@ -1089,11 +1020,7 @@ const MyTests = () => {
               </Box>
             </Box>
           )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseTestDetails}>Yopish</Button>
-        </DialogActions>
-      </Dialog>
+      </Modal>
 
       {/* Lesson Modal */}
       <SendLessonModal
@@ -1104,31 +1031,37 @@ const MyTests = () => {
         teacherInfo={currentUser}
       />
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle>Testni o'chirish</DialogTitle>
-        <DialogContent>
-          <Typography>
-            "{selectedTest?.title}" testini o'chirishni xohlaysizmi? 
-            Bu amalni ortga qaytarib bo'lmaydi.
-          </Typography>
-          <Alert severity="warning" sx={{ mt: 2 }}>
-            O'chirilgan test o'quvchilar tomonidan ko'rinmaydi va barcha ma'lumotlar o'chiriladi.
-          </Alert>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Bekor qilish</Button>
-          <Button 
-            onClick={confirmDelete} 
-            color="error" 
-            variant="contained"
-            disabled={loading}
+      {/* Delete Confirmation Modal */}
+      <Modal
+        open={deleteDialogOpen}
+        onCancel={() => setDeleteDialogOpen(false)}
+        title="Testni o'chirish"
+        footer={[
+          <Button key="cancel" onClick={() => setDeleteDialogOpen(false)}>
+            Bekor qilish
+          </Button>,
+          <Button
+            key="delete"
+            type="primary"
+            danger
+            loading={loading}
+            onClick={confirmDelete}
           >
             {loading ? 'O\'chirilmoqda...' : 'O\'chirish'}
           </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+        ]}
+      >
+        <Typography.Text>
+          "{selectedTest?.title}" testini o'chirishni xohlaysizmi?
+          Bu amalni ortga qaytarib bo'lmaydi.
+        </Typography.Text>
+        <Alert
+          message="O'chirilgan test o'quvchilar tomonidan ko'rinmaydi va barcha ma'lumotlar o'chiriladi."
+          type="warning"
+          style={{ marginTop: '16px' }}
+        />
+      </Modal>
+    </div>
   );
 };
 
