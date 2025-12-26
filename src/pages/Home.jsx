@@ -54,7 +54,7 @@ const Home = () => {
               <div className="hero-image">
                 <div className="hero-image-container">
                   <div className="hero-image-placeholder">
-                    <img src="/banner/banner1.png" alt="" />
+                    <img src="/banner/ban1.png" alt="" />
                   </div>
                 </div>
               </div>
@@ -79,7 +79,7 @@ const Home = () => {
               <div className="role-card">
                 <div className="role-image">
                   <div className="role-image-placeholder">
-                    <img src="/banner/rasm1.png" alt="Talaba" />
+                    <img src="/banner/ras1.png" alt="Talaba" />
                   </div>
                 </div>
                 <div className="role-content">
@@ -87,7 +87,7 @@ const Home = () => {
                     <div className="role-icon role-icon-blue">
                       <span className="material-symbols-outlined">school</span>
                     </div>
-                    <h3 className="role-title">Talaba</h3>
+                    <h3 className="role-title">O'quvchi</h3>
                   </div>
                   <p className="role-description">
                     Test topshiring, bilimingizni mustahkamlang va natijalarni
@@ -109,7 +109,7 @@ const Home = () => {
               <div className="role-card">
                 <div className="role-image">
                   <div className="role-image-placeholder">
-                    <img src="/banner/rasm2.png" alt="O'qituvchi" />
+                    <img src="/banner/rasmm2.png" alt="O'qituvchi" />
                   </div>
                 </div>
                 <div className="role-content">
@@ -140,7 +140,7 @@ const Home = () => {
               <div className="role-card">
                 <div className="role-image">
                   <div className="role-image-placeholder">
-                    <img src="/banner/rasm3.png" alt="Administrator" />
+                    <img src="/banner/ras3.png" alt="Administrator" />
                   </div>
                 </div>
                 <div className="role-content">
@@ -208,7 +208,7 @@ const Home = () => {
                 <div className="timeline-point"></div>
                 <div className="timeline-block right-block">
                   <div className="feature-image-wrapper">
-                    <img src="/banner/info1.png" alt="Real vaqt tahlili" />
+                    <img src="/banner/inf1.png" alt="Real vaqt tahlili" />
                   </div>
                 </div>
               </div>
@@ -217,7 +217,7 @@ const Home = () => {
               <div className="timeline-item">
                 <div className="timeline-block left-block">
                   <div className="feature-image-wrapper">
-                    <img src="/banner/info2.png" alt="Xavfsiz test tizimi" />
+                    <img src="/banner/inf2.png" alt="Xavfsiz test tizimi" />
                   </div>
                 </div>
                 <div className="timeline-point"></div>
@@ -258,7 +258,7 @@ const Home = () => {
                 <div className="timeline-point"></div>
                 <div className="timeline-block right-block">
                   <div className="feature-image-wrapper">
-                    <img src="/banner/info3.png" alt="Katta savollar banki" />
+                    <img src="/banner/inf3.png" alt="Katta savollar banki" />
                   </div>
                 </div>
               </div>
@@ -267,7 +267,7 @@ const Home = () => {
               <div className="timeline-item">
                 <div className="timeline-block left-block">
                   <div className="feature-image-wrapper">
-                    <img src="/banner/info4.png" alt="Moslashuvchan dizayn" />
+                    <img src="/banner/inf4.png" alt="Moslashuvchan dizayn" />
                   </div>
                 </div>
                 <div className="timeline-point"></div>

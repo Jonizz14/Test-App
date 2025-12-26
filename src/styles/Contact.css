@@ -1102,3 +1102,238 @@ body {
     flex-wrap: wrap;
   }
 }
+
+/* Dark Mode Styles */
+.dark body {
+  background-color: #101622;
+  color: #f9fafb;
+}
+
+.dark .contact-hero {
+  background: #101622;
+}
+
+.dark .contact-hero-title {
+  color: #f9fafb;
+}
+
+.dark .contact-hero-subtitle {
+  color: #d1d5db;
+}
+
+.dark .contact-methods {
+  background: #1a2332;
+}
+
+.dark .contact-methods-title {
+  color: #f9fafb;
+}
+
+.dark .contact-methods-description {
+  color: #d1d5db;
+}
+
+.dark .contact-method-card {
+  background: #374151;
+  border-color: #4b5563;
+}
+
+.dark .contact-method-card:hover {
+  border-color: rgba(19, 91, 236, 0.3);
+}
+
+.dark .contact-method-title {
+  color: #f9fafb;
+}
+
+.dark .contact-method-description {
+  color: #d1d5db;
+}
+
+.dark .contact-method-info {
+  background: #4b5563;
+}
+
+.dark .contact-method-info strong {
+  color: #f9fafb;
+}
+
+.dark .contact-form-section {
+  background: #101622;
+}
+
+.dark .contact-form-title {
+  color: #f9fafb;
+}
+
+.dark .contact-form-description {
+  color: #d1d5db;
+}
+
+.dark .contact-form {
+  background: #374151;
+  border-color: #4b5563;
+}
+
+.dark .contact-form-label {
+  color: #d1d5db;
+}
+
+.dark .contact-form-input,
+.dark .contact-form-select,
+.dark .contact-form-textarea {
+  background: #4b5563;
+  border-color: #6b7280;
+  color: #f9fafb;
+}
+
+.dark .contact-form-input:focus,
+.dark .contact-form-select:focus,
+.dark .contact-form-textarea:focus {
+  border-color: #60a5fa;
+}
+
+.dark .contact-location {
+  background: #1a2332;
+}
+
+.dark .contact-location-title {
+  color: #f9fafb;
+}
+
+.dark .contact-location-description {
+  color: #d1d5db;
+}
+
+.dark .contact-location-details h4 {
+  color: #f9fafb;
+}
+
+.dark .contact-location-details p {
+  color: #d1d5db;
+}
+
+.dark .my-messages-section {
+  background: #1a2332;
+}
+
+.dark .my-messages-title {
+  color: #f9fafb;
+}
+
+.dark .my-messages-description {
+  color: #d1d5db;
+}
+
+.dark .my-messages-toggle {
+  background: #374151;
+  color: #f9fafb;
+  border-color: #60a5fa;
+}
+
+.dark .my-messages-toggle:hover {
+  background: #60a5fa;
+}
+
+.dark .my-messages-empty {
+  background: #374151;
+  border-color: #4b5563;
+}
+
+.dark .my-messages-empty p {
+  color: #d1d5db;
+}
+
+.dark .message-card {
+  background: #374151;
+  border-color: #4b5563;
+}
+
+.dark .message-info h4 {
+  color: #f9fafb;
+}
+
+.dark .message-subject {
+  color: #d1d5db;
+}
+
+.dark .message-content p {
+  color: #f9fafb;
+}
+
+.dark .message-meta {
+  color: #9ca3af;
+}
+
+.dark .admin-reply {
+  background: #1e3a8a;
+  border-color: #3b82f6;
+}
+
+.dark .admin-reply h5 {
+  color: #93c5fd;
+}
+
+.dark .admin-reply p {
+  color: #dbeafe;
+}
+
+.dark .reply-meta {
+  color: #93c5fd;
+}
+
+.dark .edit-message-dialog {
+  background: #374151;
+  border-color: #4b5563;
+}
+
+.dark .edit-message-dialog h4 {
+  color: #f9fafb;
+}
+
+.dark .edit-message-dialog input,
+.dark .edit-message-dialog select,
+.dark .edit-message-dialog textarea {
+  background: #4b5563;
+  border-color: #6b7280;
+  color: #f9fafb;
+}
+
+.dark .cancel-btn {
+  background: #4b5563;
+  color: #f9fafb;
+  border-color: #6b7280;
+}
+
+.dark .cancel-btn:hover {
+  background: #6b7280;
+}
+
+.dark .save-btn {
+  background: #60a5fa;
+  color: #f9fafb;
+}
+
+.dark .save-btn:hover {
+  background: #3b82f6;
+}
+
+.dark .delete-confirmation-dialog {
+  background: #374151;
+}
+
+.dark .delete-confirmation-dialog h4 {
+  color: #f9fafb;
+}
+
+.dark .delete-confirmation-dialog p {
+  color: #d1d5db;
+}
+
+.dark .confirm-delete-btn {
+  background: #dc2626;
+}
+
+.dark .confirm-delete-btn:hover {
+  background: #b91c1c;
+}

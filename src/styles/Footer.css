@@ -332,3 +332,69 @@ body {
     padding: 0 1rem;
   }
 }
+
+/* Dark Mode Styles */
+.dark .footer {
+  background: #1a2332;
+  border-top: 1px solid #374151;
+}
+
+.dark .footer-section h4 {
+  color: #ffffff;
+}
+
+.dark .footer-section p {
+  color: #ffffff;
+}
+
+.dark .footer-section a {
+  color: #ffffff;
+}
+
+.dark .footer-section a:hover {
+  color: #60a5fa;
+}
+
+.dark .footer-brand {
+  color: #ffffff;
+}
+
+.dark .footer-social-link {
+  color: #ffffff;
+}
+
+.dark .footer-social-link:hover {
+  color: #60a5fa;
+}
+
+.dark .footer-bottom {
+  border-top: 1px solid #374151;
+}
+
+.dark .footer-copyright {
+  color: #ffffff;
+}
+
+.dark .footer-legal-link {
+  color: #ffffff;
+}
+
+.dark .footer-legal-link:hover {
+  color: #f9fafb;
+}
+
+.dark .text-primary {
+  color: #60a5fa;
+}
+
+.dark .text-gray {
+  color: #ffffff;
+}
+
+.dark .text-gray-500 {
+  color: #ffffff;
+}
+
+.dark .text-gray-900 {
+  color: #ffffff;
+}

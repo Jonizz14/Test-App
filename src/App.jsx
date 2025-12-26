@@ -8,6 +8,7 @@ import 'aos/dist/aos.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { StatisticsProvider } from './context/StatisticsContext';
 import { ServerTestProvider } from './context/ServerTestContext';
+import { ThemeProvider as CustomThemeProvider } from './context/ThemeContext';
 
 // Import pages (we'll create these next)
 import LoginPage from './pages/LoginPage';
@@ -254,10 +255,11 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <AuthProvider>
-          <StatisticsProvider>
-            <ServerTestProvider>
-              <Router>
+        <CustomThemeProvider>
+          <AuthProvider>
+            <StatisticsProvider>
+              <ServerTestProvider>
+                <Router>
               <Routes>
                 {/* Test routes - Health check and testing endpoints */}
                 <Route path="/test" element={<TestPage />} />
@@ -337,12 +339,13 @@ function App() {
                 {/* 404 page - Catch all unmatched routes */}
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
-            </Router>
+              </Router>
             </ServerTestProvider>
           </StatisticsProvider>
         </AuthProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
+      </CustomThemeProvider>
+    </ThemeProvider>
+  </ErrorBoundary>
   );
 }
 
