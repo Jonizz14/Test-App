@@ -121,7 +121,7 @@ class ApiService {
   // Authentication methods
   async login(email, password) {
     // Backend expects 'username' field, so we'll send email as username
-    const response = await fetch(`${this.baseURL}/users/login/`, {
+    const response = await fetch(`${this.baseURL}/users/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: email, password }),
