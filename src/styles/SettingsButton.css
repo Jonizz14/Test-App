@@ -1,0 +1,103 @@
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
+
+/* Settings Button */
+.settings-button {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.25rem;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  z-index: 1000;
+}
+
+.dark .settings-button {
+  background: #374151;
+  border: 1px solid #4b5563;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.settings-button:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.dark .settings-button:hover {
+  background: #4b5563;
+  border-color: #6b7280;
+}
+
+.settings-button .material-symbols-outlined {
+  font-size: 1.25rem;
+  color: #6b7280;
+  transition: transform 0.3s ease;
+}
+
+.dark .settings-button .material-symbols-outlined {
+  color: #d1d5db;
+}
+
+.settings-button.active .material-symbols-outlined {
+  transform: rotate(90deg);
+}
+
+/* Settings Menu */
+.settings-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 250px;
+  height: 100vh;
+  background: white;
+  border-left: 1px solid #e5e7eb;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.settings-menu.open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.dark .settings-menu {
+  background: #374151;
+  border-left: 1px solid #4b5563;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.settings-menu-item {
+  width: 100%;
+  padding: 1rem;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  color: #1f2937;
+  transition: background 0.2s ease;
+}
+
+.dark .settings-menu-item {
+  color: #f9fafb;
+}
+
+.settings-menu-item:hover {
+  background: #f3f4f6;
+}
+
+.dark .settings-menu-item:hover {
+  background: #4b5563;
+}
+
+.settings-menu-item .material-symbols-outlined {
+  font-size: 1.25rem;
+}

@@ -136,7 +136,7 @@ const Contact = () => {
               <div className="contact-hero-image">
                 <div className="contact-hero-image-container">
                   <div className="contact-hero-image-placeholder">
-                    <img src="/banner/banner1.png" alt="" />
+                    <img src="/banner/ban1.png" alt="" />
                   </div>
                 </div>
               </div>

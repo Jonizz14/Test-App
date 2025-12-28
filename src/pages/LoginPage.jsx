@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import UnbanModal from '../components/UnbanModal';
+import SettingsButton from '../components/SettingsButton';
 import { Alert } from 'antd';
 import logoImage from '../assets/image.png';
 import '../styles/Login.css';
@@ -98,6 +99,8 @@ const LoginPage = () => {
 
   return (
     <div className="login-page">
+      <SettingsButton />
+
       <div className="layout-container">
         <div>
           <div className="login-card" style={{ maxWidth: 660 }}>

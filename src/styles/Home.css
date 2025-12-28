@@ -12,7 +12,6 @@ body {
     Roboto, sans-serif;
   line-height: 1.6;
   color: #1f2937;
-  background-color: #f8fafc;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -51,9 +50,6 @@ body {
   top: 0;
   z-index: 50;
   width: 100%;
-  border-bottom: 1px solid #e5e7eb;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
   transition: all 0.2s ease;
 }
 
@@ -197,9 +193,9 @@ body {
 
 .hero {
   width: 100%;
-  background: transparent;
+  background: white;
   padding: 3rem 0 5rem;
-  padding-top: 80px;
+  padding-top: 100px;
 }
 
 .hero .layout-container {
@@ -1454,7 +1450,7 @@ body {
   top: 0;
   bottom: 0;
   width: 4px; /* Chiziqni biroz qalinlashtirdik */
-  background: linear-gradient(to bottom, #135bec, #9333ea);
+  background: linear-gradient(to bottom, #135bec, #135bec);
   transform: translateX(-50%);
   z-index: 1;
   border-radius: 2px;
@@ -1731,4 +1727,8 @@ body {
 .dark .timeline-point {
   background: #60a5fa;
   border-color: #101622;
+}
+
+.dark .timeline-line {
+  background: linear-gradient(to bottom, #135bec, #135bec);
 }

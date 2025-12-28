@@ -1,6 +1,15 @@
 @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Noto+Sans:wght@400;500;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
 
+:root {
+  --lg-bg-color: rgba(255, 255, 255, 0.25);
+  --lg-highlight: rgba(255, 255, 255, 0.75);
+  --lg-text: #ffffff;
+  --lg-hover-glow: rgba(255, 255, 255, 0.4);
+  --lg-red: #fb4268;
+  --lg-grey: #5b5b5b;
+}
+
 /* Reuse base styles from Home.css */
 * {
   box-sizing: border-box;
@@ -42,6 +51,7 @@ body {
   width: 100%;
   background: white;
   padding: 3rem 0 5rem;
+  padding-top: 100px;
 }
 
 .contact-hero .layout-container {
@@ -222,13 +232,17 @@ body {
 .contact-method-card {
   display: flex;
   flex-direction: column;
-  background: white;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(15px) saturate(180%);
+  -webkit-backdrop-filter: blur(15px) saturate(180%);
   border-radius: 1rem;
   padding: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #f3f4f6;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .contact-method-card:hover {

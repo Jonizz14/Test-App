@@ -17,36 +17,19 @@
   direction: ltr;
 }
 
-/* Layout Container Classes */
-.layout-container {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-.layout-content-container {
-  display: flex;
-  width: 100%;
-  max-width: 1200px;
-  align-items: center;
-  justify-content: space-between;
-}
-
 /* Header Styles */
 .header {
   position: sticky;
-  margin-top: -60px;
+  margin-top: -80px;
   z-index: 50;
   width: 100%;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  /* background: transparent; */
-  backdrop-filter: blur(30px) saturate(220%) brightness(1.15) contrast(1.1);
-  -webkit-backdrop-filter: blur(30px) saturate(270%) brightness(1.15) contrast(1.1);
-  transition: all 0.3s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0);
+  background: rgba(72, 77, 91, 0.104);
+  backdrop-filter: blur(2.5px) saturate(200%) brightness(1.1);
+  -webkit-backdrop-filter: blur(15px) saturate(200%) brightness(1.1);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.123),
-    0 4px 24px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.143);
+    0 1px 0 rgba(255, 255, 255, 0),
+    0 4px 20px rgba(0, 0, 0, 0);
 }
 
 .header .layout-container {
@@ -82,7 +65,7 @@
 }
 
 .logo-text {
-  color: #1f2937;
+  color: #f9fafb;
   font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.025em;
@@ -214,12 +197,12 @@
 /* Dark Mode Styles */
 .dark .header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(16, 22, 38, 0.4);
-  backdrop-filter: blur(25px) saturate(200%) brightness(1.1);
-  -webkit-backdrop-filter: blur(25px) saturate(200%) brightness(1.1);
+  background: rgba(16, 22, 38, 0.104);
+  backdrop-filter: blur(2.5px) saturate(200%) brightness(1.1);
+  -webkit-backdrop-filter: blur(15px) saturate(200%) brightness(1.1);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.05),
-    0 4px 20px rgba(0, 0, 0, 0.15);
+    0 1px 0 rgba(255, 255, 255, 0),
+    0 4px 20px rgba(0, 0, 0, 0);
 }
 
 .dark .logo-text {
