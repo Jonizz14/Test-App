@@ -1,0 +1,2 @@
+# Proxy API requests to bypass CORS
+/api/*  https://django-test-app-backend.onrender.com/api/:splat  200
