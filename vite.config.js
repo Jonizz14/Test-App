@@ -4,6 +4,10 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  define: {
+    // Ensure VITE_API_BASE_URL is properly defined for production builds
+    'import.meta.env.VITE_API_BASE_URL': JSON.stringify(process.env.VITE_API_BASE_URL || 'https://django-test-app-backend.onrender.com/api')
+  },
   server: {
     host: true, // Listen on all addresses
     port: 5173, // Default port
