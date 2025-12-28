@@ -277,8 +277,10 @@ const StudentProfile = () => {
             </Text>
           </div>
           
-          {/* Market Button */}
+          {/* Action Buttons */}
           <div style={{
+            display: 'flex',
+            gap: '12px',
             marginLeft: '16px'
           }}>
             <Button
@@ -306,72 +308,69 @@ const StudentProfile = () => {
             >
               Market
             </Button>
+            
+            {/* Edit Button - Only for premium users */}
+            {shouldShowPremiumFeatures(currentUser, currentUser) && (
+              <Button
+                size="large"
+                icon={<EditOutlined />}
+                onClick={() => setEditDialogOpen(true)}
+                style={{
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  padding: '12px 24px',
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
+                  borderColor: '#10b981',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#059669';
+                  e.target.style.boxShadow = '0 8px 30px rgba(16, 185, 129, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#10b981';
+                  e.target.style.boxShadow = '0 4px 20px rgba(16, 185, 129, 0.3)';
+                }}
+              >
+                Tahrirlash
+              </Button>
+            )}
+            
+            {/* Delete Profile Data Button - Only for specific student */}
+            {currentUser?.id === 'TO\'XTAYEVJT9-03-AE114' && (
+              <Button
+                size="large"
+                icon={<DeleteOutlined />}
+                onClick={handleDeleteProfileData}
+                loading={deleteLoading}
+                style={{
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  padding: '12px 24px',
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 20px rgba(220, 38, 38, 0.3)',
+                  borderColor: '#dc2626',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#b91c1c';
+                  e.target.style.boxShadow = '0 8px 30px rgba(220, 38, 38, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#dc2626';
+                  e.target.style.boxShadow = '0 4px 20px rgba(220, 38, 38, 0.3)';
+                }}
+              >
+                Profilni tozalash
+              </Button>
+            )}
           </div>
         </div>
 
-        {/* Other Action Buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'flex-end' }}>
-          {/* Edit Button - Only for premium users */}
-          {shouldShowPremiumFeatures(currentUser, currentUser) && (
-            <Button
-              size="large"
-              icon={<EditOutlined />}
-              onClick={() => setEditDialogOpen(true)}
-              style={{
-                backgroundColor: '#10b981',
-                color: 'white',
-                fontSize: '1.1rem',
-                fontWeight: 600,
-                padding: '12px 24px',
-                borderRadius: '12px',
-                boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
-                borderColor: '#10b981',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#059669';
-                e.target.style.boxShadow = '0 8px 30px rgba(16, 185, 129, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#10b981';
-                e.target.style.boxShadow = '0 4px 20px rgba(16, 185, 129, 0.3)';
-              }}
-            >
-              Tahrirlash
-            </Button>
-          )}
-          
-          {/* Delete Profile Data Button - Only for specific student */}
-          {currentUser?.id === 'TO\'XTAYEVJT9-03-AE114' && (
-            <Button
-              size="large"
-              icon={<DeleteOutlined />}
-              onClick={handleDeleteProfileData}
-              loading={deleteLoading}
-              style={{
-                backgroundColor: '#dc2626',
-                color: 'white',
-                fontSize: '1.1rem',
-                fontWeight: 600,
-                padding: '12px 24px',
-                borderRadius: '12px',
-                boxShadow: '0 4px 20px rgba(220, 38, 38, 0.3)',
-                borderColor: '#dc2626',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#b91c1c';
-                e.target.style.boxShadow = '0 8px 30px rgba(220, 38, 38, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#dc2626';
-                e.target.style.boxShadow = '0 4px 20px rgba(220, 38, 38, 0.3)';
-              }}
-            >
-              Profilni tozalash
-            </Button>
-          )}
-          
 
-        </div>
       </div>
 
       {/* Success Message */}
