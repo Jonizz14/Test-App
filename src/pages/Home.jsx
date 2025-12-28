@@ -76,6 +76,7 @@ const Home = () => {
             </div>
 
             <div className="roles-grid">
+              {/* O'quvchi */}
               <div className="role-card">
                 <div className="role-image">
                   <div className="role-image-placeholder">
@@ -94,18 +95,10 @@ const Home = () => {
                     real vaqtda ko'ring. O'zlashtirish darajangizni kuzatib
                     boring.
                   </p>
-                  <button
-                    className="role-link"
-                    onClick={() => navigate("/login")}
-                  >
-                    Kirish
-                    <span className="material-symbols-outlined">
-                      arrow_forward
-                    </span>
-                  </button>
+                  <button className="role-link" onClick={() => navigate("/login")}>Kirish<span className="material-symbols-outlined">arrow_forward</span></button>
                 </div>
               </div>
-
+              {/* O'qituvchi */}
               <div className="role-card">
                 <div className="role-image">
                   <div className="role-image-placeholder">
@@ -115,9 +108,7 @@ const Home = () => {
                 <div className="role-content">
                   <div className="role-header">
                     <div className="role-icon role-icon-green">
-                      <span className="material-symbols-outlined">
-                        cast_for_education
-                      </span>
+                      <span className="material-symbols-outlined">cast_for_education</span>
                     </div>
                     <h3 className="role-title">O'qituvchi</h3>
                   </div>
@@ -125,18 +116,10 @@ const Home = () => {
                     Testlar yarating, guruhlarni boshqaring va o'quvchilarning
                     o'zlashtirishini chuqur tahlil qiling. Vaqtingizni tejang.
                   </p>
-                  <button
-                    className="role-link"
-                    onClick={() => navigate("/login")}
-                  >
-                    Boshlash
-                    <span className="material-symbols-outlined">
-                      arrow_forward
-                    </span>
-                  </button>
+                  <button className="role-link" onClick={() => navigate("/login")}>Boshlash<span className="material-symbols-outlined">arrow_forward</span></button>
                 </div>
               </div>
-
+              {/* Administrator */}
               <div className="role-card">
                 <div className="role-image">
                   <div className="role-image-placeholder">
@@ -146,9 +129,7 @@ const Home = () => {
                 <div className="role-content">
                   <div className="role-header">
                     <div className="role-icon role-icon-purple">
-                      <span className="material-symbols-outlined">
-                        admin_panel_settings
-                      </span>
+                      <span className="material-symbols-outlined">admin_panel_settings</span>
                     </div>
                     <h3 className="role-title">Administrator</h3>
                   </div>
@@ -157,17 +138,10 @@ const Home = () => {
                     kontentni boshqaring. Hisobotlar va statistikalarni
                     kuzating.
                   </p>
-                  <button
-                    className="role-link"
-                    onClick={() => navigate("/login")}
-                  >
-                    Boshqarish
-                    <span className="material-symbols-outlined">
-                      arrow_forward
-                    </span>
-                  </button>
+                  <button className="role-link" onClick={() => navigate("/login")}>Boshqarish<span className="material-symbols-outlined">arrow_forward</span></button>
                 </div>
               </div>
+
             </div>
           </div>
         </div>

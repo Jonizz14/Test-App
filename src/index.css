@@ -60,8 +60,7 @@ body {
 
 /* Focus styles */
 *:focus {
-  outline: 2px solid var(--blue-500);
-  outline-offset: 2px;
+  outline: none;
 }
 
 /* Text selection styles for better visibility */
