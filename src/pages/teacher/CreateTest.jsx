@@ -278,40 +278,47 @@ const CreateTest = () => {
 
   // Import functionality
   const downloadSampleTemplate = () => {
-    const sampleData = [
-      {
-        'Savol tartib raqami': 1,
-        'Savol matni': '2 + 2 nechaga teng?',
-        'Variant A': '3',
-        'Variant B': '4',
-        'Variant C': '5',
-        'Variant D': '6',
-        'To\'g\'ri javob': 'B',
-        'Tushuntirish': '2 + 2 = 4',
-        'Savol turi': 'multiple_choice',
-        'Formula': '',
-        'Kod': ''
-      },
-      {
-        'Savol tartib raqami': 2,
-        'Savol matni': 'Matematik formula yozing: a kvadrat + b kvadrat',
-        'Variant A': '',
-        'Variant B': '',
-        'Variant C': '',
-        'Variant D': '',
-        'To\'g\'ri javob': 'a² + b²',
-        'Tushuntirish': 'Pifagor teoremasi',
-        'Savol turi': 'formula',
-        'Formula': 'a^2 + b^2',
-        'Kod': ''
-      }
-    ];
+    console.log('Download template function called');
+    try {
+      const sampleData = [
+        {
+          'Savol tartib raqami': 1,
+          'Savol matni': '2 + 2 nechaga teng?',
+          'Variant A': '3',
+          'Variant B': '4',
+          'Variant C': '5',
+          'Variant D': '6',
+          'To\'g\'ri javob': 'B',
+          'Tushuntirish': '2 + 2 = 4',
+          'Savol turi': 'multiple_choice',
+          'Formula': '',
+          'Kod': ''
+        },
+        {
+          'Savol tartib raqami': 2,
+          'Savol matni': 'Matematik formula yozing: a kvadrat + b kvadrat',
+          'Variant A': '',
+          'Variant B': '',
+          'Variant C': '',
+          'Variant D': '',
+          'To\'g\'ri javob': 'a² + b²',
+          'Tushuntirish': 'Pifagor teoremasi',
+          'Savol turi': 'formula',
+          'Formula': 'a^2 + b^2',
+          'Kod': ''
+        }
+      ];
 
-    const ws = XLSX.utils.json_to_sheet(sampleData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Test namuna');
-    XLSX.writeFile(wb, 'test_import_namuna.xlsx');
-    message.success('Namuna fayl yuklab olindi!');
+      const ws = XLSX.utils.json_to_sheet(sampleData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Test namuna');
+      XLSX.writeFile(wb, 'test_import_namuna.xlsx');
+      message.success('Namuna fayl yuklab olindi!');
+      console.log('Template downloaded successfully');
+    } catch (error) {
+      console.error('Error downloading template:', error);
+      message.error('Fayl yuklab olishda xatolik yuz berdi');
+    }
   };
 
   const handleImportFromExcel = async (event) => {
@@ -532,37 +539,21 @@ const CreateTest = () => {
       return;
     }
 
-    // Validate questions
+    // Validate questions (only multiple choice)
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
       if (!q.question_text.trim()) {
         setError(`Savol ${i + 1} matni talab qilinadi`);
         return;
       }
-      if (q.question_type === 'multiple_choice') {
-        if (q.options.some(opt => !opt.text || opt.text.trim() === '')) {
-          setError(`Savol ${i + 1} barcha variantlarni to'ldirish kerak`);
-          return;
-        }
-        if (!q.correct_answer || q.correct_answer.trim() === '') {
-          setError(`Savol ${i + 1} to'g'ri javobni belgilash kerak`);
-          return;
-        }
-      } else if (q.question_type === 'short_answer') {
-        if (!q.correct_answer || q.correct_answer.trim() === '') {
-          setError(`Savol ${i + 1} to'g'ri javobni kiritish kerak`);
-          return;
-        }
-      } else if (q.question_type === 'formula') {
-        if (!q.formula || q.formula.trim() === '') {
-          setError(`Savol ${i + 1} formulani kiritish kerak`);
-          return;
-        }
-      } else if (q.question_type === 'code') {
-        if (!q.code || q.code.trim() === '') {
-          setError(`Savol ${i + 1} kod namunasi kerak`);
-          return;
-        }
+      // Only multiple choice questions are allowed
+      if (q.options.some(opt => !opt.text || opt.text.trim() === '')) {
+        setError(`Savol ${i + 1} barcha variantlarni to'ldirish kerak`);
+        return;
+      }
+      if (!q.correct_answer || q.correct_answer.trim() === '') {
+        setError(`Savol ${i + 1} to'g'ri javobni belgilash kerak`);
+        return;
       }
     }
 
@@ -777,7 +768,11 @@ const CreateTest = () => {
                 type="primary"
                 icon={<ImportIcon />}
                 size="large"
-                onClick={() => setImportModalVisible(true)}
+                onClick={() => {
+                  console.log('Import button clicked, setting modal to visible');
+                  setImportModalVisible(true);
+                  console.log('ImportModalVisible state set to true');
+                }}
                 style={{
                   backgroundColor: '#2563eb',
                   borderColor: '#2563eb',
@@ -1081,9 +1076,6 @@ const CreateTest = () => {
                     placeholder="Savol turini tanlang"
                   >
                     <Select.Option value="multiple_choice">Ko'p variantli</Select.Option>
-                    <Select.Option value="short_answer">Ochiq javob</Select.Option>
-                    <Select.Option value="formula">Formula</Select.Option>
-                    <Select.Option value="code">Kod</Select.Option>
                   </Select>
                 </div>
 
@@ -1185,93 +1177,7 @@ const CreateTest = () => {
                   </>
                 )}
 
-                {question.question_type === 'short_answer' && (
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                      <Typography.Text style={{ flex: 1 }}>
-                        To'g'ri javob
-                      </Typography.Text>
-                      <Button
-                        size="small"
-                        onClick={() => handleOpenMathSymbols(index, 'correct_answer')}
-                        style={{
-                          minWidth: 'auto',
-                          padding: '4px 8px',
-                          fontSize: '12px'
-                        }}
-                      >
-                        🧮 Belgilar
-                      </Button>
-                    </div>
-                    <Input.TextArea
-                      rows={2}
-                      value={question.correct_answer}
-                      onChange={(e) => updateQuestion(index, 'correct_answer', e.target.value)}
-                      placeholder="O'quvchi javob berishi kerak bo'lgan to'g'ri javob (LaTeX uchun $...$ dan foydalaning)"
-                    />
-                    {question.correct_answer && (
-                      <Card size="small" style={{
-                        marginTop: '8px',
-                        backgroundColor: '#f8fafc',
-                        border: '1px solid #e2e8f0'
-                      }}>
-                        <Typography.Text style={{ color: '#64748b', fontWeight: 500, marginBottom: '8px', display: 'block' }}>
-                          Javob ko'rinishi:
-                        </Typography.Text>
-                        <LaTeXPreview text={question.correct_answer} />
-                      </Card>
-                    )}
-                  </div>
-                )}
 
-                {question.question_type === 'formula' && (
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                      <Typography.Text style={{ flex: 1 }}>
-                        Formula
-                      </Typography.Text>
-                      <Button
-                        size="small"
-                        onClick={() => handleOpenMathSymbols(index, 'formula')}
-                        style={{
-                          minWidth: 'auto',
-                          padding: '4px 8px',
-                          fontSize: '12px'
-                        }}
-                      >
-                        🧮 Belgilar
-                      </Button>
-                    </div>
-                    <Input.TextArea
-                      rows={3}
-                      value={question.formula}
-                      onChange={(e) => updateQuestion(index, 'formula', e.target.value)}
-                      placeholder="Matematik formulani kiriting (LaTeX: \frac{a}{b}, x^2, \sqrt{x}, etc.)"
-                    />
-                    {question.formula && (
-                      <Card size="small" style={{
-                        marginTop: '8px',
-                        backgroundColor: '#f8fafc',
-                        border: '1px solid #e2e8f0'
-                      }}>
-                        <Typography.Text style={{ color: '#64748b', fontWeight: 500, marginBottom: '8px', display: 'block' }}>
-                          Formula ko'rinishi:
-                        </Typography.Text>
-                        <LaTeXPreview text={question.formula} />
-                      </Card>
-                    )}
-                  </div>
-                )}
-
-                {question.question_type === 'code' && (
-                  <Input.TextArea
-                    rows={4}
-                    value={question.code}
-                    onChange={(e) => updateQuestion(index, 'code', e.target.value)}
-                    placeholder="Kod namunasi yozing"
-                    style={{ marginBottom: '16px', fontFamily: 'monospace' }}
-                  />
-                )}
 
                 <Input.TextArea
                   rows={2}

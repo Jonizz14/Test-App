@@ -307,10 +307,7 @@ class ApiService {
     return this.post('/warnings/log_warning/', data);
   }
 
-  async getWarnings(params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    return this.get(`/warnings/${queryString ? `?${queryString}` : ''}`);
-  }
+
 
   // Ban management methods
   async banUser(userId, reason) {

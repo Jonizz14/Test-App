@@ -41,6 +41,10 @@ export const ServerTestProvider = ({ children }) => {
         setError('Test session has expired');
         setCurrentSession(null);
         setSessionStarted(false);
+      } else if (err.response?.status === 409 && err.response?.data?.code === 'DUPLICATE_ATTEMPT') {
+        setError('Test has already been completed');
+        setCurrentSession(null);
+        setSessionStarted(false);
       } else {
         setError(err.response?.data?.error || 'Failed to submit test');
       }

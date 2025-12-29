@@ -295,6 +295,9 @@ class TestAttempt(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - {self.test.title}"
+    
+    class Meta:
+        unique_together = [['student', 'test']]
 
 class TestSession(models.Model):
     """Model to track server-side test sessions with persistent timer"""

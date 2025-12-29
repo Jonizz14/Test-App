@@ -39,23 +39,14 @@ const TestDetails = () => {
           // Get test attempts with student details
           const attempts = await apiService.getAttempts({ test: testData.id });
 
-          // Get warning logs for ban calculations
-          const warnings = await apiService.getWarnings();
-
           // Process student data
           const studentData = attempts.map(attempt => {
-            // Calculate bans based on warnings (every 3 warnings = 1 ban)
-            const studentWarnings = warnings.filter(w => w.student === attempt.student).length;
-            const banCount = Math.floor(studentWarnings / 3);
-
             return {
               id: attempt.student,
               name: attempt.student_name,
               score: attempt.score,
               submittedAt: attempt.submitted_at,
               timeTaken: attempt.time_taken,
-              warningCount: studentWarnings,
-              banCount: banCount,
               // Mock data for additional lessons (you may need to implement this based on your backend)
               hasExtraLessons: Math.random() > 0.7, // Placeholder - replace with actual data
             };
@@ -126,50 +117,6 @@ const TestDetails = () => {
         <Text style={{ color: '#64748b' }}>
           {Math.floor(time / 60)}:{(time % 60).toString().padStart(2, '0')}
         </Text>
-      ),
-    },
-    {
-      title: 'Q\'oshimcha dars',
-      key: 'extraLessons',
-      render: (_, record) => (
-        record.hasExtraLessons ? (
-          <Space>
-            <TeamOutlined style={{ color: '#059669' }} />
-            <Text style={{ color: '#059669', fontWeight: 500 }}>
-              Oldi
-            </Text>
-          </Space>
-        ) : (
-          <Text style={{ color: '#64748b' }}>
-            Olmadi
-          </Text>
-        )
-      ),
-    },
-    {
-      title: 'Ogohlantirishlar',
-      dataIndex: 'warningCount',
-      key: 'warningCount',
-      render: (count) => (
-        <Space>
-          <WarningOutlined style={{ color: count > 0 ? '#d97706' : '#64748b' }} />
-          <Text style={{ color: count > 0 ? '#d97706' : '#64748b', fontWeight: 500 }}>
-            {count}
-          </Text>
-        </Space>
-      ),
-    },
-    {
-      title: 'Banlar soni',
-      dataIndex: 'banCount',
-      key: 'banCount',
-      render: (count) => (
-        <Space>
-          <StopOutlined style={{ color: count > 0 ? '#dc2626' : '#64748b' }} />
-          <Text style={{ color: count > 0 ? '#dc2626' : '#64748b', fontWeight: 500 }}>
-            {count}
-          </Text>
-        </Space>
       ),
     },
   ];

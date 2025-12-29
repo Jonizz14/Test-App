@@ -877,11 +877,6 @@ class TestSessionViewSet(viewsets.ModelViewSet):
             if session.is_completed:
                 return Response({'error': 'Test already completed'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Check if attempt already exists for this student and test
-            existing_attempt = TestAttempt.objects.filter(student=session.student, test=session.test).first()
-            if existing_attempt:
-                return Response({'error': 'Test attempt already exists'}, status=status.HTTP_400_BAD_REQUEST)
-
             # Check if session has expired
             is_expired = session.is_expired or session.time_remaining <= 0
             if is_expired and not session.is_expired:
@@ -909,13 +904,23 @@ class TestSessionViewSet(viewsets.ModelViewSet):
                 time_taken = int((timezone.now() - session.started_at).total_seconds() / 60)
 
             # Create attempt record
-            attempt = TestAttempt.objects.create(
-                student=session.student,
-                test=session.test,
-                answers=session.answers,
-                score=score,
-                time_taken=time_taken
-            )
+            try:
+                attempt = TestAttempt.objects.create(
+                    student=session.student,
+                    test=session.test,
+                    answers=session.answers,
+                    score=score,
+                    time_taken=time_taken
+                )
+            except Exception as e:
+                # Handle unique constraint violation (student already has an attempt for this test)
+                if 'UNIQUE constraint failed' in str(e) or 'duplicate key value' in str(e):
+                    return Response({
+                        'error': 'Test has already been completed by this student',
+                        'code': 'DUPLICATE_ATTEMPT'
+                    }, status=status.HTTP_409_CONFLICT)
+                else:
+                    raise e
 
             # Mark session as completed
             session.complete()
@@ -934,8 +939,6 @@ class TestSessionViewSet(viewsets.ModelViewSet):
 
         except TestSession.DoesNotExist:
             return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        instance.delete()
 
 class PricingViewSet(viewsets.ModelViewSet):
     queryset = Pricing.objects.all()
