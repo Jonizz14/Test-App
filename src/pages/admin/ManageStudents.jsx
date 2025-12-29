@@ -16,6 +16,7 @@ import {
   Row,
   Col,
   Tooltip,
+  Spin,
 } from 'antd';
 import {
   PlusOutlined,
@@ -56,6 +57,73 @@ const ManageStudents = () => {
   const [pageSize, setPageSize] = useState(10);
   const [classesPageSize, setClassesPageSize] = useState(10);
   const fileInputRef = useRef(null);
+  
+  // Cache system for data
+  const [cache, setCache] = useState({
+    users: null,
+    attempts: null,
+    lastUpdated: null
+  });
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  
+  // Check if cache is valid
+  const isCacheValid = (lastUpdated) => {
+    if (!lastUpdated) return false;
+    return Date.now() - lastUpdated < CACHE_DURATION;
+  };
+  
+  // Load data with caching
+  const loadData = async (forceRefresh = false) => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      // Check if we can use cached data
+      if (!forceRefresh && cache.users && cache.attempts && isCacheValid(cache.lastUpdated)) {
+        console.log('Using cached data');
+        setStudents(cache.users.filter(user => user.role === 'student'));
+        setTeachers(cache.users.filter(user => user.role === 'teacher'));
+        setAttempts(cache.attempts);
+        return;
+      }
+      
+      console.log('Loading fresh data from API');
+      
+      const [allUsersResponse, allAttemptsResponse] = await Promise.all([
+        apiService.getUsers(),
+        apiService.getAttempts()
+      ]);
+      
+      // Handle both possible response formats
+      const allUsers = allUsersResponse.results || allUsersResponse;
+      const allAttempts = allAttemptsResponse.results || allAttemptsResponse;
+      
+      console.log('Loaded users:', allUsers.length);
+      console.log('Loaded attempts:', allAttempts.length);
+      
+      const allStudents = allUsers.filter(user => user.role === 'student');
+      const allTeachers = allUsers.filter(user => user.role === 'teacher');
+      
+      console.log('Filtered students:', allStudents.length);
+      console.log('Filtered teachers:', allTeachers.length);
+      
+      // Update cache
+      setCache({
+        users: allUsers,
+        attempts: allAttempts,
+        lastUpdated: Date.now()
+      });
+      
+      setStudents(allStudents);
+      setTeachers(allTeachers);
+      setAttempts(allAttempts);
+    } catch (error) {
+      console.error('Failed to load data:', error);
+      setError('Ma\'lumotlarni yuklashda xatolik yuz berdi: ' + (error.message || 'Noma\'lum xatolik'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const generateStudentId = (firstName, lastName, classGroup, direction, randomDigits) => {
     const lastNameUpper = lastName.toUpperCase().replace("'", '');
@@ -79,26 +147,6 @@ const ManageStudents = () => {
   };
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        const [allUsers, allAttempts] = await Promise.all([
-          apiService.getUsers(),
-          apiService.getAttempts()
-        ]);
-        const allStudents = allUsers.filter(user => user.role === 'student');
-        const allTeachers = allUsers.filter(user => user.role === 'teacher');
-        setStudents(allStudents);
-        setTeachers(allTeachers);
-        setAttempts(allAttempts.results || allAttempts);
-      } catch (error) {
-        console.error('Failed to load data:', error);
-        setError('Ma\'lumotlarni yuklashda xatolik yuz berdi');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadData();
   }, []);
 
@@ -306,15 +354,17 @@ const ManageStudents = () => {
       }
 
       // Reload data
-      const [allUsers, allAttempts] = await Promise.all([
+      const [allUsersResponse, allAttemptsResponse] = await Promise.all([
         apiService.getUsers(),
         apiService.getAttempts()
       ]);
+      const allUsers = allUsersResponse.results || allUsersResponse;
+      const allAttempts = allAttemptsResponse.results || allAttemptsResponse;
       const allStudents = allUsers.filter(user => user.role === 'student');
       const allTeachers = allUsers.filter(user => user.role === 'teacher');
       setStudents(allStudents);
       setTeachers(allTeachers);
-      setAttempts(allAttempts.results || allAttempts);
+      setAttempts(allAttempts);
 
       // Show results
       let message = `Import yakunlandi!\nMuvaffaqiyatli: ${successCount}\nXatoliklar: ${errorCount}`;

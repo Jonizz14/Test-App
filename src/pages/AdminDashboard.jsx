@@ -119,14 +119,14 @@ const AdminDashboard = () => {
       label: 'Sinflar reytingi',
     },
     {
-      key: '/admin/test-stats',
-      icon: <TrophyOutlined />,
-      label: 'Testlar reytingi',
-    },
-    {
       key: '/admin/student-ratings',
       icon: <TrophyOutlined />,
       label: 'O\'quvchilar reytingi',
+    },
+    {
+      key: '/admin/test-stats',
+      icon: <TrophyOutlined />,
+      label: 'Testlar reytingi',
     },
   ];
 

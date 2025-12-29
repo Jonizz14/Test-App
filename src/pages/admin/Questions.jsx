@@ -296,8 +296,7 @@ const Questions = () => {
   }
 
   return (
-    <div style={{ padding: '24px 0' }}>
-      {/* Header */}
+    <div style={{ padding: '24px' }}>
       <div style={{
         marginBottom: '24px',
         paddingBottom: '16px',
@@ -311,7 +310,6 @@ const Questions = () => {
         </Text>
       </div>
 
-      {/* Filters and Search */}
       <Card
         style={{
           marginBottom: '24px',

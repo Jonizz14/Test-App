@@ -3,39 +3,31 @@ import {
   Table,
   Card,
   Button,
-  Select,
   Tag,
   Typography,
-  Space,
-  Row,
-  Col,
+  Input,
+  Select,
+  DatePicker,
 } from 'antd';
 import {
   EyeOutlined,
-  FileTextOutlined,
-  ClockCircleOutlined,
-  TeamOutlined,
-  TrophyOutlined,
+  SearchOutlined,
+  FilterOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
 
 const { Title, Text } = Typography;
-const { Option } = Select;
 
 const TestStatistics = () => {
   const navigate = useNavigate();
   const [tests, setTests] = useState([]);
-  const [teachers, setTeachers] = useState([]);
-  const [subjects, setSubjects] = useState([]);
-  const [selectedTeacher, setSelectedTeacher] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState('');
-  const [selectedGrade, setSelectedGrade] = useState('');
-  const [selectedSubGrade, setSelectedSubGrade] = useState('');
-  const [subGrades, setSubGrades] = useState({});
-  const [scoreOrder, setScoreOrder] = useState('');
-  const [attemptOrder, setAttemptOrder] = useState('');
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [subjectFilter, setSubjectFilter] = useState('');
+  const [teacherFilter, setTeacherFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [dateFilter, setDateFilter] = useState(null);
 
   useEffect(() => {
     const loadTests = async () => {
@@ -43,29 +35,6 @@ const TestStatistics = () => {
         const allTestsData = await apiService.getTests();
         const allTests = allTestsData.results || allTestsData;
         setTests(allTests);
-
-        const uniqueTeachers = [...new Set(allTests.map(test => test.teacher_name).filter(Boolean))];
-        setTeachers(uniqueTeachers);
-        const uniqueSubjects = [...new Set(allTests.map(test => test.subject).filter(Boolean))];
-        setSubjects(uniqueSubjects);
-
-        const subGradesMap = {};
-        allTests.forEach(test => {
-          if (test.target_grades && Array.isArray(test.target_grades)) {
-            test.target_grades.forEach(grade => {
-              if (grade && grade.includes('-')) {
-                const [main, sub] = grade.split('-');
-                if (!subGradesMap[main]) subGradesMap[main] = new Set();
-                subGradesMap[main].add(sub);
-              }
-            });
-          }
-        });
-        const subGradesObj = {};
-        Object.keys(subGradesMap).forEach(main => {
-          subGradesObj[main] = Array.from(subGradesMap[main]).sort();
-        });
-        setSubGrades(subGradesObj);
       } catch (error) {
         console.error('Failed to load tests:', error);
       } finally {
@@ -75,49 +44,61 @@ const TestStatistics = () => {
     loadTests();
   }, []);
 
-  // Calculate filtered and sorted tests
-  const filteredTests = useMemo(() => {
+  // Filter tests based on all filter criteria
+  const displayTests = useMemo(() => {
     const testsArray = Array.isArray(tests) ? tests : [];
-    return testsArray.filter(test => {
-      // Skip filtering if no filters are selected
-      if (!selectedTeacher && !selectedSubject && !selectedGrade) return true;
-
-      // Teacher filter
-      if (selectedTeacher && test.teacher_name !== selectedTeacher) return false;
-
-      // Subject filter
-      if (selectedSubject && test.subject !== selectedSubject) return false;
-
-      // Grade filter
-      if (selectedGrade) {
-        const targetGrades = test.target_grades || [];
-        if (selectedSubGrade) {
-          if (!targetGrades.includes(`${selectedGrade}-${selectedSubGrade}`)) return false;
-        } else {
-          if (!targetGrades.some(grade => grade === selectedGrade || grade.startsWith(`${selectedGrade}-`))) return false;
-        }
-      }
-
-      return true;
-    });
-  }, [tests, selectedTeacher, selectedSubject, selectedGrade, selectedSubGrade]);
-
-  const sortedTests = useMemo(() => {
-    return [...filteredTests].sort((a, b) => {
-      if (scoreOrder) {
-        const aScore = a.average_score || 0;
-        const bScore = b.average_score || 0;
-        return scoreOrder === 'asc' ? aScore - bScore : bScore - aScore;
-      }
-      if (attemptOrder) {
-        const aAttempts = a.attempt_count || 0;
-        const bAttempts = b.attempt_count || 0;
-        return attemptOrder === 'asc' ? aAttempts - bAttempts : bAttempts - aAttempts;
-      }
-      // Default: no sorting, keep original order
-      return 0;
-    });
-  }, [filteredTests, scoreOrder, attemptOrder]);
+    
+    let filteredTests = testsArray;
+    
+    // Apply search filter
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase().trim();
+      filteredTests = filteredTests.filter(test => {
+        const teacherName = `${test.teacher_name || ''} ${test.teacher_surname || ''}`.toLowerCase();
+        const title = test.title ? test.title.toLowerCase() : '';
+        const subject = test.subject ? test.subject.toLowerCase() : '';
+        
+        return title.includes(searchLower) || 
+               teacherName.includes(searchLower) || 
+               subject.includes(searchLower);
+      });
+    }
+    
+    // Apply subject filter
+    if (subjectFilter && subjectFilter.trim()) {
+      const subjectFilterLower = subjectFilter.toLowerCase().trim();
+      filteredTests = filteredTests.filter(test => 
+        test.subject && test.subject.toLowerCase().includes(subjectFilterLower)
+      );
+    }
+    
+    // Apply teacher filter
+    if (teacherFilter && teacherFilter.trim()) {
+      const teacherFilterLower = teacherFilter.toLowerCase().trim();
+      filteredTests = filteredTests.filter(test => {
+        const teacherName = `${test.teacher_name || ''} ${test.teacher_surname || ''}`.toLowerCase();
+        return teacherName.includes(teacherFilterLower);
+      });
+    }
+    
+    // Apply status filter
+    if (statusFilter !== '') {
+      const isActiveFilter = statusFilter === 'active';
+      filteredTests = filteredTests.filter(test => test.is_active === isActiveFilter);
+    }
+    
+    // Apply date filter
+    if (dateFilter) {
+      const filterDate = dateFilter.startOf('day');
+      filteredTests = filteredTests.filter(test => {
+        if (!test.created_at) return false;
+        const testDate = moment(test.created_at);
+        return testDate.isSameOrAfter(filterDate);
+      });
+    }
+    
+    return filteredTests;
+  }, [tests, searchTerm, subjectFilter, teacherFilter, statusFilter, dateFilter]);
 
   const columns = [
     {
@@ -230,9 +211,9 @@ const TestStatistics = () => {
         minHeight: '400px',
         flexDirection: 'column'
       }}>
-        <div>Yuklanmoqda...</div>
+        <div>Loading...</div>
         <Text style={{ marginTop: '16px', color: '#64748b' }}>
-          Testlar yuklanmoqda...
+          Tests are loading...
         </Text>
       </div>
     );
@@ -254,123 +235,103 @@ const TestStatistics = () => {
         </Text>
       </div>
 
-      {/* Filters */}
-      <Card
-        style={{
-          marginBottom: '24px',
-          backgroundColor: '#f8fafc',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-        }}
-        bodyStyle={{ padding: '24px' }}
-      >
-        <Row gutter={[16, 16]} align="middle">
-          <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: '8px' }}>
-              <Text style={{ fontWeight: 600, color: '#1e293b' }}>Ustoz</Text>
-            </div>
-            <Select
-              value={selectedTeacher}
-              onChange={(value) => setSelectedTeacher(value)}
-              style={{ width: '100%' }}
-              placeholder="Barcha"
-            >
-              <Option value="">Barcha</Option>
-              {teachers.map(teacher => (
-                <Option key={teacher} value={teacher}>{teacher}</Option>
-              ))}
-            </Select>
-          </Col>
-
-          <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: '8px' }}>
-              <Text style={{ fontWeight: 600, color: '#1e293b' }}>Fan</Text>
-            </div>
-            <Select
-              value={selectedSubject}
-              onChange={(value) => setSelectedSubject(value)}
-              style={{ width: '100%' }}
-              placeholder="Barcha"
-            >
-              <Option value="">Barcha</Option>
-              {subjects.map(subject => (
-                <Option key={subject} value={subject}>{subject}</Option>
-              ))}
-            </Select>
-          </Col>
-
-          <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: '8px' }}>
-              <Text style={{ fontWeight: 600, color: '#1e293b' }}>Sinf</Text>
-            </div>
-            <Select
-              value={selectedGrade}
-              onChange={(value) => {
-                setSelectedGrade(value);
-                setSelectedSubGrade('');
-              }}
-              style={{ width: '100%' }}
-              placeholder="Barcha sinflar"
-            >
-              <Option value="">Barcha sinflar</Option>
-              {[5,6,7,8,9,10,11].map(grade => (
-                <Option key={grade} value={grade.toString()}>{grade}-sinf</Option>
-              ))}
-            </Select>
-          </Col>
-
-          {selectedGrade && subGrades[selectedGrade] && (
-            <Col xs={24} sm={12} md={6}>
-              <div style={{ marginBottom: '8px' }}>
-                <Text style={{ fontWeight: 600, color: '#1e293b' }}>Yo'nalish</Text>
-              </div>
-              <Select
-                value={selectedSubGrade}
-                onChange={(value) => setSelectedSubGrade(value)}
-                style={{ width: '100%' }}
-                placeholder="Barcha yo'nalishlar"
-              >
-                <Option value="">Barcha yo'nalishlar</Option>
-                {subGrades[selectedGrade].map(sub => (
-                  <Option key={sub} value={sub}>{selectedGrade}-{sub}</Option>
-                ))}
-              </Select>
-            </Col>
-          )}
-
-          <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: '8px' }}>
-              <Text style={{ fontWeight: 600, color: '#1e293b' }}>Ball bo'yicha tartiblash</Text>
-            </div>
-            <Select
-              value={scoreOrder}
-              onChange={(value) => setScoreOrder(value)}
-              style={{ width: '100%' }}
-              placeholder="Tartiblanmagan"
-            >
-              <Option value="">Tartiblanmagan</Option>
-              <Option value="desc">Eng baland ball</Option>
-              <Option value="asc">Eng past ball</Option>
-            </Select>
-          </Col>
-
-          <Col xs={24} sm={12} md={6}>
-            <div style={{ marginBottom: '8px' }}>
-              <Text style={{ fontWeight: 600, color: '#1e293b' }}>Urinishlar soni bo'yicha</Text>
-            </div>
-            <Select
-              value={attemptOrder}
-              onChange={(value) => setAttemptOrder(value)}
-              style={{ width: '100%' }}
-              placeholder="Tartiblanmagan"
-            >
-              <Option value="">Tartiblanmagan</Option>
-              <Option value="asc">Eng kam ishlangan</Option>
-              <Option value="desc">Eng ko'p ishlangan</Option>
-            </Select>
-          </Col>
-        </Row>
-      </Card>
+      {/* Search and Filters Row */}
+      <div style={{ 
+        marginBottom: '24px',
+        display: 'flex',
+        gap: '12px',
+        flexWrap: 'wrap',
+        alignItems: 'center'
+      }}>
+        {/* Search Input */}
+        <Input
+          placeholder="Test nomi, o'qituvchi yoki fan nomi bo'yicha qidirish..."
+          prefix={<SearchOutlined />}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            borderRadius: '8px',
+            minWidth: '300px',
+            flex: '1'
+          }}
+        />
+        
+        {/* Subject Filter */}
+        <Select
+          placeholder="Fan bo'yicha"
+          value={subjectFilter}
+          onChange={setSubjectFilter}
+          style={{
+            borderRadius: '8px',
+            minWidth: '150px',
+            width: '200px'
+          }}
+          allowClear
+        >
+          <Select.Option value="Matematika">Matematika</Select.Option>
+          <Select.Option value="Fizika">Fizika</Select.Option>
+          <Select.Option value="Kimyo">Kimyo</Select.Option>
+          <Select.Option value="Biologiya">Biologiya</Select.Option>
+          <Select.Option value="Tarix">Tarix</Select.Option>
+          <Select.Option value="Geografiya">Geografiya</Select.Option>
+          <Select.Option value="Ingliz tili">Ingliz tili</Select.Option>
+          <Select.Option value="Ona tili">Ona tili</Select.Option>
+          <Select.Option value="Adabiyot">Adabiyot</Select.Option>
+        </Select>
+        
+        {/* Teacher Filter */}
+        <Select
+          placeholder="O'qituvchi bo'yicha"
+          value={teacherFilter}
+          onChange={setTeacherFilter}
+          style={{
+            borderRadius: '8px',
+            minWidth: '180px',
+            width: '220px'
+          }}
+          allowClear
+          showSearch
+          filterOption={(input, option) =>
+            option.children.toLowerCase().includes(input.toLowerCase())
+          }
+        >
+          {Array.from(new Set(tests.map(test => 
+            `${test.teacher_name || ''} ${test.teacher_surname || ''}`.trim()
+          ).filter(name => name))).map(teacherName => (
+            <Select.Option key={teacherName} value={teacherName}>
+              {teacherName}
+            </Select.Option>
+          ))}
+        </Select>
+        
+        {/* Status Filter */}
+        <Select
+          placeholder="Status bo'yicha"
+          value={statusFilter}
+          onChange={setStatusFilter}
+          style={{
+            borderRadius: '8px',
+            minWidth: '120px',
+            width: '150px'
+          }}
+          allowClear
+        >
+          <Select.Option value="active">Faol</Select.Option>
+          <Select.Option value="inactive">Nofaol</Select.Option>
+        </Select>
+        
+        {/* Date Filter */}
+        <DatePicker
+          placeholder="Sana bo'yicha"
+          value={dateFilter}
+          onChange={setDateFilter}
+          style={{
+            borderRadius: '8px',
+            minWidth: '140px',
+            width: '160px'
+          }}
+        />
+      </div>
 
       {/* Table */}
       <Card
@@ -383,7 +344,7 @@ const TestStatistics = () => {
       >
         <Table
           columns={columns}
-          dataSource={sortedTests}
+          dataSource={displayTests}
           rowKey="id"
           pagination={{
             pageSize: 10,
@@ -392,7 +353,7 @@ const TestStatistics = () => {
             showTotal: (total) => `Jami ${total} ta test`,
           }}
           locale={{
-            emptyText: 'Testlar topilmadi'
+            emptyText: searchTerm ? 'Qidiruv natijasi topilmadi' : 'Testlar topilmadi'
           }}
         />
       </Card>

@@ -4,27 +4,19 @@ import {
   Card,
   Typography,
   Tag,
-  Button,
-  Space,
-  Collapse,
   Input,
 } from 'antd';
 import {
-  DownOutlined,
-  UpOutlined,
-  ArrowUpOutlined,
-  ArrowDownOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
 import apiService from '../../data/apiService';
 
 const { Title, Text } = Typography;
-const { Panel } = Collapse;
 
 const StudentRatings = () => {
   const [originalStudents, setOriginalStudents] = useState([]);
   const [attempts, setAttempts] = useState([]);
-  const [expanded, setExpanded] = useState({});
+
   const [sortField, setSortField] = useState('average_score');
   const [sortDirection, setSortDirection] = useState('desc');
   const [searchTerm, setSearchTerm] = useState('');
@@ -128,9 +120,7 @@ const StudentRatings = () => {
     });
   }, [sortField, sortDirection, originalStudents, searchTerm]);
 
-  const handleExpandClick = (id) => {
-    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
+
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -157,25 +147,9 @@ const StudentRatings = () => {
 
   const columns = [
     {
-      title: '',
-      key: 'expand',
-      width: 50,
-      render: (_, record) => (
-        <Button
-          type="text"
-          icon={expanded[record.id] ? <UpOutlined /> : <DownOutlined />}
-          onClick={() => handleExpandClick(record.id)}
-          style={{ color: '#64748b' }}
-        />
-      ),
-    },
-    {
       title: (
         <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('name')}>
           Ism
-          {sortField === 'name' && (
-            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
-          )}
         </div>
       ),
       dataIndex: 'name',
@@ -190,9 +164,6 @@ const StudentRatings = () => {
       title: (
         <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('class_group')}>
           Sinflar
-          {sortField === 'class_group' && (
-            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
-          )}
         </div>
       ),
       dataIndex: 'class_group',
@@ -207,9 +178,6 @@ const StudentRatings = () => {
       title: (
         <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('total_tests_taken')}>
           Testlar soni
-          {sortField === 'total_tests_taken' && (
-            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
-          )}
         </div>
       ),
       dataIndex: 'total_tests_taken',
@@ -232,9 +200,6 @@ const StudentRatings = () => {
       title: (
         <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('average_score')}>
           O'rtacha ball
-          {sortField === 'average_score' && (
-            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
-          )}
         </div>
       ),
       dataIndex: 'average_score',
@@ -257,9 +222,6 @@ const StudentRatings = () => {
       title: (
         <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('direction')}>
           Yo'nalish
-          {sortField === 'direction' && (
-            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
-          )}
         </div>
       ),
       dataIndex: 'direction',
@@ -286,9 +248,6 @@ const StudentRatings = () => {
       title: (
         <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('registration_date')}>
           Ro'yxatdan o'tgan sana
-          {sortField === 'registration_date' && (
-            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
-          )}
         </div>
       ),
       dataIndex: 'registration_date',
@@ -334,94 +293,14 @@ const StudentRatings = () => {
         />
       </div>
 
-      {/* Table */}
-      <Card
-        style={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-        }}
-      >
-        <Table
-          columns={columns}
-          dataSource={students}
-          rowKey="id"
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total) => `Jami ${total} ta o'quvchi`,
-          }}
-          expandable={{
-            expandedRowKeys: Object.keys(expanded).filter(key => expanded[key]),
-            onExpandedRowsChange: (keys) => {
-              const newExpanded = {};
-              keys.forEach(key => newExpanded[key] = true);
-              setExpanded(newExpanded);
-            },
-            expandedRowRender: (record) => (
-              <div style={{
-                padding: '24px',
-                backgroundColor: '#f8fafc',
-                borderRadius: '8px',
-                border: '1px solid #e2e8f0',
-                margin: '16px 0'
-              }}>
-                <Title level={4} style={{ marginBottom: '16px', color: '#1e293b' }}>
-                  Batafsil ma'lumotlar
-                </Title>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px' }}>
-                  <div>
-                    <Text style={{
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      color: '#64748b',
-                      marginBottom: '8px',
-                      display: 'block',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px'
-                    }}>
-                      Display ID
-                    </Text>
-                    <Text style={{
-                      fontSize: '14px',
-                      fontWeight: 500,
-                      color: '#1e293b',
-                      fontFamily: 'monospace'
-                    }}>
-                      {record.display_id || record.username}
-                    </Text>
-                  </div>
-                  <div>
-                    <Text style={{
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      color: '#64748b',
-                      marginBottom: '8px',
-                      display: 'block',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px'
-                    }}>
-                      Status
-                    </Text>
-                    <Text style={{
-                      fontSize: '14px',
-                      fontWeight: 500,
-                      color: '#1e293b'
-                    }}>
-                      {record.is_active ? 'Faol' : 'Nofaol'}
-                    </Text>
-                  </div>
-                </div>
-              </div>
-            ),
-          }}
-          locale={{
-            emptyText: 'O\'quvchilar mavjud emas'
-          }}
-        />
-      </Card>
+      {/* Students Table */}
+      <Table
+        dataSource={students}
+        columns={columns}
+        rowKey="id"
+        pagination={{ pageSize: 10 }}
+
+      />
     </div>
   );
 };
