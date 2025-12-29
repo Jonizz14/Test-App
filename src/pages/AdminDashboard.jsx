@@ -20,7 +20,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLoading } from '../context/LoadingContext';
 import enhancedApiService from '../data/enhancedApiService';
 
-// Import admin sub-pages (we'll create these)
+// Import admin sub-pages
 import AdminOverview from './admin/AdminOverview';
 import ManageTeachers from './admin/ManageTeachers';
 import ManageStudents from './admin/ManageStudents';
@@ -34,6 +34,10 @@ import TestStatistics from './admin/TestStatistics';
 import StudentRatings from './admin/StudentRatings';
 import ClassDetails from './admin/ClassDetails';
 import ClassStatistics from './admin/ClassStatistics';
+import ClassesPage from './admin/ClassesPage';
+import StudentsPage from './admin/StudentsPage';
+import TestsPage from './admin/TestsPage';
+import StatisticsPage from './admin/StatisticsPage';
 
 // Import components
 import BannedStudentsModal from '../components/BannedStudentsModal';
@@ -68,7 +72,9 @@ const AdminDashboard = () => {
       try {
         const usersData = await enhancedApiService.getUsers((loading) => setLoading('users_list', loading));
         const users = usersData.results || usersData;
-        const banned = users.filter(user => user.role === 'student' && user.is_banned);
+        // Ensure users is an array
+        const usersArray = Array.isArray(users) ? users : [];
+        const banned = usersArray.filter(user => user.role === 'student' && user.is_banned);
         setBannedStudents(banned);
       } catch (error) {
         console.error('Failed to fetch banned students:', error);
@@ -104,6 +110,11 @@ const AdminDashboard = () => {
       label: 'Umumiy',
     },
     {
+      key: '/admin/statistics',
+      icon: <RiseOutlined />,
+      label: 'Jami statistika',
+    },
+    {
       key: '/admin/teachers',
       icon: <TeamOutlined />,
       label: 'O\'qituvchilarni boshqarish',
@@ -119,14 +130,29 @@ const AdminDashboard = () => {
       label: 'Sinflar reytingi',
     },
     {
+      key: '/admin/classes',
+      icon: <RiseOutlined />,
+      label: 'Sinflar statistikasi',
+    },
+    {
       key: '/admin/student-ratings',
       icon: <TrophyOutlined />,
       label: 'O\'quvchilar reytingi',
     },
     {
+      key: '/admin/students-page',
+      icon: <RiseOutlined />,
+      label: 'O\'quvchilar statistikasi',
+    },
+    {
       key: '/admin/test-stats',
       icon: <TrophyOutlined />,
       label: 'Testlar reytingi',
+    },
+    {
+      key: '/admin/tests-page',
+      icon: <RiseOutlined />,
+      label: 'Testlar statistikasi',
     },
   ];
 
@@ -309,6 +335,10 @@ const AdminDashboard = () => {
             >
               <Routes>
                 <Route path="/" element={<AdminOverview />} />
+                <Route path="/classes" element={<ClassesPage />} />
+                <Route path="/students-page" element={<StudentsPage />} />
+                <Route path="/tests-page" element={<TestsPage />} />
+                <Route path="/statistics" element={<StatisticsPage />} />
                 <Route path="/teachers" element={<ManageTeachers />} />
                 <Route path="/teacher-details/:id" element={<TeacherDetails />} />
                 <Route path="/add-teacher" element={<AddTeacher />} />

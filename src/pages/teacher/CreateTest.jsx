@@ -14,6 +14,8 @@ import {
   Space,
   Divider,
   Upload,
+  Modal,
+  message,
 } from 'antd';
 import {
   PlusOutlined as AddIcon,
@@ -22,7 +24,11 @@ import {
   ArrowLeftOutlined as ArrowBackIcon,
   CameraOutlined as PhotoCameraIcon,
   CloseOutlined as ClearIcon,
+  UploadOutlined as ImportIcon,
+  FileExcelOutlined,
+  DownloadOutlined,
 } from '@ant-design/icons';
+import * as XLSX from 'xlsx';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
 import MathSymbols from '../../components/MathSymbols';
@@ -61,17 +67,27 @@ const CreateTest = () => {
   const [loading, setLoading] = useState(false);
   const [mathSymbolsOpen, setMathSymbolsOpen] = useState(false);
   const [currentField, setCurrentField] = useState({ questionIndex: null, field: null });
+  const [importModalVisible, setImportModalVisible] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   // Load test data if editing
   useEffect(() => {
     if (testId) {
+      console.log('Loading test for editing, testId:', testId);
       loadTestForEditing();
     }
   }, [testId]);
+  
+  // Log form data changes
+  useEffect(() => {
+    console.log('Form data updated:', formData);
+  }, [formData]);
 
   const loadTestForEditing = async () => {
     try {
+      console.log('Loading test for editing:', testId);
       const test = await apiService.getTest(testId);
+      console.log('Test data loaded:', test);
       
       if (test && test.teacher === currentUser.id) {
         setIsEditing(true);
@@ -92,14 +108,17 @@ const CreateTest = () => {
           }
         }
 
-        setFormData({
-          title: test.title,
-          subject: test.subject,
+        const newFormData = {
+          title: test.title || '',
+          subject: test.subject || 'Matematika',
           description: test.description || '',
-          time_limit: test.time_limit,
+          time_limit: test.time_limit || 30,
           target_grades: parsedGrades,
           difficulty: test.difficulty || 'medium',
-        });
+        };
+        
+        console.log('Setting form data:', newFormData);
+        setFormData(newFormData);
         
         // Load questions
         const questionsData = await apiService.getQuestions({ test: testId });
@@ -257,19 +276,259 @@ const CreateTest = () => {
     setMathSymbolsOpen(false);
   };
 
+  // Import functionality
+  const downloadSampleTemplate = () => {
+    const sampleData = [
+      {
+        'Savol tartib raqami': 1,
+        'Savol matni': '2 + 2 nechaga teng?',
+        'Variant A': '3',
+        'Variant B': '4',
+        'Variant C': '5',
+        'Variant D': '6',
+        'To\'g\'ri javob': 'B',
+        'Tushuntirish': '2 + 2 = 4',
+        'Savol turi': 'multiple_choice',
+        'Formula': '',
+        'Kod': ''
+      },
+      {
+        'Savol tartib raqami': 2,
+        'Savol matni': 'Matematik formula yozing: a kvadrat + b kvadrat',
+        'Variant A': '',
+        'Variant B': '',
+        'Variant C': '',
+        'Variant D': '',
+        'To\'g\'ri javob': 'a² + b²',
+        'Tushuntirish': 'Pifagor teoremasi',
+        'Savol turi': 'formula',
+        'Formula': 'a^2 + b^2',
+        'Kod': ''
+      }
+    ];
+
+    const ws = XLSX.utils.json_to_sheet(sampleData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Test namuna');
+    XLSX.writeFile(wb, 'test_import_namuna.xlsx');
+    message.success('Namuna fayl yuklab olindi!');
+  };
+
+  const handleImportFromExcel = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      setImporting(true);
+      setError('');
+
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+      if (jsonData.length === 0) {
+        setError('Excel faylda ma\'lumotlar topilmadi');
+        return;
+      }
+
+      const importedQuestions = [];
+      let successCount = 0;
+      let errorCount = 0;
+      const errors = [];
+
+      for (const row of jsonData) {
+        try {
+          const questionNumber = row['Savol tartib raqami'] || row['№'] || importedQuestions.length + 1;
+          const questionText = row['Savol matni'] || row['Question'];
+          const optionA = row['Variant A'] || row['Option A'] || row['A)'];
+          const optionB = row['Variant B'] || row['Option B'] || row['B)'];
+          const optionC = row['Variant C'] || row['Option C'] || row['C)'];
+          const optionD = row['Variant D'] || row['Option D'] || row['D)'];
+          const correctAnswer = row['To\'g\'ri javob'] || row['Correct Answer'];
+          const explanation = row['Tushuntirish'] || row['Explanation'] || '';
+          const questionType = row['Savol turi'] || row['Question Type'] || 'multiple_choice';
+          const formula = row['Formula'] || '';
+          const code = row['Kod'] || row['Code'] || '';
+
+          // Validate required fields
+          if (!questionText) {
+            errors.push(`Qator ${questionNumber}: Savol matni talab qilinadi`);
+            errorCount++;
+            continue;
+          }
+
+          let questionData = {
+            question_text: questionText,
+            question_type: questionType,
+            question_image: null,
+            correct_answer: '',
+            explanation: explanation,
+            formula: formula,
+            code: code
+          };
+
+          if (questionType === 'multiple_choice') {
+            if (!optionA || !optionB || !optionC || !optionD) {
+              errors.push(`Qator ${questionNumber}: Barcha variantlar (A, B, C, D) talab qilinadi`);
+              errorCount++;
+              continue;
+            }
+
+            if (!correctAnswer) {
+              errors.push(`Qator ${questionNumber}: To'g'ri javob belgilash kerak`);
+              errorCount++;
+              continue;
+            }
+
+            const options = [
+              { text: optionA, image: null },
+              { text: optionB, image: null },
+              { text: optionC, image: null },
+              { text: optionD, image: null }
+            ];
+
+            // Find correct answer and format it
+            let correctAnswerFormatted = '';
+            if (correctAnswer.toLowerCase() === 'a' || correctAnswer === 'A)') {
+              correctAnswerFormatted = 'A)';
+            } else if (correctAnswer.toLowerCase() === 'b' || correctAnswer === 'B)') {
+              correctAnswerFormatted = 'B)';
+            } else if (correctAnswer.toLowerCase() === 'c' || correctAnswer === 'C)') {
+              correctAnswerFormatted = 'C)';
+            } else if (correctAnswer.toLowerCase() === 'd' || correctAnswer === 'D)') {
+              correctAnswerFormatted = 'D)';
+            } else {
+              // If it's the actual answer text, find matching option
+              const matchingOption = options.find(opt => 
+                opt.text.toLowerCase().trim() === correctAnswer.toLowerCase().trim()
+              );
+              if (matchingOption) {
+                correctAnswerFormatted = options.indexOf(matchingOption) === 0 ? 'A)' :
+                                        options.indexOf(matchingOption) === 1 ? 'B)' :
+                                        options.indexOf(matchingOption) === 2 ? 'C)' : 'D)';
+              }
+            }
+
+            questionData.options = options;
+            questionData.correct_answer = correctAnswerFormatted;
+          } else if (questionType === 'short_answer') {
+            if (!correctAnswer) {
+              errors.push(`Qator ${questionNumber}: To'g'ri javob talab qilinadi`);
+              errorCount++;
+              continue;
+            }
+            questionData.correct_answer = correctAnswer;
+          } else if (questionType === 'formula') {
+            if (!formula) {
+              errors.push(`Qator ${questionNumber}: Formula talab qilinadi`);
+              errorCount++;
+              continue;
+            }
+            questionData.correct_answer = formula;
+          } else if (questionType === 'code') {
+            if (!code) {
+              errors.push(`Qator ${questionNumber}: Kod namunasi talab qilinadi`);
+              errorCount++;
+              continue;
+            }
+            questionData.correct_answer = code;
+          }
+
+          importedQuestions.push(questionData);
+          successCount++;
+
+        } catch (error) {
+          errors.push(`Qator ${jsonData.indexOf(row) + 2}: ${error.message || 'Xatolik'}`);
+          errorCount++;
+        }
+      }
+
+      if (importedQuestions.length > 0) {
+        // Set imported questions
+        setQuestions(importedQuestions);
+        
+        // Auto-fill form data if not already filled
+        if (!formData.title) {
+          setFormData(prev => ({
+            ...prev,
+            title: `Import qilingan test - ${new Date().toLocaleDateString('uz-UZ')}`
+          }));
+        }
+
+        message.success(`Muvaffaqiyatli import qilindi! ${successCount} ta savol qo'shildi.`);
+        setImportModalVisible(false);
+      }
+
+      if (errors.length > 0) {
+        let errorMessage = `${errorCount} ta xatolik:\n${errors.slice(0, 3).join('\n')}`;
+        if (errors.length > 3) {
+          errorMessage += `\n...va yana ${errors.length - 3} ta xatolik`;
+        }
+        setError(errorMessage);
+      }
+
+    } catch (error) {
+      console.error('Import error:', error);
+      setError('Excel faylini o\'qishda xatolik yuz berdi: ' + error.message);
+    } finally {
+      setImporting(false);
+    }
+
+    // Clear file input
+    event.target.value = '';
+  };
+
+  // Manual test function for debugging
+  const testFormSubmission = async () => {
+    console.log('Manual test function called');
+    // Create a mock event
+    const mockEvent = {
+      preventDefault: () => console.log('preventDefault called')
+    };
+    await handleSubmit(mockEvent);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Form submission started');
+    console.log('Form data:', formData);
+    console.log('Questions:', questions);
+    console.log('Current user:', currentUser);
+    
+    // Check authentication
+    if (!currentUser) {
+      setError('Siz tizimga kirmagansiz');
+      return;
+    }
+    
+    if (currentUser.role !== 'teacher' && currentUser.role !== 'admin') {
+      setError('Faqat o\'qituvchilar test yarata oladi');
+      return;
+    }
+    
     setError('');
     setSuccess('');
 
     // Validation
-    if (!formData.title || !formData.subject) {
-      setError('Test nomi va fani talab qilinadi');
+    if (!formData.title || !formData.title.trim()) {
+      setError('Test nomi talab qilinadi');
+      return;
+    }
+
+    if (!formData.subject || !formData.subject.trim()) {
+      setError('Fan tanlash talab qilinadi');
       return;
     }
 
     if (questions.length === 0) {
       setError('Kamida bitta savol kerak');
+      return;
+    }
+
+    if (questions.some(q => !q.question_text || !q.question_text.trim())) {
+      setError('Barcha savollar uchun savol matni talab qilinadi');
       return;
     }
 
@@ -308,6 +567,14 @@ const CreateTest = () => {
     }
 
     setLoading(true);
+
+    // TEMPORARY: Mock test to check if frontend works
+    if (formData.title === 'TEST_FRONTEND_ONLY') {
+      console.log('Mock test submission successful!');
+      setSuccess('Mock test yaratildi (frontend test)');
+      setLoading(false);
+      return;
+    }
 
     try {
       if (isEditing) {
@@ -430,7 +697,23 @@ const CreateTest = () => {
 
     } catch (err) {
       console.error('Failed to save test:', err);
-      const errorMessage = err.message || 'Noma\'lum xatolik';
+      console.error('Error details:', {
+        message: err.message,
+        stack: err.stack,
+        response: err.response,
+        status: err.status
+      });
+      
+      let errorMessage = 'Noma\'lum xatolik';
+      
+      if (err.message) {
+        errorMessage = err.message;
+      } else if (err.response && err.response.data) {
+        errorMessage = JSON.stringify(err.response.data);
+      } else if (typeof err === 'string') {
+        errorMessage = err;
+      }
+      
       setError(isEditing ? `Testni yangilashda xatolik: ${errorMessage}` : `Test yaratishda xatolik: ${errorMessage}`);
     } finally {
       setLoading(false);
@@ -471,6 +754,55 @@ const CreateTest = () => {
         </Typography.Text>
       </div>
 
+      {/* Import Section */}
+      {!isEditing && (
+        <Card
+          style={{
+            width: '100%',
+            marginBottom: '24px',
+            backgroundColor: '#f8fafc',
+            border: '2px dashed #cbd5e1',
+            borderRadius: '12px',
+          }}
+        >
+          <div style={{ padding: '24px', textAlign: 'center' }}>
+            <Typography.Title level={4} style={{ color: '#475569', marginBottom: '16px' }}>
+              📥 Testni import qilish
+            </Typography.Title>
+            <Typography.Text style={{ color: '#64748b', display: 'block', marginBottom: '20px' }}>
+              Excel fayldan test savollarini avtomatik import qiling
+            </Typography.Text>
+            <Space size="large">
+              <Button
+                type="primary"
+                icon={<ImportIcon />}
+                size="large"
+                onClick={() => setImportModalVisible(true)}
+                style={{
+                  backgroundColor: '#2563eb',
+                  borderColor: '#2563eb',
+                  fontWeight: 600,
+                }}
+              >
+                Excel fayldan import
+              </Button>
+              <Button
+                icon={<DownloadOutlined />}
+                size="large"
+                onClick={downloadSampleTemplate}
+                style={{
+                  borderColor: '#059669',
+                  color: '#059669',
+                  fontWeight: 600,
+                }}
+              >
+                Namuna fayl yuklab olish
+              </Button>
+            </Space>
+          </div>
+        </Card>
+      )}
+
       <Card
         style={{
           width: '100%',
@@ -497,6 +829,21 @@ const CreateTest = () => {
         )}
 
         <div style={{ padding: '32px' }}>
+          {/* Debug Section - shows current form data */}
+          <Card size="small" style={{ marginBottom: '16px', backgroundColor: '#e6f7ff', border: '1px solid #91d5ff' }}>
+            <Typography.Text strong>📋 Joriy ma'lumotlar:</Typography.Text>
+            <div style={{ fontSize: '14px', marginTop: '8px', color: '#1890ff' }}>
+              <div><strong>Test nomi:</strong> "{formData.title}"</div>
+              <div><strong>Fan:</strong> "{formData.subject}"</div>
+              <div><strong>Tavsif:</strong> "{formData.description}"</div>
+              <div><strong>Vaqt limiti:</strong> {formData.time_limit} daqiqa</div>
+              <div><strong>Qiyinchilik:</strong> {formData.difficulty === 'easy' ? 'Oson' : formData.difficulty === 'medium' ? 'O\'rtacha' : 'Qiyin'}</div>
+              <div><strong>Maqsadlangan sinflar:</strong> {formData.target_grades.length > 0 ? formData.target_grades.join(', ') : 'Barcha sinflar'}</div>
+              <div><strong>Savollar soni:</strong> {questions.length}</div>
+              {isEditing && <div style={{ color: '#52c41a', marginTop: '4px' }}>✅ Ma'lumotlar yuklandi</div>}
+            </div>
+          </Card>
+          
           <Form onFinish={handleSubmit} layout="vertical">
             <Row gutter={24}>
               <Col xs={24} md={12}>
@@ -510,6 +857,10 @@ const CreateTest = () => {
                     onChange={(e) => setFormData({...formData, title: e.target.value})}
                     placeholder="Test nomini kiriting"
                   />
+                  {/* Current value info */}
+                  <div style={{ fontSize: '12px', color: '#52c41a', marginTop: '4px' }}>
+                    💡 Joriy qiymat: "{formData.title}"
+                  </div>
                 </Form.Item>
               </Col>
 
@@ -523,6 +874,10 @@ const CreateTest = () => {
                     value={formData.subject}
                     onChange={(value) => setFormData({...formData, subject: value})}
                   >
+                    {/* Current value indicator */}
+                    <Select.Option value="__CURRENT__" disabled style={{ color: '#52c41a', fontWeight: 'bold' }}>
+                      📋 Joriy: "{formData.subject}"
+                    </Select.Option>
                     <Select.Option value="Matematika">Matematika</Select.Option>
                     <Select.Option value="O'zbek tili">O'zbek tili</Select.Option>
                     <Select.Option value="Ingliz tili">Ingliz tili</Select.Option>
@@ -567,6 +922,10 @@ const CreateTest = () => {
                     max={180}
                     placeholder="30"
                   />
+                  {/* Current value info */}
+                  <div style={{ fontSize: '12px', color: '#52c41a', marginTop: '4px' }}>
+                    💡 Joriy qiymat: {formData.time_limit} daqiqa
+                  </div>
                 </Form.Item>
               </Col>
 
@@ -576,6 +935,10 @@ const CreateTest = () => {
                     value={formData.difficulty}
                     onChange={(value) => setFormData({...formData, difficulty: value})}
                   >
+                    {/* Current value indicator */}
+                    <Select.Option value="__CURRENT_DIFFICULTY__" disabled style={{ color: '#52c41a', fontWeight: 'bold' }}>
+                      📋 Joriy: {formData.difficulty === 'easy' ? 'Oson' : formData.difficulty === 'medium' ? 'O\'rtacha' : 'Qiyin'}
+                    </Select.Option>
                     <Select.Option value="easy">Oson</Select.Option>
                     <Select.Option value="medium">O'rtacha</Select.Option>
                     <Select.Option value="hard">Qiyin</Select.Option>
@@ -936,6 +1299,15 @@ const CreateTest = () => {
               htmlType="submit"
               loading={loading}
               style={{ flex: 1 }}
+              onClick={(e) => {
+                console.log('Submit button clicked!');
+                console.log('Form data:', formData);
+                console.log('Questions:', questions);
+                // If htmlType="submit" doesn't work, we can manually trigger form submission
+                if (e && e.target && e.target.form) {
+                  e.target.form.requestSubmit();
+                }
+              }}
             >
               {loading ? (isEditing ? 'Yangilanmoqda...' : 'Yaratilmoqda...') : (isEditing ? 'Testni yangilash' : 'Test yaratish')}
             </Button>
@@ -946,9 +1318,84 @@ const CreateTest = () => {
               Bekor qilish
             </Button>
           </div>
+          
+          {/* Test button for debugging */}
+          <div style={{ marginTop: '12px', textAlign: 'center' }}>
+            <Button
+              type="dashed"
+              size="small"
+              onClick={testFormSubmission}
+              style={{ fontSize: '12px', color: '#666' }}
+            >
+              🔧 Test Submission (Debug)
+            </Button>
+          </div>
           </Form>
         </div>
       </Card>
+
+      {/* Import Modal */}
+      <Modal
+        title="Excel fayldan test import qilish"
+        open={importModalVisible}
+        onCancel={() => setImportModalVisible(false)}
+        footer={null}
+        width={600}
+      >
+        <div style={{ padding: '16px 0' }}>
+          <Alert
+            message="Import qoidalari"
+            description={
+              <ul style={{ marginBottom: 0, paddingLeft: '20px' }}>
+                <li>Excel fayl .xlsx yoki .xls formatida bo'lishi kerak</li>
+                <li>Birinchi qator ustun nomlari bo'lishi kerak</li>
+                <li>Majburiy ustunlar: Savol matni, Variant A, Variant B, Variant C, Variant D, To'g'ri javob</li>
+                <li>To'g'ri javob A, B, C, D harflaridan biri yoki javob matni bo'lishi mumkin</li>
+              </ul>
+            }
+            type="info"
+            style={{ marginBottom: '16px' }}
+          />
+          
+          <div style={{ textAlign: 'center', padding: '20px 0' }}>
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              onChange={handleImportFromExcel}
+              style={{ display: 'none' }}
+              id="excel-file-input"
+            />
+            <Button
+              type="primary"
+              size="large"
+              icon={<ImportIcon />}
+              loading={importing}
+              onClick={() => document.getElementById('excel-file-input').click()}
+              style={{ marginBottom: '12px' }}
+            >
+              {importing ? 'Import qilinyapti...' : 'Excel faylni tanlang'}
+            </Button>
+            <br />
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={downloadSampleTemplate}
+              size="small"
+            >
+              Namuna fayl yuklab olish
+            </Button>
+          </div>
+          
+          {error && (
+            <Alert
+              message={error}
+              type="error"
+              style={{ marginTop: '16px' }}
+              closable
+              onClose={() => setError('')}
+            />
+          )}
+        </div>
+      </Modal>
 
       {/* Math Symbols Dialog */}
       <MathSymbols

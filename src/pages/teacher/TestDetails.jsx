@@ -2,36 +2,36 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Typography,
-  Box,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Button,
-  Chip,
-  Alert,
   Card,
-  CardContent,
-  Grid,
+  Table,
+  Button,
+  Tag,
+  Alert,
+  Row,
+  Col,
   Avatar,
-} from '@mui/material';
+  Space,
+  Statistic,
+  Divider,
+  Modal,
+  message,
+} from 'antd';
 import {
-  ArrowBack as ArrowBackIcon,
-  Assessment as AssessmentIcon,
-  Person as PersonIcon,
-  CheckCircle as CheckCircleIcon,
-  Cancel as CancelIcon,
-  People as PeopleIcon,
-  TrendingUp as TrendingUpIcon,
-  EmojiEvents as EmojiEventsIcon,
-  TrendingDown as TrendingDownIcon,
-} from '@mui/icons-material';
+  ArrowLeftOutlined as ArrowBackIcon,
+  BarChartOutlined as AssessmentIcon,
+  UserOutlined as PersonIcon,
+  CheckCircleOutlined as CheckCircleIcon,
+  CloseCircleOutlined as CancelIcon,
+  TeamOutlined as PeopleIcon,
+  ArrowUpOutlined as TrendingUpIcon,
+  TrophyOutlined as EmojiEventsIcon,
+  ArrowDownOutlined as TrendingDownIcon,
+} from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
 import SendLessonModal from '../../components/SendLessonModal';
+
+const { Title, Text } = Typography;
 
 const TestDetails = () => {
   const { testId } = useParams();
@@ -157,58 +157,48 @@ const TestDetails = () => {
 
   if (loading) {
     return (
-      <Box sx={{ 
-        p: 4,
-        backgroundColor: '#ffffff'
+      <div style={{ 
+        padding: '32px',
+        backgroundColor: '#ffffff',
+        minHeight: '100vh'
       }}>
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b'
-        }}>
+        <Title level={1} style={{ color: '#1e293b', marginBottom: '16px' }}>
           Test tafsilotlari
-        </Typography>
-        <Typography sx={{ color: '#64748b', mt: 2 }}>Yuklanmoqda...</Typography>
-      </Box>
+        </Title>
+        <Text style={{ color: '#64748b' }}>Yuklanmoqda...</Text>
+      </div>
     );
   }
 
   if (error || !test) {
     return (
-      <Box sx={{ 
-        p: 4,
-        backgroundColor: '#ffffff'
+      <div style={{ 
+        padding: '32px',
+        backgroundColor: '#ffffff',
+        minHeight: '100vh'
       }}>
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          mb: 3
-        }}>
+        <Title level={1} style={{ color: '#1e293b', marginBottom: '24px' }}>
           Xatolik
-        </Typography>
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error || 'Test topilmadi'}
-        </Alert>
+        </Title>
+        <Alert
+          message={error || 'Test topilmadi'}
+          type="error"
+          style={{ marginBottom: '24px' }}
+        />
         <Button
-          variant="contained"
-          startIcon={<ArrowBackIcon />}
+          type="primary"
+          icon={<ArrowBackIcon />}
           onClick={() => navigate('/teacher/my-tests')}
-          sx={{
+          size="large"
+          style={{
             backgroundColor: '#2563eb',
-            color: '#ffffff',
-            padding: '12px 24px',
-            borderRadius: '8px',
+            borderColor: '#2563eb',
             fontWeight: 600,
-            textTransform: 'none',
-            '&:hover': {
-              backgroundColor: '#1d4ed8',
-            }
           }}
         >
           Orqaga
         </Button>
-      </Box>
+      </div>
     );
   }
 
@@ -220,606 +210,474 @@ const TestDetails = () => {
   const highestScore = totalAttempts > 0 ? Math.max(...attempts.map(a => a.score)) : 0;
   const lowestScore = totalAttempts > 0 ? Math.min(...attempts.map(a => a.score)) : 0;
 
+  // Table columns
+  const columns = [
+    {
+      title: 'O\'quvchi ismi va yo\'nalishi',
+      key: 'student',
+      render: (attempt) => {
+        const student = allStudents.find(s => s.id === attempt.student);
+        return (
+          <Space>
+            {student?.is_premium && student?.profile_photo ? (
+              <Avatar 
+                src={student.profile_photo.startsWith('http') ? student.profile_photo : `http://localhost:8000${student.profile_photo}`}
+                style={{ 
+                  border: '2px solid #f59e0b'
+                }} 
+              />
+            ) : (
+              <Avatar icon={<PersonIcon />} style={{ backgroundColor: '#1890ff' }} />
+            )}
+            <div>
+              <div
+                style={{
+                  cursor: 'pointer',
+                  fontWeight: 500,
+                  color: '#1890ff'
+                }}
+                onClick={() => navigate(`/teacher/student-profile/${student?.id}`)}
+              >
+                {student?.name || student?.first_name || 'Noma\'lum'} {student?.last_name || ''}
+                {student?.is_premium && (
+                  <Tag color="orange" style={{ marginLeft: 8, fontSize: '10px' }}>
+                    Premium
+                  </Tag>
+                )}
+              </div>
+              <Text type="secondary" style={{ fontSize: '12px' }}>
+                {getDirectionLabel(student?.direction) || 'Yo\'nalish kiritilmagan'}
+              </Text>
+            </div>
+          </Space>
+        );
+      },
+    },
+    {
+      title: 'Ball',
+      dataIndex: 'score',
+      key: 'score',
+      render: (score) => (
+        <Text strong style={{ color: score >= 90 ? '#52c41a' : score >= 70 ? '#faad14' : '#ff4d4f' }}>
+          {score}%
+        </Text>
+      ),
+    },
+    {
+      title: 'To\'g\'ri / Noto\'g\'ri',
+      key: 'answers',
+      render: (attempt) => {
+        let correctCount = 0;
+        let incorrectCount = 0;
+        questions.forEach(question => {
+          if (isAnswerCorrect(attempt, question)) {
+            correctCount++;
+          } else {
+            incorrectCount++;
+          }
+        });
+        return (
+          <Space>
+            <Tag icon={<CheckCircleIcon />} color="success">
+              {correctCount}
+            </Tag>
+            <Tag icon={<CancelIcon />} color="error">
+              {incorrectCount}
+            </Tag>
+          </Space>
+        );
+      },
+    },
+    {
+      title: 'Baho',
+      dataIndex: 'score',
+      key: 'grade',
+      render: (score) => (
+        <Tag color={getScoreColor(score)}>
+          {getScoreText(score)}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Vaqt',
+      dataIndex: 'time_taken',
+      key: 'time',
+      render: (time) => (
+        <Text>{`${Math.floor(time / 60)}:${(time % 60).toString().padStart(2, '0')}`}</Text>
+      ),
+    },
+    {
+      title: 'Sana',
+      dataIndex: 'submitted_at',
+      key: 'date',
+      render: (date) => (
+        <Text>{new Date(date).toLocaleDateString('uz-UZ')}</Text>
+      ),
+    },
+    {
+      title: 'Harakatlar',
+      key: 'actions',
+      render: (attempt) => {
+        const student = allStudents.find(s => s.id === attempt.student);
+        const lessonInvitation = notifications.find(n => n.studentId === attempt.student);
+        
+        if (lessonInvitation) {
+          return (
+            <div style={{ minWidth: '200px' }}>
+              <Text strong style={{ color: '#d97706', display: 'block', marginBottom: 4 }}>
+                Qo'shimcha dars yuborilgan
+              </Text>
+              <Text style={{ color: '#1e293b', display: 'block', marginBottom: 4 }}>
+                {lessonInvitation.lessonTopic}
+              </Text>
+              <Text type="secondary" style={{ display: 'block', marginBottom: 4, fontSize: '11px' }}>
+                {lessonInvitation.lessonDate} • {lessonInvitation.lessonTime}
+              </Text>
+              <Text type="secondary" style={{ display: 'block', marginBottom: 4, fontSize: '11px' }}>
+                {lessonInvitation.room}
+              </Text>
+              <Text type="danger" style={{ fontSize: '11px', fontWeight: 500 }}>
+                Dars hali o'tilmagan
+              </Text>
+            </div>
+          );
+        } else if (attempt.score < 60 && student) {
+          return (
+            <Button
+              size="small"
+              danger
+              onClick={() => handleOpenLessonModal(student.id, attempt)}
+              style={{ cursor: 'pointer' }}
+            >
+              Qo'shimcha dars
+            </Button>
+          );
+        } else if (attempt.score >= 60) {
+          return (
+            <Button
+              size="small"
+              disabled
+              style={{
+                backgroundColor: '#ecfdf5',
+                color: '#059669',
+                borderColor: '#10b981',
+              }}
+            >
+              Qo'shimcha dars kerak emas
+            </Button>
+          );
+        }
+        return null;
+      },
+    },
+  ];
+
   return (
-    <Box sx={{
+    <div style={{
       width: '100%',
-      p: 4,
-      backgroundColor: '#ffffff'
+      padding: '32px',
+      backgroundColor: '#ffffff',
+      minHeight: '100vh'
     }}>
-      <Box sx={{
-        mb: 6,
-        pb: 4,
+      {/* Header */}
+      <div style={{
+        marginBottom: '48px',
+        paddingBottom: '32px',
         borderBottom: '1px solid #e2e8f0',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
         <Button
-          startIcon={<ArrowBackIcon />}
+          icon={<ArrowBackIcon />}
           onClick={() => navigate('/teacher/my-tests')}
-          variant="outlined"
-          sx={{
+          style={{
             borderColor: '#e2e8f0',
             color: '#64748b',
-            '&:hover': {
-              borderColor: '#cbd5e1',
-              backgroundColor: '#f8fafc'
-            }
           }}
         >
           Mening testlarimga qaytish
         </Button>
-        <Typography sx={{
-          fontSize: '2.5rem',
-          fontWeight: 700,
-          color: '#1e293b'
-        }}>
+        <Title level={1} style={{ color: '#1e293b', margin: 0 }}>
           Test tafsilotlari
-        </Typography>
-      </Box>
-
-
+        </Title>
+      </div>
 
       {/* Test Info */}
-      <Card sx={{
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-        mb: 4
-      }}>
-        <CardContent sx={{ p: 4 }}>
-          <Typography sx={{ 
-            fontWeight: 600, 
-            color: '#1e293b',
-            fontSize: '1.5rem',
-            mb: 2
-          }}>
+      <Card
+        style={{
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '12px',
+          marginBottom: '24px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+        }}
+      >
+        <div style={{ padding: '24px' }}>
+          <Title level={2} style={{ color: '#1e293b', marginBottom: '16px' }}>
             {test.title}
-          </Typography>
-          <Typography sx={{ 
+          </Title>
+          <Text style={{ 
             color: '#64748b',
-            fontSize: '1rem',
-            mb: 3,
-            lineHeight: 1.5
+            fontSize: '16px',
+            lineHeight: 1.5,
+            display: 'block',
+            marginBottom: '24px'
           }}>
             {test.description || 'Tavsif mavjud emas'}
-          </Typography>
+          </Text>
 
-          <Box display="flex" gap={1} flexWrap="wrap">
-            <Chip 
-              label={`Fan: ${test.subject}`} 
-              variant="outlined"
-              sx={{
-                fontWeight: 500,
-                fontSize: '0.75rem'
-              }}
-            />
-            <Chip 
-              label={`${test.total_questions} ta savol`} 
-              variant="outlined"
-              sx={{
-                fontWeight: 500,
-                fontSize: '0.75rem'
-              }}
-            />
-            <Chip 
-              label={`${test.time_limit} daqiqa`} 
-              variant="outlined"
-              sx={{
-                fontWeight: 500,
-                fontSize: '0.75rem'
-              }}
-            />
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <Tag color="blue">
+              Fan: {test.subject}
+            </Tag>
+            <Tag color="green">
+              {test.total_questions} ta savol
+            </Tag>
+            <Tag color="orange">
+              {test.time_limit} daqiqa
+            </Tag>
             
             {/* Target Grades Display */}
             {test.target_grades && test.target_grades.length > 0 ? (
-              <Box display="flex" gap={0.5} flexWrap="wrap">
-                <Chip 
-                  label="Maqsadlangan sinflar:" 
-                  variant="outlined" 
-                  size="small"
-                  sx={{ fontWeight: 500, fontSize: '0.625rem' }}
-                />
+              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <Tag color="default" style={{ fontSize: '11px' }}>
+                  Maqsadlangan sinflar:
+                </Tag>
                 {test.target_grades.map((grade) => (
-                  <Chip
+                  <Tag
                     key={grade}
-                    label={`${grade}-sinf`}
-                    size="small"
-                    variant="filled"
-                    color="info"
-                    sx={{
-                      fontWeight: 500,
-                      fontSize: '0.625rem',
-                      height: '20px'
+                    color="blue"
+                    style={{
+                      fontSize: '11px',
+                      height: '20px',
+                      lineHeight: '18px'
                     }}
-                  />
+                  >
+                    {grade}-sinf
+                  </Tag>
                 ))}
-              </Box>
+              </div>
             ) : (
-              <Chip
-                label="Barcha sinflar uchun"
-                variant="outlined"
-                color="success"
-                sx={{
-                  fontWeight: 500,
-                  fontSize: '0.75rem'
-                }}
-              />
+              <Tag color="success">
+                Barcha sinflar uchun
+              </Tag>
             )}
             
-            <Chip
-              label={test.is_active ? 'Faol' : 'Nofaol'}
-              color={test.is_active ? 'success' : 'default'}
-              sx={{
-                fontWeight: 600,
-                fontSize: '0.75rem'
-              }}
-            />
-          </Box>
-        </CardContent>
+            <Tag color={test.is_active ? 'success' : 'default'}>
+              {test.is_active ? 'Faol' : 'Nofaol'}
+            </Tag>
+          </div>
+        </div>
       </Card>
 
       {/* Statistics */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            transition: 'none',
-            '&:hover': {
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            },
-          }}>
-            <CardContent sx={{ 
-              p: 4,
-              '&:last-child': { pb: 4 }
-            }}>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Box flex={1}>
-                  <Typography
-                    sx={{
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                      color: '#64748b',
-                      mb: 1
-                    }}
-                  >
-                    Test topshirganlar
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: '2.5rem',
-                      fontWeight: 700,
-                      color: '#1e293b',
-                      lineHeight: 1.2
-                    }}
-                  >
-                    {totalAttempts}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    backgroundColor: '#eff6ff',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    ml: 2
-                  }}
-                >
-                  <PeopleIcon sx={{ fontSize: '2rem', color: '#2563eb' }} />
-                </Box>
-              </Box>
-            </CardContent>
+      <Row gutter={[24, 24]} style={{ marginBottom: '32px' }}>
+        <Col xs={24} sm={12} md={6}>
+          <Card
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            <Statistic
+              title={
+                <Text style={{
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  color: '#64748b'
+                }}>
+                  Test topshirganlar
+                </Text>
+              }
+              value={totalAttempts}
+              valueStyle={{
+                fontSize: '40px',
+                fontWeight: 700,
+                color: '#1e293b',
+              }}
+              prefix={
+                <div style={{
+                  backgroundColor: '#eff6ff',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <PeopleIcon style={{ fontSize: '24px', color: '#2563eb' }} />
+                </div>
+              }
+            />
           </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            transition: 'none',
-            '&:hover': {
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            },
-          }}>
-            <CardContent sx={{ 
-              p: 4,
-              '&:last-child': { pb: 4 }
-            }}>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Box flex={1}>
-                  <Typography
-                    sx={{
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                      color: '#64748b',
-                      mb: 1
-                    }}
-                  >
-                    O'rtacha ball
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: '2.5rem',
-                      fontWeight: 700,
-                      color: '#1e293b',
-                      lineHeight: 1.2
-                    }}
-                  >
-                    {averageScore}%
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    backgroundColor: '#ecfdf5',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    ml: 2
-                  }}
-                >
-                  <TrendingUpIcon sx={{ fontSize: '2rem', color: '#059669' }} />
-                </Box>
-              </Box>
-            </CardContent>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            <Statistic
+              title={
+                <Text style={{
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  color: '#64748b'
+                }}>
+                  O'rtacha ball
+                </Text>
+              }
+              value={averageScore}
+              suffix="%"
+              valueStyle={{
+                fontSize: '40px',
+                fontWeight: 700,
+                color: '#1e293b',
+              }}
+              prefix={
+                <div style={{
+                  backgroundColor: '#ecfdf5',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <TrendingUpIcon style={{ fontSize: '24px', color: '#059669' }} />
+                </div>
+              }
+            />
           </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            transition: 'none',
-            '&:hover': {
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            },
-          }}>
-            <CardContent sx={{ 
-              p: 4,
-              '&:last-child': { pb: 4 }
-            }}>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Box flex={1}>
-                  <Typography
-                    sx={{
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                      color: '#64748b',
-                      mb: 1
-                    }}
-                  >
-                    Eng yuqori ball
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: '2.5rem',
-                      fontWeight: 700,
-                      color: '#1e293b',
-                      lineHeight: 1.2
-                    }}
-                  >
-                    {highestScore}%
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    backgroundColor: '#f0fdf4',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    ml: 2
-                  }}
-                >
-                  <EmojiEventsIcon sx={{ fontSize: '2rem', color: '#16a34a' }} />
-                </Box>
-              </Box>
-            </CardContent>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            <Statistic
+              title={
+                <Text style={{
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  color: '#64748b'
+                }}>
+                  Eng yuqori ball
+                </Text>
+              }
+              value={highestScore}
+              suffix="%"
+              valueStyle={{
+                fontSize: '40px',
+                fontWeight: 700,
+                color: '#1e293b',
+              }}
+              prefix={
+                <div style={{
+                  backgroundColor: '#f0fdf4',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <EmojiEventsIcon style={{ fontSize: '24px', color: '#16a34a' }} />
+                </div>
+              }
+            />
           </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            transition: 'none',
-            '&:hover': {
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            },
-          }}>
-            <CardContent sx={{ 
-              p: 4,
-              '&:last-child': { pb: 4 }
-            }}>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Box flex={1}>
-                  <Typography
-                    sx={{
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                      color: '#64748b',
-                      mb: 1
-                    }}
-                  >
-                    Eng past ball
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: '2.5rem',
-                      fontWeight: 700,
-                      color: '#1e293b',
-                      lineHeight: 1.2
-                    }}
-                  >
-                    {lowestScore}%
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    backgroundColor: '#fffbeb',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    ml: 2
-                  }}
-                >
-                  <TrendingDownIcon sx={{ fontSize: '2rem', color: '#d97706' }} />
-                </Box>
-              </Box>
-            </CardContent>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            <Statistic
+              title={
+                <Text style={{
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  color: '#64748b'
+                }}>
+                  Eng past ball
+                </Text>
+              }
+              value={lowestScore}
+              suffix="%"
+              valueStyle={{
+                fontSize: '40px',
+                fontWeight: 700,
+                color: '#1e293b',
+              }}
+              prefix={
+                <div style={{
+                  backgroundColor: '#fffbeb',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <TrendingDownIcon style={{ fontSize: '24px', color: '#d97706' }} />
+                </div>
+              }
+            />
           </Card>
-        </Grid>
-      </Grid>
+        </Col>
+      </Row>
 
       {/* Students Who Took the Test */}
-      <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
+      <Title level={3} style={{ marginBottom: '24px' }}>
         Test topshirgan o'quvchilar ({attempts.length})
-      </Typography>
+      </Title>
 
       {attempts.length === 0 ? (
-        <Alert severity="info" sx={{ mb: 3 }}>
-          Hozircha hech kim bu testni topshirmagan.
-        </Alert>
+        <Alert
+          message="Hozircha hech kim bu testni topshirmagan."
+          type="info"
+          style={{ marginBottom: '24px' }}
+        />
       ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>O'quvchi ismi va yo'nalishi</TableCell>
-                <TableCell>Ball</TableCell>
-                <TableCell>To'g'ri / Noto'g'ri</TableCell>
-                <TableCell>Baho</TableCell>
-                <TableCell>Vaqt</TableCell>
-                <TableCell>Sana</TableCell>
-                <TableCell>Harakatlar</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {attempts.map((attempt) => {
-                // Find student info
-                const student = allStudents.find(s => s.id === attempt.student);
-                
-                // Calculate correct/incorrect answers
-                let correctCount = 0;
-                let incorrectCount = 0;
-                questions.forEach(question => {
-                  if (isAnswerCorrect(attempt, question)) {
-                    correctCount++;
-                  } else {
-                    incorrectCount++;
-                  }
-                });
-
-                return (
-                  <TableRow key={attempt.id}>
-                    <TableCell>
-                      <Box display="flex" alignItems="center">
-                        {student?.is_premium && student?.profile_photo ? (
-                          <Avatar 
-                            src={student.profile_photo.startsWith('http') ? student.profile_photo : `http://localhost:8000${student.profile_photo}`}
-                            sx={{ 
-                              mr: 2, 
-                              width: 40, 
-                              height: 40,
-                              border: '2px solid #f59e0b'
-                            }} 
-                          />
-                        ) : (
-                          <Avatar sx={{ mr: 2, bgcolor: 'primary.main', width: 40, height: 40 }}>
-                            {(student?.name || student?.first_name || 'N').charAt(0).toUpperCase()}
-                          </Avatar>
-                        )}
-                        <Box>
-                          <Typography
-                            variant="body1"
-                            sx={{
-                              cursor: 'pointer',
-                              fontWeight: 500,
-                              '&:hover': { textDecoration: 'underline', color: 'primary.main' }
-                            }}
-                            onClick={() => navigate(`/teacher/student-profile/${student?.id}`)}
-                          >
-                            {student?.name || student?.first_name || 'Noma\'lum'} {student?.last_name || ''}
-                            {student?.is_premium && (
-                              <Chip 
-                                label="Premium" 
-                                size="small" 
-                                sx={{ 
-                                  ml: 1, 
-                                  height: '18px', 
-                                  fontSize: '0.625rem',
-                                  backgroundColor: '#fef3c7',
-                                  color: '#d97706'
-                                }} 
-                              />
-                            )}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            {getDirectionLabel(student?.direction) || 'Yo\'nalish kiritilmagan'}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="h6" color={`${getScoreColor(attempt.score)}.main`}>
-                        {attempt.score}%
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Box display="flex" gap={1} alignItems="center">
-                        <Chip
-                          icon={<CheckCircleIcon />}
-                          label={correctCount}
-                          color="success"
-                          size="small"
-                          variant="outlined"
-                        />
-                        <Chip
-                          icon={<CancelIcon />}
-                          label={incorrectCount}
-                          color="error"
-                          size="small"
-                          variant="outlined"
-                        />
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={getScoreText(attempt.score)}
-                        color={getScoreColor(attempt.score)}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      {`${Math.floor(attempt.time_taken / 60)}:${(attempt.time_taken % 60).toString().padStart(2, '0')}`}
-                    </TableCell>
-                    <TableCell>
-                      {new Date(attempt.submitted_at).toLocaleDateString('uz-UZ')}
-                    </TableCell>
-                    <TableCell>
-                      <Box display="flex" gap={1} flexDirection="column">
-                        {(() => {
-                          const lessonInvitation = notifications.find(n => n.studentId === attempt.student);
-                          if (lessonInvitation) {
-                            return (
-                              <Box sx={{ minWidth: '200px' }}>
-                                <Typography
-                                  variant="body2"
-                                  sx={{
-                                    fontWeight: 600,
-                                    color: '#d97706',
-                                    mb: 0.5
-                                  }}
-                                >
-                                  Qo'shimcha dars yuborilgan
-                                </Typography>
-                                <Typography
-                                  variant="body2"
-                                  sx={{
-                                    fontWeight: 500,
-                                    color: '#1e293b',
-                                    fontSize: '0.8rem',
-                                    mb: 0.5
-                                  }}
-                                >
-                                  {lessonInvitation.lessonTopic}
-                                </Typography>
-                                <Typography
-                                  variant="caption"
-                                  sx={{
-                                    color: '#64748b',
-                                    display: 'block',
-                                    mb: 0.5
-                                  }}
-                                >
-                                  {lessonInvitation.lessonDate} • {lessonInvitation.lessonTime}
-                                </Typography>
-                                <Typography
-                                  variant="caption"
-                                  sx={{
-                                    color: '#64748b',
-                                    display: 'block',
-                                    mb: 0.5
-                                  }}
-                                >
-                                  {lessonInvitation.room}
-                                </Typography>
-                                <Typography
-                                  variant="caption"
-                                  sx={{
-                                    color: '#dc2626',
-                                    display: 'block',
-                                    fontWeight: 500
-                                  }}
-                                >
-                                  Dars hali o'tilmagan
-                                </Typography>
-                              </Box>
-                            );
-                          } else if (attempt.score < 60 && student) {
-                            return (
-                              <Button
-                                size="small"
-                                color="error"
-                                variant="contained"
-                                onClick={() => handleOpenLessonModal(student.id, attempt)}
-                                sx={{ cursor: 'pointer' }}
-                              >
-                                Qo'shimcha dars
-                              </Button>
-                            );
-                          } else if (attempt.score >= 60) {
-                            return (
-                              <Button
-                                size="small"
-                                variant="outlined"
-                                sx={{
-                                  cursor: 'default',
-                                  backgroundColor: '#ecfdf5',
-                                  color: '#059669',
-                                  borderColor: '#10b981',
-                                  '&:hover': {
-                                    backgroundColor: '#ecfdf5',
-                                    borderColor: '#10b981'
-                                  }
-                                }}
-                                disabled
-                              >
-                                Qoshimcha dars kerak emas
-                              </Button>
-                            );
-                          }
-                          return null;
-                        })()}
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <Card
+          style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+          }}
+        >
+          <Table
+            columns={columns}
+            dataSource={attempts}
+            rowKey="id"
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} ta`,
+            }}
+            scroll={{ x: 1200 }}
+          />
+        </Card>
       )}
 
       {/* Lesson Modal */}
@@ -830,7 +688,7 @@ const TestDetails = () => {
         testResult={selectedAttempt}
         teacherInfo={currentUser}
       />
-    </Box>
+    </div>
   );
 };
 
