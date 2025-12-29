@@ -17,7 +17,8 @@ import {
   RightOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../context/AuthContext';
-import apiService from '../data/apiService';
+import { useLoading } from '../context/LoadingContext';
+import enhancedApiService from '../data/enhancedApiService';
 
 // Import admin sub-pages (we'll create these)
 import AdminOverview from './admin/AdminOverview';
@@ -45,6 +46,7 @@ const AdminDashboard = () => {
   const [bannedStudents, setBannedStudents] = React.useState([]);
   const [modalOpen, setModalOpen] = React.useState(false);
   const { currentUser, logout } = useAuth();
+  const { setLoading, isLoading } = useLoading();
   const navigate = useNavigate();
   const location = useLocation();
   const screens = useBreakpoint();
@@ -62,30 +64,36 @@ const AdminDashboard = () => {
   // Fetch banned students
   React.useEffect(() => {
     const fetchBannedStudents = async () => {
+      setLoading('banned_students', true);
       try {
-        const usersData = await apiService.getUsers();
+        const usersData = await enhancedApiService.getUsers((loading) => setLoading('users_list', loading));
         const users = usersData.results || usersData;
         const banned = users.filter(user => user.role === 'student' && user.is_banned);
         setBannedStudents(banned);
       } catch (error) {
         console.error('Failed to fetch banned students:', error);
+      } finally {
+        setLoading('banned_students', false);
       }
     };
 
     fetchBannedStudents();
-  }, []);
+  }, [setLoading]);
 
   // Handle unbanning a student
   const handleUnbanStudent = async (studentId) => {
+    setLoading('unban_student', true);
     try {
-      await apiService.unbanUser(studentId);
+      await enhancedApiService.unbanUser(studentId);
       // Refresh banned students list
-      const usersData = await apiService.getUsers();
+      const usersData = await enhancedApiService.getUsers((loading) => setLoading('users_list', loading));
       const users = usersData.results || usersData;
       const banned = users.filter(user => user.role === 'student' && user.is_banned);
       setBannedStudents(banned);
     } catch (error) {
       console.error('Failed to unban student:', error);
+    } finally {
+      setLoading('unban_student', false);
     }
   };
 
@@ -107,13 +115,13 @@ const AdminDashboard = () => {
     },
     {
       key: '/admin/class-stats',
-      icon: <BookOutlined />,
+      icon: <TrophyOutlined />,
       label: 'Sinflar reytingi',
     },
     {
       key: '/admin/test-stats',
-      icon: <RiseOutlined />,
-      label: 'Testlar statistikasi',
+      icon: <TrophyOutlined />,
+      label: 'Testlar reytingi',
     },
     {
       key: '/admin/student-ratings',
@@ -219,6 +227,7 @@ const AdminDashboard = () => {
               onClick={() => setModalOpen(true)}
               style={{ color: '#dc2626' }}
               title={`${bannedStudents.length} ta bloklangan o'quvchi bor`}
+              loading={isLoading('banned_students')}
             >
               <Badge count={bannedStudents.length} />
             </Button>

@@ -9,6 +9,9 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { StatisticsProvider } from './context/StatisticsContext';
 import { ServerTestProvider } from './context/ServerTestContext';
 import { ThemeProvider as CustomThemeProvider } from './context/ThemeContext';
+import { LoadingProvider } from './context/LoadingContext';
+import { registerSW } from './utils/serviceWorker';
+import RouteLoadingIndicator from './components/RouteLoadingIndicator';
 
 // Import pages (we'll create these next)
 import LoginPage from './pages/LoginPage';
@@ -250,17 +253,37 @@ const TestPage = () => {
 // Main App component - Entry point of the application
 // Provides routing, authentication, theming, and error handling
 function App() {
+  // Register service worker
+  React.useEffect(() => {
+    registerSW({
+      onSuccess: (registration) => {
+        console.log('SW registered: ', registration);
+      },
+      onUpdate: (registration) => {
+        console.log('SW updated: ', registration);
+        // You can show update notification here
+      },
+    });
+  }, []);
 
   return (
     <ErrorBoundary>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <CustomThemeProvider>
-          <AuthProvider>
-            <StatisticsProvider>
-              <ServerTestProvider>
+          <LoadingProvider>
+            <AuthProvider>
+              <StatisticsProvider>
+                <ServerTestProvider>
                 <Router>
               <Routes>
+                {/* Global route loading indicator */}
+                <Route path="*" element={
+                  <RouteLoadingIndicator 
+                    showFullScreen={false}
+                    threshold={300}
+                  />
+                } />
                 {/* Test routes - Health check and testing endpoints */}
                 <Route path="/test" element={<TestPage />} />
                 <Route path="/health" element={
@@ -340,12 +363,13 @@ function App() {
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
               </Router>
-            </ServerTestProvider>
-          </StatisticsProvider>
-        </AuthProvider>
-      </CustomThemeProvider>
-    </ThemeProvider>
-  </ErrorBoundary>
+                </ServerTestProvider>
+              </StatisticsProvider>
+            </AuthProvider>
+          </LoadingProvider>
+        </CustomThemeProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

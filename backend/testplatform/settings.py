@@ -134,19 +134,15 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS settings - TEMPORARILY ALLOW ALL ORIGINS FOR TESTING
-CORS_ALLOW_ALL_ORIGINS = True
-
-# Alternative: Use specific origins (commented out for now)
-# CORS_ALLOWED_ORIGINS = [
-#     'http://localhost:5173',  # Vite dev server
-#     'http://127.0.0.1:5173',
-#     'http://localhost:5174',  # Current running port
-#     'http://127.0.0.1:5174',
-#     'http://localhost:5175',  # Next available port
-#     'http://127.0.0.1:5175',
-#     'https://stimtestapp.netlify.app',  # Netlify deployment
-# ]
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',  # Vite dev server
+    'http://127.0.0.1:5173',
+    'http://localhost:5174',  # Current running port
+    'http://127.0.0.1:5174',
+    'http://localhost:5175',  # Next available port
+    'http://127.0.0.1:5175',
+]
 
 CORS_ALLOW_CREDENTIALS = True
 

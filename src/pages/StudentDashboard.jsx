@@ -17,6 +17,7 @@ import {
 } from '@ant-design/icons';
 import { useAuth } from '../context/AuthContext';
 import { useServerTest } from '../context/ServerTestContext';
+import { useLoading } from '../context/LoadingContext';
 import NotificationCenter from '../components/NotificationCenter';
 import UnbanModal from '../components/UnbanModal';
 import { showWarning } from '../utils/antdNotification';
@@ -42,13 +43,18 @@ const StudentDashboard = () => {
   const [collapsed, setCollapsed] = React.useState(false);
   const { currentUser, logout, isBanned } = useAuth();
   const { sessionStarted } = useServerTest();
+  const { setLoading, isLoading } = useLoading();
   const navigate = useNavigate();
   const location = useLocation();
   const screens = useBreakpoint();
   const isMobile = !screens.md;
 
   const handleToggle = () => {
-    setCollapsed(!collapsed);
+    setLoading('sidebar_toggle', true);
+    setTimeout(() => {
+      setCollapsed(!collapsed);
+      setLoading('sidebar_toggle', false);
+    }, 200); // Small delay for smooth animation
   };
 
   const handleLogout = () => {
@@ -150,6 +156,7 @@ const StudentDashboard = () => {
               icon={<MenuFoldOutlined />}
               onClick={handleToggle}
               style={{ marginRight: 16 }}
+              loading={isLoading('sidebar_toggle')}
             />
           ) : (
             <Button
@@ -157,6 +164,7 @@ const StudentDashboard = () => {
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={handleToggle}
               style={{ marginRight: 16 }}
+              loading={isLoading('sidebar_toggle')}
             />
           )}
         </div>

@@ -247,7 +247,7 @@ const TestStatistics = () => {
         borderBottom: '1px solid #e2e8f0'
       }}>
         <Title level={1} style={{ margin: 0, color: '#1e293b', marginBottom: '8px' }}>
-          Testlar statistikasi
+          Testlar reytingi
         </Title>
         <Text style={{ fontSize: '18px', color: '#64748b' }}>
           Barcha testlarning batafsil statistikasi va natijalari
