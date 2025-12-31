@@ -14,6 +14,7 @@ import {
   Space,
   Button,
   Tooltip,
+  Switch,
 } from 'antd';
 import {
   TeamOutlined,
@@ -25,7 +26,40 @@ import {
   ArrowUpOutlined,
   ArrowDownOutlined,
   InfoCircleOutlined,
+  LineChartOutlined,
+  BarChartOutlined,
+  PieChartOutlined,
 } from '@ant-design/icons';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  RadialLinearScale,
+  Title as ChartTitle,
+  Tooltip as ChartTooltip,
+  Legend,
+  Filler,
+} from 'chart.js';
+import { Line, Bar, Pie, Doughnut, Radar } from 'react-chartjs-2';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  RadialLinearScale,
+  ChartTitle,
+  ChartTooltip,
+  Legend,
+  Filler
+);
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
 
@@ -43,6 +77,34 @@ const ClassesPage = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Chart visibility states
+  const [visibleCharts, setVisibleCharts] = useState({
+    classSizeDistribution: true,
+    performanceComparison: true,
+    monthlyActivity: true,
+    averageScoreTrend: true,
+    studentEngagement: true,
+    classRankings: true
+  });
+  
+  // Chart width control states
+  const [chartWidths, setChartWidths] = useState({
+    classSizeDistribution: 50,
+    performanceComparison: 50,
+    monthlyActivity: 50,
+    averageScoreTrend: 100,
+    studentEngagement: 50,
+    classRankings: 50
+  });
+  
+  // Toggle functions for charts
+  const toggleChart = (chartKey) => {
+    setVisibleCharts(prev => ({
+      ...prev,
+      [chartKey]: !prev[chartKey]
+    }));
+  };
 
   // Fetch class statistics
   useEffect(() => {
@@ -236,6 +298,237 @@ const ClassesPage = () => {
     }
   };
 
+  // Chart Data Configuration
+  const classSizeDistributionChart = {
+    labels: stats.classStatistics.slice(0, 8).map(cls => cls.classGroup),
+    datasets: [
+      {
+        label: 'O\'quvchilar soni',
+        data: stats.classStatistics.slice(0, 8).map(cls => cls.totalStudents),
+        backgroundColor: [
+          'rgba(37, 99, 235, 0.8)',
+          'rgba(124, 58, 237, 0.8)',
+          'rgba(5, 150, 105, 0.8)',
+          'rgba(245, 158, 11, 0.8)',
+          'rgba(220, 38, 38, 0.8)',
+          'rgba(22, 163, 74, 0.8)',
+          'rgba(139, 92, 246, 0.8)',
+          'rgba(236, 72, 153, 0.8)'
+        ],
+        borderColor: [
+          '#2563eb', '#7c3aed', '#059669', '#f59e0b', 
+          '#dc2626', '#16a34a', '#8b5cf6', '#ec4899'
+        ],
+        borderWidth: 2,
+        borderRadius: 8,
+      },
+    ],
+  };
+
+  const performanceComparisonChart = {
+    labels: stats.classStatistics.slice(0, 8).map(cls => cls.classGroup),
+    datasets: [
+      {
+        label: 'O\'rtacha ball',
+        data: stats.classStatistics.slice(0, 8).map(cls => cls.averageScore),
+        borderColor: '#8b5cf6',
+        backgroundColor: 'rgba(139, 92, 246, 0.4)',
+        borderWidth: 4,
+        fill: true,
+        tension: 0.3,
+        pointBackgroundColor: '#8b5cf6',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 3,
+        pointRadius: 8,
+      },
+    ],
+  };
+
+  const monthlyActivityChart = {
+    labels: ['Yan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    datasets: [
+      {
+        label: 'Yangi sinflar',
+        data: [3, 2, 4, 1, 3, 2],
+        borderColor: '#2563eb',
+        backgroundColor: 'rgba(37, 99, 235, 0.3)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#2563eb',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+      },
+    ],
+  };
+
+  const averageScoreTrendChart = {
+    labels: ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
+    datasets: [
+      {
+        label: 'Barcha sinflar o\'rtacha',
+        data: [72, 75, 78, 74, 76, 79],
+        borderColor: '#16a34a',
+        backgroundColor: 'rgba(22, 163, 74, 0.3)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#16a34a',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+      },
+    ],
+  };
+
+  const studentEngagementChart = {
+    labels: ['Yuqori', 'O\'rta', 'Past'],
+    datasets: [
+      {
+        data: [
+          stats.classStatistics.filter(c => c.performance === 'Yuqori').length,
+          stats.classStatistics.filter(c => c.performance === 'O\'rta').length,
+          stats.classStatistics.filter(c => c.performance === 'Past').length
+        ],
+        backgroundColor: ['#16a34a', '#f59e0b', '#dc2626'],
+        borderColor: ['#ffffff', '#ffffff', '#ffffff'],
+        borderWidth: 3,
+        hoverOffset: 15,
+      },
+    ],
+  };
+
+  const classRankingsChart = {
+    labels: stats.classStatistics.slice(0, 6).map(cls => cls.classGroup),
+    datasets: [
+      {
+        label: 'Reyting balli',
+        data: stats.classStatistics.slice(0, 6).map(cls => cls.averageScore),
+        backgroundColor: 'rgba(245, 158, 11, 0.8)',
+        borderColor: '#f59e0b',
+        borderWidth: 2,
+        borderRadius: 8,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'circle',
+          font: { size: 12, weight: 600 },
+          color: '#374151',
+          padding: 20,
+        },
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+        borderWidth: 1,
+        cornerRadius: 8,
+        padding: 12,
+      },
+    },
+    scales: {
+      x: {
+        display: true,
+        grid: { display: true, color: 'rgba(0, 0, 0, 0.05)' },
+        ticks: { color: '#6b7280', font: { size: 11, weight: 500 } },
+      },
+      y: {
+        display: true,
+        grid: { display: true, color: 'rgba(0, 0, 0, 0.05)' },
+        ticks: { color: '#6b7280', font: { size: 11, weight: 500 } },
+      },
+    },
+    animation: { 
+      duration: 2000, 
+      easing: 'easeInOutQuart',
+      animateRotate: true,
+      animateScale: true,
+    },
+  };
+
+  const barChartOptions = {
+    ...chartOptions,
+    plugins: { ...chartOptions.plugins, legend: { ...chartOptions.plugins.legend, display: false } },
+    scales: { ...chartOptions.scales, y: { ...chartOptions.scales.y, beginAtZero: true } }
+  };
+
+  const pieChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'circle',
+          font: { size: 12, weight: 600 },
+          color: '#374151',
+          padding: 20,
+        },
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+        borderWidth: 1,
+        cornerRadius: 8,
+        padding: 12,
+      },
+    },
+    animation: { 
+      duration: 2000, 
+      easing: 'easeInOutQuart',
+      animateRotate: true,
+      animateScale: true,
+    },
+  };
+
+  // Resizable Chart Component
+  const ResizableChart = ({ chartKey, title, icon, children, width }) => {
+    const chartWidth = chartWidths[chartKey] || width || 50;
+    const isVisible = visibleCharts[chartKey];
+    
+    if (!isVisible) return null;
+    
+    return (
+      <div style={{ width: `${chartWidth}%`, padding: '0 8px' }}>
+        <Card
+          style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            height: '400px',
+          }}
+          bodyStyle={{ padding: '16px', height: '100%', display: 'flex', flexDirection: 'column' }}
+          hoverable
+        >
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+            {icon}
+            <Title level={3} style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b', margin: '0 0 0 8px' }}>
+              {title}
+            </Title>
+          </div>
+          <div style={{ flex: 1, height: '320px' }}>
+            {children}
+          </div>
+        </Card>
+      </div>
+    );
+  };
+
   const columns = [
     {
       title: 'Sinf',
@@ -415,6 +708,163 @@ const ClassesPage = () => {
           />
         </Col>
       </Row>
+
+      {/* Charts Control Header */}
+      <Row gutter={[24, 16]} style={{ marginBottom: '24px' }}>
+        <Col span={24}>
+          <Card
+            style={{
+              backgroundColor: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              padding: '20px'
+            }}
+            bodyStyle={{ padding: '20px' }}
+          >
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '20px'
+            }}>
+              <Title level={3} style={{
+                fontSize: '18px',
+                fontWeight: 700,
+                color: '#1e293b',
+                margin: 0
+              }}>
+                Diagrammalar boshqaruvi
+              </Title>
+              <Text style={{
+                fontSize: '14px',
+                color: '#64748b'
+              }}>
+                Har bir diagrammni alohida boshqarish
+              </Text>
+            </div>
+            
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '16px'
+            }}>
+              {[
+                { key: 'classSizeDistribution', label: 'Sinf hajmi taqsimoti', icon: <BarChartOutlined style={{ color: '#2563eb' }} /> },
+                { key: 'performanceComparison', label: 'Natijalar solishtiruvi', icon: <LineChartOutlined style={{ color: '#8b5cf6' }} /> },
+                { key: 'monthlyActivity', label: 'Oylik faoliyat', icon: <LineChartOutlined style={{ color: '#16a34a' }} /> },
+                { key: 'averageScoreTrend', label: 'O\'rtacha ball trendi', icon: <LineChartOutlined style={{ color: '#f59e0b' }} /> },
+                { key: 'studentEngagement', label: 'O\'quvchi ishtiroki', icon: <PieChartOutlined style={{ color: '#dc2626' }} /> },
+                { key: 'classRankings', label: 'Sinf reytinglari', icon: <BarChartOutlined style={{ color: '#059669' }} /> }
+              ].map(chart => (
+                <div
+                  key={chart.key}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px 16px',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    flex: 1
+                  }}>
+                    {chart.icon}
+                    <Text style={{
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      color: '#1e293b'
+                    }}>
+                      {chart.label}
+                    </Text>
+                  </div>
+                  <Switch
+                    checked={visibleCharts[chart.key]}
+                    onChange={(checked) => toggleChart(chart.key)}
+                    size="small"
+                    style={{
+                      backgroundColor: visibleCharts[chart.key] ? '#2563eb' : '#d1d5db'
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Charts Section */}
+      <div style={{ marginBottom: '24px' }}>
+        <Row gutter={[0, 24]}>
+          <ResizableChart
+            chartKey="classSizeDistribution"
+            title="Sinf hajmi taqsimoti"
+            icon={<BarChartOutlined style={{ color: '#2563eb' }} />}
+            width={50}
+          >
+            <Bar data={classSizeDistributionChart} options={barChartOptions} />
+          </ResizableChart>
+
+          <ResizableChart
+            chartKey="performanceComparison"
+            title="Natijalar solishtiruvi"
+            icon={<LineChartOutlined style={{ color: '#8b5cf6' }} />}
+            width={50}
+          >
+            <Line data={performanceComparisonChart} options={chartOptions} />
+          </ResizableChart>
+        </Row>
+      </div>
+
+      <div style={{ marginBottom: '24px' }}>
+        <Row gutter={[0, 24]}>
+          <ResizableChart
+            chartKey="monthlyActivity"
+            title="Oylik faoliyat"
+            icon={<LineChartOutlined style={{ color: '#16a34a' }} />}
+            width={50}
+          >
+            <Line data={monthlyActivityChart} options={chartOptions} />
+          </ResizableChart>
+
+          <ResizableChart
+            chartKey="averageScoreTrend"
+            title="O'rtacha ball trendi"
+            icon={<LineChartOutlined style={{ color: '#f59e0b' }} />}
+            width={50}
+          >
+            <Line data={averageScoreTrendChart} options={chartOptions} />
+          </ResizableChart>
+        </Row>
+      </div>
+
+      <div style={{ marginBottom: '24px' }}>
+        <Row gutter={[0, 24]}>
+          <ResizableChart
+            chartKey="studentEngagement"
+            title="O'quvchi ishtiroki"
+            icon={<PieChartOutlined style={{ color: '#dc2626' }} />}
+            width={50}
+          >
+            <Pie data={studentEngagementChart} options={pieChartOptions} />
+          </ResizableChart>
+
+          <ResizableChart
+            chartKey="classRankings"
+            title="Sinf reytinglari"
+            icon={<BarChartOutlined style={{ color: '#059669' }} />}
+            width={50}
+          >
+            <Bar data={classRankingsChart} options={barChartOptions} />
+          </ResizableChart>
+        </Row>
+      </div>
 
       {/* Recent Activity */}
       <Card

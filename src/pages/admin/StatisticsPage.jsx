@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Row,
   Col,
@@ -15,6 +15,7 @@ import {
   Timeline,
   Divider,
   Tooltip,
+  Switch,
 } from 'antd';
 import {
   DashboardOutlined,
@@ -37,11 +38,53 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  RadialLinearScale,
+  Title as ChartTitle,
+  Tooltip as ChartTooltip,
+  Legend,
+  Filler,
+} from 'chart.js';
+import { Line, Bar, Pie, Doughnut, Radar } from 'react-chartjs-2';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  RadialLinearScale,
+  ChartTitle,
+  ChartTooltip,
+  Legend,
+  Filler
+);
 
 const { Title, Text } = Typography;
 
+// Google Analytics Tracking
+const trackEvent = (eventName, parameters = {}) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', eventName, {
+      event_category: 'Statistics',
+      event_label: 'Statistics Page',
+      ...parameters
+    });
+  }
+};
+
 const StatisticsPage = () => {
   const navigate = useNavigate();
+  const chartRefs = useRef({});
   const [stats, setStats] = useState({
     // Overview stats
     totalUsers: 0,
@@ -72,12 +115,107 @@ const StatisticsPage = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Card toggle states
+  const [visibleCards, setVisibleCards] = useState({
+    totalUsers: true,
+    totalTests: true,
+    totalAttempts: true,
+    averageScore: true,
+    // Individual chart toggles
+    monthlyTrends: true,
+    weeklyActivity: true,
+    subjectPerformance: true,
+    classPerformance: true,
+    userRole: true,
+    subjectRadar: true,
+    testTypes: true
+  });
+
+  // Chart width control states
+  const [chartWidths, setChartWidths] = useState({
+    monthlyTrends: 50,
+    weeklyActivity: 50,
+    subjectPerformance: 100,
+    classPerformance: 50,
+    userRole: 50,
+    subjectRadar: 50,
+    testTypes: 50
+  });
+  const [draggingChart, setDraggingChart] = useState(null);
+  const [startX, setStartX] = useState(0);
+  const [startWidth, setStartWidth] = useState(0);
+  
+  // Toggle functions for cards
+  const toggleCard = (cardKey) => {
+    setVisibleCards(prev => ({
+      ...prev,
+      [cardKey]: !prev[cardKey]
+    }));
+  };
+
+  // Chart width control functions
+  const handleMouseDown = (chartKey, e) => {
+    e.preventDefault();
+    setDraggingChart(chartKey);
+    setStartX(e.clientX);
+    setStartWidth(chartWidths[chartKey]);
+    document.body.classList.add('dragging');
+  };
+
+  const handleMouseMove = (e) => {
+    if (!draggingChart) return;
+    
+    const deltaX = e.clientX - startX;
+    const containerWidth = window.innerWidth;
+    const deltaPercent = (deltaX / containerWidth) * 100;
+    const newWidth = Math.max(20, Math.min(100, startWidth + deltaPercent));
+    
+    setChartWidths(prev => ({
+      ...prev,
+      [draggingChart]: newWidth
+    }));
+  };
+
+  const handleMouseUp = () => {
+    setDraggingChart(null);
+    document.body.classList.remove('dragging');
+  };
+
+  // Global mouse events for dragging
+  useEffect(() => {
+    if (draggingChart) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [draggingChart, startX, startWidth]);
+  
+  // GA4 tracking function
+  const trackEvent = (action, label) => {
+    if (typeof gtag !== 'undefined') {
+      gtag('event', action, {
+        event_category: 'Statistics Page',
+        event_label: label
+      });
+    }
+  };
 
   // Fetch comprehensive statistics
   useEffect(() => {
     const fetchComprehensiveStatistics = async () => {
       try {
         setLoading(true);
+        
+        // Track page view
+        trackEvent('page_view', {
+          page_title: 'Statistics Page',
+          page_location: window.location.href
+        });
         
         const [usersData, testsData, attemptsData] = await Promise.all([
           apiService.getUsers(),
@@ -218,31 +356,11 @@ const StatisticsPage = () => {
             : 0
         })).sort((a, b) => b.totalAttempts - a.totalAttempts);
 
-        // Weekly activity simulation (last 7 days)
-        const weeklyActivity = Array.from({ length: 7 }, (_, i) => {
-          const date = new Date();
-          date.setDate(date.getDate() - (6 - i));
-          return {
-            date: date.toISOString().split('T')[0],
-            dayName: date.toLocaleDateString('uz-UZ', { weekday: 'short' }),
-            registrations: Math.floor(Math.random() * 20) + 5,
-            testAttempts: Math.floor(Math.random() * 100) + 20,
-            newTests: Math.floor(Math.random() * 5) + 1
-          };
-        });
-
+        // Weekly activity data (last 7 days)
+        const weeklyActivity = [];
+        
         // Monthly trends (last 6 months)
-        const monthlyTrends = Array.from({ length: 6 }, (_, i) => {
-          const date = new Date();
-          date.setMonth(date.getMonth() - (5 - i));
-          return {
-            month: date.toLocaleDateString('uz-UZ', { month: 'short', year: 'numeric' }),
-            students: Math.floor(Math.random() * 50) + 100,
-            tests: Math.floor(Math.random() * 20) + 30,
-            attempts: Math.floor(Math.random() * 500) + 800,
-            averageScore: Math.floor(Math.random() * 20) + 60
-          };
-        });
+        const monthlyTrends = [];
 
         // Generate insights and alerts
         const insights = [
@@ -349,6 +467,516 @@ const StatisticsPage = () => {
     fetchComprehensiveStatistics();
   }, []);
 
+  // Chart Configuration and Data
+  const createGradient = (ctx, color1, color2) => {
+    if (!ctx || !ctx.createLinearGradient) {
+      return color1;
+    }
+    try {
+      const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+      gradient.addColorStop(0, color1);
+      gradient.addColorStop(1, color2);
+      return gradient;
+    } catch (error) {
+      return color1;
+    }
+  };
+
+  const monthlyTrendsChart = {
+    labels: stats.monthlyTrends.map(item => item.month),
+    datasets: [
+      {
+        label: 'O\'quvchilar',
+        data: stats.monthlyTrends.map(item => item.students),
+        borderColor: '#2563eb',
+        backgroundColor: (context) => {
+          try {
+            const chart = context?.chart;
+            const { ctx, chartArea } = chart || {};
+            if (!chartArea || !ctx) return 'rgba(37, 99, 235, 0.3)';
+            return createGradient(ctx, 'rgba(37, 99, 235, 0.3)', 'rgba(37, 99, 235, 0.05)');
+          } catch (error) {
+            return 'rgba(37, 99, 235, 0.3)';
+          }
+        },
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#2563eb',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+      },
+      {
+        label: 'Testlar',
+        data: stats.monthlyTrends.map(item => item.tests),
+        borderColor: '#7c3aed',
+        backgroundColor: (context) => {
+          try {
+            const chart = context?.chart;
+            const { ctx, chartArea } = chart || {};
+            if (!chartArea || !ctx) return 'rgba(124, 58, 237, 0.3)';
+            return createGradient(ctx, 'rgba(124, 58, 237, 0.3)', 'rgba(124, 58, 237, 0.05)');
+          } catch (error) {
+            return 'rgba(124, 58, 237, 0.3)';
+          }
+        },
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#7c3aed',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+      },
+      {
+        label: 'Urinishlar',
+        data: stats.monthlyTrends.map(item => item.attempts),
+        borderColor: '#059669',
+        backgroundColor: (context) => {
+          try {
+            const chart = context?.chart;
+            const { ctx, chartArea } = chart || {};
+            if (!chartArea || !ctx) return 'rgba(5, 150, 105, 0.3)';
+            return createGradient(ctx, 'rgba(5, 150, 105, 0.3)', 'rgba(5, 150, 105, 0.05)');
+          } catch (error) {
+            return 'rgba(5, 150, 105, 0.3)';
+          }
+        },
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#059669',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+      },
+    ],
+  };
+
+  const weeklyActivityChart = {
+    labels: stats.weeklyActivity.map(item => item.dayName),
+    datasets: [
+      {
+        label: 'Ro\'yxatdan o\'tish',
+        data: stats.weeklyActivity.map(item => item.registrations),
+        borderColor: '#f59e0b',
+        backgroundColor: (context) => {
+          try {
+            const chart = context?.chart;
+            const { ctx, chartArea } = chart || {};
+            if (!chartArea || !ctx) return 'rgba(245, 158, 11, 0.3)';
+            return createGradient(ctx, 'rgba(245, 158, 11, 0.3)', 'rgba(245, 158, 11, 0.05)');
+          } catch (error) {
+            return 'rgba(245, 158, 11, 0.3)';
+          }
+        },
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#f59e0b',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+      },
+      {
+        label: 'Test urinishlari',
+        data: stats.weeklyActivity.map(item => item.testAttempts),
+        borderColor: '#dc2626',
+        backgroundColor: (context) => {
+          try {
+            const chart = context?.chart;
+            const { ctx, chartArea } = chart || {};
+            if (!chartArea || !ctx) return 'rgba(220, 38, 38, 0.3)';
+            return createGradient(ctx, 'rgba(220, 38, 38, 0.3)', 'rgba(220, 38, 38, 0.05)');
+          } catch (error) {
+            return 'rgba(220, 38, 38, 0.3)';
+          }
+        },
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#dc2626',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+      },
+      {
+        label: 'Yangi testlar',
+        data: stats.weeklyActivity.map(item => item.newTests),
+        borderColor: '#16a34a',
+        backgroundColor: (context) => {
+          try {
+            const chart = context?.chart;
+            const { ctx, chartArea } = chart || {};
+            if (!chartArea || !ctx) return 'rgba(22, 163, 74, 0.3)';
+            return createGradient(ctx, 'rgba(22, 163, 74, 0.3)', 'rgba(22, 163, 74, 0.05)');
+          } catch (error) {
+            return 'rgba(22, 163, 74, 0.3)';
+          }
+        },
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#16a34a',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+      },
+    ],
+  };
+
+  const subjectPerformanceChart = {
+    labels: stats.subjectAnalytics.map(item => item.subject),
+    datasets: [
+      {
+        label: 'O\'rtacha ball',
+        data: stats.subjectAnalytics.map(item => item.averageScore),
+        borderColor: '#8b5cf6',
+        backgroundColor: (context) => {
+          try {
+            const chart = context?.chart;
+            const { ctx, chartArea } = chart || {};
+            if (!chartArea || !ctx) return 'rgba(139, 92, 246, 0.4)';
+            return createGradient(ctx, 'rgba(139, 92, 246, 0.4)', 'rgba(139, 92, 246, 0.1)');
+          } catch (error) {
+            return 'rgba(139, 92, 246, 0.4)';
+          }
+        },
+        borderWidth: 4,
+        fill: true,
+        tension: 0.3,
+        pointBackgroundColor: '#8b5cf6',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 3,
+        pointRadius: 8,
+        pointHoverRadius: 10,
+      },
+    ],
+  };
+
+  // Additional Charts
+  const classPerformanceBarChart = {
+    labels: stats.classPerformance.slice(0, 8).map(item => item.name),
+    datasets: [
+      {
+        label: 'O\'rtacha ball',
+        data: stats.classPerformance.slice(0, 8).map(item => item.averageScore),
+        backgroundColor: [
+          'rgba(37, 99, 235, 0.8)',
+          'rgba(124, 58, 237, 0.8)',
+          'rgba(5, 150, 105, 0.8)',
+          'rgba(245, 158, 11, 0.8)',
+          'rgba(220, 38, 38, 0.8)',
+          'rgba(22, 163, 74, 0.8)',
+          'rgba(139, 92, 246, 0.8)',
+          'rgba(236, 72, 153, 0.8)'
+        ],
+        borderColor: [
+          '#2563eb',
+          '#7c3aed',
+          '#059669',
+          '#f59e0b',
+          '#dc2626',
+          '#16a34a',
+          '#8b5cf6',
+          '#ec4899'
+        ],
+        borderWidth: 2,
+        borderRadius: 8,
+      },
+    ],
+  };
+
+  const userRolePieChart = {
+    labels: ['O\'quvchilar', 'O\'qituvchilar', 'Boshqaruvchilar'],
+    datasets: [
+      {
+        data: [stats.totalStudents, stats.totalTeachers, Math.max(stats.totalUsers - stats.totalStudents - stats.totalTeachers, 0)],
+        backgroundColor: [
+          '#2563eb',
+          '#7c3aed',
+          '#059669'
+        ],
+        borderColor: [
+          '#ffffff',
+          '#ffffff',
+          '#ffffff'
+        ],
+        borderWidth: 3,
+        hoverOffset: 10,
+      },
+    ],
+  };
+
+  const subjectPerformanceRadarChart = {
+    labels: stats.subjectAnalytics.slice(0, 6).map(item => item.subject),
+    datasets: [
+      {
+        label: 'O\'rtacha ball',
+        data: stats.subjectAnalytics.slice(0, 6).map(item => item.averageScore),
+        backgroundColor: 'rgba(139, 92, 246, 0.2)',
+        borderColor: '#8b5cf6',
+        borderWidth: 3,
+        pointBackgroundColor: '#8b5cf6',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+      },
+      {
+        label: 'Jami testlar',
+        data: stats.subjectAnalytics.slice(0, 6).map(item => item.totalTests),
+        backgroundColor: 'rgba(37, 99, 235, 0.2)',
+        borderColor: '#2563eb',
+        borderWidth: 3,
+        pointBackgroundColor: '#2563eb',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+      },
+    ],
+  };
+
+  const testDifficultyDoughnutChart = {
+    labels: ['Oson', 'O\'rta', 'Qiyin', 'Juda qiyin'],
+    datasets: [
+      {
+        data: [
+          stats.popularTests.filter(test => test.averageScore >= 80).length,
+          stats.popularTests.filter(test => test.averageScore >= 60 && test.averageScore < 80).length,
+          stats.popularTests.filter(test => test.averageScore >= 40 && test.averageScore < 60).length,
+          stats.popularTests.filter(test => test.averageScore < 40).length
+        ],
+        backgroundColor: [
+          '#10b981',
+          '#f59e0b', 
+          '#ef4444',
+          '#7c2d12'
+        ],
+        borderColor: [
+          '#ffffff',
+          '#ffffff',
+          '#ffffff',
+          '#ffffff'
+        ],
+        borderWidth: 3,
+        hoverOffset: 15,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'circle',
+          font: {
+            size: 12,
+            weight: 600,
+          },
+          color: '#374151',
+          padding: 20,
+        },
+      },
+      tooltip: {
+        mode: 'index',
+        intersect: false,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+        borderWidth: 1,
+        cornerRadius: 8,
+        padding: 12,
+        titleFont: {
+          size: 14,
+          weight: 'bold',
+        },
+        bodyFont: {
+          size: 13,
+        },
+      },
+    },
+    interaction: {
+      mode: 'nearest',
+      axis: 'x',
+      intersect: false,
+    },
+    scales: {
+      x: {
+        display: true,
+        grid: {
+          display: true,
+          color: 'rgba(0, 0, 0, 0.05)',
+        },
+        ticks: {
+          color: '#6b7280',
+          font: {
+            size: 11,
+            weight: 500,
+          },
+        },
+      },
+      y: {
+        display: true,
+        grid: {
+          display: true,
+          color: 'rgba(0, 0, 0, 0.05)',
+        },
+        ticks: {
+          color: '#6b7280',
+          font: {
+            size: 11,
+            weight: 500,
+          },
+        },
+      },
+    },
+    animation: {
+      duration: 2000,
+      easing: 'easeInOutQuart',
+    },
+  };
+
+  const barChartOptions = {
+    ...chartOptions,
+    plugins: {
+      ...chartOptions.plugins,
+      legend: {
+        ...chartOptions.plugins.legend,
+        display: false
+      }
+    },
+    scales: {
+      ...chartOptions.scales,
+      y: {
+        ...chartOptions.scales.y,
+        beginAtZero: true,
+        max: 100
+      }
+    }
+  };
+
+  const pieChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'circle',
+          font: {
+            size: 12,
+            weight: 600,
+          },
+          color: '#374151',
+          padding: 20,
+        },
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+        borderWidth: 1,
+        cornerRadius: 8,
+        padding: 12,
+        titleFont: {
+          size: 14,
+          weight: 'bold',
+        },
+        bodyFont: {
+          size: 13,
+        },
+      },
+    },
+    animation: {
+      duration: 2000,
+      easing: 'easeInOutQuart',
+    },
+  };
+
+  const radarChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'circle',
+          font: {
+            size: 12,
+            weight: 600,
+          },
+          color: '#374151',
+          padding: 20,
+        },
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+        borderWidth: 1,
+        cornerRadius: 8,
+        padding: 12,
+        titleFont: {
+          size: 14,
+          weight: 'bold',
+        },
+        bodyFont: {
+          size: 13,
+        },
+      },
+    },
+    scales: {
+      r: {
+        beginAtZero: true,
+        max: 100,
+        grid: {
+          color: 'rgba(0, 0, 0, 0.1)',
+        },
+        pointLabels: {
+          color: '#6b7280',
+          font: {
+            size: 11,
+            weight: 500,
+          },
+        },
+        ticks: {
+          color: '#6b7280',
+          font: {
+            size: 10,
+          },
+          stepSize: 20,
+        },
+      },
+    },
+    animation: {
+      duration: 2000,
+      easing: 'easeInOutQuart',
+    },
+  };
+
+  const handleChartClick = (chartName) => {
+    trackEvent('chart_interaction', {
+      chart_name: chartName,
+      interaction_type: 'click'
+    });
+  };
+
   const StatCard = ({ title, value, icon, color, suffix, trend, subtitle }) => (
     <div>
       <Card
@@ -439,6 +1067,83 @@ const StatisticsPage = () => {
       )}
     </div>
   );
+
+  // Resizable Chart Component
+  const ResizableChart = ({ chartKey, title, icon, children, width }) => {
+    const chartWidth = chartWidths[chartKey] || width || 50;
+    const isVisible = visibleCards[chartKey];
+    const isDragging = draggingChart === chartKey;
+    
+    // Don't render anything if the chart is hidden
+    if (!isVisible) {
+      return null;
+    }
+    
+    return (
+      <div 
+        className="chart-resize-container"
+        style={{
+          width: `${chartWidth}%`,
+          padding: '0 8px'
+        }}
+      >
+        <Card
+          style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            height: '400px',
+            transition: 'box-shadow 0.2s ease'
+          }}
+          bodyStyle={{ padding: '16px', height: '100%', display: 'flex', flexDirection: 'column' }}
+          hoverable
+        >
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '16px',
+            flexShrink: 0
+          }}>
+            <Title level={3} style={{
+              fontSize: '1.25rem',
+              fontWeight: 700,
+              color: '#1e293b',
+              margin: 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              {icon}
+              {title}
+            </Title>
+          </div>
+          <div style={{ 
+            flex: 1, 
+            height: '320px',
+            minHeight: '280px'
+          }}>
+            {children}
+          </div>
+        </Card>
+        
+        {/* Drag Handle */}
+        <div
+          className={`chart-resize-handle ${isDragging ? 'active' : ''}`}
+          onMouseDown={(e) => handleMouseDown(chartKey, e)}
+          title="Kenglikni o'zgartirish uchun sudrab olib boring"
+        />
+        
+        {/* Width indicator */}
+        <div
+          className={`chart-width-indicator ${isDragging ? 'visible' : ''}`}
+        >
+          {Math.round(chartWidth)}%
+        </div>
+      </div>
+    );
+  };
 
   const getInsightColor = (type) => {
     switch (type) {
@@ -637,6 +1342,317 @@ const StatisticsPage = () => {
         </Col>
       </Row>
 
+      {/* Charts Control Header */}
+      <Row gutter={[24, 16]} style={{ marginBottom: '24px' }}>
+        <Col span={24}>
+          <Card
+            style={{
+              backgroundColor: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              padding: '20px'
+            }}
+            bodyStyle={{ padding: '20px' }}
+          >
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '20px'
+            }}>
+              <Title level={3} style={{
+                fontSize: '18px',
+                fontWeight: 700,
+                color: '#1e293b',
+                margin: 0
+              }}>
+                Diagrammalar boshqaruvi
+              </Title>
+              <Text style={{
+                fontSize: '14px',
+                color: '#64748b'
+              }}>
+                Har bir diagrammni alohida boshqarish
+              </Text>
+            </div>
+            
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '16px'
+            }}>
+              {[
+                { key: 'monthlyTrends', label: 'Oylik tendensiyalar', icon: <LineChartOutlined style={{ color: '#2563eb' }} /> },
+                { key: 'weeklyActivity', label: 'Haftalik faoliyat', icon: <CalendarOutlined style={{ color: '#f59e0b' }} /> },
+                { key: 'subjectPerformance', label: 'Fanlar natijalari', icon: <BarChartOutlined style={{ color: '#8b5cf6' }} /> },
+                { key: 'classPerformance', label: 'Sinf natijalari', icon: <BarChartOutlined style={{ color: '#059669' }} /> },
+                { key: 'userRole', label: 'Foydalanuvchilar tarkibi', icon: <PieChartOutlined style={{ color: '#f59e0b' }} /> },
+                { key: 'subjectRadar', label: 'Fanlar radar', icon: <RiseOutlined style={{ color: '#8b5cf6' }} /> },
+                { key: 'testTypes', label: 'Test turlari', icon: <BookOutlined style={{ color: '#7c3aed' }} /> }
+              ].map(chart => (
+                <div
+                  key={chart.key}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px 16px',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    flex: 1
+                  }}>
+                    {chart.icon}
+                    <Text style={{
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      color: '#1e293b'
+                    }}>
+                      {chart.label}
+                    </Text>
+                  </div>
+                  <Switch
+                    checked={visibleCards[chart.key]}
+                    onChange={(checked) => toggleCard(chart.key)}
+                    size="small"
+                    style={{
+                      backgroundColor: visibleCards[chart.key] ? '#2563eb' : '#d1d5db'
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Charts Section */}
+      <div>
+        <div style={{ marginBottom: '24px' }}>
+        <Row gutter={[0, 24]}>
+          <ResizableChart
+            chartKey="monthlyTrends"
+            title="Oylik tendensiyalar"
+            icon={<LineChartOutlined style={{ color: '#2563eb' }} />}
+            width={50}
+          >
+            <Line 
+              data={monthlyTrendsChart} 
+              options={chartOptions}
+              onClick={() => handleChartClick('monthly_trends')}
+            />
+          </ResizableChart>
+
+          <ResizableChart
+            chartKey="weeklyActivity"
+            title="Haftalik faoliyat"
+            icon={<CalendarOutlined style={{ color: '#f59e0b' }} />}
+            width={50}
+          >
+            <Line 
+              data={weeklyActivityChart} 
+              options={chartOptions}
+              onClick={() => handleChartClick('weekly_activity')}
+            />
+          </ResizableChart>
+        </Row>
+      </div>
+
+      <div style={{ marginBottom: '24px' }}>
+        <Row gutter={[0, 24]}>
+          <ResizableChart
+            chartKey="subjectPerformance"
+            title="Fanlar bo'yicha natijalar"
+            icon={<BarChartOutlined style={{ color: '#8b5cf6' }} />}
+            width={100}
+          >
+            <Line 
+              data={subjectPerformanceChart} 
+              options={{
+                ...chartOptions,
+                plugins: {
+                  ...chartOptions.plugins,
+                  legend: {
+                    ...chartOptions.plugins.legend,
+                    display: false
+                  }
+                }
+              }}
+              onClick={() => handleChartClick('subject_performance')}
+            />
+          </ResizableChart>
+        </Row>
+      </div>
+
+      {/* Additional Charts Section */}
+      <div style={{ marginBottom: '24px' }}>
+        <Row gutter={[0, 24]}>
+          <ResizableChart
+            chartKey="classPerformance"
+            title="Sinf natijalari"
+            icon={<BarChartOutlined style={{ color: '#059669' }} />}
+            width={50}
+          >
+            <Bar 
+              data={classPerformanceBarChart} 
+              options={barChartOptions}
+              onClick={() => handleChartClick('class_performance_bar')}
+            />
+          </ResizableChart>
+
+          <ResizableChart
+            chartKey="userRole"
+            title="Foydalanuvchilar tarkibi"
+            icon={<PieChartOutlined style={{ color: '#f59e0b' }} />}
+            width={50}
+          >
+            <Pie 
+              data={userRolePieChart} 
+              options={pieChartOptions}
+              onClick={() => handleChartClick('user_role_pie')}
+            />
+          </ResizableChart>
+        </Row>
+      </div>
+
+      <div style={{ marginBottom: '24px' }}>
+        <Row gutter={[0, 24]}>
+          <ResizableChart
+            chartKey="subjectRadar"
+            title="Fanlar radar"
+            icon={<RiseOutlined style={{ color: '#8b5cf6' }} />}
+            width={50}
+          >
+            <Radar 
+              data={subjectPerformanceRadarChart} 
+              options={radarChartOptions}
+              onClick={() => handleChartClick('subject_radar')}
+            />
+          </ResizableChart>
+
+          <ResizableChart
+            chartKey="testTypes"
+            title="Test turlari"
+            icon={<BookOutlined style={{ color: '#7c3aed' }} />}
+            width={50}
+          >
+            <Pie 
+              data={testDifficultyDoughnutChart} 
+              options={pieChartOptions}
+              onClick={() => handleChartClick('test_types_pie')}
+            />
+          </ResizableChart>
+        </Row>
+      </div>
+
+      {/* Top Classes and Students Analytics */}
+      <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
+        <Col xs={24} lg={12}>
+          <Card
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            <Title level={3} style={{
+              fontSize: '1.25rem',
+              fontWeight: 700,
+              color: '#1e293b',
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <TeamOutlined style={{ color: '#16a34a' }} />
+              Top 5 sinflar
+            </Title>
+            <Table
+              dataSource={stats.classPerformance.slice(0, 5)}
+              columns={columns.classes}
+              pagination={false}
+              size="small"
+              rowKey="name"
+            />
+          </Card>
+        </Col>
+
+        <Col xs={24} lg={12}>
+          <Card
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            <Title level={3} style={{
+              fontSize: '1.25rem',
+              fontWeight: 700,
+              color: '#1e293b',
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <StarOutlined style={{ color: '#f59e0b' }} />
+              Top 5 o'quvchilar
+            </Title>
+            <Table
+              dataSource={stats.topStudents.slice(0, 5)}
+              columns={columns.students}
+              pagination={false}
+              size="small"
+              rowKey="id"
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Popular Tests Analytics */}
+      <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
+        <Col xs={24}>
+          <Card
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            <Title level={3} style={{
+              fontSize: '1.25rem',
+              fontWeight: 700,
+              color: '#1e293b',
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <BookOutlined style={{ color: '#7c3aed' }} />
+              Eng mashhur testlar
+            </Title>
+            <Table
+              dataSource={stats.popularTests.slice(0, 5)}
+              columns={columns.tests}
+              pagination={false}
+              size="small"
+              rowKey="id"
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      </div>
+
       {/* Insights and Alerts */}
       <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
         <Col xs={24} lg={16}>
@@ -729,7 +1745,6 @@ const StatisticsPage = () => {
           </Card>
         </Col>
       </Row>
-
 
     </div>
   );

@@ -110,9 +110,46 @@ const AdminDashboard = () => {
       label: 'Umumiy',
     },
     {
-      key: '/admin/statistics',
+      key: 'statistics',
       icon: <RiseOutlined />,
-      label: 'Jami statistika',
+      label: 'Statistika',
+      children: [
+        {
+          key: '/admin/statistics',
+          label: 'Jami statistika',
+        },
+        {
+          key: '/admin/classes',
+          label: 'Sinflar statistikasi',
+        },
+        {
+          key: '/admin/students-page',
+          label: 'O\'quvchilar statistikasi',
+        },
+        {
+          key: '/admin/tests-page',
+          label: 'Testlar statistikasi',
+        },
+      ],
+    },
+    {
+      key: 'ratings',
+      icon: <TrophyOutlined />,
+      label: 'Reytinglar',
+      children: [
+        {
+          key: '/admin/class-stats',
+          label: 'Sinflar reytingi',
+        },
+        {
+          key: '/admin/student-ratings',
+          label: 'O\'quvchilar reytingi',
+        },
+        {
+          key: '/admin/test-stats',
+          label: 'Testlar reytingi',
+        },
+      ],
     },
     {
       key: '/admin/teachers',
@@ -123,36 +160,6 @@ const AdminDashboard = () => {
       key: '/admin/students',
       icon: <UserOutlined />,
       label: 'O\'quvchilarni boshqarish',
-    },
-    {
-      key: '/admin/class-stats',
-      icon: <TrophyOutlined />,
-      label: 'Sinflar reytingi',
-    },
-    {
-      key: '/admin/classes',
-      icon: <RiseOutlined />,
-      label: 'Sinflar statistikasi',
-    },
-    {
-      key: '/admin/student-ratings',
-      icon: <TrophyOutlined />,
-      label: 'O\'quvchilar reytingi',
-    },
-    {
-      key: '/admin/students-page',
-      icon: <RiseOutlined />,
-      label: 'O\'quvchilar statistikasi',
-    },
-    {
-      key: '/admin/test-stats',
-      icon: <TrophyOutlined />,
-      label: 'Testlar reytingi',
-    },
-    {
-      key: '/admin/tests-page',
-      icon: <RiseOutlined />,
-      label: 'Testlar statistikasi',
     },
   ];
 
