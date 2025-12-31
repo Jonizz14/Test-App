@@ -593,7 +593,6 @@ const ManageTeachers = () => {
         onCancel={() => setExportModalVisible(false)}
         okText="Export qilish"
         cancelText="Bekor qilish"
-        className="animate__animated animate__zoomIn"
       >
         <div>
           <Text>Quyidagi ma'lumotlar Excel faylga export qilinadi. Jami {teachers.length} ta o'qituvchi.</Text>
@@ -631,7 +630,6 @@ const ManageTeachers = () => {
         ]}
         maskClosable={!importing}
         closable={!importing}
-        className="animate__animated animate__zoomIn"
       >
         <div>
           <Text>O'qituvchilarni Excel fayldan import qilish uchun fayl quyidagi formatda bo'lishi kerak:</Text>
