@@ -110,24 +110,38 @@ const AdminDashboard = () => {
       label: 'Umumiy',
     },
     {
+      key: '/admin/teachers',
+      icon: <TeamOutlined />,
+      label: 'O\'qituvchilarni boshqarish',
+    },
+    {
+      key: '/admin/students',
+      icon: <UserOutlined />,
+      label: 'O\'quvchilarni boshqarish',
+    },
+        {
       key: 'statistics',
       icon: <RiseOutlined />,
       label: 'Statistika',
       children: [
         {
           key: '/admin/statistics',
+          icon: <RiseOutlined />,
           label: 'Jami statistika',
         },
         {
           key: '/admin/classes',
+          icon: <RiseOutlined />,
           label: 'Sinflar statistikasi',
         },
         {
           key: '/admin/students-page',
+          icon: <RiseOutlined />,
           label: 'O\'quvchilar statistikasi',
         },
         {
           key: '/admin/tests-page',
+          icon: <RiseOutlined />,
           label: 'Testlar statistikasi',
         },
       ],
@@ -139,27 +153,20 @@ const AdminDashboard = () => {
       children: [
         {
           key: '/admin/class-stats',
+          icon: <TrophyOutlined />,
           label: 'Sinflar reytingi',
         },
         {
           key: '/admin/student-ratings',
+          icon: <TrophyOutlined />,
           label: 'O\'quvchilar reytingi',
         },
         {
           key: '/admin/test-stats',
+          icon: <TrophyOutlined />,
           label: 'Testlar reytingi',
         },
       ],
-    },
-    {
-      key: '/admin/teachers',
-      icon: <TeamOutlined />,
-      label: 'O\'qituvchilarni boshqarish',
-    },
-    {
-      key: '/admin/students',
-      icon: <UserOutlined />,
-      label: 'O\'quvchilarni boshqarish',
     },
   ];
 

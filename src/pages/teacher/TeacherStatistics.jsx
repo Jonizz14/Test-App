@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import 'animate.css';
 import { Typography, Card, Row, Col, Statistic, Spin } from 'antd';
 import {
   BarChartOutlined as AssessmentIcon,
@@ -220,7 +221,17 @@ const TeacherStatistics = () => {
           stepSize: 1
         }
       }
-    }
+    },
+    animation: {
+      duration: 2000,
+      easing: 'easeOutBounce',
+      delay: (context) => {
+        if (context.type === 'data' && context.mode === 'default') {
+          return context.dataIndex * 100;
+        }
+        return 0;
+      },
+    },
   };
 
   const StatCard = ({ title, value, icon, color, suffix }) => (
@@ -334,92 +345,126 @@ const TeacherStatistics = () => {
         </Typography.Text>
       </div>
 
-      {/* Main Statistics Cards */}
+      {/* Main Statistics Cards with Entrance Animations */}
       <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
-        <StatCard
-          title="Jami yaratilgan testlar"
-          value={totalTestsCreated}
-          icon={<AssessmentIcon />}
-          color="#2563eb"
-          suffix={` (${activeTests} faol)`}
-        />
-        <StatCard
-          title="Jami urinishlar"
-          value={totalAttempts}
-          icon={<EmojiPeopleIcon />}
-          color="#16a34a"
-          suffix={` (${uniqueStudents} o'quvchi)`}
-        />
-        <StatCard
-          title="O'rtacha ball"
-          value={averageScore}
-          suffix="%"
-          icon={<TrendingUpIcon />}
-          color="#0ea5e9"
-        />
-        <StatCard
-          title="Eng yuqori ball"
-          value={highestScore}
-          suffix="%"
-          icon={<TrendingUpIcon />}
-          color="#059669"
-        />
-        <StatCard
-          title="Eng past ball"
-          value={lowestScore}
-          suffix="%"
-          icon={<TrendingUpIcon />}
-          color="#d97706"
-        />
+        <div className="animate__animated animate__zoomIn" style={{ animationDelay: '100ms' }}>
+          <StatCard
+            title="Jami yaratilgan testlar"
+            value={totalTestsCreated}
+            icon={<AssessmentIcon />}
+            color="#2563eb"
+            suffix={` (${activeTests} faol)`}
+          />
+        </div>
+        <div className="animate__animated animate__zoomIn" style={{ animationDelay: '200ms' }}>
+          <StatCard
+            title="Jami urinishlar"
+            value={totalAttempts}
+            icon={<EmojiPeopleIcon />}
+            color="#16a34a"
+            suffix={` (${uniqueStudents} o'quvchi)`}
+          />
+        </div>
+        <div className="animate__animated animate__zoomIn" style={{ animationDelay: '300ms' }}>
+          <StatCard
+            title="O'rtacha ball"
+            value={averageScore}
+            suffix="%"
+            icon={<TrendingUpIcon />}
+            color="#0ea5e9"
+          />
+        </div>
+        <div className="animate__animated animate__zoomIn" style={{ animationDelay: '400ms' }}>
+          <StatCard
+            title="Eng yuqori ball"
+            value={highestScore}
+            suffix="%"
+            icon={<TrendingUpIcon />}
+            color="#059669"
+          />
+        </div>
+        <div className="animate__animated animate__zoomIn" style={{ animationDelay: '500ms' }}>
+          <StatCard
+            title="Eng past ball"
+            value={lowestScore}
+            suffix="%"
+            icon={<TrendingUpIcon />}
+            color="#d97706"
+          />
+        </div>
       </Row>
 
       <Row gutter={[24, 24]}>
         {/* Score Distribution Chart */}
         <Col xs={24} md={12}>
-          <Card
-            style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-              height: '400px',
-              padding: '24px'
-            }}
-          >
-            <Typography.Title level={4} style={{ marginBottom: '24px' }}>
-              Ballar taqsimoti
-            </Typography.Title>
-            <Bar data={scoreDistributionData} options={chartOptions} />
-          </Card>
+          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms' }}>
+            <Card
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                height: '400px',
+                padding: '24px'
+              }}
+            >
+              <Typography.Title level={4} style={{ marginBottom: '24px' }}>
+                Ballar taqsimoti
+              </Typography.Title>
+            <Bar 
+              data={scoreDistributionData} 
+              options={{
+                ...chartOptions,
+                animation: {
+                  ...chartOptions.animation,
+                  delay: (context) => {
+                    if (context.type === 'data' && context.mode === 'default') {
+                      return context.dataIndex * 150;
+                    }
+                    return 0;
+                  },
+                },
+              }} 
+            />
+            </Card>
+          </div>
         </Col>
 
         {/* Subject Performance Chart */}
         <Col xs={24} md={12}>
-          <Card
-            style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-              height: '400px',
-              padding: '24px'
-            }}
-          >
-            <Typography.Title level={4} style={{ marginBottom: '24px' }}>
-              Fanlar bo'yicha natijalar
-            </Typography.Title>
-            <Pie
-              data={subjectPerformanceData}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: {
-                    position: 'bottom',
-                  },
-                },
+          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '400ms' }}>
+            <Card
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                height: '400px',
+                padding: '24px'
               }}
-            />
-          </Card>
+            >
+              <Typography.Title level={4} style={{ marginBottom: '24px' }}>
+                Fanlar bo'yicha natijalar
+              </Typography.Title>
+              <Pie
+                data={subjectPerformanceData}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: {
+                      position: 'bottom',
+                    },
+                  },
+                  animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 2500,
+                    easing: 'easeOutElastic(1, .6)',
+                  },
+                }}
+              />
+            </Card>
+          </div>
         </Col>
       </Row>
     </div>

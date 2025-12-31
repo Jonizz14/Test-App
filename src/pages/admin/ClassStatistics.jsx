@@ -11,7 +11,9 @@ import {
   Tag,
   Collapse,
   Tooltip,
+  Spin,
 } from 'antd';
+import 'animate.css';
 import {
   SearchOutlined,
   EyeOutlined,
@@ -415,7 +417,7 @@ const ClassStatistics = () => {
   ];
 
   return (
-    <div style={{ padding: '24px 0' }}>
+    <div className="animate__animated animate__fadeIn" style={{ padding: '24px 0' }}>
       {/* Header */}
       <div style={{
         marginBottom: '24px',
@@ -432,18 +434,20 @@ const ClassStatistics = () => {
 
       {/* Alerts */}
       {error && (
-        <Alert
-          message={error}
-          type="error"
-          showIcon
-          style={{ marginBottom: '16px' }}
-          closable
-          onClose={() => setError('')}
-        />
+        <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '100ms' }}>
+          <Alert
+            message={error}
+            type="error"
+            showIcon
+            style={{ marginBottom: '16px' }}
+            closable
+            onClose={() => setError('')}
+          />
+        </div>
       )}
 
       {/* Search */}
-      <div style={{ marginBottom: '24px' }}>
+      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms', marginBottom: '24px' }}>
         <Input
           placeholder="Sinf yoki rahbar nomini qidirish..."
           prefix={<SearchOutlined />}
@@ -457,19 +461,21 @@ const ClassStatistics = () => {
       </div>
 
       {/* Table */}
-      <Card
-        style={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-        }}
-      >
+      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '300ms' }}>
+        <Card
+          style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          }}
+        >
         <Table
           columns={columns}
           dataSource={classes}
           rowKey="name"
           loading={loading}
+          rowClassName={(record, index) => `animate__animated animate__fadeInLeft`}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
@@ -581,7 +587,8 @@ const ClassStatistics = () => {
             emptyText: 'Sinflar mavjud emas'
           }}
         />
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 };

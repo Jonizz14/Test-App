@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import 'animate.css';
 import {
   Row,
   Col,
@@ -526,15 +527,29 @@ const StudentsPage = () => {
     },
   };
 
-  // Resizable Chart Component
-  const ResizableChart = ({ chartKey, title, icon, children, width }) => {
+  // Animation delay helper
+  const getAnimationDelay = (index) => {
+    return index * 200; // 200ms delay between each chart
+  };
+
+  // Resizable Chart Component with entrance animations
+  const ResizableChart = ({ chartKey, title, icon, children, width, index = 0 }) => {
     const chartWidth = chartWidths[chartKey] || width || 50;
     const isVisible = visibleCharts[chartKey];
     
     if (!isVisible) return null;
     
     return (
-      <div style={{ width: `${chartWidth}%`, padding: '0 8px' }}>
+      <div 
+        className="animate__animated animate__fadeInUp"
+        style={{ 
+          width: `${chartWidth}%`, 
+          padding: '0 8px',
+          animationDelay: `${getAnimationDelay(index)}ms`,
+          animationDuration: '0.8s',
+          animationFillMode: 'both'
+        }}
+      >
         <Card
           style={{
             backgroundColor: '#ffffff',
@@ -727,83 +742,89 @@ const StudentsPage = () => {
         </Text>
       </div>
 
-      {/* Statistics Cards */}
+      {/* Statistics Cards with Entrance Animations */}
       <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={12} md={6}>
-          <StatCard
-            title="Jami o'quvchilar"
-            value={stats.totalStudents}
-            icon={<UserOutlined />}
-            color="#2563eb"
-          />
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '100ms' }}>
+            <StatCard
+              title="Jami o'quvchilar"
+              value={stats.totalStudents}
+              icon={<UserOutlined />}
+              color="#2563eb"
+            />
+          </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <StatCard
-            title="Faol o'quvchilar"
-            value={stats.activeStudents}
-            icon={<SafetyCertificateOutlined />}
-            color="#16a34a"
-            trend={{ direction: 'up', value: '+8.3%' }}
-          />
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '200ms' }}>
+            <StatCard
+              title="Faol o'quvchilar"
+              value={stats.activeStudents}
+              icon={<SafetyCertificateOutlined />}
+              color="#16a34a"
+              trend={{ direction: 'up', value: '+8.3%' }}
+            />
+          </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <StatCard
-            title="Bloklangan"
-            value={stats.bannedStudents}
-            icon={<UserOutlined />}
-            color="#dc2626"
-          />
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '300ms' }}>
+            <StatCard
+              title="Bloklangan"
+              value={stats.bannedStudents}
+              icon={<UserOutlined />}
+              color="#dc2626"
+            />
+          </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <StatCard
-            title="O'rtacha ball"
-            value={stats.averageScore}
-            suffix="%"
-            icon={<TrophyOutlined />}
-            color="#f59e0b"
-          />
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '400ms' }}>
+            <StatCard
+              title="O'rtacha ball"
+              value={stats.averageScore}
+              suffix="%"
+              icon={<TrophyOutlined />}
+              color="#f59e0b"
+            />
+          </div>
         </Col>
       </Row>
 
-      {/* Charts Control Header */}
-      <Row gutter={[24, 16]} style={{ marginBottom: '24px' }}>
-        <Col span={24}>
-          <Card
-            style={{
-              backgroundColor: '#f8fafc',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              padding: '20px'
-            }}
-            bodyStyle={{ padding: '20px' }}
-          >
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '20px'
+      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '500ms', marginBottom: '16px' }}>
+        <Card style={{
+          backgroundColor: '#eff6ff',
+          borderRadius: '12px',
+          padding: '16px 20px',
+          border: '1px solid #e2e8f0'
+        }}>
+          <Title level={3} style={{
+            fontSize: '1.25rem',
+            fontWeight: 600,
+            color: '#1e293b',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '16px'
+          }}>
+            <BarChartOutlined style={{ color: '#2563eb' }} />
+            Statistik ma'lumotlar va tahlillar
+          </Title>
+          
+          {/* Chart Management Controls */}
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '8px',
+            padding: '16px',
+            border: '1px solid #e2e8f0'
+          }}>
+            <Text style={{
+              fontSize: '14px',
+              fontWeight: 600,
+              color: '#374151',
+              display: 'block',
+              marginBottom: '12px'
             }}>
-              <Title level={3} style={{
-                fontSize: '18px',
-                fontWeight: 700,
-                color: '#1e293b',
-                margin: 0
-              }}>
-                Diagrammalar boshqaruvi
-              </Title>
-              <Text style={{
-                fontSize: '14px',
-                color: '#64748b'
-              }}>
-                Har bir diagrammni alohida boshqarish
-              </Text>
-            </div>
-            
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '16px'
-            }}>
+              Diagrammalar boshqaruvi
+            </Text>
+            <Row gutter={[16, 12]}>
               {[
                 { key: 'performanceDistribution', label: 'Natijalar taqsimoti', icon: <PieChartOutlined style={{ color: '#8b5cf6' }} /> },
                 { key: 'classAnalysis', label: 'Sinf tahlili', icon: <BarChartOutlined style={{ color: '#2563eb' }} /> },
@@ -812,48 +833,30 @@ const StudentsPage = () => {
                 { key: 'directionDistribution', label: 'Yo\'nalish taqsimoti', icon: <PieChartOutlined style={{ color: '#059669' }} /> },
                 { key: 'activityTrend', label: 'Faoliyat trendi', icon: <LineChartOutlined style={{ color: '#dc2626' }} /> }
               ].map(chart => (
-                <div
-                  key={chart.key}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '12px 16px',
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
+                <Col xs={24} sm={12} md={8} key={chart.key}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '12px',
-                    flex: 1
+                    justifyContent: 'space-between',
+                    padding: '8px 12px',
+                    backgroundColor: '#f8fafc',
+                    borderRadius: '6px',
+                    border: '1px solid #e2e8f0'
                   }}>
-                    {chart.icon}
-                    <Text style={{
-                      fontSize: '14px',
-                      fontWeight: 500,
-                      color: '#1e293b'
-                    }}>
-                      {chart.label}
-                    </Text>
+                    <Text style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>{chart.label}</Text>
+                    <Switch
+                      size="small"
+                      checked={visibleCharts[chart.key]}
+                      onChange={(checked) => toggleChart(chart.key)}
+                      style={{ backgroundColor: visibleCharts[chart.key] ? '#2563eb' : '#d1d5db' }}
+                    />
                   </div>
-                  <Switch
-                    checked={visibleCharts[chart.key]}
-                    onChange={(checked) => toggleChart(chart.key)}
-                    size="small"
-                    style={{
-                      backgroundColor: visibleCharts[chart.key] ? '#2563eb' : '#d1d5db'
-                    }}
-                  />
-                </div>
+                </Col>
               ))}
-            </div>
-          </Card>
-        </Col>
-      </Row>
+            </Row>
+          </div>
+        </Card>
+      </div>
 
       {/* Charts Section */}
       <div style={{ marginBottom: '24px' }}>
@@ -863,6 +866,7 @@ const StudentsPage = () => {
             title="Natijalar taqsimoti"
             icon={<PieChartOutlined style={{ color: '#8b5cf6' }} />}
             width={50}
+            index={0}
           >
             <Pie data={performanceDistributionChart} options={pieChartOptions} />
           </ResizableChart>
@@ -872,6 +876,7 @@ const StudentsPage = () => {
             title="Sinf tahlili"
             icon={<BarChartOutlined style={{ color: '#2563eb' }} />}
             width={50}
+            index={1}
           >
             <Bar data={classAnalysisChart} options={barChartOptions} />
           </ResizableChart>
@@ -885,6 +890,7 @@ const StudentsPage = () => {
             title="Oylik o'sish"
             icon={<LineChartOutlined style={{ color: '#16a34a' }} />}
             width={50}
+            index={2}
           >
             <Line data={monthlyGrowthChart} options={chartOptions} />
           </ResizableChart>
@@ -894,6 +900,7 @@ const StudentsPage = () => {
             title="Fanlar bo'yicha natijalar"
             icon={<BarChartOutlined style={{ color: '#f59e0b' }} />}
             width={50}
+            index={3}
           >
             <Line data={subjectPerformanceChart} options={chartOptions} />
           </ResizableChart>
@@ -907,6 +914,7 @@ const StudentsPage = () => {
             title="Yo'nalish taqsimoti"
             icon={<PieChartOutlined style={{ color: '#059669' }} />}
             width={50}
+            index={4}
           >
             <Pie data={directionDistributionChart} options={pieChartOptions} />
           </ResizableChart>
@@ -916,6 +924,7 @@ const StudentsPage = () => {
             title="Faoliyat trendi"
             icon={<LineChartOutlined style={{ color: '#dc2626' }} />}
             width={50}
+            index={5}
           >
             <Line data={activityTrendChart} options={chartOptions} />
           </ResizableChart>

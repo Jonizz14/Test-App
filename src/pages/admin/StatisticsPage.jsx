@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import 'animate.css';
 import {
   Row,
   Col,
@@ -843,8 +844,16 @@ const StatisticsPage = () => {
       },
     },
     animation: {
-      duration: 2000,
-      easing: 'easeInOutQuart',
+      duration: 2500,
+      easing: 'easeOutElastic(1, .6)',
+      delay: (context) => {
+        // Stagger animations for multiple datasets
+        let delay = 0;
+        if (context.type === 'data' && context.mode === 'default') {
+          delay = context.dataIndex * 300 + context.datasetIndex * 100;
+        }
+        return delay;
+      },
     },
   };
 
@@ -864,7 +873,16 @@ const StatisticsPage = () => {
         beginAtZero: true,
         max: 100
       }
-    }
+    },
+    animation: {
+      ...chartOptions.animation,
+      delay: (context) => {
+        if (context.type === 'data' && context.mode === 'default') {
+          return context.dataIndex * 100;
+        }
+        return 0;
+      },
+    },
   };
 
   const pieChartOptions = {
@@ -902,8 +920,10 @@ const StatisticsPage = () => {
       },
     },
     animation: {
-      duration: 2000,
-      easing: 'easeInOutQuart',
+      animateRotate: true,
+      animateScale: true,
+      duration: 2500,
+      easing: 'easeOutBounce',
     },
   };
 
@@ -965,8 +985,8 @@ const StatisticsPage = () => {
       },
     },
     animation: {
-      duration: 2000,
-      easing: 'easeInOutQuart',
+      duration: 3000,
+      easing: 'easeOutElastic(1, .8)',
     },
   };
 
@@ -1068,8 +1088,13 @@ const StatisticsPage = () => {
     </div>
   );
 
-  // Resizable Chart Component
-  const ResizableChart = ({ chartKey, title, icon, children, width }) => {
+  // Animation delay helper
+  const getAnimationDelay = (index) => {
+    return index * 200; // 200ms delay between each chart
+  };
+
+  // Resizable Chart Component with entrance animations
+  const ResizableChart = ({ chartKey, title, icon, children, width, index = 0 }) => {
     const chartWidth = chartWidths[chartKey] || width || 50;
     const isVisible = visibleCards[chartKey];
     const isDragging = draggingChart === chartKey;
@@ -1081,10 +1106,13 @@ const StatisticsPage = () => {
     
     return (
       <div 
-        className="chart-resize-container"
+        className="chart-resize-container animate__animated animate__fadeInUp"
         style={{
           width: `${chartWidth}%`,
-          padding: '0 8px'
+          padding: '0 8px',
+          animationDelay: `${getAnimationDelay(index)}ms`,
+          animationDuration: '0.8s',
+          animationFillMode: 'both'
         }}
       >
         <Card
@@ -1094,7 +1122,9 @@ const StatisticsPage = () => {
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
             height: '400px',
-            transition: 'box-shadow 0.2s ease'
+            transition: 'box-shadow 0.2s ease',
+            transform: 'translateY(0)',
+            opacity: 1
           }}
           bodyStyle={{ padding: '16px', height: '100%', display: 'flex', flexDirection: 'column' }}
           hoverable
@@ -1300,87 +1330,93 @@ const StatisticsPage = () => {
         </Text>
       </div>
 
-      {/* Overview Statistics */}
+      {/* Overview Statistics with Entrance Animations */}
       <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={12} md={6}>
-          <StatCard
-            title="Jami foydalanuvchilar"
-            value={stats.totalUsers}
-            icon={<UserOutlined />}
-            color="#2563eb"
-            trend={{ direction: 'up', value: `+${stats.studentGrowth}%` }}
-            subtitle={`${stats.totalStudents} o'quvchi, ${stats.totalTeachers} o'qituvchi`}
-          />
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '100ms' }}>
+            <StatCard
+              title="Jami foydalanuvchilar"
+              value={stats.totalUsers}
+              icon={<UserOutlined />}
+              color="#2563eb"
+              trend={{ direction: 'up', value: `+${stats.studentGrowth}%` }}
+              subtitle={`${stats.totalStudents} o'quvchi, ${stats.totalTeachers} o'qituvchi`}
+            />
+          </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <StatCard
-            title="Jami testlar"
-            value={stats.totalTests}
-            icon={<BookOutlined />}
-            color="#7c3aed"
-            trend={{ direction: 'up', value: `+${stats.testGrowth}%` }}
-          />
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '200ms' }}>
+            <StatCard
+              title="Jami testlar"
+              value={stats.totalTests}
+              icon={<BookOutlined />}
+              color="#7c3aed"
+              trend={{ direction: 'up', value: `+${stats.testGrowth}%` }}
+            />
+          </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <StatCard
-            title="Jami urinishlar"
-            value={stats.totalAttempts}
-            icon={<TrophyOutlined />}
-            color="#059669"
-            trend={{ direction: 'up', value: `+${stats.attemptGrowth}%` }}
-          />
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '300ms' }}>
+            <StatCard
+              title="Jami urinishlar"
+              value={stats.totalAttempts}
+              icon={<TrophyOutlined />}
+              color="#059669"
+              trend={{ direction: 'up', value: `+${stats.attemptGrowth}%` }}
+            />
+          </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <StatCard
-            title="O'rtacha ball"
-            value={stats.averageScore}
-            suffix="%"
-            icon={<RiseOutlined />}
-            color="#f59e0b"
-            trend={{ direction: 'up', value: `+${stats.scoreGrowth}%` }}
-          />
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '400ms' }}>
+            <StatCard
+              title="O'rtacha ball"
+              value={stats.averageScore}
+              suffix="%"
+              icon={<RiseOutlined />}
+              color="#f59e0b"
+              trend={{ direction: 'up', value: `+${stats.scoreGrowth}%` }}
+            />
+          </div>
         </Col>
       </Row>
 
-      {/* Charts Control Header */}
-      <Row gutter={[24, 16]} style={{ marginBottom: '24px' }}>
-        <Col span={24}>
-          <Card
-            style={{
-              backgroundColor: '#f8fafc',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              padding: '20px'
-            }}
-            bodyStyle={{ padding: '20px' }}
-          >
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '20px'
+      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '500ms', marginBottom: '16px' }}>
+        <Card style={{
+          backgroundColor: '#eff6ff',
+          borderRadius: '12px',
+          padding: '16px 20px',
+          border: '1px solid #e2e8f0'
+        }}>
+          <Title level={3} style={{
+            fontSize: '1.25rem',
+            fontWeight: 600,
+            color: '#1e293b',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '16px'
+          }}>
+            <BarChartOutlined style={{ color: '#2563eb' }} />
+            Statistik ma'lumotlar va tahlillar
+          </Title>
+          
+          {/* Chart Management Controls */}
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '8px',
+            padding: '16px',
+            border: '1px solid #e2e8f0'
+          }}>
+            <Text style={{
+              fontSize: '14px',
+              fontWeight: 600,
+              color: '#374151',
+              display: 'block',
+              marginBottom: '12px'
             }}>
-              <Title level={3} style={{
-                fontSize: '18px',
-                fontWeight: 700,
-                color: '#1e293b',
-                margin: 0
-              }}>
-                Diagrammalar boshqaruvi
-              </Title>
-              <Text style={{
-                fontSize: '14px',
-                color: '#64748b'
-              }}>
-                Har bir diagrammni alohida boshqarish
-              </Text>
-            </div>
-            
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '16px'
-            }}>
+              Diagrammalar boshqaruvi
+            </Text>
+            <Row gutter={[16, 12]}>
               {[
                 { key: 'monthlyTrends', label: 'Oylik tendensiyalar', icon: <LineChartOutlined style={{ color: '#2563eb' }} /> },
                 { key: 'weeklyActivity', label: 'Haftalik faoliyat', icon: <CalendarOutlined style={{ color: '#f59e0b' }} /> },
@@ -1390,48 +1426,30 @@ const StatisticsPage = () => {
                 { key: 'subjectRadar', label: 'Fanlar radar', icon: <RiseOutlined style={{ color: '#8b5cf6' }} /> },
                 { key: 'testTypes', label: 'Test turlari', icon: <BookOutlined style={{ color: '#7c3aed' }} /> }
               ].map(chart => (
-                <div
-                  key={chart.key}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '12px 16px',
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
+                <Col xs={24} sm={12} md={8} key={chart.key}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '12px',
-                    flex: 1
+                    justifyContent: 'space-between',
+                    padding: '8px 12px',
+                    backgroundColor: '#f8fafc',
+                    borderRadius: '6px',
+                    border: '1px solid #e2e8f0'
                   }}>
-                    {chart.icon}
-                    <Text style={{
-                      fontSize: '14px',
-                      fontWeight: 500,
-                      color: '#1e293b'
-                    }}>
-                      {chart.label}
-                    </Text>
+                    <Text style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>{chart.label}</Text>
+                    <Switch
+                      size="small"
+                      checked={visibleCards[chart.key]}
+                      onChange={(checked) => toggleCard(chart.key)}
+                      style={{ backgroundColor: visibleCards[chart.key] ? '#2563eb' : '#d1d5db' }}
+                    />
                   </div>
-                  <Switch
-                    checked={visibleCards[chart.key]}
-                    onChange={(checked) => toggleCard(chart.key)}
-                    size="small"
-                    style={{
-                      backgroundColor: visibleCards[chart.key] ? '#2563eb' : '#d1d5db'
-                    }}
-                  />
-                </div>
+                </Col>
               ))}
-            </div>
-          </Card>
-        </Col>
-      </Row>
+            </Row>
+          </div>
+        </Card>
+      </div>
 
       {/* Charts Section */}
       <div>
@@ -1442,6 +1460,7 @@ const StatisticsPage = () => {
             title="Oylik tendensiyalar"
             icon={<LineChartOutlined style={{ color: '#2563eb' }} />}
             width={50}
+            index={0}
           >
             <Line 
               data={monthlyTrendsChart} 
@@ -1455,6 +1474,7 @@ const StatisticsPage = () => {
             title="Haftalik faoliyat"
             icon={<CalendarOutlined style={{ color: '#f59e0b' }} />}
             width={50}
+            index={1}
           >
             <Line 
               data={weeklyActivityChart} 
@@ -1472,6 +1492,7 @@ const StatisticsPage = () => {
             title="Fanlar bo'yicha natijalar"
             icon={<BarChartOutlined style={{ color: '#8b5cf6' }} />}
             width={100}
+            index={2}
           >
             <Line 
               data={subjectPerformanceChart} 
@@ -1499,6 +1520,7 @@ const StatisticsPage = () => {
             title="Sinf natijalari"
             icon={<BarChartOutlined style={{ color: '#059669' }} />}
             width={50}
+            index={3}
           >
             <Bar 
               data={classPerformanceBarChart} 
@@ -1512,6 +1534,7 @@ const StatisticsPage = () => {
             title="Foydalanuvchilar tarkibi"
             icon={<PieChartOutlined style={{ color: '#f59e0b' }} />}
             width={50}
+            index={4}
           >
             <Pie 
               data={userRolePieChart} 
@@ -1529,6 +1552,7 @@ const StatisticsPage = () => {
             title="Fanlar radar"
             icon={<RiseOutlined style={{ color: '#8b5cf6' }} />}
             width={50}
+            index={5}
           >
             <Radar 
               data={subjectPerformanceRadarChart} 
@@ -1542,6 +1566,7 @@ const StatisticsPage = () => {
             title="Test turlari"
             icon={<BookOutlined style={{ color: '#7c3aed' }} />}
             width={50}
+            index={6}
           >
             <Pie 
               data={testDifficultyDoughnutChart} 
@@ -1652,99 +1677,6 @@ const StatisticsPage = () => {
       </Row>
 
       </div>
-
-      {/* Insights and Alerts */}
-      <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
-        <Col xs={24} lg={16}>
-          <Card
-            style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            }}
-          >
-            <Title level={3} style={{
-              fontSize: '1.25rem',
-              fontWeight: 700,
-              color: '#1e293b',
-              marginBottom: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <DashboardOutlined style={{ color: '#2563eb' }} />
-              Asosiy insights
-            </Title>
-            <Space direction="vertical" style={{ width: '100%' }}>
-              {stats.insights.map((insight, index) => (
-                <div key={index} style={{
-                  padding: '16px',
-                  backgroundColor: `${getInsightColor(insight.type)}10`,
-                  borderLeft: `4px solid ${getInsightColor(insight.type)}`,
-                  borderRadius: '8px'
-                }}>
-                  <Space>
-                    <div style={{
-                      width: '8px',
-                      height: '8px',
-                      backgroundColor: getInsightColor(insight.type),
-                      borderRadius: '50%'
-                    }} />
-                    <Text strong style={{ color: '#1e293b' }}>
-                      {insight.title}
-                    </Text>
-                  </Space>
-                  <br />
-                  <Text style={{ color: '#64748b' }}>
-                    {insight.description}
-                  </Text>
-                </div>
-              ))}
-            </Space>
-          </Card>
-        </Col>
-
-        <Col xs={24} lg={8}>
-          <Card
-            style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            }}
-          >
-            <Title level={3} style={{
-              fontSize: '1.25rem',
-              fontWeight: 700,
-              color: '#1e293b',
-              marginBottom: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <InfoCircleOutlined style={{ color: '#f59e0b' }} />
-              So'nggi xabarlar
-            </Title>
-            <Timeline
-              items={stats.alerts.map((alert, index) => ({
-                color: alert.type === 'success' ? 'green' : alert.type === 'warning' ? 'orange' : 'blue',
-                children: (
-                  <div>
-                    <Text style={{ color: '#1e293b', fontWeight: 500 }}>
-                      {alert.message}
-                    </Text>
-                    <br />
-                    <Text style={{ color: '#64748b', fontSize: '12px' }}>
-                      {alert.time}
-                    </Text>
-                  </div>
-                )
-              }))}
-            />
-          </Card>
-        </Col>
-      </Row>
 
     </div>
   );

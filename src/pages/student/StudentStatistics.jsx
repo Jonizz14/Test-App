@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import 'animate.css';
 import { Typography, Card, Row, Col, Alert, Button, Statistic } from 'antd';
 import {
   SearchOutlined,
@@ -359,7 +360,7 @@ const StudentStatistics = () => {
       {/* Main Statistics Cards */}
       <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={12} md={6}>
-          <div>
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '100ms' }}>
             <StatCard
               title="Topshirilgan testlar"
               value={totalTests}
@@ -369,7 +370,7 @@ const StudentStatistics = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div>
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '200ms' }}>
             <StatCard
               title="O'rtacha ball"
               value={averageScore}
@@ -380,7 +381,7 @@ const StudentStatistics = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div>
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '300ms' }}>
             <StatCard
               title="Eng yuqori ball"
               value={highestScore}
@@ -391,7 +392,7 @@ const StudentStatistics = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div>
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '400ms' }}>
             <StatCard
               title="Eng past ball"
               value={lowestScore}
@@ -429,7 +430,7 @@ const StudentStatistics = () => {
         <Row gutter={[16, 16]}>
         {/* Score Distribution Chart */}
         <Col xs={24} lg={12}>
-          <div>
+          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '100ms' }}>
             <Card style={{
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
@@ -467,7 +468,17 @@ const StudentStatistics = () => {
                             stepSize: 1
                           }
                         }
-                      }
+                      },
+                      animation: {
+                        duration: 2000,
+                        easing: 'easeOutBounce',
+                        delay: (context) => {
+                          if (context.type === 'data' && context.mode === 'default') {
+                            return context.dataIndex * 100;
+                          }
+                          return 0;
+                        },
+                      },
                     }}
                   />
                 </div>
@@ -478,7 +489,7 @@ const StudentStatistics = () => {
 
         {/* Performance by Subject */}
         <Col xs={24} lg={12}>
-          <div>
+          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms' }}>
             <Card style={{
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
@@ -509,6 +520,12 @@ const StudentStatistics = () => {
                           position: 'bottom',
                         },
                       },
+                      animation: {
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 2500,
+                        easing: 'easeOutElastic(1, .6)',
+                      },
                     }}
                   />
                 </div>
@@ -519,7 +536,7 @@ const StudentStatistics = () => {
 
         {/* Score Trend */}
         <Col span={24}>
-          <div>
+          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '300ms' }}>
             <Card style={{
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
@@ -554,7 +571,17 @@ const StudentStatistics = () => {
                           beginAtZero: true,
                           max: 100
                         }
-                      }
+                      },
+                      animation: {
+                        duration: 2000,
+                        easing: 'easeInOutQuart',
+                        delay: (context) => {
+                          if (context.type === 'data' && context.mode === 'default') {
+                            return context.dataIndex * 200;
+                          }
+                          return 0;
+                        },
+                      },
                     }}
                   />
                 </div>
@@ -565,7 +592,7 @@ const StudentStatistics = () => {
 
         {/* Performance Summary */}
         <Col span={24}>
-          <div>
+          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '400ms' }}>
             <Card style={{
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',

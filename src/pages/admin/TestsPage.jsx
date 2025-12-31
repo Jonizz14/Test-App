@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import 'animate.css';
 import {
   Row,
   Col,
@@ -550,15 +551,29 @@ const TestsPage = () => {
     animation: { duration: 2000, easing: 'easeInOutQuart' },
   };
 
-  // Resizable Chart Component
-  const ResizableChart = ({ chartKey, title, icon, children, width }) => {
+  // Animation delay helper
+  const getAnimationDelay = (index) => {
+    return index * 150; // 150ms delay between each chart
+  };
+
+  // Resizable Chart Component with entrance animations
+  const ResizableChart = ({ chartKey, title, icon, children, width, index = 0 }) => {
     const chartWidth = chartWidths[chartKey] || width || 50;
     const isVisible = visibleCharts[chartKey];
     
     if (!isVisible) return null;
     
     return (
-      <div style={{ width: `${chartWidth}%`, padding: '0 8px' }}>
+      <div 
+        className="animate__animated animate__fadeInUp"
+        style={{ 
+          width: `${chartWidth}%`, 
+          padding: '0 8px',
+          animationDelay: `${getAnimationDelay(index)}ms`,
+          animationDuration: '0.8s',
+          animationFillMode: 'both'
+        }}
+      >
         <Card
           style={{
             backgroundColor: '#ffffff',
@@ -759,83 +774,89 @@ const TestsPage = () => {
         </Text>
       </div>
 
-      {/* Statistics Cards */}
+      {/* Statistics Cards with Entrance Animations */}
       <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={12} md={6}>
-          <StatCard
-            title="Jami testlar"
-            value={stats.totalTests}
-            icon={<BookOutlined />}
-            color="#2563eb"
-          />
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '100ms' }}>
+            <StatCard
+              title="Jami testlar"
+              value={stats.totalTests}
+              icon={<BookOutlined />}
+              color="#2563eb"
+            />
+          </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <StatCard
-            title="Faol testlar"
-            value={stats.activeTests}
-            icon={<PlayCircleOutlined />}
-            color="#16a34a"
-            trend={{ direction: 'up', value: '+5.2%' }}
-          />
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '200ms' }}>
+            <StatCard
+              title="Faol testlar"
+              value={stats.activeTests}
+              icon={<PlayCircleOutlined />}
+              color="#16a34a"
+              trend={{ direction: 'up', value: '+5.2%' }}
+            />
+          </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <StatCard
-            title="Jami urinishlar"
-            value={stats.totalAttempts}
-            icon={<TrophyOutlined />}
-            color="#7c3aed"
-          />
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '300ms' }}>
+            <StatCard
+              title="Jami urinishlar"
+              value={stats.totalAttempts}
+              icon={<TrophyOutlined />}
+              color="#7c3aed"
+            />
+          </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <StatCard
-            title="O'rtacha ball"
-            value={stats.averageScore}
-            suffix="%"
-            icon={<RiseOutlined />}
-            color="#f59e0b"
-          />
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '400ms' }}>
+            <StatCard
+              title="O'rtacha ball"
+              value={stats.averageScore}
+              suffix="%"
+              icon={<RiseOutlined />}
+              color="#f59e0b"
+            />
+          </div>
         </Col>
       </Row>
 
-      {/* Charts Control Header */}
-      <Row gutter={[24, 16]} style={{ marginBottom: '24px' }}>
-        <Col span={24}>
-          <Card
-            style={{
-              backgroundColor: '#f8fafc',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              padding: '20px'
-            }}
-            bodyStyle={{ padding: '20px' }}
-          >
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '20px'
+      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '500ms', marginBottom: '16px' }}>
+        <Card style={{
+          backgroundColor: '#eff6ff',
+          borderRadius: '12px',
+          padding: '16px 20px',
+          border: '1px solid #e2e8f0'
+        }}>
+          <Title level={3} style={{
+            fontSize: '1.25rem',
+            fontWeight: 600,
+            color: '#1e293b',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '16px'
+          }}>
+            <BarChartOutlined style={{ color: '#2563eb' }} />
+            Statistik ma'lumotlar va tahlillar
+          </Title>
+          
+          {/* Chart Management Controls */}
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '8px',
+            padding: '16px',
+            border: '1px solid #e2e8f0'
+          }}>
+            <Text style={{
+              fontSize: '14px',
+              fontWeight: 600,
+              color: '#374151',
+              display: 'block',
+              marginBottom: '12px'
             }}>
-              <Title level={3} style={{
-                fontSize: '18px',
-                fontWeight: 700,
-                color: '#1e293b',
-                margin: 0
-              }}>
-                Diagrammalar boshqaruvi
-              </Title>
-              <Text style={{
-                fontSize: '14px',
-                color: '#64748b'
-              }}>
-                Har bir diagrammni alohida boshqarish
-              </Text>
-            </div>
-            
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '16px'
-            }}>
+              Diagrammalar boshqaruvi
+            </Text>
+            <Row gutter={[16, 12]}>
               {[
                 { key: 'subjectDistribution', label: 'Fanlar taqsimoti', icon: <BarChartOutlined style={{ color: '#2563eb' }} /> },
                 { key: 'difficultyAnalysis', label: 'Qiyinchilik tahlili', icon: <PieChartOutlined style={{ color: '#f59e0b' }} /> },
@@ -844,48 +865,30 @@ const TestsPage = () => {
                 { key: 'testPopularity', label: 'Test mashhurligi', icon: <BarChartOutlined style={{ color: '#dc2626' }} /> },
                 { key: 'teacherActivity', label: 'O\'qituvchi faoliyati', icon: <PieChartOutlined style={{ color: '#8b5cf6' }} /> }
               ].map(chart => (
-                <div
-                  key={chart.key}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '12px 16px',
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
+                <Col xs={24} sm={12} md={8} key={chart.key}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '12px',
-                    flex: 1
+                    justifyContent: 'space-between',
+                    padding: '8px 12px',
+                    backgroundColor: '#f8fafc',
+                    borderRadius: '6px',
+                    border: '1px solid #e2e8f0'
                   }}>
-                    {chart.icon}
-                    <Text style={{
-                      fontSize: '14px',
-                      fontWeight: 500,
-                      color: '#1e293b'
-                    }}>
-                      {chart.label}
-                    </Text>
+                    <Text style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>{chart.label}</Text>
+                    <Switch
+                      size="small"
+                      checked={visibleCharts[chart.key]}
+                      onChange={(checked) => toggleChart(chart.key)}
+                      style={{ backgroundColor: visibleCharts[chart.key] ? '#2563eb' : '#d1d5db' }}
+                    />
                   </div>
-                  <Switch
-                    checked={visibleCharts[chart.key]}
-                    onChange={(checked) => toggleChart(chart.key)}
-                    size="small"
-                    style={{
-                      backgroundColor: visibleCharts[chart.key] ? '#2563eb' : '#d1d5db'
-                    }}
-                  />
-                </div>
+                </Col>
               ))}
-            </div>
-          </Card>
-        </Col>
-      </Row>
+            </Row>
+          </div>
+        </Card>
+      </div>
 
       {/* Charts Section */}
       <div style={{ marginBottom: '24px' }}>
@@ -895,6 +898,7 @@ const TestsPage = () => {
             title="Fanlar bo'yicha taqsimot"
             icon={<BarChartOutlined style={{ color: '#2563eb' }} />}
             width={50}
+            index={0}
           >
             <Bar data={subjectDistributionChart} options={barChartOptions} />
           </ResizableChart>
@@ -904,6 +908,7 @@ const TestsPage = () => {
             title="Qiyinchilik tahlili"
             icon={<PieChartOutlined style={{ color: '#f59e0b' }} />}
             width={50}
+            index={1}
           >
             <Pie data={difficultyAnalysisChart} options={pieChartOptions} />
           </ResizableChart>
@@ -917,6 +922,7 @@ const TestsPage = () => {
             title="Oylik test yaratish"
             icon={<LineChartOutlined style={{ color: '#16a34a' }} />}
             width={50}
+            index={2}
           >
             <Line data={monthlyCreationChart} options={chartOptions} />
           </ResizableChart>
@@ -926,6 +932,7 @@ const TestsPage = () => {
             title="Test natijalari trendi"
             icon={<LineChartOutlined style={{ color: '#059669' }} />}
             width={50}
+            index={3}
           >
             <Line data={performanceTrendChart} options={chartOptions} />
           </ResizableChart>
@@ -939,6 +946,7 @@ const TestsPage = () => {
             title="Test mashhurligi"
             icon={<BarChartOutlined style={{ color: '#dc2626' }} />}
             width={50}
+            index={4}
           >
             <Bar data={testPopularityChart} options={barChartOptions} />
           </ResizableChart>
@@ -948,6 +956,7 @@ const TestsPage = () => {
             title="O'qituvchi faoliyati"
             icon={<PieChartOutlined style={{ color: '#8b5cf6' }} />}
             width={50}
+            index={5}
           >
             <Pie data={teacherActivityChart} options={pieChartOptions} />
           </ResizableChart>
