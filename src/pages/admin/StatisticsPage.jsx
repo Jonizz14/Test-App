@@ -133,19 +133,7 @@ const StatisticsPage = () => {
     testTypes: true
   });
 
-  // Chart width control states
-  const [chartWidths, setChartWidths] = useState({
-    monthlyTrends: 50,
-    weeklyActivity: 50,
-    subjectPerformance: 100,
-    classPerformance: 50,
-    userRole: 50,
-    subjectRadar: 50,
-    testTypes: 50
-  });
-  const [draggingChart, setDraggingChart] = useState(null);
-  const [startX, setStartX] = useState(0);
-  const [startWidth, setStartWidth] = useState(0);
+
   
   // Toggle functions for cards
   const toggleCard = (cardKey) => {
@@ -155,46 +143,7 @@ const StatisticsPage = () => {
     }));
   };
 
-  // Chart width control functions
-  const handleMouseDown = (chartKey, e) => {
-    e.preventDefault();
-    setDraggingChart(chartKey);
-    setStartX(e.clientX);
-    setStartWidth(chartWidths[chartKey]);
-    document.body.classList.add('dragging');
-  };
 
-  const handleMouseMove = (e) => {
-    if (!draggingChart) return;
-    
-    const deltaX = e.clientX - startX;
-    const containerWidth = window.innerWidth;
-    const deltaPercent = (deltaX / containerWidth) * 100;
-    const newWidth = Math.max(20, Math.min(100, startWidth + deltaPercent));
-    
-    setChartWidths(prev => ({
-      ...prev,
-      [draggingChart]: newWidth
-    }));
-  };
-
-  const handleMouseUp = () => {
-    setDraggingChart(null);
-    document.body.classList.remove('dragging');
-  };
-
-  // Global mouse events for dragging
-  useEffect(() => {
-    if (draggingChart) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [draggingChart, startX, startWidth]);
   
   // GA4 tracking function
   const trackEvent = (action, label) => {
@@ -1095,20 +1044,15 @@ const StatisticsPage = () => {
 
   // Resizable Chart Component with entrance animations
   const ResizableChart = ({ chartKey, title, icon, children, width, index = 0 }) => {
-    const chartWidth = chartWidths[chartKey] || width || 50;
     const isVisible = visibleCards[chartKey];
-    const isDragging = draggingChart === chartKey;
     
-    // Don't render anything if the chart is hidden
-    if (!isVisible) {
-      return null;
-    }
+    if (!isVisible) return null;
     
     return (
       <div 
-        className="chart-resize-container animate__animated animate__fadeInUp"
-        style={{
-          width: `${chartWidth}%`,
+        className="animate__animated animate__fadeInUp"
+        style={{ 
+          width: `${width || 50}%`, 
           padding: '0 8px',
           animationDelay: `${getAnimationDelay(index)}ms`,
           animationDuration: '0.8s',
@@ -1122,9 +1066,6 @@ const StatisticsPage = () => {
             borderRadius: '12px',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
             height: '400px',
-            transition: 'box-shadow 0.2s ease',
-            transform: 'translateY(0)',
-            opacity: 1
           }}
           bodyStyle={{ padding: '16px', height: '100%', display: 'flex', flexDirection: 'column' }}
           hoverable
@@ -1132,45 +1073,22 @@ const StatisticsPage = () => {
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '16px',
-            flexShrink: 0
+            marginBottom: '16px'
           }}>
-            <Title level={3} style={{
-              fontSize: '1.25rem',
-              fontWeight: 700,
-              color: '#1e293b',
-              margin: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
+            {icon}
+            <Title level={3} style={{ 
+              fontSize: '1.25rem', 
+              fontWeight: 700, 
+              color: '#1e293b', 
+              margin: '0 0 0 8px' 
             }}>
-              {icon}
               {title}
             </Title>
           </div>
-          <div style={{ 
-            flex: 1, 
-            height: '320px',
-            minHeight: '280px'
-          }}>
+          <div style={{ flex: 1, height: '320px' }}>
             {children}
           </div>
         </Card>
-        
-        {/* Drag Handle */}
-        <div
-          className={`chart-resize-handle ${isDragging ? 'active' : ''}`}
-          onMouseDown={(e) => handleMouseDown(chartKey, e)}
-          title="Kenglikni o'zgartirish uchun sudrab olib boring"
-        />
-        
-        {/* Width indicator */}
-        <div
-          className={`chart-width-indicator ${isDragging ? 'visible' : ''}`}
-        >
-          {Math.round(chartWidth)}%
-        </div>
       </div>
     );
   };

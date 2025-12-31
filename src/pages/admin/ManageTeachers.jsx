@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import 'animate.css';
 import {
   Table,
   Card,
@@ -430,9 +431,9 @@ const ManageTeachers = () => {
   ];
 
   return (
-    <div style={{ padding: '24px 0' }}>
+    <div className="animate__animated animate__fadeIn" style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div style={{
+      <div className="animate__animated animate__slideInDown" style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -447,29 +448,33 @@ const ManageTeachers = () => {
 
       {/* Alerts */}
       {success && (
-        <Alert
-          message={success}
-          type="success"
-          showIcon
-          style={{ marginBottom: '16px' }}
-          closable
-          onClose={() => setSuccess('')}
-        />
+        <div className="animate__animated animate__slideInRight">
+          <Alert
+            message={success}
+            type="success"
+            showIcon
+            style={{ marginBottom: '16px' }}
+            closable
+            onClose={() => setSuccess('')}
+          />
+        </div>
       )}
 
       {error && (
-        <Alert
-          message={error}
-          type="error"
-          showIcon
-          style={{ marginBottom: '16px' }}
-          closable
-          onClose={() => setError('')}
-        />
+        <div className="animate__animated animate__slideInRight">
+          <Alert
+            message={error}
+            type="error"
+            showIcon
+            style={{ marginBottom: '16px' }}
+            closable
+            onClose={() => setError('')}
+          />
+        </div>
       )}
 
       {/* Controls */}
-      <div style={{
+      <div className="animate__animated animate__fadeInUp" style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -510,7 +515,7 @@ const ManageTeachers = () => {
             style={{
               backgroundColor: '#2563eb',
               borderColor: '#2563eb',
-              fontWeight: 600
+              fontWeight: 600,
             }}
           >
             O'qituvchi qo'shish
@@ -526,14 +531,7 @@ const ManageTeachers = () => {
       )}
 
       {/* Table */}
-      <Card
-        style={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-        }}
-      >
+      <div className="animate__animated animate__fadeInUpBig" style={{ animationDelay: '300ms' }}>
         <Table
           columns={columns}
           dataSource={filteredTeachers}
@@ -550,12 +548,25 @@ const ManageTeachers = () => {
           locale={{
             emptyText: 'O\'qituvchilar mavjud emas'
           }}
+          onRow={(record, index) => ({
+            className: 'animate__animated animate__fadeInLeft',
+            style: { 
+              animationDelay: `${index * 100}ms`,
+              transition: 'all 0.3s ease'
+            },
+            onMouseEnter: (e) => {
+              e.currentTarget.style.transform = 'scale(1.02)';
+            },
+            onMouseLeave: (e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }
+          })}
         />
-      </Card>
+      </div>
 
       {/* Empty State */}
       {filteredTeachers.length === 0 && !loading && (
-        <div style={{ textAlign: 'center', padding: '48px 0' }}>
+        <div className="animate__animated animate__zoomIn" style={{ textAlign: 'center', padding: '48px 0' }}>
           <Text style={{ fontSize: '16px', color: '#64748b' }}>
             {searchTerm ? 'Qidiruv bo\'yicha o\'qituvchilar topilmadi' : 'Hech qanday o\'qituvchi mavjud emas'}
           </Text>
@@ -582,6 +593,7 @@ const ManageTeachers = () => {
         onCancel={() => setExportModalVisible(false)}
         okText="Export qilish"
         cancelText="Bekor qilish"
+        className="animate__animated animate__zoomIn"
       >
         <div>
           <Text>Quyidagi ma'lumotlar Excel faylga export qilinadi. Jami {teachers.length} ta o'qituvchi.</Text>
@@ -612,12 +624,14 @@ const ManageTeachers = () => {
             loading={importing}
             disabled={importing}
             onClick={() => fileInputRef.current?.click()}
+            className={importing ? 'animate__animated animate__pulse' : ''}
           >
             {importing ? 'Import qilinmoqda...' : 'Fayl tanlash (.xlsx)'}
           </Button>
         ]}
         maskClosable={!importing}
         closable={!importing}
+        className="animate__animated animate__zoomIn"
       >
         <div>
           <Text>O'qituvchilarni Excel fayldan import qilish uchun fayl quyidagi formatda bo'lishi kerak:</Text>

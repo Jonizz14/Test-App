@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import 'animate.css';
 import {
   Table,
   Card,
@@ -192,8 +193,10 @@ const TestStatistics = () => {
           style={{
             backgroundColor: '#059669',
             borderColor: '#059669',
-            fontWeight: 600
+            fontWeight: 600,
+            transition: 'all 0.3s ease'
           }}
+          className="animate__animated"
         >
           Batafsil
         </Button>
@@ -220,9 +223,9 @@ const TestStatistics = () => {
   }
 
   return (
-    <div style={{ padding: '24px 0' }}>
+    <div className="animate__animated animate__fadeIn" style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div style={{
+      <div className="animate__animated animate__slideInDown" style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -236,7 +239,7 @@ const TestStatistics = () => {
       </div>
 
       {/* Search and Filters Row */}
-      <div style={{ 
+      <div className="animate__animated animate__fadeInUp" style={{ 
         marginBottom: '24px',
         display: 'flex',
         gap: '12px',
@@ -334,14 +337,7 @@ const TestStatistics = () => {
       </div>
 
       {/* Table */}
-      <Card
-        style={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-        }}
-      >
+      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '300ms' }}>
         <Table
           columns={columns}
           dataSource={displayTests}
@@ -355,8 +351,22 @@ const TestStatistics = () => {
           locale={{
             emptyText: searchTerm ? 'Qidiruv natijasi topilmadi' : 'Testlar topilmadi'
           }}
+          rowClassName={(record, index) => `animate__animated animate__fadeInLeft`}
+          onRow={(record, index) => ({
+            className: 'animate__animated animate__fadeInLeft',
+            style: { 
+              animationDelay: `${index * 100}ms`,
+              transition: 'all 0.3s ease'
+            },
+            onMouseEnter: (e) => {
+              e.currentTarget.style.transform = 'scale(1.02)';
+            },
+            onMouseLeave: (e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }
+          })}
         />
-      </Card>
+      </div>
     </div>
   );
 };

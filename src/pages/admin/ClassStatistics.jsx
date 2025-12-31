@@ -407,8 +407,10 @@ const ClassStatistics = () => {
           style={{
             backgroundColor: '#2563eb',
             borderColor: '#2563eb',
-            fontWeight: 600
+            fontWeight: 600,
+            transition: 'all 0.3s ease'
           }}
+          className="animate__animated"
         >
           Ko'rish
         </Button>
@@ -419,7 +421,7 @@ const ClassStatistics = () => {
   return (
     <div className="animate__animated animate__fadeIn" style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div style={{
+      <div className="animate__animated animate__slideInDown" style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -462,20 +464,25 @@ const ClassStatistics = () => {
 
       {/* Table */}
       <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '300ms' }}>
-        <Card
-          style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          }}
-        >
         <Table
           columns={columns}
           dataSource={classes}
           rowKey="name"
           loading={loading}
           rowClassName={(record, index) => `animate__animated animate__fadeInLeft`}
+          onRow={(record, index) => ({
+            className: 'animate__animated animate__fadeInLeft',
+            style: { 
+              animationDelay: `${index * 100}ms`,
+              transition: 'all 0.3s ease'
+            },
+            onMouseEnter: (e) => {
+              e.currentTarget.style.transform = 'scale(1.02)';
+            },
+            onMouseLeave: (e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }
+          })}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
@@ -574,8 +581,10 @@ const ClassStatistics = () => {
                     style={{
                       backgroundColor: '#2563eb',
                       borderColor: '#2563eb',
-                      fontWeight: 600
+                      fontWeight: 600,
+                      transition: 'all 0.3s ease'
                     }}
+                    className="animate__animated animate__pulse"
                   >
                     To'liq ko'rish
                   </Button>
@@ -587,7 +596,6 @@ const ClassStatistics = () => {
             emptyText: 'Sinflar mavjud emas'
           }}
         />
-        </Card>
       </div>
     </div>
   );
