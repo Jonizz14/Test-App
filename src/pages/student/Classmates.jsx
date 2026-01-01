@@ -24,6 +24,7 @@ const Classmates = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState('name');
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     const loadClassmates = async () => {
@@ -303,14 +304,14 @@ const Classmates = () => {
   ];
 
   return (
-    <div style={{
+    <div className='animate__animated animate__fadeIn' style={{
       paddingTop: '16px',
       paddingBottom: '16px',
       backgroundColor: '#ffffff',
       minHeight: '100vh'
     }}>
       {/* Header */}
-      <div style={{
+      <div className='animate__animated animate__slideInDown' style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -342,7 +343,7 @@ const Classmates = () => {
       </div>
 
       {/* Search section */}
-      <div style={{ marginBottom: '24px' }}>
+      <div className='animate__animated animate__fadeInUp' style={{ marginBottom: '24px' }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -397,42 +398,58 @@ const Classmates = () => {
       </div>
 
       {/* Classmates section */}
-      <div style={{ marginBottom: '24px' }}>
-
-        <Card style={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-        }}>
-          <Table
-            columns={columns}
-            dataSource={filteredClassmates.map(classmate => ({ ...classmate, key: classmate.id }))}
-            loading={loading}
-            pagination={false}
-            size="middle"
-            bordered={false}
-            style={{
-              '& .ant-table-thead > tr > th': {
-                backgroundColor: '#f8fafc',
-                fontWeight: 700,
-                fontSize: '0.875rem',
-                color: '#1e293b',
-                borderBottom: '1px solid #e2e8f0',
-                padding: '16px'
-              },
-              '& .ant-table-tbody > tr > td': {
-                borderBottom: '1px solid #f1f5f9',
-                padding: '16px',
-                fontSize: '0.875rem',
-                color: '#334155'
-              },
-              '& .ant-table-tbody > tr:hover > td': {
-                backgroundColor: '#f8fafc'
-              }
-            }}
-          />
-        </Card>
+      <div className="animate__animated animate__fadeInUpBig" style={{ animationDelay: '300ms', marginBottom: '24px' }}>
+        <Table
+          columns={columns}
+          dataSource={filteredClassmates.map(classmate => ({ ...classmate, key: classmate.id }))}
+          loading={loading}
+          rowKey="id"
+          pagination={{
+            pageSize: pageSize,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total) => `Jami ${total} ta sinfdosh`,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            onShowSizeChange: (current, size) => setPageSize(size),
+          }}
+          locale={{
+            emptyText: 'Sinfdoshlilar mavjud emas'
+          }}
+          onRow={(record, index) => ({
+            className: 'animate__animated animate__fadeInLeft',
+            style: { 
+              animationDelay: `${index * 100}ms`,
+              transition: 'all 0.3s ease'
+            },
+            onMouseEnter: (e) => {
+              e.currentTarget.style.transform = 'scale(1.02)';
+            },
+            onMouseLeave: (e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }
+          })}
+          size="middle"
+          bordered={false}
+          style={{
+            '& .ant-table-thead > tr > th': {
+              backgroundColor: '#f8fafc',
+              fontWeight: 700,
+              fontSize: '0.875rem',
+              color: '#1e293b',
+              borderBottom: '1px solid #e2e8f0',
+              padding: '16px'
+            },
+            '& .ant-table-tbody > tr > td': {
+              borderBottom: '1px solid #f1f5f9',
+              padding: '16px',
+              fontSize: '0.875rem',
+              color: '#334155'
+            },
+            '& .ant-table-tbody > tr:hover > td': {
+              backgroundColor: '#f8fafc'
+            }
+          }}
+        />
       </div>
 
       {/* No results message */}

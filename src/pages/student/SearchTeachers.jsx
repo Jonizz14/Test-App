@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import 'animate.css';
 import { useNavigate } from 'react-router-dom';
 import {
   Table,
@@ -48,6 +49,7 @@ const SearchTeachers = () => {
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [teacherTests, setTeacherTests] = useState([]);
   const [sortBy, setSortBy] = useState('name');
+  const [pageSize, setPageSize] = useState(10);
 
   // Load initial data from API on component mount
   useEffect(() => {
@@ -399,9 +401,9 @@ const SearchTeachers = () => {
   ];
 
   return (
-    <div style={{ padding: '32px 0', backgroundColor: '#ffffff' }}>
+    <div className="animate__animated animate__fadeIn" style={{ padding: '32px 0', backgroundColor: '#ffffff' }}>
       {/* Header */}
-      <div style={{
+      <div className="animate__animated animate__slideInDown" style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         marginTop: '-16px',
@@ -424,7 +426,7 @@ const SearchTeachers = () => {
         </Text>
       </div>
       {/* Search section */}
-      <div style={{ marginBottom: '24px' }}>
+      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms', marginBottom: '24px' }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -477,33 +479,44 @@ const SearchTeachers = () => {
       </div>
 
       {/* Teachers section */}
-      <div style={{ marginBottom: '32px' }}>
-
-        <Card
-          style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+      <div className="animate__animated animate__fadeInUpBig" style={{ animationDelay: '300ms', marginBottom: '32px' }}>
+        <Table
+          columns={columns}
+          dataSource={getSortedTeachers().map(teacher => ({ ...teacher, key: teacher.id }))}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            pageSize: pageSize,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total) => `Jami ${total} ta o'qituvchi`,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            onShowSizeChange: (current, size) => setPageSize(size),
           }}
-        >
-          <Table
-            columns={columns}
-            dataSource={getSortedTeachers().map(teacher => ({ ...teacher, key: teacher.id }))}
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              showQuickJumper: true,
-              showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} ta`,
-            }}
-            scroll={{ x: 800 }}
-          />
-        </Card>
+          locale={{
+            emptyText: 'O\'qituvchilar mavjud emas'
+          }}
+          onRow={(record, index) => ({
+            className: 'animate__animated animate__fadeInLeft',
+            style: { 
+              animationDelay: `${index * 100}ms`,
+              transition: 'all 0.3s ease'
+            },
+            onMouseEnter: (e) => {
+              e.currentTarget.style.transform = 'scale(1.02)';
+            },
+            onMouseLeave: (e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }
+          })}
+          scroll={{ x: 800 }}
+        />
       </div>
 
       {/* No results message */}
       {getSortedTeachers().length === 0 && allTests.length === 0 && (
-        <Card
+        <div className="animate__animated animate__zoomIn" style={{ animationDelay: '800ms' }}>
+          <Card
           style={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
@@ -520,6 +533,7 @@ const SearchTeachers = () => {
             Qidiruv so'zlarini yoki fan filtrlarini o'zgartirib ko'ring
           </Text>
         </Card>
+      </div>
       )}
     </div>
   );

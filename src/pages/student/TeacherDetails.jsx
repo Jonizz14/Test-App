@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import 'animate.css';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Typography,
@@ -394,13 +395,13 @@ const TeacherDetails = () => {
   ];
 
   return (
-    <div style={{
+    <div className="animate__animated animate__fadeIn" style={{
       paddingTop: '24px',
       paddingBottom: '24px',
       backgroundColor: '#ffffff'
     }}>
       {/* Header */}
-      <div style={{
+      <div className="animate__animated animate__slideInDown" style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         marginTop: '-6px',
@@ -438,7 +439,7 @@ const TeacherDetails = () => {
       </div>
 
       {/* Teacher information section */}
-      <div>
+      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms' }}>
         <Card style={{
           backgroundColor: '#ffffff',
           border: '1px solid #e2e8f0',
@@ -605,7 +606,7 @@ const TeacherDetails = () => {
       </div>
 
       {/* Tests section */}
-      <div style={{ marginBottom: '24px' }}>
+      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '400ms', marginBottom: '24px' }}>
         <Title level={2} style={{
           fontSize: '1.5rem',
           fontWeight: 700,
@@ -617,7 +618,8 @@ const TeacherDetails = () => {
 
         {/* Tests table */}
         {teacherTests.length > 0 ? (
-          <Card style={{
+          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '600ms' }}>
+            <Card style={{
             backgroundColor: '#ffffff',
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
@@ -648,11 +650,12 @@ const TeacherDetails = () => {
                 }
               }}
             />
-          </Card>
+            </Card>
+          </div>
         ) : (
           // No tests message
-          <div>
-            <Card style={{
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '800ms' }}>
+              <Card style={{
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
               borderRadius: '12px',

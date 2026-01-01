@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import 'animate.css';
 import { Card, Typography, Row, Col, Button, Avatar, Modal, Alert, Statistic } from 'antd';
 import {
   CameraOutlined,
@@ -239,13 +240,13 @@ const StudentProfile = () => {
   );
 
   return (
-    <div style={{
+    <div className="animate__animated animate__fadeIn" style={{
       paddingTop: '16px',
       paddingBottom: '16px',
       backgroundColor: '#ffffff'
     }}>
       {/* Header */}
-      <div style={{
+      <div className="animate__animated animate__slideInDown" style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -375,7 +376,8 @@ const StudentProfile = () => {
 
       {/* Success Message */}
       {saveSuccess && (
-        <Alert
+        <div className="animate__animated animate__slideInRight">
+          <Alert
           message="✅ Profil muvaffaqiyatli saqlandi!"
           type="success"
           style={{
@@ -387,11 +389,13 @@ const StudentProfile = () => {
             boxShadow: '0 4px 12px rgba(16, 185, 129, 0.15)'
           }}
           showIcon
-        />
+          />
+        </div>
       )}
 
       {/* Profile Card */}
-      <Card style={{
+      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms' }}>
+        <Card style={{
         marginBottom: '16px',
         background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
         borderRadius: '20px',
@@ -507,10 +511,12 @@ const StudentProfile = () => {
             </div>
           </div>
         </div>
-      </Card>
+        </Card>
+      </div>
 
       {/* Statistics Cards */}
-      <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
+      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '400ms' }}>
+        <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={12} md={6}>
           <StatCard
             title="Topshirilgan testlar"
@@ -545,12 +551,14 @@ const StudentProfile = () => {
             color={currentUser?.premium_info?.is_premium ? '#d97706' : '#6b7280'}
           />
         </Col>
-      </Row>
+        </Row>
+      </div>
 
 
 
       {/* Edit Profile Dialog */}
-      <Modal
+      <div className="animate__animated animate__zoomIn">
+        <Modal
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <EditOutlined style={{ color: '#2563eb' }} />
@@ -648,6 +656,7 @@ const StudentProfile = () => {
           </div>
         </div>
       </Modal>
+      </div>
     </div>
   );
 };
