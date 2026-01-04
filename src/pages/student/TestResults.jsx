@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import 'animate.css';
 import {
   Table,
   Card,
@@ -36,6 +37,7 @@ const TestResults = () => {
   const [questionsLoading, setQuestionsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date');
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     loadResults();
@@ -294,9 +296,9 @@ const TestResults = () => {
   }
 
   return (
-    <div style={{ paddingTop: '16px', paddingBottom: '16px', backgroundColor: '#ffffff' }}>
+    <div className="animate__animated animate__fadeIn" style={{ paddingTop: '16px', paddingBottom: '16px', backgroundColor: '#ffffff' }}>
       {/* Header */}
-      <div style={{
+      <div className="animate__animated animate__slideInDown" style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -326,7 +328,7 @@ const TestResults = () => {
       </div>
 
       {/* Search section */}
-      <div style={{ marginBottom: '24px' }}>
+      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms', marginBottom: '24px' }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -380,50 +382,64 @@ const TestResults = () => {
       </div>
 
       {results.length === 0 || getSortedResults().length === 0 ? (
-        <Card
-          style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            textAlign: 'center',
-            padding: '32px'
-          }}
-        >
-          <Title level={4} style={{ color: '#64748b', marginBottom: '16px' }}>
-            {results.length === 0 ? 'Hozircha test natijalari yo\'q' : 'Qidiruv natijasi bo\'yicha natija topilmadi'}
-          </Title>
-          <Text style={{ color: '#64748b' }}>
-            {results.length === 0 
-              ? 'Test topshirgandan keyin natijalaringiz shu yerda ko\'rinadi'
-              : 'Qidiruv so\'zini o\'zgartirib ko\'ring'
-            }
-          </Text>
-        </Card>
-      ) : (
-        <Card
-          style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            overflow: 'hidden'
-          }}
-        >
-          <Table
-            columns={columns}
-            dataSource={getSortedResults()
-              .map(result => ({ ...result, key: result.id }))
-            }
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              showQuickJumper: true,
-              showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} ta`,
+        <div className="animate__animated animate__fadeInUpBig" style={{ animationDelay: '300ms' }}>
+          <Card
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              textAlign: 'center',
+              padding: '32px'
             }}
-            scroll={{ x: 800 }}
-          />
-        </Card>
+          >
+            <Title level={4} style={{ color: '#64748b', marginBottom: '16px' }}>
+              {results.length === 0 ? 'Hozircha test natijalari yo\'q' : 'Qidiruv natijasi bo\'yicha natija topilmadi'}
+            </Title>
+            <Text style={{ color: '#64748b' }}>
+              {results.length === 0 
+                ? 'Test topshirgandan keyin natijalaringiz shu yerda ko\'rinadi'
+                : 'Qidiruv so\'zini o\'zgartirib ko\'ring'
+              }
+            </Text>
+          </Card>
+        </div>
+      ) : (
+        <div className="animate__animated animate__fadeInUpBig" style={{ animationDelay: '300ms' }}>
+
+            <Table
+              columns={columns}
+              dataSource={getSortedResults()
+                .map(result => ({ ...result, key: result.id }))
+              }
+              rowKey="id"
+              pagination={{
+                pageSize: pageSize,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total) => `Jami ${total} ta natija`,
+                pageSizeOptions: ['10', '20', '50', '100'],
+                onShowSizeChange: (current, size) => setPageSize(size),
+              }}
+              locale={{
+                emptyText: 'Natijalar mavjud emas'
+              }}
+              onRow={(record, index) => ({
+                className: 'animate__animated animate__fadeInLeft',
+                style: { 
+                  animationDelay: `${index * 100}ms`,
+                  transition: 'all 0.3s ease'
+                },
+                onMouseEnter: (e) => {
+                  e.currentTarget.style.transform = 'scale(1.02)';
+                },
+                onMouseLeave: (e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                }
+              })}
+              scroll={{ x: 800 }}
+            />
+        </div>
       )}
 
       {/* Results Details Modal */}

@@ -96,6 +96,7 @@ const TakeTest = () => {
   const [activeTestSessions, setActiveTestSessions] = useState({}); 
   const [searchTerm, setSearchTerm] = useState('');
   const [mathSymbolsOpen, setMathSymbolsOpen] = useState(false);
+  const [pageSize, setPageSize] = useState(10);
 
   const handleTestComplete = async () => {
     try {
@@ -1280,7 +1281,7 @@ const TakeTest = () => {
       )}
 
       {/* Header */}
-      <div style={{
+      <div className="animate__animated animate__fadeInDown" style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -1310,8 +1311,8 @@ const TakeTest = () => {
       </div>
 
       {/* Barcha testlar section with table layout */}
-      <div style={{ marginBottom: '24px' }}>
-        <div style={{
+      <div className='' style={{ marginBottom: '24px' }}>
+        <div className='animate__animated animate__fadeInUp' style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -1326,7 +1327,7 @@ const TakeTest = () => {
             📋 Barcha testlar
           </Title>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className='animate__animated animate__fadeInUp' style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <SortAscendingOutlined style={{ color: '#64748b' }} />
             <Select
               value={sortBy}
@@ -1346,7 +1347,7 @@ const TakeTest = () => {
         </div>
 
         {/* Search Input */}
-        <div style={{ marginBottom: '24px' }}>
+        <div className='animate__animated animate__fadeInUp' style={{ marginBottom: '24px' }}>
           <Search
             placeholder="Test nomini, fanini yoki o'qituvchi nomini qidirish..."
             value={searchTerm}
@@ -1366,39 +1367,59 @@ const TakeTest = () => {
           />
         </div>
 
-        <Card style={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-        }}>
-          <Table
-            columns={testColumns}
-            dataSource={getFilteredTests().map(test => ({ ...test, key: test.id }))}
-            pagination={false}
-            size="middle"
-            bordered={false}
-            style={{
-              '& .ant-table-thead > tr > th': {
-                backgroundColor: '#f8fafc',
-                fontWeight: 700,
-                fontSize: '0.875rem',
-                color: '#1e293b',
-                borderBottom: '1px solid #e2e8f0',
-                padding: '16px'
-              },
-              '& .ant-table-tbody > tr > td': {
-                borderBottom: '1px solid #f1f5f9',
-                padding: '16px',
-                fontSize: '0.875rem',
-                color: '#334155'
-              },
-              '& .ant-table-tbody > tr:hover > td': {
-                backgroundColor: '#f8fafc'
-              }
-            }}
-          />
-        </Card>
+        <div className="animate__animated animate__fadeInUpBig" style={{ animationDelay: '300ms' }}>
+            <Table
+              columns={testColumns}
+              dataSource={getFilteredTests().map(test => ({ ...test, key: test.id }))}
+              rowKey="id"
+              pagination={{
+                pageSize: pageSize,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total) => `Jami ${total} ta test`,
+                pageSizeOptions: ['10', '20', '50', '100'],
+                onShowSizeChange: (current, size) => setPageSize(size),
+              }}
+              locale={{
+                emptyText: 'Testlar mavjud emas'
+              }}
+              onRow={(record, index) => ({
+                className: 'animate__animated animate__fadeInLeft',
+                style: { 
+                  animationDelay: `${index * 100}ms`,
+                  transition: 'all 0.3s ease'
+                },
+                onMouseEnter: (e) => {
+                  e.currentTarget.style.transform = 'scale(1.02)';
+                },
+                onMouseLeave: (e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                }
+              })}
+              scroll={{ x: 800}}
+              size="middle"
+              bordered={false}
+              style={{
+                '& .ant-table-thead > tr > th': {
+                  backgroundColor: '#f8fafc',
+                  fontWeight: 700,
+                  fontSize: '0.875rem',
+                  color: '#1e293b',
+                  borderBottom: '1px solid #e2e8f0',
+                  padding: '16px'
+                },
+                '& .ant-table-tbody > tr > td': {
+                  borderBottom: '1px solid #f1f5f9',
+                  padding: '16px',
+                  fontSize: '0.875rem',
+                  color: '#334155'
+                },
+                '& .ant-table-tbody > tr:hover > td': {
+                  backgroundColor: '#f8fafc'
+                }
+              }}
+            />
+        </div>
 
         {getFilteredTests().length === 0 && getSortedTests().length > 0 && (
           <Card style={{ padding: '16px', textAlign: 'center', marginTop: '8px' }}>
@@ -1411,22 +1432,6 @@ const TakeTest = () => {
           </Card>
         )}
 
-        {getSortedTests().length === 0 && (
-          <Card style={{ padding: '16px', textAlign: 'center', marginTop: '8px' }}>
-            <Title level={5} style={{ color: '#64748b' }}>
-              {sortBy === 'easy' || sortBy === 'medium' || sortBy === 'hard'
-                ? `${difficultyLabels[sortBy]} testlar topilmadi`
-                : 'Hozircha testlar mavjud emas'
-              }
-            </Title>
-            <Text style={{ color: '#64748b' }}>
-              {sortBy === 'easy' || sortBy === 'medium' || sortBy === 'hard'
-                ? 'Boshqa qiyinchilik darajasini tanlang'
-                : 'Admin o\'qituvchilarni va testlarni qo\'shishi kerak'
-              }
-            </Text>
-          </Card>
-        )}
       </div>
     </div>
   );

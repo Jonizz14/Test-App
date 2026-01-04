@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import 'animate.css';
 import { Card, Typography, Table, Tag, Alert, Input, Select } from 'antd';
 import { BookOutlined, SearchOutlined, SortAscendingOutlined } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
@@ -12,6 +13,7 @@ const ReceivedLessons = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [subjectFilter, setSubjectFilter] = useState('');
   const [sortBy, setSortBy] = useState('topic');
+  const [pageSize, setPageSize] = useState(10);
   const { Search } = Input;
   const { Option } = Select;
 
@@ -258,13 +260,13 @@ const ReceivedLessons = () => {
   ];
 
   return (
-    <div style={{
+    <div className="animate__animated animate__fadeIn" style={{
       paddingTop: '16px',
       paddingBottom: '16px',
       backgroundColor: '#ffffff'
     }}>
       {/* Header */}
-      <div style={{
+      <div className="animate__animated animate__slideInDown" style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -294,7 +296,7 @@ const ReceivedLessons = () => {
       </div>
 
       {/* Search and Filter Section - Always Visible */}
-      <div style={{ marginBottom: '24px' }}>
+      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms', marginBottom: '24px' }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -400,20 +402,22 @@ const ReceivedLessons = () => {
 
       {/* No Lessons Message - Shows when no lessons exist */}
       {lessons.length === 0 && (
-        <Card style={{ textAlign: 'center', backgroundColor: '#f8f9fa' }}>
-          <BookOutlined style={{ fontSize: 64, color: '#94a3b8', marginBottom: 16 }} />
-          <Title level={4} style={{ marginBottom: 8, color: '#64748b' }}>
-            Hozircha qo'shimcha darslar yo'q
-          </Title>
-          <Text style={{ color: '#94a3b8' }}>
-            O'qituvchingiz test natijalaringizga qarab qo'shimcha dars yuborishi mumkin
-          </Text>
-        </Card>
+        <div className="animate__animated animate__fadeInUpBig" style={{ animationDelay: '300ms' }}>
+          <Card style={{ textAlign: 'center', backgroundColor: '#f8f9fa' }}>
+            <BookOutlined style={{ fontSize: 64, color: '#94a3b8', marginBottom: 16 }} />
+            <Title level={4} style={{ marginBottom: 8, color: '#64748b' }}>
+              Hozircha qo'shimcha darslar yo'q
+            </Title>
+            <Text style={{ color: '#94a3b8' }}>
+              O'qituvchingiz test natijalaringizga qarab qo'shimcha dars yuborishi mumkin
+            </Text>
+          </Card>
+        </div>
       )}
 
       {/* Lessons Table */}
       {lessons.length > 0 && (
-        <div>
+        <div className="animate__animated animate__fadeInUpBig" style={{ animationDelay: '300ms' }}>
           <Alert 
             message={`Sizga ${lessons.length} ta qo'shimcha dars yuborilgan. Har bir darsni o'rganib, bilimlaringizni mustahkamlang!`} 
             type="info" 
@@ -431,13 +435,32 @@ const ReceivedLessons = () => {
             <Table
               columns={columns}
               dataSource={getSortedLessons().map(lesson => ({ ...lesson, key: lesson.id }))}
+              rowKey="id"
               loading={loading}
               pagination={{
-                pageSize: 10,
+                pageSize: pageSize,
                 showSizeChanger: true,
                 showQuickJumper: true,
-                showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} ta`,
+                showTotal: (total) => `Jami ${total} ta dars`,
+                pageSizeOptions: ['10', '20', '50', '100'],
+                onShowSizeChange: (current, size) => setPageSize(size),
               }}
+              locale={{
+                emptyText: 'Darslar mavjud emas'
+              }}
+              onRow={(record, index) => ({
+                className: 'animate__animated animate__fadeInLeft',
+                style: { 
+                  animationDelay: `${index * 100}ms`,
+                  transition: 'all 0.3s ease'
+                },
+                onMouseEnter: (e) => {
+                  e.currentTarget.style.transform = 'scale(1.02)';
+                },
+                onMouseLeave: (e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                }
+              })}
               scroll={{ x: 800 }}
               size="middle"
             />
