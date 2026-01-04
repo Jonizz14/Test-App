@@ -21,14 +21,15 @@ export const AuthProvider = ({ children }) => {
       try {
         const storedUser = localStorage.getItem('currentUser');
         const accessToken = localStorage.getItem('accessToken');
+        const refreshToken = localStorage.getItem('refreshToken');
+        
         if (storedUser && accessToken) {
           const parsedUser = JSON.parse(storedUser);
           apiService.setToken(accessToken);
 
-          // Check if user is still valid and not banned
+          // Enhanced user validation with device fingerprinting
           try {
-            // You could add a user validation endpoint here if needed
-            // For now, we'll trust the stored data but check ban status
+            // Check if user is banned
             if (parsedUser.is_banned) {
               console.log('Stored user is banned, clearing data');
               localStorage.removeItem('currentUser');
@@ -36,7 +37,20 @@ export const AuthProvider = ({ children }) => {
               localStorage.removeItem('refreshToken');
               setCurrentUser(null);
             } else {
+              // Add device info for better caching
+              const deviceInfo = {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                timestamp: Date.now()
+              };
+              
+              // Store device info for this user
+              const userDeviceKey = `userDevice_${parsedUser.id}`;
+              localStorage.setItem(userDeviceKey, JSON.stringify(deviceInfo));
+              
               console.log('Restored user from localStorage:', parsedUser?.name);
+              console.log('User data cached for this device');
               setCurrentUser(parsedUser);
             }
           } catch (validationError) {
@@ -87,6 +101,37 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     apiService.logout();
     setCurrentUser(null);
+  };
+
+  // Check if user data is cached for current device
+  const isUserCached = (email) => {
+    try {
+      const storedUser = localStorage.getItem('currentUser');
+      const accessToken = localStorage.getItem('accessToken');
+      
+      if (storedUser && accessToken) {
+        const parsedUser = JSON.parse(storedUser);
+        return parsedUser.email === email && !parsedUser.is_banned;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error checking cached user:', error);
+      return false;
+    }
+  };
+
+  // Get cached user data
+  const getCachedUser = () => {
+    try {
+      const storedUser = localStorage.getItem('currentUser');
+      if (storedUser) {
+        return JSON.parse(storedUser);
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting cached user:', error);
+      return null;
+    }
   };
 
   const register = async (userData) => {
@@ -182,6 +227,8 @@ export const AuthProvider = ({ children }) => {
     setCurrentUserData,
     unbanWithCode,
     banCurrentUser,
+    isUserCached,
+    getCachedUser,
     isAuthenticated: !!currentUser,
     isHeadAdmin: currentUser?.role === 'head_admin',
     isAdmin: currentUser?.role === 'admin',

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import UnbanModal from '../components/UnbanModal';
 import SettingsButton from '../components/SettingsButton';
+import { CustomFullScreenLoader } from '../components/CustomLoader';
 import { Alert } from 'antd';
 import logoImage from '../assets/image.png';
 import '../styles/Login.css';
@@ -17,10 +18,11 @@ const LoginPage = () => {
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   // Authentication context and navigation hook
-  const { login, logout, currentUser, isAuthenticated, isBanned } = useAuth();
+  const { login, logout, currentUser, isAuthenticated, isBanned, isUserCached, getCachedUser } = useAuth();
   const navigate = useNavigate();
   const [bannedUser, setBannedUser] = useState(null);
 
@@ -66,6 +68,7 @@ const LoginPage = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    setLoadingMessage('Tizimga kirish...');
     setBannedUser(null);
 
     try {
@@ -73,14 +76,53 @@ const LoginPage = () => {
       console.log('Current URL:', window.location.href);
       console.log('Current host:', window.location.host);
 
+      // Check if user is already cached (skip loading for cached users)
+      if (isUserCached(loginData.email)) {
+        console.log('Ma\'lumotlar avval yuklangan, qayta yuklanmaydi');
+        setLoadingMessage('Saqlangan ma\'lumotlar tekshirilmoqda...');
+        
+        // Get cached user data and set it directly
+        const cachedUser = getCachedUser();
+        if (cachedUser) {
+          setCurrentUser(cachedUser);
+        }
+        
+        // Still show loading for 6 seconds for UX
+        await new Promise(resolve => setTimeout(resolve, 6000));
+        
+        console.log('Cached user verified, redirecting...');
+        return; // Navigation will be handled by useEffect
+      }
+
+      setLoadingMessage('Foydalanuvchi ma\'lumotlari tekshirilmoqda...');
       const user = await login(loginData.email, loginData.password);
 
       // Check if user is banned
       if (user && user.is_banned) {
         console.log('User is banned, showing unban modal');
+        setLoadingMessage('');
         setBannedUser(user);
         return; // Don't proceed with navigation
       }
+
+      // Show loading message based on user role
+      if (user.role === 'head_admin') {
+        setLoadingMessage('Head Admin ma\'lumotlari yuklanmoqda...');
+      } else if (user.role === 'admin') {
+        setLoadingMessage('Admin ma\'lumotlari yuklanmoqda...');
+      } else if (user.role === 'teacher') {
+        setLoadingMessage('O\'qituvchi ma\'lumotlari yuklanmoqda...');
+      } else if (user.role === 'student') {
+        setLoadingMessage('O\'quvchi ma\'lumotlari yuklanmoqda...');
+      } else if (user.role === 'seller') {
+        setLoadingMessage('Seller ma\'lumotlari yuklanmoqda...');
+      } else {
+        setLoadingMessage('Foydalanuvchi ma\'lumotlari yuklanmoqda...');
+      }
+
+      // Ensure minimum 6 seconds loading time for better UX
+      const loadingPromise = new Promise(resolve => setTimeout(resolve, 6000));
+      await loadingPromise;
 
       console.log('Login muvaffaqiyatli, qayta yo\'naltirish...');
 
@@ -94,12 +136,21 @@ const LoginPage = () => {
       setError(err.message || 'Login xatosi yuz berdi. Qayta urinib ko\'ring.');
     } finally {
       setLoading(false);
+      setLoadingMessage('');
     }
   };
 
   return (
     <div className="login-page">
       <SettingsButton />
+
+      {/* Custom Full Screen Loader */}
+      {loading && (
+        <CustomFullScreenLoader 
+          message={loadingMessage || 'Yuklanmoqda...'}
+          size="large"
+        />
+      )}
 
       <div className="layout-container">
         <div>
@@ -201,7 +252,16 @@ const LoginPage = () => {
                   className="form-button"
                   disabled={loading}
                 >
-                  {loading ? 'Kirish...' : 'Kirish'}
+                  {loading ? (
+                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                        hourglass_top
+                      </span>
+                      {loadingMessage || 'Kirish...'}
+                    </span>
+                  ) : (
+                    'Kirish'
+                  )}
                 </button>
 
                 <div className="login-back-btn">
