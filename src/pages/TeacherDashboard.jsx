@@ -10,7 +10,7 @@ import {
   BarChartOutlined,
   LogoutOutlined,
   BookOutlined,
-  SafetyCertificateOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../context/AuthContext';
 import NotificationCenter from '../components/NotificationCenter';
@@ -122,7 +122,7 @@ const TeacherDashboard = () => {
         <Space>
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
             <Space style={{ cursor: 'pointer' }}>
-              <Button type="text" icon={<LogoutOutlined />} />
+              <Button type="text" icon={<UserOutlined />} />
             </Space>
           </Dropdown>
         </Space>

@@ -357,34 +357,6 @@ const TeacherOverview = () => {
         />
       </Row>
 
-      {/* Recent Activity Card */}
-      {stats.allRecentActivity.length > 0 && (
-        <Card
-          style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            marginBottom: '24px'
-          }}
-        >
-          <Typography.Title level={4} style={{ marginBottom: '16px' }}>Oxirgi faoliyat</Typography.Title>
-          <List
-            dataSource={stats.allRecentActivity.slice(0, 5)}
-            renderItem={(activity) => (
-              <List.Item>
-                <List.Item.Meta
-                  title={activity.action}
-                  description={`${activity.user} • ${activity.time}`}
-                />
-                <div style={{ fontWeight: 'bold', color: activity.score >= 70 ? '#16a34a' : '#dc2626' }}>
-                  {activity.score}%
-                </div>
-              </List.Item>
-            )}
-          />
-        </Card>
-      )}
     </div>
   );
 };

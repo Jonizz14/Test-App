@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Typography,
@@ -80,7 +81,7 @@ const CreateTest = () => {
   
   // Log form data changes
   useEffect(() => {
-    console.log('Form data updated:', formData);
+    // Form data updated
   }, [formData]);
 
   const loadTestForEditing = async () => {
@@ -499,10 +500,6 @@ const CreateTest = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submission started');
-    console.log('Form data:', formData);
-    console.log('Questions:', questions);
-    console.log('Current user:', currentUser);
     
     // Check authentication
     if (!currentUser) {
@@ -824,21 +821,6 @@ const CreateTest = () => {
         )}
 
         <div style={{ padding: '32px' }}>
-          {/* Debug Section - shows current form data */}
-          <Card size="small" style={{ marginBottom: '16px', backgroundColor: '#e6f7ff', border: '1px solid #91d5ff' }}>
-            <Typography.Text strong>📋 Joriy ma'lumotlar:</Typography.Text>
-            <div style={{ fontSize: '14px', marginTop: '8px', color: '#1890ff' }}>
-              <div><strong>Test nomi:</strong> "{formData.title}"</div>
-              <div><strong>Fan:</strong> "{formData.subject}"</div>
-              <div><strong>Tavsif:</strong> "{formData.description}"</div>
-              <div><strong>Vaqt limiti:</strong> {formData.time_limit} daqiqa</div>
-              <div><strong>Qiyinchilik:</strong> {formData.difficulty === 'easy' ? 'Oson' : formData.difficulty === 'medium' ? 'O\'rtacha' : 'Qiyin'}</div>
-              <div><strong>Maqsadlangan sinflar:</strong> {formData.target_grades.length > 0 ? formData.target_grades.join(', ') : 'Barcha sinflar'}</div>
-              <div><strong>Savollar soni:</strong> {questions.length}</div>
-              {isEditing && <div style={{ color: '#52c41a', marginTop: '4px' }}>✅ Ma'lumotlar yuklandi</div>}
-            </div>
-          </Card>
-          
           <Form onFinish={handleSubmit} layout="vertical">
             <Row gutter={24}>
               <Col xs={24} md={12}>
@@ -852,10 +834,6 @@ const CreateTest = () => {
                     onChange={(e) => setFormData({...formData, title: e.target.value})}
                     placeholder="Test nomini kiriting"
                   />
-                  {/* Current value info */}
-                  <div style={{ fontSize: '12px', color: '#52c41a', marginTop: '4px' }}>
-                    💡 Joriy qiymat: "{formData.title}"
-                  </div>
                 </Form.Item>
               </Col>
 
@@ -869,10 +847,6 @@ const CreateTest = () => {
                     value={formData.subject}
                     onChange={(value) => setFormData({...formData, subject: value})}
                   >
-                    {/* Current value indicator */}
-                    <Select.Option value="__CURRENT__" disabled style={{ color: '#52c41a', fontWeight: 'bold' }}>
-                      📋 Joriy: "{formData.subject}"
-                    </Select.Option>
                     <Select.Option value="Matematika">Matematika</Select.Option>
                     <Select.Option value="O'zbek tili">O'zbek tili</Select.Option>
                     <Select.Option value="Ingliz tili">Ingliz tili</Select.Option>
@@ -917,10 +891,6 @@ const CreateTest = () => {
                     max={180}
                     placeholder="30"
                   />
-                  {/* Current value info */}
-                  <div style={{ fontSize: '12px', color: '#52c41a', marginTop: '4px' }}>
-                    💡 Joriy qiymat: {formData.time_limit} daqiqa
-                  </div>
                 </Form.Item>
               </Col>
 
@@ -930,10 +900,6 @@ const CreateTest = () => {
                     value={formData.difficulty}
                     onChange={(value) => setFormData({...formData, difficulty: value})}
                   >
-                    {/* Current value indicator */}
-                    <Select.Option value="__CURRENT_DIFFICULTY__" disabled style={{ color: '#52c41a', fontWeight: 'bold' }}>
-                      📋 Joriy: {formData.difficulty === 'easy' ? 'Oson' : formData.difficulty === 'medium' ? 'O\'rtacha' : 'Qiyin'}
-                    </Select.Option>
                     <Select.Option value="easy">Oson</Select.Option>
                     <Select.Option value="medium">O'rtacha</Select.Option>
                     <Select.Option value="hard">Qiyin</Select.Option>
@@ -1206,10 +1172,7 @@ const CreateTest = () => {
               loading={loading}
               style={{ flex: 1 }}
               onClick={(e) => {
-                console.log('Submit button clicked!');
-                console.log('Form data:', formData);
-                console.log('Questions:', questions);
-                // If htmlType="submit" doesn't work, we can manually trigger form submission
+                // Submit form
                 if (e && e.target && e.target.form) {
                   e.target.form.requestSubmit();
                 }
@@ -1222,18 +1185,6 @@ const CreateTest = () => {
               style={{ flex: 1 }}
             >
               Bekor qilish
-            </Button>
-          </div>
-          
-          {/* Test button for debugging */}
-          <div style={{ marginTop: '12px', textAlign: 'center' }}>
-            <Button
-              type="dashed"
-              size="small"
-              onClick={testFormSubmission}
-              style={{ fontSize: '12px', color: '#666' }}
-            >
-              🔧 Test Submission (Debug)
             </Button>
           </div>
           </Form>

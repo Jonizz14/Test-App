@@ -24,7 +24,8 @@ const SellerOverview = () => {
   const { currentUser } = useAuth();
   const [stats, setStats] = useState({
     totalStudents: 0,
-    premiumStudents: 0
+    premiumStudents: 0,
+    regularStudents: 0
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -81,7 +82,8 @@ const SellerOverview = () => {
 
       setStats({
         totalStudents,
-        premiumStudents
+        premiumStudents,
+        regularStudents: totalStudents - premiumStudents
       });
     } catch (error) {
       console.error('Failed to load stats:', error);
@@ -216,6 +218,27 @@ const SellerOverview = () => {
               value={stats.premiumStudents}
               icon={<CrownOutlined />}
               color="#f59e0b"
+            />
+          </div>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '300ms' }}>
+            <StatCard
+              title="Oddiy o'quvchilar"
+              value={stats.regularStudents}
+              icon={<UserOutlined />}
+              color="#10b981"
+            />
+          </div>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '400ms' }}>
+            <StatCard
+              title="Premium Foiz"
+              value={stats.totalStudents > 0 ? Math.round((stats.premiumStudents / stats.totalStudents) * 100) : 0}
+              icon={<CrownOutlined />}
+              color="#8b5cf6"
+              suffix="%"
             />
           </div>
         </Col>

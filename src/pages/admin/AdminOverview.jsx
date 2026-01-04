@@ -64,6 +64,7 @@ const AdminOverview = () => {
         const totalUsers = users.length;
         const totalTeachers = users.filter(user => user.role === 'teacher').length;
         const totalStudents = users.filter(user => user.role === 'student').length;
+        const premiumStudents = users.filter(user => user.role === 'student' && user.is_premium).length;
         const totalTests = tests.length;
         const totalAttempts = attempts.length;
         const activeTests = tests.filter(test => test.is_active !== false).length;
@@ -102,6 +103,7 @@ const AdminOverview = () => {
           totalUsers,
           totalTeachers,
           totalStudents,
+          premiumStudents,
           totalTests,
           totalAttempts,
           activeTests,
@@ -315,12 +317,11 @@ const AdminOverview = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '900ms' }}>
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '1000ms' }}>
             <StatCard
-              title="Eng past ball"
-              value={stats.lowestScore}
-              suffix="%"
-              icon={<ReadOutlined />}
+              title="Premium o'quvchilar"
+              value={stats.premiumStudents}
+              icon={<SmileOutlined />}
               color="#dc2626"
             />
           </div>
