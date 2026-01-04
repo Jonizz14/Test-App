@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import 'animate.css';
 import { Typography, Button, Input, Alert, Switch, Tabs, Table, Space } from 'antd';
 import { EditOutlined, SaveOutlined, CloseOutlined, StarOutlined } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
@@ -73,9 +74,9 @@ const ManagePrices = () => {
   };
 
   return (
-    <div style={{ padding: '24px 0' }}>
+    <div className="animate__animated animate__fadeIn" style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div style={{
+      <div className="animate__animated animate__fadeInDown" style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0',
@@ -99,7 +100,7 @@ const ManagePrices = () => {
       </div>
 
       {/* Tabs */}
-      <div style={{ marginBottom: '16px' }}>
+      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms', marginBottom: '16px' }}>
         <Tabs
           activeKey={activeTab.toString()}
           onChange={(key) => setActiveTab(parseInt(key))}
@@ -112,211 +113,229 @@ const ManagePrices = () => {
 
       {/* Success Message */}
       {successMessage && (
-        <Alert
-          message={successMessage}
-          type="success"
-          showIcon
-          style={{ marginBottom: '16px' }}
-        />
+        <div className="animate__animated animate__slideInDown" style={{ animationDelay: '300ms' }}>
+          <Alert
+            message={successMessage}
+            type="success"
+            showIcon
+            style={{ marginBottom: '16px' }}
+          />
+        </div>
       )}
 
       {/* Pricing Table */}
-      <Table
-        dataSource={activeTab === 0 ? pricing : starPackages}
-        loading={loading}
-        columns={activeTab === 0 ? [
-          { title: 'Obuna turi', dataIndex: 'plan_name', key: 'plan_name' },
-          {
-            title: 'Asl narx ($)',
-            dataIndex: 'original_price',
-            key: 'original_price',
-            render: (text, record) => editingId === record.id ? (
-              <Input
-                type="number"
-                value={editData.original_price}
-                onChange={(e) => handleInputChange('original_price', parseFloat(e.target.value))}
-                style={{ width: '100px' }}
-              />
-            ) : (
-              `$${text}`
-            )
-          },
-          {
-            title: 'Chegirma narx ($)',
-            dataIndex: 'discounted_price',
-            key: 'discounted_price',
-            render: (text, record) => editingId === record.id ? (
-              <Input
-                type="number"
-                value={editData.discounted_price}
-                onChange={(e) => handleInputChange('discounted_price', parseFloat(e.target.value))}
-                style={{ width: '100px' }}
-              />
-            ) : (
-              `$${text}`
-            )
-          },
-          {
-            title: 'Chegirma (%)',
-            dataIndex: 'discount_percentage',
-            key: 'discount_percentage',
-            render: (text, record) => editingId === record.id ? (
-              <Input
-                type="number"
-                value={editData.discount_percentage}
-                onChange={(e) => handleInputChange('discount_percentage', parseInt(e.target.value))}
-                style={{ width: '80px' }}
-              />
-            ) : (
-              `${text}%`
-            )
-          },
-          {
-            title: 'Faol',
-            dataIndex: 'is_active',
-            key: 'is_active',
-            render: (active, record) => editingId === record.id ? (
-              <Switch
-                checked={editData.is_active}
-                onChange={(checked) => handleInputChange('is_active', checked)}
-              />
-            ) : (
-              <Switch checked={active} disabled />
-            )
-          },
-          {
-            title: 'Amallar',
-            key: 'actions',
-            render: (_, record) => editingId === record.id ? (
-              <Space>
-                <Button 
-                  icon={<SaveOutlined />} 
-                  onClick={handleSave} 
-                  type="primary"
-                  style={{ width: '120px', fontSize: '14px' }}
-                >Saqlash</Button>
-              </Space>
-            ) : (
-              <Space>
-                <Button 
-                  icon={<EditOutlined />} 
-                  onClick={() => handleEdit(record)}
-                  style={{ width: '120px', fontSize: '14px' }}
-                >Tahrirlash</Button>
-              </Space>
-            ),
-          },
-        ] : [
-          {
-            title: 'Yulduzlar soni',
-            dataIndex: 'stars',
-            key: 'stars',
-            render: (stars) => (
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <StarOutlined style={{ marginRight: '4px', color: '#f59e0b' }} />
-                <span>{stars} yulduz</span>
-              </div>
-            )
-          },
-          {
-            title: 'Asl narx ($)',
-            dataIndex: 'original_price',
-            key: 'original_price',
-            render: (text, record) => editingId === record.id ? (
-              <Input
-                type="number"
-                value={editData.original_price}
-                onChange={(e) => handleInputChange('original_price', parseFloat(e.target.value))}
-                style={{ width: '100px' }}
-              />
-            ) : (
-              `$${text}`
-            )
-          },
-          {
-            title: 'Chegirma narx ($)',
-            dataIndex: 'discounted_price',
-            key: 'discounted_price',
-            render: (text, record) => editingId === record.id ? (
-              <Input
-                type="number"
-                value={editData.discounted_price}
-                onChange={(e) => handleInputChange('discounted_price', parseFloat(e.target.value))}
-                style={{ width: '100px' }}
-              />
-            ) : (
-              `$${text}`
-            )
-          },
-          {
-            title: 'Chegirma (%)',
-            dataIndex: 'discount_percentage',
-            key: 'discount_percentage',
-            render: (text, record) => editingId === record.id ? (
-              <Input
-                type="number"
-                value={editData.discount_percentage}
-                onChange={(e) => handleInputChange('discount_percentage', parseInt(e.target.value))}
-                style={{ width: '80px' }}
-              />
-            ) : (
-              `${text}%`
-            )
-          },
-          {
-            title: 'Mashhur',
-            dataIndex: 'is_popular',
-            key: 'is_popular',
-            render: (popular, record) => editingId === record.id ? (
-              <Switch
-                checked={editData.is_popular}
-                onChange={(checked) => handleInputChange('is_popular', checked)}
-              />
-            ) : (
-              popular ? 'Ha' : 'Yo\'q'
-            )
-          },
-          {
-            title: 'Faol',
-            dataIndex: 'is_active',
-            key: 'is_active',
-            render: (active, record) => editingId === record.id ? (
-              <Switch
-                checked={editData.is_active}
-                onChange={(checked) => handleInputChange('is_active', checked)}
-              />
-            ) : (
-              <Switch checked={active} disabled />
-            )
-          },
-          {
-            title: 'Amallar',
-            key: 'actions',
-            render: (_, record) => editingId === record.id ? (
-              <Space>
-                <Button 
-                  icon={<SaveOutlined />} 
-                  onClick={handleSave} 
-                  type="primary"
-                  style={{ width: '120px', fontSize: '14px' }}
-                >Saqlash</Button>
-              </Space>
-            ) : (
-              <Space>
-                <Button 
-                  icon={<EditOutlined />} 
-                  onClick={() => handleEdit(record)}
-                  style={{ width: '120px', fontSize: '14px' }}
-                >Tahrirlash</Button>
-              </Space>
-            ),
-          },
-        ]}
-        rowKey="id"
-        locale={{
-          emptyText: activeTab === 0 ? 'Narxlar mavjud emas' : 'Yulduz paketlari mavjud emas',
-        }}
-      />
+      <div className="animate__animated animate__fadeInUpBig" style={{ animationDelay: '400ms' }}>
+        <Table
+          dataSource={activeTab === 0 ? pricing : starPackages}
+          loading={loading}
+          columns={activeTab === 0 ? [
+            { title: 'Obuna turi', dataIndex: 'plan_name', key: 'plan_name' },
+            {
+              title: 'Asl narx ($)',
+              dataIndex: 'original_price',
+              key: 'original_price',
+              render: (text, record) => editingId === record.id ? (
+                <Input
+                  type="number"
+                  value={editData.original_price}
+                  onChange={(e) => handleInputChange('original_price', parseFloat(e.target.value))}
+                  style={{ width: '100px' }}
+                />
+              ) : (
+                `${text}`
+              )
+            },
+            {
+              title: 'Chegirma narx ($)',
+              dataIndex: 'discounted_price',
+              key: 'discounted_price',
+              render: (text, record) => editingId === record.id ? (
+                <Input
+                  type="number"
+                  value={editData.discounted_price}
+                  onChange={(e) => handleInputChange('discounted_price', parseFloat(e.target.value))}
+                  style={{ width: '100px' }}
+                />
+              ) : (
+                `${text}`
+              )
+            },
+            {
+              title: 'Chegirma (%)',
+              dataIndex: 'discount_percentage',
+              key: 'discount_percentage',
+              render: (text, record) => editingId === record.id ? (
+                <Input
+                  type="number"
+                  value={editData.discount_percentage}
+                  onChange={(e) => handleInputChange('discount_percentage', parseInt(e.target.value))}
+                  style={{ width: '80px' }}
+                />
+              ) : (
+                `${text}%`
+              )
+            },
+            {
+              title: 'Faol',
+              dataIndex: 'is_active',
+              key: 'is_active',
+              render: (active, record) => editingId === record.id ? (
+                <Switch
+                  checked={editData.is_active}
+                  onChange={(checked) => handleInputChange('is_active', checked)}
+                />
+              ) : (
+                <Switch checked={active} disabled />
+              )
+            },
+            {
+              title: 'Amallar',
+              key: 'actions',
+              render: (_, record) => editingId === record.id ? (
+                <Space>
+                  <Button 
+                    icon={<SaveOutlined />} 
+                    onClick={handleSave} 
+                    type="primary"
+                    style={{ width: '120px', fontSize: '14px' }}
+                  >Saqlash</Button>
+                </Space>
+              ) : (
+                <Space>
+                  <Button 
+                    icon={<EditOutlined />} 
+                    onClick={() => handleEdit(record)}
+                    style={{ width: '120px', fontSize: '14px' }}
+                  >Tahrirlash</Button>
+                </Space>
+              ),
+            },
+          ] : [
+            {
+              title: 'Yulduzlar soni',
+              dataIndex: 'stars',
+              key: 'stars',
+              render: (stars) => (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <StarOutlined style={{ marginRight: '4px', color: '#f59e0b' }} />
+                  <span>{stars} yulduz</span>
+                </div>
+              )
+            },
+            {
+              title: 'Asl narx ($)',
+              dataIndex: 'original_price',
+              key: 'original_price',
+              render: (text, record) => editingId === record.id ? (
+                <Input
+                  type="number"
+                  value={editData.original_price}
+                  onChange={(e) => handleInputChange('original_price', parseFloat(e.target.value))}
+                  style={{ width: '100px' }}
+                />
+              ) : (
+                `${text}`
+              )
+            },
+            {
+              title: 'Chegirma narx ($)',
+              dataIndex: 'discounted_price',
+              key: 'discounted_price',
+              render: (text, record) => editingId === record.id ? (
+                <Input
+                  type="number"
+                  value={editData.discounted_price}
+                  onChange={(e) => handleInputChange('discounted_price', parseFloat(e.target.value))}
+                  style={{ width: '100px' }}
+                />
+              ) : (
+                `${text}`
+              )
+            },
+            {
+              title: 'Chegirma (%)',
+              dataIndex: 'discount_percentage',
+              key: 'discount_percentage',
+              render: (text, record) => editingId === record.id ? (
+                <Input
+                  type="number"
+                  value={editData.discount_percentage}
+                  onChange={(e) => handleInputChange('discount_percentage', parseInt(e.target.value))}
+                  style={{ width: '80px' }}
+                />
+              ) : (
+                `${text}%`
+              )
+            },
+            {
+              title: 'Mashhur',
+              dataIndex: 'is_popular',
+              key: 'is_popular',
+              render: (popular, record) => editingId === record.id ? (
+                <Switch
+                  checked={editData.is_popular}
+                  onChange={(checked) => handleInputChange('is_popular', checked)}
+                />
+              ) : (
+                popular ? 'Ha' : 'Yo\'q'
+              )
+            },
+            {
+              title: 'Faol',
+              dataIndex: 'is_active',
+              key: 'is_active',
+              render: (active, record) => editingId === record.id ? (
+                <Switch
+                  checked={editData.is_active}
+                  onChange={(checked) => handleInputChange('is_active', checked)}
+                />
+              ) : (
+                <Switch checked={active} disabled />
+              )
+            },
+            {
+              title: 'Amallar',
+              key: 'actions',
+              render: (_, record) => editingId === record.id ? (
+                <Space>
+                  <Button 
+                    icon={<SaveOutlined />} 
+                    onClick={handleSave} 
+                    type="primary"
+                    style={{ width: '120px', fontSize: '14px' }}
+                  >Saqlash</Button>
+                </Space>
+              ) : (
+                <Space>
+                  <Button 
+                    icon={<EditOutlined />} 
+                    onClick={() => handleEdit(record)}
+                    style={{ width: '120px', fontSize: '14px' }}
+                  >Tahrirlash</Button>
+                </Space>
+              ),
+            },
+          ]}
+          rowKey="id"
+          locale={{
+            emptyText: activeTab === 0 ? 'Narxlar mavjud emas' : 'Yulduz paketlari mavjud emas',
+          }}
+          onRow={(record, index) => ({
+            className: 'animate__animated animate__fadeInLeft',
+            style: { 
+              animationDelay: `${index * 100}ms`,
+              transition: 'all 0.3s ease'
+            },
+            onMouseEnter: (e) => {
+              e.currentTarget.style.transform = 'scale(1.02)';
+            },
+            onMouseLeave: (e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }
+          })}
+          scroll={{ x: 800 }}
+        />
+      </div>
     </div>
   );
 };

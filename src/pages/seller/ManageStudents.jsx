@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import 'animate.css';
 import { Typography, Button, Input, Alert, Modal, Row, Col, Card, Table, Tag, Space, Select } from 'antd';
 import { SearchOutlined, StarOutlined, StarFilled } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
@@ -193,9 +194,9 @@ const ManageStudents = () => {
   };
 
   return (
-    <div style={{ padding: '24px 0' }}>
+    <div className="animate__animated animate__fadeIn" style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div style={{
+      <div className="animate__animated animate__fadeInDown" style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -210,16 +211,18 @@ const ManageStudents = () => {
 
       {/* Success Message */}
       {successMessage && (
-        <Alert
-          message={successMessage}
-          type="success"
-          showIcon
-          style={{ marginBottom: '16px' }}
-        />
+        <div className="animate__animated animate__slideInDown" style={{ animationDelay: '200ms' }}>
+          <Alert
+            message={successMessage}
+            type="success"
+            showIcon
+            style={{ marginBottom: '16px' }}
+          />
+        </div>
       )}
 
       {/* Search */}
-      <div style={{ marginBottom: '16px' }}>
+      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '300ms', marginBottom: '16px' }}>
         <Input
           placeholder="O'quvchi nomini, ID yoki sinfini qidiring..."
           value={searchTerm}
@@ -230,132 +233,148 @@ const ManageStudents = () => {
       </div>
 
       {/* Students Table */}
-      <Table
-        dataSource={filteredStudents}
-        loading={loading}
-        columns={[
-          {
-            title: 'Ism Familiya',
-            dataIndex: 'name',
-            key: 'name',
-            render: (name) => <Typography.Text strong>{name || 'Noma\'lum'}</Typography.Text>,
-          },
-          {
-            title: 'Login',
-            dataIndex: 'display_id',
-            key: 'display_id',
-            render: (display_id, record) => (
-              <Typography.Text style={{ fontFamily: 'monospace', fontSize: '12px', backgroundColor: '#f8fafc', padding: '2px 4px', borderRadius: '4px' }}>
-                {display_id || record.username}
-              </Typography.Text>
-            ),
-          },
-          {
-            title: 'Sinf',
-            dataIndex: 'class_group',
-            key: 'class_group',
-            render: (class_group) => class_group || 'Noma\'lum',
-          },
-          {
-            title: 'Yo\'nalish',
-            dataIndex: 'direction',
-            key: 'direction',
-            render: (direction) => direction === 'natural' ? 'Tabiiy fanlar' : direction === 'exact' ? 'Aniq fanlar' : 'Yo\'nalish yo\'q',
-          },
-          {
-            title: 'Yulduzlar',
-            dataIndex: 'stars',
-            key: 'stars',
-            render: (stars) => (
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <StarOutlined style={{ marginRight: '4px', color: '#f59e0b' }} />
-                <Typography.Text strong style={{ color: '#d97706' }}>{stars || 0}</Typography.Text>
-              </div>
-            ),
-          },
-          {
-            title: 'Premium Status',
-            dataIndex: 'is_premium',
-            key: 'is_premium',
-            render: (is_premium) => (
-              <Tag color={is_premium ? 'gold' : 'default'} icon={is_premium ? <StarFilled /> : <StarOutlined />}>
-                {is_premium ? 'Premium bor' : 'Yo\'q'}
-              </Tag>
-            ),
-          },
-          {
-            title: 'Premium vaqti',
-            dataIndex: 'premium_expiry_date',
-            key: 'premium_expiry_date',
-            render: (expiry_date, record) => record.is_premium && expiry_date ? <StudentCountdown expiryDate={expiry_date} /> : '-',
-          },
-          {
-            title: 'Amallar',
-            key: 'actions',
-            render: (_, record) => (
-              <Space orientation="vertical" size="small">
-                <div>
-                  <Typography.Text style={{ fontSize: '12px', color: '#64748b' }}>Premium:</Typography.Text>
-                  {record.is_premium ? (
-                    <Button
-                      size="small"
-                      onClick={() => handleTogglePremium(record, record.is_premium)}
-                      style={{
-                        borderColor: '#d97706',
-                        color: '#d97706',
-                        fontSize: '11px',
-                        padding: '0 8px',
-                        height: '20px',
-                        marginLeft: '8px'
-                      }}
-                    >
-                      Olib tashlash
-                    </Button>
-                  ) : (
+      <div className="animate__animated animate__fadeInUpBig" style={{ animationDelay: '400ms' }}>
+        <Table
+          dataSource={filteredStudents}
+          loading={loading}
+          columns={[
+            {
+              title: 'Ism Familiya',
+              dataIndex: 'name',
+              key: 'name',
+              render: (name) => <Typography.Text strong>{name || 'Noma\'lum'}</Typography.Text>,
+            },
+            {
+              title: 'Login',
+              dataIndex: 'display_id',
+              key: 'display_id',
+              render: (display_id, record) => (
+                <Typography.Text style={{ fontFamily: 'monospace', fontSize: '12px', backgroundColor: '#f8fafc', padding: '2px 4px', borderRadius: '4px' }}>
+                  {display_id || record.username}
+                </Typography.Text>
+              ),
+            },
+            {
+              title: 'Sinf',
+              dataIndex: 'class_group',
+              key: 'class_group',
+              render: (class_group) => class_group || 'Noma\'lum',
+            },
+            {
+              title: 'Yo\'nalish',
+              dataIndex: 'direction',
+              key: 'direction',
+              render: (direction) => direction === 'natural' ? 'Tabiiy fanlar' : direction === 'exact' ? 'Aniq fanlar' : 'Yo\'nalish yo\'q',
+            },
+            {
+              title: 'Yulduzlar',
+              dataIndex: 'stars',
+              key: 'stars',
+              render: (stars) => (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <StarOutlined style={{ marginRight: '4px', color: '#f59e0b' }} />
+                  <Typography.Text strong style={{ color: '#d97706' }}>{stars || 0}</Typography.Text>
+                </div>
+              ),
+            },
+            {
+              title: 'Premium Status',
+              dataIndex: 'is_premium',
+              key: 'is_premium',
+              render: (is_premium) => (
+                <Tag color={is_premium ? 'gold' : 'default'} icon={is_premium ? <StarFilled /> : <StarOutlined />}>
+                  {is_premium ? 'Premium bor' : 'Yo\'q'}
+                </Tag>
+              ),
+            },
+            {
+              title: 'Premium vaqti',
+              dataIndex: 'premium_expiry_date',
+              key: 'premium_expiry_date',
+              render: (expiry_date, record) => record.is_premium && expiry_date ? <StudentCountdown expiryDate={expiry_date} /> : '-',
+            },
+            {
+              title: 'Amallar',
+              key: 'actions',
+              render: (_, record) => (
+                <Space orientation="vertical" size="small">
+                  <div>
+                    <Typography.Text style={{ fontSize: '12px', color: '#64748b' }}>Premium:</Typography.Text>
+                    {record.is_premium ? (
+                      <Button
+                        size="small"
+                        onClick={() => handleTogglePremium(record, record.is_premium)}
+                        style={{
+                          borderColor: '#d97706',
+                          color: '#d97706',
+                          fontSize: '11px',
+                          padding: '0 8px',
+                          height: '20px',
+                          marginLeft: '8px'
+                        }}
+                      >
+                        Olib tashlash
+                      </Button>
+                    ) : (
+                      <Select
+                        size="small"
+                        placeholder="Tanlang"
+                        style={{ width: 200, marginLeft: '8px', fontSize: '11px' }}
+                        onChange={(value) => {
+                          const plan = pricingPlans.find(p => p.id === value);
+                          if (plan) {
+                            handleGrantPremium(record.id, plan);
+                          }
+                        }}
+                        options={pricingPlans.map(plan => ({
+                          value: plan.id,
+                          label: `${plan.plan_name} (${plan.discounted_price})`
+                        }))}
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <Typography.Text style={{ fontSize: '12px', color: '#64748b' }}>Yulduz:</Typography.Text>
                     <Select
                       size="small"
                       placeholder="Tanlang"
                       style={{ width: 200, marginLeft: '8px', fontSize: '11px' }}
                       onChange={(value) => {
-                        const plan = pricingPlans.find(p => p.id === value);
-                        if (plan) {
-                          handleGrantPremium(record.id, plan);
+                        const pkg = starPackages.find(p => p.id === value);
+                        if (pkg) {
+                          giveStarsToStudent(record, pkg);
                         }
                       }}
-                      options={pricingPlans.map(plan => ({
-                        value: plan.id,
-                        label: `${plan.plan_name} (${plan.discounted_price})`
+                      options={starPackages.map(pkg => ({
+                        value: pkg.id,
+                        label: `${pkg.stars} yulduz (${pkg.discounted_price})`
                       }))}
                     />
-                  )}
-                </div>
-                <div>
-                  <Typography.Text style={{ fontSize: '12px', color: '#64748b' }}>Yulduz:</Typography.Text>
-                  <Select
-                    size="small"
-                    placeholder="Tanlang"
-                    style={{ width: 200, marginLeft: '8px', fontSize: '11px' }}
-                    onChange={(value) => {
-                      const pkg = starPackages.find(p => p.id === value);
-                      if (pkg) {
-                        giveStarsToStudent(record, pkg);
-                      }
-                    }}
-                    options={starPackages.map(pkg => ({
-                      value: pkg.id,
-                      label: `${pkg.stars} yulduz (${pkg.discounted_price})`
-                    }))}
-                  />
-                </div>
-              </Space>
-            ),
-          },
-        ]}
-        rowKey="id"
-        locale={{
-          emptyText: searchTerm ? 'Hech narsa topilmadi' : 'O\'quvchilar yo\'q',
-        }}
-      />
+                  </div>
+                </Space>
+              ),
+            },
+          ]}
+          rowKey="id"
+          locale={{
+            emptyText: searchTerm ? 'Hech narsa topilmadi' : 'O\'quvchilar yo\'q',
+          }}
+          onRow={(record, index) => ({
+            className: 'animate__animated animate__fadeInLeft',
+            style: { 
+              animationDelay: `${index * 100}ms`,
+              transition: 'all 0.3s ease'
+            },
+            onMouseEnter: (e) => {
+              e.currentTarget.style.transform = 'scale(1.02)';
+            },
+            onMouseLeave: (e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }
+          })}
+          scroll={{ x: 800 }}
+        />
+      </div>
 
       {/* Premium Modal */}
       <PremiumModal
@@ -424,7 +443,7 @@ const ManageStudents = () => {
                       block
                       onClick={() => giveStarsToStudent(selectedStudent, pkg)}
                       disabled={givingStars}
-                      style={{ backgroundColor: '#f59e0b', borderColor: '#f59e0b' }}
+                      style={{ backgroundColor: '#f59e0b', borderColor: '#f059e0b' }}
                     >
                       {givingStars ? 'Berilmoqda...' : 'Tanlash'}
                     </Button>

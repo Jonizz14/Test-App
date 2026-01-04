@@ -115,13 +115,6 @@ const SellerDashboard = () => {
               style={{ marginRight: 16 }}
             />
           )}
-          
-          <Typography.Title
-            level={4}
-            style={{ margin: 0, color: '#1f2937', fontWeight: 600 }}
-          >
-            Seller Panel
-          </Typography.Title>
         </div>
 
         <Space size="middle">
