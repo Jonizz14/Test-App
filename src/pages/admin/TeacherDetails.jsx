@@ -58,50 +58,23 @@ const TeacherDetails = () => {
         alignItems: 'center',
         minHeight: '400px',
         flexDirection: 'column',
-        gap: '24px'
+        gap: '16px'
       }}>
-        <div className="animate__animated animate__pulse">
+        <div className="animate__animated animate__bounce animate__infinite">
           <div style={{
-            position: 'relative',
-            width: '60px',
-            height: '60px'
-          }}>
-            <div className="animate__animated animate__spin animate__infinite" style={{
-              position: 'absolute',
-              width: '60px',
-              height: '60px',
-              border: '4px solid rgba(226, 232, 240, 0.3)',
-              borderTop: '4px solid #2563eb',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite'
-            }}></div>
-            <div className="animate__animated animate__spin animate__reverse animate__infinite" style={{
-              position: 'absolute',
-              top: '10px',
-              left: '10px',
-              width: '40px',
-              height: '40px',
-              border: '3px solid rgba(37, 99, 235, 0.2)',
-              borderBottom: '3px solid #10b981',
-              borderRadius: '50%',
-              animation: 'spin 1.5s linear infinite'
-            }}></div>
-          </div>
+            width: '40px',
+            height: '40px',
+            border: '4px solid #e2e8f0',
+            borderTop: '4px solid #2563eb',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }}></div>
         </div>
-        <div className="animate__animated animate__fadeInUp" style={{
-          textAlign: 'center'
-        }}>
-          <div className="animate__animated animate__pulse animate__infinite" style={{
-            color: '#2563eb',
-            fontSize: '18px',
-            fontWeight: 600,
-            marginBottom: '8px'
-          }}>Yuklanmoqda</div>
-          <div className="animate__animated animate__flash animate__infinite" style={{
-            color: '#64748b',
-            fontSize: '14px'
-          }}>Iltimos kuting...</div>
-        </div>
+        <div className="animate__animated animate__pulse" style={{
+          color: '#64748b',
+          fontSize: '16px',
+          fontWeight: 500
+        }}>Yuklanmoqda...</div>
         <style>{`
           @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -114,46 +87,6 @@ const TeacherDetails = () => {
           .animate__hover-float:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-          }
-          .animate__card-entrance {
-            animation: cardEntrance 0.6s ease-out forwards;
-          }
-          @keyframes cardEntrance {
-            0% {
-              opacity: 0;
-              transform: translateY(30px) scale(0.9);
-            }
-            100% {
-              opacity: 1;
-              transform: translateY(0) scale(1);
-            }
-          }
-          .animate__slide-in-left {
-            animation: slideInLeft 0.5s ease-out forwards;
-          }
-          @keyframes slideInLeft {
-            0% {
-              opacity: 0;
-              transform: translateX(-50px);
-            }
-            100% {
-              opacity: 1;
-              transform: translateX(0);
-            }
-          }
-          .animate__zoom-in:hover {
-            animation: zoomIn 0.3s ease-out;
-          }
-          @keyframes zoomIn {
-            0% {
-              transform: scale(1);
-            }
-            50% {
-              transform: scale(1.05);
-            }
-            100% {
-              transform: scale(1);
-            }
           }
         `}</style>
       </div>
@@ -201,7 +134,7 @@ const TeacherDetails = () => {
   }
 
   return (
-    <div className="animate__animated animate__fadeIn" style={{ padding: '24px 0' }}>
+    <div style={{ padding: '24px 0' }}>
       {/* Header */}
       <div className='animate__animated animate__fadeInDown' style={{
         marginBottom: '24px',
@@ -232,15 +165,14 @@ const TeacherDetails = () => {
 
       {/* Teacher Info Card */}
       <Card
-        className="animate__animated animate__card-entrance"
+        className="animate__animated animate__fadeInUp"
         style={{
           marginBottom: '24px',
           backgroundColor: '#f8fafc',
           border: '1px solid #e2e8f0',
           borderRadius: '12px',
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-          transition: 'all 0.3s ease',
-          animationDelay: '0.1s'
+          transition: 'all 0.3s ease'
         }}
         bodyStyle={{ padding: '32px' }}
       >
@@ -248,7 +180,7 @@ const TeacherDetails = () => {
           <Col>
             <Avatar
               size={80}
-              className="animate__animated animate__zoomIn animate__delay-1s"
+              className="animate__animated animate__bounceIn"
               style={{
                 backgroundColor: '#2563eb',
                 fontSize: '32px',
@@ -258,13 +190,11 @@ const TeacherDetails = () => {
                 cursor: 'pointer'
               }}
               onMouseEnter={(e) => {
-                e.target.classList.add('animate__pulse');
-                e.target.style.transform = 'scale(1.1) rotate(5deg)';
-                e.target.style.boxShadow = '0 8px 25px rgba(37, 99, 235, 0.5)';
+                e.target.style.transform = 'scale(1.05)';
+                e.target.style.boxShadow = '0 6px 20px rgba(37, 99, 235, 0.4)';
               }}
               onMouseLeave={(e) => {
-                e.target.classList.remove('animate__pulse');
-                e.target.style.transform = 'scale(1) rotate(0deg)';
+                e.target.style.transform = 'scale(1)';
                 e.target.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.3)';
               }}
             >
@@ -272,30 +202,13 @@ const TeacherDetails = () => {
             </Avatar>
           </Col>
           <Col flex="auto">
-            <Title level={3} className="animate__animated animate__slideInLeft" style={{ 
-              margin: 0, 
-              marginBottom: '8px', 
-              color: '#1e293b',
-              animationDelay: '0.3s'
-            }}>
+            <Title level={3} style={{ margin: 0, marginBottom: '8px', color: '#1e293b' }}>
               {teacher.name}
             </Title>
-            <Text className="animate__animated animate__slideInLeft" style={{ 
-              color: '#64748b', 
-              marginBottom: '16px', 
-              display: 'block',
-              animationDelay: '0.4s'
-            }}>
+            <Text style={{ color: '#64748b', marginBottom: '16px', display: 'block' }}>
               ID: {teacher.id}
             </Text>
-            <Tag 
-              className="animate__animated animate__bounceIn animate__delay-2s" 
-              color="green" 
-              style={{ 
-                fontWeight: 600,
-                boxShadow: '0 2px 4px rgba(34, 197, 94, 0.2)'
-              }}
-            >
+            <Tag color="green" style={{ fontWeight: 600 }}>
               O'qituvchi
             </Tag>
           </Col>
@@ -305,24 +218,13 @@ const TeacherDetails = () => {
           <Col xs={24} md={12}>
             <Card
               size="small"
-              className="animate__animated animate__fadeInUp animate__hover-float"
+              className="animate__animated animate__fadeInUp"
               style={{
                 backgroundColor: '#ffffff',
                 border: '1px solid #e2e8f0',
                 borderRadius: '8px',
                 transition: 'all 0.3s ease',
-                animationDelay: '0.5s',
-                cursor: 'pointer'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.1)';
-                e.currentTarget.style.borderColor = '#2563eb';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-                e.currentTarget.style.borderColor = '#e2e8f0';
+                animationDelay: '0.1s'
               }}
             >
               <div style={{ textAlign: 'center' }}>
@@ -338,24 +240,13 @@ const TeacherDetails = () => {
           <Col xs={24} md={12}>
             <Card
               size="small"
-              className="animate__animated animate__fadeInUp animate__hover-float"
+              className="animate__animated animate__fadeInUp"
               style={{
                 backgroundColor: '#ffffff',
                 border: '1px solid #e2e8f0',
                 borderRadius: '8px',
                 transition: 'all 0.3s ease',
-                animationDelay: '0.6s',
-                cursor: 'pointer'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.1)';
-                e.currentTarget.style.borderColor = '#10b981';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-                e.currentTarget.style.borderColor = '#e2e8f0';
+                animationDelay: '0.2s'
               }}
             >
               <div style={{ textAlign: 'center' }}>
@@ -373,11 +264,9 @@ const TeacherDetails = () => {
 
       {/* Tests Created */}
       <Card
-        className="animate__animated animate__card-entrance"
+        className="animate__animated animate__fadeInUp"
         title={
-          <span className="animate__animated animate__slideInRight" style={{
-            animationDelay: '0.7s'
-          }}>
+          <span className="animate__animated animate__slideInRight">
             {`Yaratilgan testlar (${tests.length})`}
           </span>
         }
@@ -386,8 +275,7 @@ const TeacherDetails = () => {
           border: '1px solid #e2e8f0',
           borderRadius: '12px',
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-          transition: 'all 0.3s ease',
-          animationDelay: '0.2s'
+          transition: 'all 0.3s ease'
         }}
       >
         {tests.length === 0 ? (
@@ -477,21 +365,18 @@ const TeacherDetails = () => {
                   {tests.map((test, index) => (
                     <tr 
                       key={test.id}
-                      className="animate__animated animate__slideInLeft"
+                      className="animate__animated animate__fadeInUp"
                       style={{
-                        animationDelay: `${0.8 + index * 0.1}s`,
-                        transition: 'all 0.3s ease',
-                        cursor: 'pointer'
+                        animationDelay: `${index * 0.05}s`,
+                        transition: 'all 0.3s ease'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#f0f9ff';
-                        e.currentTarget.style.transform = 'scale(1.02)';
-                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                        e.currentTarget.style.backgroundColor = '#f8fafc';
+                        e.currentTarget.style.transform = 'scale(1.01)';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
+                        e.currentTarget.style.backgroundColor = '#ffffff';
                         e.currentTarget.style.transform = 'scale(1)';
-                        e.currentTarget.style.boxShadow = 'none';
                       }}
                     >
                       <td style={{
@@ -566,13 +451,12 @@ const TeacherDetails = () => {
             </div>
             
             {/* Test Statistics Summary */}
-            <div className="animate__animated animate__bounceIn" style={{
+            <div className="animate__animated animate__fadeInUp" style={{
               marginTop: '24px',
               padding: '20px',
               backgroundColor: '#f8fafc',
               borderRadius: '8px',
-              border: '1px solid #e2e8f0',
-              animationDelay: `${0.8 + tests.length * 0.1}s`
+              border: '1px solid #e2e8f0'
             }}>
               <Row gutter={16}>
                 <Col xs={24} sm={8}>
