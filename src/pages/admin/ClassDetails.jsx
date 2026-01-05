@@ -11,6 +11,7 @@ import {
   Row,
   Col,
   Space,
+  Statistic,
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -23,6 +24,68 @@ import { useParams, useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
 
 const { Title, Text } = Typography;
+
+const StatCard = ({ title, value, icon, color, suffix }) => (
+  <Card
+    style={{
+      backgroundColor: '#ffffff',
+      border: '1px solid #e2e8f0',
+      borderRadius: '12px',
+      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+      transition: 'all 0.3s ease',
+    }}
+    styles={{ body: { padding: '24px' } }}
+    hoverable
+  >
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ flex: 1 }}>
+        <Text
+          style={{
+            fontSize: '12px',
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            color: '#64748b',
+            display: 'block',
+            marginBottom: '8px'
+          }}
+        >
+          {title}
+        </Text>
+        <Statistic
+          value={value}
+          suffix={suffix}
+          styles={{
+            content: {
+              fontSize: '40px',
+              fontWeight: 700,
+              color: '#1e293b',
+              lineHeight: 1.2
+            }
+          }}
+        />
+      </div>
+      <div
+        style={{
+          backgroundColor: color,
+          borderRadius: '12px',
+          padding: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginLeft: '16px'
+        }}
+      >
+        {React.cloneElement(icon, {
+          style: {
+            fontSize: '32px',
+            color: '#ffffff'
+          }
+        })}
+      </div>
+    </div>
+  </Card>
+);
 
 const ClassDetails = () => {
   const { classGroup } = useParams();
@@ -339,7 +402,6 @@ const ClassDetails = () => {
         alignItems: 'center',
         marginBottom: '24px',
         paddingBottom: '16px',
-        borderBottom: '1px solid #e2e8f0'
       }}>
         <Button
           icon={<ArrowLeftOutlined />}
@@ -374,105 +436,46 @@ const ClassDetails = () => {
       )}
 
       {/* Statistics Cards */}
-      <Row gutter={24} style={{ marginBottom: '24px' }}>
+      <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '0.1s' }}>
-            <Card
-              className="animate__animated animate__zoomIn"
-              style={{
-                backgroundColor: '#f0f9ff',
-                border: '1px solid #0ea5e9',
-                borderRadius: '12px',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer'
-              }}
-              bodyStyle={{ padding: '24px' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-                <TeamOutlined style={{ color: '#0ea5e9', fontSize: '32px', marginRight: '16px' }} />
-                <Title level={2} style={{ margin: 0, color: '#0ea5e9', fontWeight: 700 }}>
-                  {statistics.totalStudents}
-                </Title>
-              </div>
-              <Text style={{ color: '#0c4a6e', fontWeight: 600 }}>
-                Jami o'quvchi
-              </Text>
-            </Card>
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '100ms' }}>
+            <StatCard
+              title="Jami o'quvchi"
+              value={statistics.totalStudents}
+              icon={<TeamOutlined />}
+              color="#2563eb"
+            />
           </div>
         </Col>
-
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '0.2s' }}>
-            <Card
-              className="animate__animated animate__zoomIn"
-              style={{
-                backgroundColor: '#f0fdf4',
-                border: '1px solid #22c55e',
-                borderRadius: '12px',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-                <RiseOutlined style={{ color: '#22c55e', fontSize: '32px', marginRight: '16px' }} />
-                <Title level={2} style={{ margin: 0, color: '#22c55e', fontWeight: 700 }}>
-                  {statistics.totalAttempts}
-                </Title>
-              </div>
-              <Text style={{ color: '#166534', fontWeight: 600 }}>
-                Jami testlar
-              </Text>
-            </Card>
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '200ms' }}>
+            <StatCard
+              title="Jami testlar"
+              value={statistics.totalAttempts}
+              icon={<RiseOutlined />}
+              color="#16a34a"
+            />
           </div>
         </Col>
-
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '0.3s' }}>
-            <Card
-              className="animate__animated animate__zoomIn"
-              style={{
-                backgroundColor: '#fefce8',
-                border: '1px solid #eab308',
-                borderRadius: '12px',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-                <TrophyOutlined style={{ color: '#eab308', fontSize: '32px', marginRight: '16px' }} />
-                <Title level={2} style={{ margin: 0, color: '#eab308', fontWeight: 700 }}>
-                  {statistics.averageScore}%
-                </Title>
-              </div>
-              <Text style={{ color: '#713f12', fontWeight: 600 }}>
-                O'rtacha ball
-              </Text>
-            </Card>
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '300ms' }}>
+            <StatCard
+              title="O'rtacha ball"
+              value={statistics.averageScore}
+              suffix="%"
+              icon={<TrophyOutlined />}
+              color="#059669"
+            />
           </div>
         </Col>
-
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '0.4s' }}>
-            <Card
-              className="animate__animated animate__zoomIn"
-              style={{
-                backgroundColor: '#fdf2f8',
-                border: '1px solid #ec4899',
-                borderRadius: '12px',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-                <UserOutlined style={{ color: '#ec4899', fontSize: '32px', marginRight: '16px' }} />
-                <Title level={2} style={{ margin: 0, color: '#ec4899', fontWeight: 700 }}>
-                  {statistics.activeStudents}
-                </Title>
-              </div>
-              <Text style={{ color: '#831843', fontWeight: 600 }}>
-                Faol o'quvchi
-              </Text>
-            </Card>
+          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '400ms' }}>
+            <StatCard
+              title="Faol o'quvchi"
+              value={statistics.activeStudents}
+              icon={<UserOutlined />}
+              color="#dc2626"
+            />
           </div>
         </Col>
       </Row>
@@ -486,7 +489,6 @@ const ClassDetails = () => {
               borderRadius: '12px',
               border: '1px solid #e2e8f0',
               marginBottom: '24px',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
               transition: 'all 0.3s ease',
               animationDelay: '0.6s'
             }}
@@ -550,7 +552,6 @@ const ClassDetails = () => {
           style={{
             borderRadius: '12px',
             border: '1px solid #e2e8f0',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
             transition: 'all 0.3s ease',
             animationDelay: '0.9s'
           }}
