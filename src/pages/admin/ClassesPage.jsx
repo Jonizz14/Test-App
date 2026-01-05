@@ -680,7 +680,7 @@ const ClassesPage = () => {
       paddingBottom: '16px',
       backgroundColor: '#ffffff'
     }}>
-      <div style={{
+      <div className='animate__animated animate__slideInDown' style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'

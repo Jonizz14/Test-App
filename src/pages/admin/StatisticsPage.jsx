@@ -1235,7 +1235,7 @@ const StatisticsPage = () => {
   return (
     <div className="animate__animated animate__fadeIn" style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div style={{
+      <div className='animate__animated animate__slideInDown' style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
