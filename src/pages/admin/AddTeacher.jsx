@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import 'animate.css'
 import { Form, Input, Select, Button, Alert, Spin, Typography, Card, Checkbox } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -130,25 +131,28 @@ const AddTeacher = () => {
   }
 
   return (
-    <div style={{ padding: '24px', backgroundColor: '#ffffff' }}>
+    <div className="animate__animated animate__fadeIn" style={{ padding: '24px', backgroundColor: '#ffffff' }}>
       {/* Header */}
-      <div style={{
+      <div className="animate__animated animate__slideInDown" style={{
         marginBottom: '24px',
         paddingBottom: '16px',
-        borderBottom: '1px solid #e2e8f0'
+        borderBottom: '1px solid #e2e8f0',
+        animationDelay: '0.1s',
+        animationFillMode: 'both'
       }}>
         <Button
+          className="animate__animated animate__fadeInLeft"
           type="default"
           icon={<ArrowLeftOutlined />}
           onClick={() => navigate('/admin/teachers')}
-          style={{ marginRight: '12px', marginBottom: '8px' }}
+          style={{ marginRight: '12px', marginBottom: '8px', animationDelay: '0.2s', animationFillMode: 'both' }}
         >
           O'qituvchilarni boshqarishga qaytish
         </Button>
-        <Typography.Title level={1} style={{ color: '#1e293b', marginBottom: '8px' }}>
+        <Typography.Title level={1} className="animate__animated animate__fadeInUp" style={{ color: '#1e293b', marginBottom: '8px', animationDelay: '0.3s', animationFillMode: 'both' }}>
           {isEditMode ? 'O\'qituvchi ma\'lumotlarini tahrirlash' : 'Yangi o\'qituvchi qo\'shish'}
         </Typography.Title>
-        <Typography.Text style={{ fontSize: '18px', color: '#64748b' }}>
+        <Typography.Text className="animate__animated animate__fadeInUp" style={{ fontSize: '18px', color: '#64748b', animationDelay: '0.4s', animationFillMode: 'both' }}>
           {isEditMode ? 'O\'qituvchi ma\'lumotlarini yangilang' : 'Yangi o\'qituvchi ma\'lumotlarini kiriting'}
         </Typography.Text>
       </div>
@@ -156,6 +160,7 @@ const AddTeacher = () => {
       {/* Success Message */}
       {success && (
         <Alert
+          className="animate__animated animate__bounceIn"
           message="Muvaffaqiyat"
           description={success}
           type="success"
@@ -167,6 +172,7 @@ const AddTeacher = () => {
       {/* Error Message */}
       {error && (
         <Alert
+          className="animate__animated animate__shakeX"
           message="Xatolik"
           description={error}
           type="error"
@@ -176,13 +182,15 @@ const AddTeacher = () => {
       )}
 
       {/* Form */}
-      <Card style={{
+      <Card className="animate__animated animate__fadeInUp" style={{
         padding: '24px',
         backgroundColor: '#ffffff',
         border: '1px solid #e2e8f0',
         borderRadius: '12px',
         maxWidth: '600px',
-        margin: '0 auto'
+        margin: '0 auto',
+        animationDelay: '0.5s',
+        animationFillMode: 'both'
       }}>
         <Form form={form} onFinish={handleSubmit} layout="vertical">
           <Form.Item
