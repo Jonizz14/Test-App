@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import 'animate.css'
 import {
   Card,
   Button,
@@ -87,22 +88,80 @@ const StudentDetails = () => {
 
   if (loading) {
     return (
-      <div style={{ padding: '24px', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-        <div>Yuklanmoqda...</div>
+      <div className="animate__animated animate__fadeIn" style={{
+        padding: '24px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '400px',
+        flexDirection: 'column',
+        gap: '16px'
+      }}>
+        <div className="animate__animated animate__bounce animate__infinite">
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '4px solid #e2e8f0',
+            borderTop: '4px solid #2563eb',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+        </div>
+        <div className="animate__animated animate__pulse" style={{
+          color: '#64748b',
+          fontSize: '16px',
+          fontWeight: 500
+        }}>Yuklanmoqda...</div>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          .animate__hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+          }
+          .animate__hover-float:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          }
+        `}</style>
       </div>
     );
   }
 
   if (!student) {
     return (
-      <div style={{ padding: '24px' }}>
-        <div style={{ textAlign: 'center', padding: '48px 0' }}>
-          <Text>O'quvchi topilmadi</Text>
-          <br />
+      <div className="animate__animated animate__fadeIn" style={{ padding: '24px' }}>
+        <div className="animate__animated animate__bounceIn" style={{ 
+          textAlign: 'center', 
+          padding: '48px 0',
+          backgroundColor: '#f8fafc',
+          borderRadius: '12px',
+          border: '1px solid #e2e8f0'
+        }}>
+          <FileTextOutlined style={{ 
+            fontSize: '64px', 
+            color: '#cbd5e1', 
+            marginBottom: '16px',
+            display: 'block'
+          }} />
+          <Text style={{ 
+            color: '#64748b', 
+            fontSize: '18px', 
+            fontWeight: 500,
+            display: 'block',
+            marginBottom: '24px'
+          }}>O'quvchi topilmadi</Text>
           <Button
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate('/admin/students')}
-            style={{ marginTop: '16px' }}
+            className="animate__animated animate__pulse animate__infinite"
+            style={{ 
+              marginTop: '16px',
+              borderColor: '#2563eb',
+              color: '#2563eb'
+            }}
           >
             Orqaga
           </Button>
@@ -158,9 +217,9 @@ const StudentDetails = () => {
   ];
 
   return (
-    <div style={{ padding: '24px 0' }}>
+    <div className="animate__animated animate__fadeIn" style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div style={{
+      <div className="animate__animated animate__fadeInDown" style={{
         marginBottom: '24px',
         display: 'flex',
         alignItems: 'center',
@@ -169,20 +228,27 @@ const StudentDetails = () => {
         <Button
           icon={<ArrowLeftOutlined />}
           onClick={() => navigate('/admin/students')}
+          className="animate__animated animate__hover-lift"
           style={{
             borderColor: '#2563eb',
-            color: '#2563eb'
+            color: '#2563eb',
+            transition: 'all 0.3s ease'
           }}
         >
           Orqaga
         </Button>
-        <Title level={2} style={{ margin: 0, color: '#1e293b' }}>
+        <Title level={2} className="animate__animated animate__fadeInRight" style={{ 
+          margin: 0, 
+          color: '#1e293b',
+          animationDelay: '0.2s'
+        }}>
           {student.name} - Batafsil ma'lumotlar
         </Title>
       </div>
 
       {/* Profile Card */}
       <Card
+        className="animate__animated animate__fadeInUp"
         style={{
           marginBottom: '24px',
           background: shouldShowPremiumFeatures(student, null) && student.background_gradient?.css
@@ -197,8 +263,9 @@ const StudentDetails = () => {
           borderRadius: '20px',
           overflow: 'hidden',
           position: 'relative',
-          minHeight: '300px',
-          border: '1px solid rgba(255, 255, 255, 0.1)'
+          minHeight: '220px',
+          border: '0px solid rgba(255, 255, 255, 0.1)',
+          transition: 'all 0.3s ease'
         }}
         bodyStyle={{ padding: '32px' }}
       >
@@ -226,18 +293,21 @@ const StudentDetails = () => {
 
         <Row gutter={24} align="middle">
           {/* Profile Photo */}
-          <Col>
+          <Col className="animate__animated animate__fadeInUp" style={{ animationDelay: '0.3s' }}>
             <div style={{ position: 'relative' }}>
               <Avatar
                 src={student.profile_photo_url}
                 size={150}
+                className="animate__animated animate__fadeInUp"
                 style={{
                   border: '4px solid rgba(255, 255, 255, 0.8)',
                   boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
                   backgroundColor: shouldShowPremiumFeatures(student, null) ? '#ffffff' : '#2563eb',
                   fontSize: shouldShowPremiumFeatures(student, null) ? undefined : '48px',
                   fontWeight: 'bold',
-                  color: shouldShowPremiumFeatures(student, null) ? '#2563eb' : '#ffffff'
+                  color: shouldShowPremiumFeatures(student, null) ? '#2563eb' : '#ffffff',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer'
                 }}
               >
                 {!student.profile_photo_url && student.name.charAt(0).toUpperCase()}
@@ -245,35 +315,46 @@ const StudentDetails = () => {
 
               {/* Premium Checkmark */}
               {shouldShowPremiumFeatures(student, null) && (
-                <div style={{
-                  position: 'absolute',
-                  bottom: 10,
-                  right: 10,
-                  backgroundColor: '#10b981',
-                  borderRadius: '50%',
-                  width: 32,
-                  height: 32,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '3px solid rgba(255, 255, 255, 0.8)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
-                }}>
-                  <CheckCircleOutlined style={{ color: 'white', fontSize: '16px' }} />
+                <div 
+                  style={{
+                    position: 'absolute',
+                    bottom: 10,
+                    right: 10,
+                    backgroundColor: '#10b981',
+                    borderRadius: '50%',
+                    width: 32,
+                    height: 32,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '3px solid rgba(255, 255, 255, 0.8)',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                    transition: 'all 0.3s ease',
+                    animationDelay: '0.8s',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <CheckCircleOutlined 
+                    style={{ 
+                      color: 'white', 
+                      fontSize: '16px',
+                      transition: 'all 0.3s ease'
+                    }} 
+                  />
                 </div>
               )}
             </div>
           </Col>
 
           {/* Profile Info */}
-          <Col flex="auto">
+          <Col flex="auto" className="animate__animated animate__fadeInUp" style={{ animationDelay: '0.4s' }}>
             <div style={{
               color: student.is_premium ? '#ffffff' : '#1e293b',
               textAlign: 'left'
             }}>
               <Title level={2} style={{
                 margin: 0,
-                marginBottom: '16px',
+                marginBottom: '2px',
                 fontWeight: 700,
                 textShadow: student.is_premium ? '0 2px 4px rgba(0,0,0,0.3)' : 'none'
               }}>
@@ -293,14 +374,62 @@ const StudentDetails = () => {
                 </Text>
               )}
 
-              <Space wrap>
-                <Tag color="green" style={{ fontWeight: 600 }}>
+              <Space wrap className="animate__animated animate__fadeInUp" style={{ animationDelay: '0.5s' }}>
+                <Tag 
+                  color="green" 
+                  className="animate__animated animate__fadeInUp"
+                  style={{ 
+                    fontWeight: 600,
+                    transition: 'all 0.3s ease',
+                    animationDelay: '0.6s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.05)';
+                    e.target.style.boxShadow = '0 2px 8px rgba(34, 197, 94, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                >
                   O'quvchi
                 </Tag>
-                <Tag color="blue" style={{ fontWeight: 600 }}>
+                <Tag 
+                  color="blue" 
+                  className="animate__animated animate__fadeInUp"
+                  style={{ 
+                    fontWeight: 600,
+                    transition: 'all 0.3s ease',
+                    animationDelay: '0.7s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.05)';
+                    e.target.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                >
                   {student.class_group || 'Noma\'lum'} sinf
                 </Tag>
-                <Tag color="default" style={{ fontWeight: 600 }}>
+                <Tag 
+                  color="default" 
+                  className="animate__animated animate__fadeInUp"
+                  style={{ 
+                    fontWeight: 600,
+                    transition: 'all 0.3s ease',
+                    animationDelay: '0.8s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.05)';
+                    e.target.style.boxShadow = '0 2px 8px rgba(107, 114, 128, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                >
                   {getDirectionLabel(student.direction)}
                 </Tag>
               </Space>
@@ -310,115 +439,324 @@ const StudentDetails = () => {
       </Card>
 
       {/* Statistics Cards */}
-      <Row gutter={24} style={{ marginBottom: '24px' }}>
-        <Col xs={24} sm={12} md={6}>
-          <Card style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          }}>
-            <Statistic
-              title="Topshirilgan testlar"
-              value={attempts.length}
-              prefix={<FileTextOutlined style={{ color: '#2563eb' }} />}
-              valueStyle={{ color: '#1e293b', fontSize: '32px', fontWeight: 700 }}
-            />
-          </Card>
-        </Col>
+      <div className="animate__animated animate__fadeInUp">
+        <Row gutter={24} style={{ marginBottom: '24px' }}>
+          <Col xs={24} sm={12} md={6}>
+            <div className="animate__animated animate__zoomIn" style={{ animationDelay: '100ms' }}>
+              <Card
+                style={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.3s ease',
+                }}
+                styles={{ body: { padding: '24px' } }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ flex: 1 }}>
+                    <Text
+                      style={{
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        color: '#64748b',
+                        display: 'block',
+                        marginBottom: '8px'
+                      }}
+                    >
+                      Topshirilgan testlar
+                    </Text>
+                    <Statistic
+                      value={attempts.length}
+                      styles={{
+                        content: {
+                          fontSize: '40px',
+                          fontWeight: 700,
+                          color: '#1e293b',
+                          lineHeight: 1.2
+                        }
+                      }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      backgroundColor: '#2563eb',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginLeft: '16px'
+                    }}
+                  >
+                    <FileTextOutlined style={{ fontSize: '32px', color: '#ffffff' }} />
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </Col>
 
-        <Col xs={24} sm={12} md={6}>
-          <Card style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          }}>
-            <Statistic
-              title="O'rtacha ball"
-              value={averageScore}
-              suffix="%"
-              prefix={<TrophyOutlined style={{ color: '#059669' }} />}
-              valueStyle={{ color: '#1e293b', fontSize: '32px', fontWeight: 700 }}
-            />
-          </Card>
-        </Col>
+          <Col xs={24} sm={12} md={6}>
+            <div className="animate__animated animate__zoomIn" style={{ animationDelay: '200ms' }}>
+              <Card
+                style={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.3s ease',
+                }}
+                styles={{ body: { padding: '24px' } }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ flex: 1 }}>
+                    <Text
+                      style={{
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        color: '#64748b',
+                        display: 'block',
+                        marginBottom: '8px'
+                      }}
+                    >
+                      O'rtacha ball
+                    </Text>
+                    <Statistic
+                      value={averageScore}
+                      suffix="%"
+                      styles={{
+                        content: {
+                          fontSize: '40px',
+                          fontWeight: 700,
+                          color: '#1e293b',
+                          lineHeight: 1.2
+                        }
+                      }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      backgroundColor: '#16a34a',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginLeft: '16px'
+                    }}
+                  >
+                    <TrophyOutlined style={{ fontSize: '32px', color: '#ffffff' }} />
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </Col>
 
-        <Col xs={24} sm={12} md={6}>
-          <Card style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          }}>
-            <Statistic
-              title="Eng yuqori ball"
-              value={highestScore}
-              suffix="%"
-              prefix={<TrophyOutlined style={{ color: '#d97706' }} />}
-              valueStyle={{ color: '#1e293b', fontSize: '32px', fontWeight: 700 }}
-            />
-          </Card>
-        </Col>
+          <Col xs={24} sm={12} md={6}>
+            <div className="animate__animated animate__zoomIn" style={{ animationDelay: '300ms' }}>
+              <Card
+                style={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.3s ease',
+                }}
+                styles={{ body: { padding: '24px' } }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ flex: 1 }}>
+                    <Text
+                      style={{
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        color: '#64748b',
+                        display: 'block',
+                        marginBottom: '8px'
+                      }}
+                    >
+                      Eng yuqori ball
+                    </Text>
+                    <Statistic
+                      value={highestScore}
+                      suffix="%"
+                      styles={{
+                        content: {
+                          fontSize: '40px',
+                          fontWeight: 700,
+                          color: '#1e293b',
+                          lineHeight: 1.2
+                        }
+                      }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      backgroundColor: '#d97706',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginLeft: '16px'
+                    }}
+                  >
+                    <TrophyOutlined style={{ fontSize: '32px', color: '#ffffff' }} />
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </Col>
 
-        <Col xs={24} sm={12} md={6}>
-          <Card style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          }}>
-            <Statistic
-              title="Premium status"
-              value={student?.is_premium ? 'Faol' : 'Yo\'q'}
-              prefix={<TrophyOutlined style={{ color: student?.is_premium ? '#d97706' : '#6b7280' }} />}
-              valueStyle={{
-                color: student?.is_premium ? '#d97706' : '#64748b',
-                fontSize: '20px',
-                fontWeight: 700
-              }}
-            />
-          </Card>
-        </Col>
-      </Row>
-
+          <Col xs={24} sm={12} md={6}>
+            <div className="animate__animated animate__zoomIn" style={{ animationDelay: '400ms' }}>
+              <Card
+                style={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.3s ease',
+                }}
+                styles={{ body: { padding: '28px' } }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ flex: 1 }}>
+                    <Text
+                      style={{
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        color: '#64748b',
+                        display: 'block',
+                        marginBottom: '8px'
+                      }}
+                    >
+                      Premium status
+                    </Text>
+                    <Statistic
+                      value={student?.is_premium ? 'Faol' : 'Yo\'q'}
+                      styles={{
+                        content: {
+                          fontSize: '32px',
+                          fontWeight: 700,
+                          color: '#1e293b',
+                          lineHeight: 1.2
+                        }
+                      }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      backgroundColor: student?.is_premium ? '#dc2626' : '#6b7280',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginLeft: '16px'
+                    }}
+                  >
+                    <TrophyOutlined style={{ fontSize: '32px', color: '#ffffff' }} />
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </Col>
+        </Row>
+      </div>
       {/* Test Results Table */}
       <Card
-        title={`Test natijalari (${attempts.length})`}
+        className="animate__animated animate__fadeInUp"
+        title={
+          <span className="animate__animated animate__slideInRight">
+            {`Test natijalari (${attempts.length})`}
+          </span>
+        }
         style={{
           backgroundColor: '#ffffff',
           border: '1px solid #e2e8f0',
           borderRadius: '12px',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+          transition: 'all 0.3s ease',
+          overflow: 'hidden'
         }}
+        bodyStyle={{ padding: '0' }}
       >
         {attempts.length === 0 ? (
-          <div style={{
+          <div className="animate__animated animate__bounceIn" style={{
             textAlign: 'center',
             padding: '48px 24px',
             backgroundColor: '#f8fafc',
             borderRadius: '8px',
-            border: '1px solid #e2e8f0'
+            border: '1px solid #e2e8f0',
+            margin: '24px'
           }}>
-            <FileTextOutlined style={{ fontSize: '48px', color: '#cbd5e1', marginBottom: '16px' }} />
-            <Text style={{ color: '#64748b', fontSize: '16px' }}>
+            <FileTextOutlined 
+              className="animate__animated animate__pulse animate__infinite" 
+              style={{ 
+                fontSize: '48px', 
+                color: '#cbd5e1', 
+                marginBottom: '16px',
+                display: 'block'
+              }} 
+            />
+            <Text style={{ color: '#64748b', fontSize: '16px', fontWeight: 500 }}>
               Hali testlar topshirilmagan
             </Text>
           </div>
         ) : (
-          <Table
-            columns={columns}
-            dataSource={attempts}
-            rowKey="id"
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              showQuickJumper: true,
-              showTotal: (total) => `Jami ${total} ta test`,
-            }}
-            locale={{
-              emptyText: 'Test natijalari mavjud emas'
-            }}
-          />
+          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '0.2s' }}>
+            <Table
+              className="animate__animated animate__fadeInUp"
+              columns={columns}
+              dataSource={attempts}
+              rowKey="id"
+              pagination={{
+                pageSize: 10,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total) => `Jami ${total} ta test`,
+                className: 'animate__animated animate__fadeInUp',
+                style: { animationDelay: '0.3s' }
+              }}
+              locale={{
+                emptyText: 'Test natijalari mavjud emas'
+              }}
+              rowClassName={(record, index) => 
+                `animate__animated animate__fadeInUp ${
+                  index % 2 === 0 ? 'table-row-even' : 'table-row-odd'
+                }`
+              }
+              onRow={(record, index) => ({
+                className: `animate__animated animate__fadeInUp ${
+                  index % 2 === 0 ? 'table-row-even' : 'table-row-odd'
+                }`,
+                style: { 
+                  animationDelay: `${0.1 + index * 0.05}s`,
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer'
+                },
+                onMouseEnter: (e) => {
+                  e.currentTarget.style.backgroundColor = '#f0f9ff';
+                  e.currentTarget.style.transform = 'scale(1.01)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                },
+                onMouseLeave: (e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }
+              })}
+            />
+          </div>
         )}
       </Card>
     </div>
