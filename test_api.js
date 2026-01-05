@@ -7,9 +7,11 @@ async function testAPI() {
         if (response.ok) {
             const data = await response.json();
             console.log('Sample user data:', JSON.stringify(data[0], null, 2));
+            
         } else {
             console.log('Status:', response.status);
         }
+
     } catch (error) {
         console.error('Error:', error.message);
     }

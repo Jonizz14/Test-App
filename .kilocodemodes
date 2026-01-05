@@ -185,3 +185,4 @@ customModes:
     customInstructions: |
       Prioritize test readability, comprehensive edge cases, and clear assertion messages. Always consider both happy path and error scenarios.
     source: project
+
