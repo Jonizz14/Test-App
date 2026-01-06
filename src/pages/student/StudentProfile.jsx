@@ -298,14 +298,6 @@ const StudentProfile = () => {
                 boxShadow: '0 4px 20px rgba(245, 158, 11, 0.3)',
                 borderColor: '#f59e0b',
               }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#d97706';
-                e.target.style.boxShadow = '0 8px 30px rgba(245, 158, 11, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#f59e0b';
-                e.target.style.boxShadow = '0 4px 20px rgba(245, 158, 11, 0.3)';
-              }}
             >
               Market
             </Button>
@@ -325,14 +317,6 @@ const StudentProfile = () => {
                   borderRadius: '12px',
                   boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
                   borderColor: '#10b981',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#059669';
-                  e.target.style.boxShadow = '0 8px 30px rgba(16, 185, 129, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = '#10b981';
-                  e.target.style.boxShadow = '0 4px 20px rgba(16, 185, 129, 0.3)';
                 }}
               >
                 Tahrirlash
@@ -402,8 +386,6 @@ const StudentProfile = () => {
         overflow: 'hidden',
         position: 'relative',
         minHeight: '200px',
-        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
-        border: '1px solid rgba(255, 255, 255, 0.1)'
       }}>
         <div style={{
           display: 'flex',
@@ -456,11 +438,12 @@ const StudentProfile = () => {
             flex: 1,
             color: '#1e293b',
             position: 'relative',
+            marginLeft: "10px",
             zIndex: 2
           }}>
             <Title level={2} style={{
               fontWeight: 700,
-              marginBottom: '8px',
+              marginBottom: '-20px',
               color: '#1e293b'
             }}>
               {currentUser?.name}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import 'animate.css';
 import { useNavigate } from 'react-router-dom';
 import {
   Typography,
@@ -417,13 +418,13 @@ const PricingPage = () => {
   ];
 
   return (
-    <div style={{ 
-      paddingTop: '24px', 
-      paddingBottom: '24px', 
-      maxWidth: '1800px', 
-      margin: '0 auto' 
+    <div className="animate__animated animate__fadeIn" style={{
+      paddingTop: '24px',
+      paddingBottom: '24px',
+      maxWidth: '1800px',
+      margin: '0 auto'
     }}>
-      <div style={{
+      <div className="animate__animated animate__slideInDown" style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -431,44 +432,37 @@ const PricingPage = () => {
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
       }}>
-        <div>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate(-1)}
+            style={{
+              borderColor: '#e2e8f0',
+              color: '#64748b'
+            }}
+          >
+            Orqaga
+          </Button>
           <Title level={2} style={{
             fontSize: '2.5rem',
             fontWeight: 700,
             color: '#1e293b',
-            marginBottom: '12px',
-            marginTop: '-6px',
+            marginBottom: '-1px',
+            marginLeft: '16px'
           }}>
             Narxlar Do'koni
           </Title>
-          <Text style={{
-            fontSize: '1.125rem',
-            color: '#64748b',
-            fontWeight: 400
-          }}>
-            Talabalar uchun mavjud obuna rejalari va yulduz paketlari
-          </Text>
         </div>
-
-        <Button
-          icon={<ArrowLeftOutlined />}
-          onClick={() => navigate(-1)}
-          style={{
-            color: '#2563eb',
-            border: 'none',
-            backgroundColor: 'transparent'
-          }}
-        >
-          Orqaga
-        </Button>
       </div>
 
       {error && (
-        <Alert 
-          message={error}
-          type="error" 
-          style={{ marginBottom: '16px' }}
-        />
+        <div className="animate__animated animate__slideInRight">
+          <Alert
+            message={error}
+            type="error"
+            style={{ marginBottom: '16px' }}
+          />
+        </div>
       )}
 
       {loading ? (
@@ -478,7 +472,7 @@ const PricingPage = () => {
       ) : (
         <>
           {/* Premium Plans Section */}
-          <div style={{ marginBottom: '32px' }}>
+          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms', marginBottom: '32px' }}>
             <Title level={3} style={{
               fontWeight: 600,
               color: '#374151',
@@ -488,42 +482,36 @@ const PricingPage = () => {
               💎 Premium Obunalar
             </Title>
 
-            <Card style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-              overflow: 'hidden'
-            }}>
-              <Table
-                columns={pricingColumns}
-                dataSource={pricingPlans}
-                pagination={false}
-                style={{
-                  '& .ant-table-thead > tr > th': {
-                    backgroundColor: '#f8fafc',
-                    fontWeight: 700,
-                    fontSize: '0.875rem',
-                    color: '#1e293b',
-                    borderBottom: '1px solid #e2e8f0',
-                    padding: '16px'
-                  },
-                  '& .ant-table-tbody > tr > td': {
-                    borderBottom: '1px solid #f1f5f9',
-                    padding: '16px',
-                    fontSize: '0.875rem',
-                    color: '#334155'
-                  },
-                  '& .ant-table-tbody > tr:hover > td': {
-                    backgroundColor: '#f8fafc'
-                  }
-                }}
-              />
-            </Card>
+            <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '600ms' }}>
+                <Table
+                  columns={pricingColumns}
+                  dataSource={pricingPlans}
+                  pagination={false}
+                  style={{
+                    '& .ant-table-thead > tr > th': {
+                      backgroundColor: '#f8fafc',
+                      fontWeight: 700,
+                      fontSize: '0.875rem',
+                      color: '#1e293b',
+                      borderBottom: '1px solid #e2e8f0',
+                      padding: '16px'
+                    },
+                    '& .ant-table-tbody > tr > td': {
+                      borderBottom: '1px solid #f1f5f9',
+                      padding: '16px',
+                      fontSize: '0.875rem',
+                      color: '#334155'
+                    },
+                    '& .ant-table-tbody > tr:hover > td': {
+                      backgroundColor: '#f8fafc'
+                    }
+                  }}
+                />
+            </div>
           </div>
 
           {/* Stars Section */}
-          <div style={{ marginBottom: '32px' }}>
+          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '400ms', marginBottom: '32px' }}>
             <Title level={3} style={{
               fontWeight: 600,
               color: '#374151',
@@ -533,38 +521,32 @@ const PricingPage = () => {
               ⭐ Yulduzlar
             </Title>
 
-            <Card style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-              overflow: 'hidden'
-            }}>
-              <Table
-                columns={starColumns}
-                dataSource={starPackages}
-                pagination={false}
-                style={{
-                  '& .ant-table-thead > tr > th': {
-                    backgroundColor: '#f8fafc',
-                    fontWeight: 700,
-                    fontSize: '0.875rem',
-                    color: '#1e293b',
-                    borderBottom: '1px solid #e2e8f0',
-                    padding: '16px'
-                  },
-                  '& .ant-table-tbody > tr > td': {
-                    borderBottom: '1px solid #f1f5f9',
-                    padding: '16px',
-                    fontSize: '0.875rem',
-                    color: '#334155'
-                  },
-                  '& .ant-table-tbody > tr:hover > td': {
-                    backgroundColor: '#f8fafc'
-                  }
-                }}
-              />
-            </Card>
+            <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '800ms' }}>
+                <Table
+                  columns={starColumns}
+                  dataSource={starPackages}
+                  pagination={false}
+                  style={{
+                    '& .ant-table-thead > tr > th': {
+                      backgroundColor: '#f8fafc',
+                      fontWeight: 700,
+                      fontSize: '0.875rem',
+                      color: '#1e293b',
+                      borderBottom: '1px solid #e2e8f0',
+                      padding: '16px'
+                    },
+                    '& .ant-table-tbody > tr > td': {
+                      borderBottom: '1px solid #f1f5f9',
+                      padding: '16px',
+                      fontSize: '0.875rem',
+                      color: '#334155'
+                    },
+                    '& .ant-table-tbody > tr:hover > td': {
+                      backgroundColor: '#f8fafc'
+                    }
+                  }}
+                />
+            </div>
           </div>
 
 

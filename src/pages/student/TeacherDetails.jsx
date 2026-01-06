@@ -408,24 +408,8 @@ const TeacherDetails = () => {
         borderBottom: '1px solid #e2e8f0'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <Title level={2} style={{
-              fontSize: '2.5rem',
-              fontWeight: 700,
-              color: '#1e293b',
-              marginBottom: '16px'
-            }}>
-              O'qituvchi ma'lumotlari
-            </Title>
-            <Text style={{
-              fontSize: '1.125rem',
-              color: '#64748b',
-              fontWeight: 400
-            }}>
-              O'qituvchi haqida to'liq ma'lumot va uning testlari
-            </Text>
-          </div>
-          <Button
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Button
             onClick={handleBack}
             icon={<ArrowLeftOutlined />}
             style={{
@@ -433,8 +417,20 @@ const TeacherDetails = () => {
               color: '#64748b'
             }}
           >
-            O'qituvchilarni qidirishga qaytish
+            Orqaga qaytish
           </Button>
+                      <Title level={2} style={{
+              fontSize: '2.5rem',
+              fontWeight: 700,
+              color: '#1e293b',
+              marginBottom: '-1px',
+              marginLeft: '16px'
+            }}>
+              O'qituvchi ma'lumotlari
+            </Title>
+          </div>
+          <div>
+          </div>
         </div>
       </div>
 

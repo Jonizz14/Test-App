@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import 'animate.css';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Typography, Button, Avatar, Tag, Row, Col, Alert } from 'antd';
+import { Card, Typography, Button, Avatar, Tag, Row, Col, Alert, Statistic } from 'antd';
 import {
   ArrowLeftOutlined,
   CheckCircleOutlined,
@@ -13,6 +14,70 @@ import apiService from '../../data/apiService';
 import { shouldShowPremiumFeatures } from '../../utils/premiumVisibility';
 
 const { Title, Text } = Typography;
+
+const StatCard = ({ title, value, icon, color, suffix, valueComponent, iconColor = '#ffffff' }) => (
+  <Card
+    style={{
+      backgroundColor: '#ffffff',
+      border: '1px solid #e2e8f0',
+      borderRadius: '12px',
+      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+      transition: 'all 0.3s ease',
+    }}
+    styles={{ body: { padding: '24px' } }}
+    hoverable
+  >
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ flex: 1 }}>
+        <Text
+          style={{
+            fontSize: '12px',
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            color: '#64748b',
+            display: 'block',
+            marginBottom: '8px'
+          }}
+        >
+          {title}
+        </Text>
+        {valueComponent || (
+          <Statistic
+            value={value}
+            suffix={suffix}
+            styles={{
+              content: {
+                fontSize: '40px',
+                fontWeight: 700,
+                color: '#1e293b',
+                lineHeight: 1.2
+              }
+            }}
+          />
+        )}
+      </div>
+      <div
+        style={{
+          backgroundColor: color,
+          borderRadius: '12px',
+          padding: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginLeft: '16px'
+        }}
+      >
+        {React.cloneElement(icon, {
+          style: {
+            fontSize: '32px',
+            color: iconColor
+          }
+        })}
+      </div>
+    </div>
+  </Card>
+);
 
 const StudentProfileView = () => {
   const { id } = useParams();
@@ -152,9 +217,9 @@ const StudentProfileView = () => {
       : { background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' };
 
   return (
-    <div style={{ paddingTop: '16px', paddingBottom: '16px', backgroundColor: '#ffffff' }}>
+    <div className="animate__animated animate__fadeIn" style={{ paddingTop: '16px', paddingBottom: '16px', backgroundColor: '#ffffff' }}>
       {/* Header */}
-      <div style={{
+      <div className="animate__animated animate__slideInDown" style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -164,7 +229,6 @@ const StudentProfileView = () => {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '16px'
         }}>
           {/* Left Side - Back Button and Title/Description */}
           <div style={{
@@ -177,16 +241,8 @@ const StudentProfileView = () => {
               icon={<ArrowLeftOutlined />}
               onClick={() => navigate(-1)}
               style={{
-                borderColor: '#2563eb',
-                color: '#2563eb',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#eff6ff';
-                e.target.style.borderColor = '#1d4ed8';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'transparent';
-                e.target.style.borderColor = '#2563eb';
+                  borderColor: '#e2e8f0',
+                  color: '#64748b'
               }}
             >
               Orqaga
@@ -200,32 +256,24 @@ const StudentProfileView = () => {
                 fontSize: '2.5rem',
                 fontWeight: 700,
                 color: '#1e293b',
-                marginBottom: '8px'
+                marginBottom: '-1px'
               }}>
                 Sinfdosh profili
               </Title>
-              <Text style={{
-                fontSize: '1.125rem',
-                color: '#64748b',
-                fontWeight: 400
-              }}>
-                Sinfdoshning shaxsiy ma'lumotlari va natijalari
-              </Text>
             </div>
           </div>
         </div>
       </div>
 
       {/* Premium Profile Card */}
-      <Card style={{
+      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms' }}>
+        <Card style={{
         marginBottom: '16px',
         ...profileBackgroundStyle,
         borderRadius: '20px',
         overflow: 'hidden',
         position: 'relative',
-        minHeight: '300px',
-        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
-        border: '1px solid rgba(255, 255, 255, 0.1)'
+        minHeight: '250px',
       }}>
         {/* Premium Badge */}
         {shouldShowPremiumFeatures(student, currentUser) && (
@@ -401,6 +449,7 @@ const StudentProfileView = () => {
             flex: 1,
             color: student.is_premium ? '#ffffff' : '#1e293b',
             position: 'relative',
+            marginLeft: '16px',
             zIndex: 2
           }}>
             <Title level={2} style={{
@@ -458,263 +507,64 @@ const StudentProfileView = () => {
             </div>
           </div>
         </div>
-      </Card>
+        </Card>
+      </div>
 
       {/* Statistics Cards */}
-      <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
+      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '400ms' }}>
+        <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
         <Col xs={24} sm={12} md={6}>
-          <Card style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            minHeight: '140px',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
-          }}
-          >
-            <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
-                <div style={{ flex: 1 }}>
-                  <Text style={{
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    color: '#64748b',
-                    marginBottom: '4px',
-                    display: 'block'
-                  }}>
-                    Topshirilgan testlar
-                  </Text>
-                  <Title level={2} style={{
-                    fontSize: '2rem',
-                    fontWeight: 700,
-                    color: '#1e293b',
-                    lineHeight: 1.2,
-                    marginBottom: 0
-                  }}>
-                    {totalTests}
-                  </Title>
-                </div>
-                <div style={{
-                  backgroundColor: '#eff6ff',
-                  borderRadius: '12px',
-                  padding: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginLeft: '8px'
-                }}>
-                  <BarChartOutlined style={{ fontSize: '1.5rem', color: '#2563eb' }} />
-                </div>
-              </div>
-            </div>
-          </Card>
+          <StatCard
+            title="Topshirilgan testlar"
+            value={totalTests}
+            icon={<BarChartOutlined />}
+            color="#2563eb"
+          />
         </Col>
 
         <Col xs={24} sm={12} md={6}>
-          <Card style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            minHeight: '140px',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
-          }}
-          >
-            <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
-                <div style={{ flex: 1 }}>
-                  <Text style={{
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    color: '#64748b',
-                    marginBottom: '4px',
-                    display: 'block'
-                  }}>
-                    O'rtacha ball
-                  </Text>
-                  <Title level={2} style={{
-                    fontSize: '2rem',
-                    fontWeight: 700,
-                    color: '#1e293b',
-                    lineHeight: 1.2,
-                    marginBottom: 0
-                  }}>
-                    {averageScore}%
-                  </Title>
-                </div>
-                <div style={{
-                  backgroundColor: '#ecfdf5',
-                  borderRadius: '12px',
-                  padding: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginLeft: '8px'
-                }}>
-                  <TrophyOutlined style={{ fontSize: '1.5rem', color: '#059669' }} />
-                </div>
-              </div>
-            </div>
-          </Card>
+          <StatCard
+            title="O'rtacha ball"
+            value={averageScore}
+            suffix="%"
+            icon={<TrophyOutlined />}
+            color="#16a34a"
+          />
         </Col>
 
         <Col xs={24} sm={12} md={6}>
-          <Card style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            minHeight: '140px',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
-          }}
-          >
-            <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
-                <div style={{ flex: 1 }}>
-                  <Text style={{
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    color: '#64748b',
-                    marginBottom: '4px',
-                    display: 'block'
-                  }}>
-                    Eng yuqori ball
-                  </Text>
-                  <Title level={2} style={{
-                    fontSize: '2rem',
-                    fontWeight: 700,
-                    color: '#1e293b',
-                    lineHeight: 1.2,
-                    marginBottom: 0
-                  }}>
-                    {highestScore}%
-                  </Title>
-                </div>
-                <div style={{
-                  backgroundColor: '#fef3c7',
-                  borderRadius: '12px',
-                  padding: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginLeft: '8px'
-                }}>
-                  <TrophyOutlined style={{ fontSize: '1.5rem', color: '#d97706' }} />
-                </div>
-              </div>
-            </div>
-          </Card>
+          <StatCard
+            title="Eng yuqori ball"
+            value={highestScore}
+            suffix="%"
+            icon={<TrophyOutlined />}
+            color="#059669"
+          />
         </Col>
 
         <Col xs={24} sm={12} md={6}>
-          <Card style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            minHeight: '140px',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
-          }}
-          >
-            <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
-                <div style={{ flex: 1 }}>
-                  <Text style={{
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    color: '#64748b',
-                    marginBottom: '4px',
-                    display: 'block'
-                  }}>
-                    Premium status
-                  </Text>
-                  <Title level={3} style={{
-                    fontSize: '1.2rem',
-                    fontWeight: 700,
-                    color: student.is_premium ? '#d97706' : '#64748b',
-                    lineHeight: 1.2,
-                    marginBottom: student.is_premium ? 0 : '8px'
-                  }}>
-                    {student.is_premium ? 'Faol' : 'Yo\'q'}
-                  </Title>
-                  {!student.is_premium && (
-                    <Button
-                      size="small"
-                      onClick={() => navigate('/student/pricing')}
-                      style={{
-                        backgroundColor: '#2563eb',
-                        color: '#ffffff',
-                        fontWeight: 600,
-                        borderRadius: '8px',
-                        padding: '2px 8px',
-                        fontSize: '0.8rem',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.backgroundColor = '#1d4ed8';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.backgroundColor = '#2563eb';
-                      }}
-                    >
-                      Sotib olish
-                    </Button>
-                  )}
-                </div>
-                <div style={{
-                  backgroundColor: student.is_premium ? '#fef3c7' : '#f3f4f6',
-                  borderRadius: '12px',
-                  padding: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginLeft: '8px'
+          <StatCard
+            title="Premium status"
+            icon={<TrophyOutlined />}
+            color={student.is_premium ? '#fef3c7' : '#f3f4f6'}
+            iconColor={student.is_premium ? '#d97706' : '#6b7280'}
+            valueComponent={
+              <div>
+                <Title level={3} style={{
+                  fontSize: '2rem',
+                  fontWeight: 700,
+                  color: student.is_premium ? '#d97706' : '#64748b',
+                  lineHeight: 1.2,
+                  marginBottom: student.is_premium ? 0 : '8px'
                 }}>
-                  <TrophyOutlined style={{
-                    fontSize: '1.5rem',
-                    color: student.is_premium ? '#d97706' : '#6b7280'
-                  }} />
-                </div>
+                  {student.is_premium ? 'Faol' : 'Yo\'q'}
+                </Title>
               </div>
-            </div>
-          </Card>
+            }
+          />
         </Col>
-      </Row>
+        </Row>
+      </div>
     </div>
   );
 };
