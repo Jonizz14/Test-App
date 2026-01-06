@@ -180,7 +180,7 @@ const TeacherDetails = () => {
           <Col>
             <Avatar
               size={80}
-              className="animate__animated animate__bounceIn"
+              className="animate__animated animate__fadeInUp"
               style={{
                 backgroundColor: '#2563eb',
                 fontSize: '32px',
