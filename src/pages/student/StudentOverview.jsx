@@ -350,7 +350,6 @@ const StudentOverview = () => {
                   borderRadius: '8px',
                   transition: 'all 0.2s ease',
                 }}
-                hoverable
                 >
                   <div style={{ padding: '16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
