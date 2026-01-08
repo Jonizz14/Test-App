@@ -14,6 +14,8 @@ import {
   LogoutOutlined,
   SafetyCertificateOutlined,
   CheckCircleFilled,
+  TeamOutlined,
+  TrophyOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../context/AuthContext';
 import { useServerTest } from '../context/ServerTestContext';
@@ -35,6 +37,9 @@ import StudentProfileView from './student/StudentProfileView';
 import TeacherDetails from './student/TeacherDetails';
 import PricingPage from './student/PricingPage';
 import Classmates from './student/Classmates';
+import MyClassStatistics from './student/MyClassStatistics';
+import StudentsRating from './student/StudentsRating';
+import ClassesRating from './student/ClassesRating';
 
 const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -103,9 +108,38 @@ const StudentDashboard = () => {
       label: 'Qabul qilingan darslar',
     },
     {
-      key: '/student/statistics',
+      key: 'statistics', // Submenu for statistics
       icon: <BarChartOutlined />,
       label: 'Statistika',
+      children: [
+        {
+          key: '/student/statistics',
+          icon: <UserOutlined />,
+          label: 'Mening statistikam',
+        },
+        {
+          key: '/student/my-class-statistics',
+          icon: <TeamOutlined />,
+          label: 'Sinf statistikasi',
+        },
+      ],
+    },
+    {
+      key: 'ratings', // Submenu for ratings
+      icon: <TrophyOutlined />,
+      label: 'Reytinglar',
+      children: [
+        {
+          key: '/student/students-rating',
+          icon: <UserOutlined />,
+          label: 'O\'quvchilar reytingi',
+        },
+        {
+          key: '/student/classes-rating',
+          icon: <TeamOutlined />,
+          label: 'Sinflar reytingi',
+        },
+      ],
     },
   ];
 
@@ -278,6 +312,9 @@ const StudentDashboard = () => {
                 <Route path="/profile" element={<StudentProfile />} />
                 <Route path="/student-profile/:id" element={<StudentProfileView />} />
                 <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/my-class-statistics" element={<MyClassStatistics />} />
+                <Route path="/students-rating" element={<StudentsRating />} />
+                <Route path="/classes-rating" element={<ClassesRating />} />
               </Routes>
             </div>
           </Content>
