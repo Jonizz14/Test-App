@@ -303,7 +303,7 @@ const StudentProfileView = () => {
           flexDirection: { xs: 'column', md: 'row' },
           alignItems: 'center',
           padding: '24px',
-          minHeight: '300px',
+          minHeight: '200px',
           position: 'relative',
           overflow: 'hidden'
         }}>

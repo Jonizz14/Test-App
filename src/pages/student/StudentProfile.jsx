@@ -19,6 +19,8 @@ import { useNavigate } from 'react-router-dom';
 import apiService from '../../data/apiService';
 import { useCountdown } from '../../hooks/useCountdown';
 import { shouldShowPremiumFeatures } from '../../utils/premiumVisibility';
+import GradientPicker from '../../components/GradientPicker';
+import EmojiPicker from '../../components/EmojiPicker';
 
 const { Title, Text } = Typography;
 
@@ -36,6 +38,10 @@ const StudentProfile = () => {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [gradientPickerOpen, setGradientPickerOpen] = useState(false);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [selectedGradient, setSelectedGradient] = useState(null);
+  const [selectedEmojis, setSelectedEmojis] = useState([]);
 
   useEffect(() => {
     loadStudentStats();
@@ -44,6 +50,20 @@ const StudentProfile = () => {
   useEffect(() => {
     if (currentUser) {
       setStatusText(currentUser.profile_status || '');
+      // Initialize gradient and emojis from current user data
+      if (currentUser.background_gradient) {
+        try {
+          const gradientData = typeof currentUser.background_gradient === 'string'
+            ? JSON.parse(currentUser.background_gradient)
+            : currentUser.background_gradient;
+          setSelectedGradient(gradientData);
+        } catch (e) {
+          setSelectedGradient(null);
+        }
+      }
+      if (currentUser.selected_emojis) {
+        setSelectedEmojis(currentUser.selected_emojis);
+      }
     }
   }, [currentUser]);
 
@@ -121,6 +141,16 @@ const StudentProfile = () => {
       }
 
       formData.append('profile_status', statusText);
+
+      // Add gradient if selected
+      if (selectedGradient) {
+        formData.append('background_gradient', JSON.stringify(selectedGradient));
+      }
+
+      // Add emojis if selected
+      if (selectedEmojis.length > 0) {
+        formData.append('selected_emojis', JSON.stringify(selectedEmojis));
+      }
 
       const updatedUser = await apiService.patch(`/users/${currentUser.id}/`, formData, true);
       setCurrentUserData(updatedUser);
@@ -238,6 +268,41 @@ const StudentProfile = () => {
       </div>
     </Card>
   );
+
+  // Profile background style based on premium status
+  const getProfileBackgroundStyle = () => {
+    if (shouldShowPremiumFeatures(currentUser, currentUser) && currentUser?.background_gradient) {
+      try {
+        const gradientData = typeof currentUser.background_gradient === 'string'
+          ? JSON.parse(currentUser.background_gradient)
+          : currentUser.background_gradient;
+        return { background: gradientData.css };
+      } catch (e) {
+        return { background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' };
+      }
+    }
+    if (shouldShowPremiumFeatures(currentUser, currentUser)) {
+      return {
+        background: `radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%), linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)`
+      };
+    }
+    return { background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' };
+  };
+
+  // Check if current gradient is a custom premium gradient (not default)
+  const isCustomGradient = () => {
+    if (shouldShowPremiumFeatures(currentUser, currentUser) && currentUser?.background_gradient) {
+      try {
+        const gradientData = typeof currentUser.background_gradient === 'string'
+          ? JSON.parse(currentUser.background_gradient)
+          : currentUser.background_gradient;
+        return gradientData.name && gradientData.name !== 'Standart';
+      } catch (e) {
+        return false;
+      }
+    }
+    return false;
+  };
 
   return (
     <div className="animate__animated animate__fadeIn" style={{
@@ -380,22 +445,22 @@ const StudentProfile = () => {
       {/* Profile Card */}
       <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms' }}>
         <Card style={{
-        marginBottom: '16px',
-        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-        borderRadius: '20px',
-        overflow: 'hidden',
-        position: 'relative',
-        minHeight: '200px',
-      }}>
-        <div style={{
-          display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-          alignItems: 'center',
-          padding: '24px',
-          minHeight: '200px',
+          marginBottom: '16px',
+          borderRadius: '20px',
+          overflow: 'hidden',
           position: 'relative',
-          overflow: 'hidden'
+          minHeight: '200px',
+          ...getProfileBackgroundStyle()
         }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: 'center',
+            padding: '24px',
+            minHeight: '200px',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
           {/* Profile Photo */}
           <div style={{
             position: 'relative',
@@ -436,7 +501,7 @@ const StudentProfile = () => {
           <div style={{
             textAlign: { xs: 'center', md: 'left' },
             flex: 1,
-            color: '#1e293b',
+            color: isCustomGradient() ? '#ffffff' : '#1e293b',
             position: 'relative',
             marginLeft: "10px",
             zIndex: 2
@@ -444,7 +509,8 @@ const StudentProfile = () => {
             <Title level={2} style={{
               fontWeight: 700,
               marginBottom: '-20px',
-              color: '#1e293b'
+              color: isCustomGradient() ? '#ffffff' : '#1e293b',
+              textShadow: isCustomGradient() ? '0 2px 4px rgba(0,0,0,0.3)' : 'none'
             }}>
               {currentUser?.name}
             </Title>
@@ -454,7 +520,8 @@ const StudentProfile = () => {
                 marginBottom: '16px',
                 fontStyle: 'italic',
                 opacity: 0.9,
-                color: '#1e293b'
+                color: isCustomGradient() ? '#ffffff' : '#1e293b',
+                textShadow: isCustomGradient() ? '0 1px 2px rgba(0,0,0,0.3)' : 'none'
               }}>
                 "{currentUser.profile_status}"
               </Title>
@@ -462,32 +529,35 @@ const StudentProfile = () => {
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: { xs: 'center', md: 'flex-start' } }}>
               <span style={{
-                backgroundColor: '#ecfdf5',
-                color: '#059669',
+                backgroundColor: isCustomGradient() ? 'rgba(255, 255, 255, 0.2)' : '#ecfdf5',
+                color: isCustomGradient() ? '#ffffff' : '#059669',
                 padding: '4px 12px',
                 borderRadius: '16px',
                 fontWeight: 600,
-                fontSize: '0.875rem'
+                fontSize: '0.875rem',
+                border: isCustomGradient() ? '1px solid rgba(255, 255, 255, 0.3)' : 'none'
               }}>
                 O'quvchi
               </span>
               <span style={{
-                backgroundColor: '#eff6ff',
-                color: '#2563eb',
+                backgroundColor: isCustomGradient() ? 'rgba(255, 255, 255, 0.2)' : '#eff6ff',
+                color: isCustomGradient() ? '#ffffff' : '#2563eb',
                 padding: '4px 12px',
                 borderRadius: '16px',
                 fontWeight: 600,
-                fontSize: '0.875rem'
+                fontSize: '0.875rem',
+                border: isCustomGradient() ? '1px solid rgba(255, 255, 255, 0.3)' : 'none'
               }}>
                 {currentUser?.class_group || 'Noma\'lum'} sinf
               </span>
               <span style={{
-                backgroundColor: '#f3f4f6',
-                color: '#374151',
+                backgroundColor: isCustomGradient() ? 'rgba(255, 255, 255, 0.2)' : '#f3f4f6',
+                color: isCustomGradient() ? '#ffffff' : '#374151',
                 padding: '4px 12px',
                 borderRadius: '16px',
                 fontWeight: 600,
-                fontSize: '0.875rem'
+                fontSize: '0.875rem',
+                border: isCustomGradient() ? '1px solid rgba(255, 255, 255, 0.3)' : 'none'
               }}>
                 {currentUser?.direction === 'natural' ? 'Tabiiy fanlar' : currentUser?.direction === 'exact' ? 'Aniq fanlar' : 'Yo\'nalish yo\'q'}
               </span>
@@ -540,8 +610,7 @@ const StudentProfile = () => {
 
 
       {/* Edit Profile Dialog */}
-      <div className="animate__animated animate__zoomIn">
-        <Modal
+      <Modal
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <EditOutlined style={{ color: '#2563eb' }} />
@@ -637,9 +706,68 @@ const StudentProfile = () => {
               Status xabari boshqa o'quvchilarga ko'rinadi
             </Text>
           </div>
+
+          {/* Gradient Selection */}
+          <div style={{ marginBottom: '16px' }}>
+            <Title level={6} style={{ marginBottom: '8px', fontWeight: 600, color: '#1e293b' }}>
+              🎨 Profil fon gradienti
+            </Title>
+            <div 
+              onClick={() => setGradientPickerOpen(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                backgroundColor: '#f9fafb'
+              }}
+            >
+              <div style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '8px',
+                background: selectedGradient?.css || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                border: '2px solid #e2e8f0'
+              }} />
+              <div style={{ flex: 1 }}>
+                <Text style={{ fontWeight: 600, color: '#1e293b' }}>
+                  {selectedGradient?.name || 'Gradient tanlash'}
+                </Text>
+                <Text style={{ display: 'block', fontSize: '0.75rem', color: '#64748b' }}>
+                  Premium profilingiz uchun chiroyli gradient tanlang
+                </Text>
+              </div>
+              <Button type="primary" style={{ backgroundColor: '#2563eb' }}>
+                Tanlash
+              </Button>
+            </div>
+          </div>
+
         </div>
       </Modal>
-      </div>
+
+      {/* Gradient Picker Modal */}
+      <GradientPicker
+        open={gradientPickerOpen}
+        onClose={() => setGradientPickerOpen(false)}
+        selectedGradient={selectedGradient}
+        onGradientSelect={(gradient) => {
+          setSelectedGradient(gradient);
+          setGradientPickerOpen(false);
+        }}
+      />
+
+      {/* Emoji Picker Modal */}
+      <EmojiPicker
+        open={emojiPickerOpen}
+        onClose={() => setEmojiPickerOpen(false)}
+        selectedEmojis={selectedEmojis}
+        onEmojiSelect={setSelectedEmojis}
+        maxEmojis={10}
+      />
     </div>
   );
 };
