@@ -1,11 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../context/ThemeContext';
 import '../styles/Header.css';
 
 const Header = () => {
   const navigate = useNavigate();
-  const { isDarkMode, toggleTheme } = useTheme();
+
 
   return (
     <header className="header">
@@ -26,11 +25,7 @@ const Header = () => {
                 <a className="nav-link" onClick={() => navigate('/contact')}>Bog'lanish</a>
               </div>
               <div className="nav-buttons">
-                <button className="theme-toggle-btn" onClick={toggleTheme}>
-                  <span className="material-symbols-outlined">
-                    {isDarkMode ? 'light_mode' : 'dark_mode'}
-                  </span>
-                </button>
+
                 <button className="btn-secondary" onClick={() => navigate('/login')}>Kirish</button>
               </div>
             </nav>

@@ -1,41 +1,36 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Container, Typography, Button, Box } from '@mui/material';
-import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import Layout from '../components/Layout';
+import '../styles/NotFound.css';
 
 const NotFoundPage = () => {
-  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   return (
-    <Container component="main" maxWidth="md">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          textAlign: 'center',
-        }}
-      >
-        <Typography variant="h1" component="h1" gutterBottom>
-          404
-        </Typography>
-        <Typography variant="h4" component="h2" gutterBottom>
-          Page Not Found
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 4 }}>
-          The page you're looking for doesn't exist or you don't have permission to access it.
-        </Typography>
-
-        <Button
-          variant="contained"
-          component={Link}
-          to={isAuthenticated ? "/" : "/login"}
-        >
-          {isAuthenticated ? 'Go to Dashboard' : 'Go to Login'}
-        </Button>
-      </Box>
-    </Container>
+    <Layout>
+      <div className="not-found-hero">
+        <div className="layout-container">
+          <div className="not-found-content">
+            <h1 className="not-found-code">404</h1>
+            <h2 className="not-found-title">Sahifa topilmadi</h2>
+            <p className="not-found-description">
+              Uzr, siz qidirayotgan sahifa mavjud emas yoki o'chirilgan bo'lishi mumkin. 
+              Iltimos, manzilni tekshiring yoki bosh sahifaga qayting.
+            </p>
+            <div className="not-found-actions">
+              <button className="back-btn" onClick={() => navigate(-1)}>
+                <span className="material-symbols-outlined">arrow_back</span>
+                Orqaga
+              </button>
+              <button className="home-btn" onClick={() => navigate('/')}>
+                <span className="material-symbols-outlined">home</span>
+                Bosh sahifa
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Layout>
   );
 };
 

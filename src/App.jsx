@@ -276,14 +276,12 @@ function App() {
               <StatisticsProvider>
                 <ServerTestProvider>
                 <Router>
-              <Routes>
-                {/* Global route loading indicator */}
-                <Route path="*" element={
+                  {/* Global route loading indicator */}
                   <RouteLoadingIndicator 
                     showFullScreen={false}
                     threshold={300}
                   />
-                } />
+                  <Routes>
                 {/* Test routes - Health check and testing endpoints */}
                 <Route path="/test" element={<TestPage />} />
                 <Route path="/health" element={

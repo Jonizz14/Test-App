@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import UnbanModal from '../components/UnbanModal';
-import SettingsButton from '../components/SettingsButton';
+
 import { CustomFullScreenLoader } from '../components/CustomLoader';
 import { Alert } from 'antd';
 import logoImage from '../assets/image.png';
@@ -142,7 +142,7 @@ const LoginPage = () => {
 
   return (
     <div className="login-page">
-      <SettingsButton />
+
 
       {/* Custom Full Screen Loader */}
       {loading && (
