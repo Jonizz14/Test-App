@@ -12,6 +12,8 @@ import { ThemeProvider as CustomThemeProvider } from './context/ThemeContext';
 import { LoadingProvider } from './context/LoadingContext';
 import { registerSW } from './utils/serviceWorker';
 import RouteLoadingIndicator from './components/RouteLoadingIndicator';
+import { SavedItemsProvider } from './context/SavedItemsContext';
+import { SentMessagesProvider } from './context/SentMessagesContext';
 
 // Import pages (we'll create these next)
 import LoginPage from './pages/LoginPage';
@@ -23,6 +25,8 @@ import SellerDashboard from './pages/SellerDashboard';
 import NotFoundPage from './pages/NotFoundPage';
 import Home from './pages/Home';
 import Contact from './pages/Contact';
+import Onboarding from './pages/Onboarding';
+
 
 import Questions from './pages/admin/Questions';
 
@@ -250,6 +254,8 @@ const TestPage = () => {
   );
 };
 
+import HelpButton from './components/HelpButton';
+
 // Main App component - Entry point of the application
 // Provides routing, authentication, theming, and error handling
 function App() {
@@ -273,96 +279,106 @@ function App() {
         <CustomThemeProvider>
           <LoadingProvider>
             <AuthProvider>
-              <StatisticsProvider>
-                <ServerTestProvider>
-                <Router>
-                  {/* Global route loading indicator */}
-                  <RouteLoadingIndicator 
-                    showFullScreen={false}
-                    threshold={300}
-                  />
-                  <Routes>
-                {/* Test routes - Health check and testing endpoints */}
-                <Route path="/test" element={<TestPage />} />
-                <Route path="/health" element={
-                  <div className="center p-4">
-                    ✅ App is healthy! Port: {window.location.port}
-                  </div>
-                } />
+              <SentMessagesProvider>
+                <SavedItemsProvider>
+                  <StatisticsProvider>
+                    <ServerTestProvider>
+                    <Router>
+                      <HelpButton />
+                      {/* Global route loading indicator */}
+                      <RouteLoadingIndicator 
+                        showFullScreen={false}
+                        threshold={300}
+                      />
+                      <Routes>
+                    {/* Test routes - Health check and testing endpoints */}
+                    <Route path="/test" element={<TestPage />} />
+                    <Route path="/health" element={
+                      <div className="center p-4">
+                        ✅ App is healthy! Port: {window.location.port}
+                      </div>
+                    } />
 
-                {/* Public routes - Accessible without authentication */}
-                <Route path="/login" element={<LoginPage />} />
+                    {/* Public routes - Accessible without authentication */}
+                    <Route path="/login" element={<LoginPage />} />
 
-                <Route path="/user/password/questions" element={<Questions />} />
+                    <Route path="/user/password/questions" element={<Questions />} />
 
-                {/* Protected routes - Require authentication and specific roles */}
-                <Route
-                  path="/headadmin/*"
-                  element={
-                    <HeadAdminRoute>
-                      <HeadAdminDashboard />
-                    </HeadAdminRoute>
-                  }
-                />
+                    {/* Protected routes - Require authentication and specific roles */}
+                    <Route
+                      path="/headadmin/*"
+                      element={
+                        <HeadAdminRoute>
+                          <HeadAdminDashboard />
+                        </HeadAdminRoute>
+                      }
+                    />
 
-                <Route
-                  path="/admin/*"
-                  element={
-                    <AdminRoute>
-                      <AdminDashboard />
-                    </AdminRoute>
-                  }
-                />
+                    <Route
+                      path="/admin/*"
+                      element={
+                        <AdminRoute>
+                          <AdminDashboard />
+                        </AdminRoute>
+                      }
+                    />
 
-                <Route
-                  path="/teacher/*"
-                  element={
-                    <TeacherRoute>
-                      <TeacherDashboard />
-                    </TeacherRoute>
-                  }
-                />
+                    <Route
+                      path="/teacher/*"
+                      element={
+                        <TeacherRoute>
+                          <TeacherDashboard />
+                        </TeacherRoute>
+                      }
+                    />
 
-                <Route
-                  path="/student/*"
-                  element={
-                    <StudentRoute>
-                      <StudentDashboard />
-                    </StudentRoute>
-                  }
-                />
+                    <Route
+                      path="/student/*"
+                      element={
+                        <StudentRoute>
+                          <StudentDashboard />
+                        </StudentRoute>
+                      }
+                    />
 
-                <Route
-                  path="/seller/*"
-                  element={
-                    <SellerRoute>
-                      <SellerDashboard />
-                    </SellerRoute>
-                  }
-                />
+                    <Route
+                      path="/seller/*"
+                      element={
+                        <SellerRoute>
+                          <SellerDashboard />
+                        </SellerRoute>
+                      }
+                    />
 
-                {/* Home page */}
-                <Route path="/" element={<Home />} />
-                
-                {/* Contact page */}
-                <Route path="/contact" element={<Contact />} />
+                    {/* Home page */}
+                    <Route path="/" element={<Home />} />
+                    
+                    {/* Contact page */}
+                    <Route path="/contact" element={<Contact />} />
 
-                {/* Dashboard redirect based on user role */}
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <RoleBasedRedirect />
-                    </ProtectedRoute>
-                  }
-                />
+                    {/* Onboarding / Welcome page */}
+                    <Route path="/welcome" element={<Onboarding />} />
 
-                {/* 404 page - Catch all unmatched routes */}
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
-              </Router>
-                </ServerTestProvider>
-              </StatisticsProvider>
+
+
+                    {/* Dashboard redirect based on user role */}
+                    <Route
+                      path="/dashboard"
+                      element={
+                        <ProtectedRoute>
+                          <RoleBasedRedirect />
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    {/* 404 page - Catch all unmatched routes */}
+                    <Route path="*" element={<NotFoundPage />} />
+                  </Routes>
+                  </Router>
+                    </ServerTestProvider>
+                  </StatisticsProvider>
+                </SavedItemsProvider>
+              </SentMessagesProvider>
             </AuthProvider>
           </LoadingProvider>
         </CustomThemeProvider>

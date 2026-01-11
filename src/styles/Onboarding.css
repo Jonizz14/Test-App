@@ -1,0 +1,248 @@
+.onboarding-brutalist {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  color: #000;
+}
+f
+.onboarding-bg-brutal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(90deg, #f0f0f0 1px, transparent 1px),
+    linear-gradient(#f0f0f0 1px, transparent 1px);
+  background-size: 50px 50px; /* Modern grid background */
+  z-index: 1;
+}
+
+.onboarding-bg-brutal::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, transparent 0%, rgba(255,255,255,0.8) 100%);
+  z-index: 2;
+}
+
+.onboarding-card-brutal {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 600px;
+  min-height: 750px; /* Fixed height for all steps */
+  background: #fff;
+  border: 4px solid #000;
+  border-radius: 0;
+  padding: 4rem;
+  box-shadow: 20px 20px 0px #000;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.onboarding-header-brutal {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4rem;
+}
+
+.step-count-brutal {
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  background: #000;
+  color: #fff;
+  padding: 0.5rem 1rem;
+}
+
+.brutal-label-box {
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 2px solid #000;
+  padding: 0.5rem 1rem;
+}
+
+.onboarding-content-brutal {
+  text-align: left;
+  flex-grow: 1; /* Push footer down */
+}
+
+.brutal-title {
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 1rem;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+}
+
+.brutal-subtitle {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #666;
+  margin-bottom: 2rem;
+  letter-spacing: 0.05em;
+}
+
+.brutal-divider {
+  width: 60px;
+  height: 8px;
+  background: #000;
+  margin-bottom: 2.5rem;
+}
+
+.brutal-description {
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: #333;
+  margin-bottom: 4rem;
+  font-weight: 500;
+}
+
+.onboarding-footer-brutal {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.brutal-nav-group {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.brutal-nav-btn {
+  flex: 1;
+  padding: 1.5rem;
+  background: #fff;
+  border: 2px solid #000;
+  color: #000;
+  font-weight: 900;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.brutal-nav-btn:hover:not(.inactive) {
+  background: #f0f0f0;
+  transform: translate(-4px, -4px);
+  box-shadow: 4px 4px 0px #000;
+}
+
+.brutal-nav-btn.inactive {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.brutal-action-btn {
+  flex: 2;
+  padding: 1.5rem;
+  background: #000;
+  color: #fff;
+  border: 2px solid #000;
+  font-weight: 900;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.brutal-action-btn:hover {
+  background: #fff;
+  color: #000;
+  transform: translate(-4px, -4px);
+  box-shadow: 4px 4px 0px #000;
+}
+
+.brutal-skip-link {
+  background: none;
+  border: none;
+  color: #999;
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  width: fit-content;
+}
+
+.brutal-skip-link:hover {
+  color: #000;
+  text-decoration: underline;
+}
+
+/* Animations matching Login Header style */
+.brutal-title, .brutal-subtitle, .brutal-description, .onboarding-card-brutal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.onboarding-brutalist:not(.entering) .onboarding-card-brutal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.onboarding-brutalist:not(.entering) .brutal-title { opacity: 1; transform: translateY(0); transition-delay: 0.2s; }
+.onboarding-brutalist:not(.entering) .brutal-subtitle { opacity: 1; transform: translateY(0); transition-delay: 0.3s; }
+.onboarding-brutalist:not(.entering) .brutal-description { opacity: 1; transform: translateY(0); transition-delay: 0.4s; }
+
+/* Exit Logic */
+.onboarding-brutalist.exiting {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: all 0.6s ease-in;
+}
+
+/* Mobile */
+@media (max-width: 650px) {
+  .onboarding-card-brutal {
+    padding: 2.5rem 1.5rem;
+    width: 90%;
+  }
+  .brutal-title {
+    font-size: 2.2rem;
+  }
+  .brutal-nav-group {
+    flex-direction: column;
+  }
+}
+
+/* Header reveal animation */
+.onboarding-header-reveal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10000;
+  opacity: 0;
+  transform: translateY(-100%);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.onboarding-header-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}

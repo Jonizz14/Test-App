@@ -1,0 +1,93 @@
+/* HelpButton.css - Brutalist Floating Help Button */
+.help-button-container {
+  position: fixed;
+  top: 1.5rem; /* Aligns with Header top */
+  left: 2rem;
+  z-index: 2900; /* Just below header if overlap, but usually side-by-side */
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  animation: helpEntrance 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.8s;
+}
+
+@keyframes helpEntrance {
+  0% {
+    transform: translateX(-50px) scale(0.8);
+    opacity: 0;
+    filter: blur(10px);
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.help-btn {
+  display: flex;
+  align-items: center;
+  height: 50px;
+  width: 50px; /* Initial width - circle */
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 25px; /* Fully rounded ends */
+  color: white;
+  cursor: pointer;
+  overflow: hidden;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  padding: 0;
+  white-space: nowrap;
+}
+
+.help-btn:hover {
+  width: 320px; /* Expanded width to fit text */
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  background: #000000;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.help-icon-box {
+  min-width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.help-icon {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.help-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity 0.3s ease 0.1s, transform 0.3s ease 0.1s;
+  padding-right: 1.5rem;
+}
+
+.help-btn:hover .help-text {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Pulse animation for the icon to draw attention initially */
+@keyframes softPulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+.help-btn:not(:hover) {
+  animation: softPulse 3s infinite;
+}

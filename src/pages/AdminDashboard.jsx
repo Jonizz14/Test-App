@@ -40,6 +40,7 @@ import TestsPage from './admin/TestsPage';
 import StatisticsPage from './admin/StatisticsPage';
 
 // Import components
+import CustomHeader from '../components/Header';
 import BannedStudentsModal from '../components/BannedStudentsModal';
 
 const { Header, Sider, Content } = Layout;
@@ -224,6 +225,7 @@ const AdminDashboard = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
+      <CustomHeader />
       {/* Header */}
       <Header
         style={{
