@@ -6,11 +6,13 @@ import { useAuth } from "../context/AuthContext";
 import { showSuccess, showError } from "../utils/antdNotification";
 import { useSentMessages } from "../context/SentMessagesContext";
 import "../styles/Contact.css";
+import { useTranslation } from "react-i18next";
 
 const Contact = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { addMessage } = useSentMessages();
+  const { t } = useTranslation();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [myMessages, setMyMessages] = useState([]);
@@ -77,18 +79,18 @@ const Contact = () => {
         
         // Trigger header notification
         window.dispatchEvent(new CustomEvent('itemSaved', { 
-          detail: { title: "Xabar yuborildi", icon: 'send', isFullMessage: true } 
+          detail: { title: t('contact.successSent'), icon: 'send', isFullMessage: true } 
         }));
       }, 1300);
       
-      showSuccess(response.message || 'Xabaringiz muvaffaqiyatli yuborildi!');
+      showSuccess(response.message || t('contact.successSent'));
       
       // Reset form
       e.target.reset();
       
     } catch (error) {
       console.error('Failed to send message:', error);
-      showError('Xabar yuborishda xatolik yuz berdi. Iltimos, qaytadan urinib ko\'ring.');
+      showError(t('contact.errorSent'));
     } finally {
       setIsSubmitting(false);
     }
@@ -136,11 +138,11 @@ const Contact = () => {
 
   const getSubjectText = (subject) => {
     switch (subject) {
-      case 'technical': return 'Texnik yordam';
-      case 'billing': return 'To\'lov masalalari';
-      case 'feature': return 'Yangi funksiya taklifi';
-      case 'partnership': return 'Hamkorlik';
-      case 'other': return 'Boshqa';
+      case 'technical': return t('contact.subjects.technical');
+      case 'billing': return t('contact.subjects.billing');
+      case 'feature': return t('contact.subjects.feature');
+      case 'partnership': return t('contact.subjects.partnership');
+      case 'other': return t('contact.subjects.other');
       default: return subject;
     }
   };
@@ -192,8 +194,8 @@ const Contact = () => {
         {/* Contact Hero - Dark Section */}
         <section className="contact-modern-hero">
           <div className="section-container">
-            <h1>BOG'LANING</h1>
-            <p className="description">Savollaringiz bormi? Biz bilan bog'laning.</p>
+            <h1>{t('contact.heroTitle')}</h1>
+            <p className="description">{t('contact.heroDesc')}</p>
           </div>
         </section>
 
@@ -202,23 +204,23 @@ const Contact = () => {
           <div className="section-container">
             <div className="split-layout">
               <div className="split-content">
-                <h2>XABAR YUBORING</h2>
+                <h2>{t('contact.formTitle')}</h2>
                 <form className="minimal-form" onSubmit={handleSubmit}>
                   <div className="input-row">
-                    <input type="text" name="name" placeholder="ISMINGIZ" required />
-                    <input type="email" name="email" placeholder="EMAIL" required />
+                    <input type="text" name="name" placeholder={t('contact.namePlaceholder')} required />
+                    <input type="email" name="email" placeholder={t('contact.emailPlaceholder')} required />
                   </div>
-                  <input type="tel" name="phone" placeholder="TELEFON" />
+                  <input type="tel" name="phone" placeholder={t('contact.phonePlaceholder')} />
                   <select name="subject" required>
-                    <option value="">MAVZUNI TANLANG</option>
-                    <option value="technical">Texnik yordam</option>
-                    <option value="billing">To'lov masalalari</option>
-                    <option value="feature">Yangi funksiya taklifi</option>
-                    <option value="other">Boshqa</option>
+                    <option value="">{t('contact.selectSubject')}</option>
+                    <option value="technical">{t('contact.subjects.technical')}</option>
+                    <option value="billing">{t('contact.subjects.billing')}</option>
+                    <option value="feature">{t('contact.subjects.feature')}</option>
+                    <option value="other">{t('contact.subjects.other')}</option>
                   </select>
-                  <textarea name="message" placeholder="XABARINGIZNI YOZING..." rows="4" required></textarea>
+                  <textarea name="message" placeholder={t('contact.messagePlaceholder')} rows="4" required></textarea>
                   <button type="submit" className="btn-modern-submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'YUBORILMOQDA...' : 'YUBORISH'}
+                    {isSubmitting ? t('contact.sending') : t('contact.send')}
                   </button>
                 </form>
               </div>
@@ -229,19 +231,19 @@ const Contact = () => {
         {/* Contact info grid - Dark Section */}
         <section className="contact-modern-info">
           <div className="section-container">
-            <h2>BIZNING MANZIL</h2>
+            <h2>{t('contact.ourAddress')}</h2>
             <div className="stats-grid-large">
               <div className="stat-box" onClick={() => window.open('tel:+998901234567')}>
-                <span className="stat-label">TELEFON</span>
+                <span className="stat-label">{t('contact.phone')}</span>
                 <span className="stat-number">+998 90 123 45 67</span>
               </div>
               <div className="stat-box" onClick={() => window.open('mailto:info@examify.uz')}>
-                <span className="stat-label">EMAIL</span>
+                <span className="stat-label">{t('contact.email')}</span>
                 <span className="stat-number">info@examify.uz</span>
               </div>
               <div className="stat-box">
-                <span className="stat-label">MANZIL</span>
-                <span className="stat-number">SERGELI, TOSHKENT</span>
+                <span className="stat-label">{t('contact.address')}</span>
+                <span className="stat-number">{t('contact.addressText')}</span>
               </div>
             </div>
           </div>
@@ -251,9 +253,9 @@ const Contact = () => {
         {currentUser && (
           <section className="contact-modern-messages">
              <div className="section-container">
-                <h2>MENING XABARLARIM</h2>
+                <h2>{t('contact.myMessages')}</h2>
                 {myMessages.length === 0 ? (
-                  <p>Hozircha xabarlar mavjud emas.</p>
+                  <p>{t('contact.noHistory')}</p>
                 ) : (
                   <div className="modern-message-list">
                     {myMessages.slice(0, 3).map(msg => (

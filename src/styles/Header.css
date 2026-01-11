@@ -264,12 +264,17 @@
 }
 
 .header-storage-area.visible {
-  height: 316px; /* 380px - 64px */
+  height: 316px; /* Default for saved/messages */
   padding: 1.2rem 2rem;
   border-top-color: rgba(255, 255, 255, 0.1);
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
+}
+
+/* Expansion for AI Chat */
+.header.messages-expanded .header-storage-area.visible:has(.ai-chat-header-section) {
+  height: 700px;
 }
 
 .storage-content-wrapper {
@@ -668,4 +673,109 @@
 .dropdown-item:hover {
   background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
+}
+
+/* Language Switcher Styles */
+.lang-icon {
+  width: 44px !important; /* Force visible */
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  overflow: visible !important;
+  background: #ffffff;
+  color: #000;
+  transition: all 0.3s ease;
+  padding: 0 10px;
+}
+
+.lang-icon:hover {
+  background: #f0f0f0;
+}
+
+.lang-icon.active {
+  background: #3b82f6 !important;
+  color: white !important;
+}
+
+.current-lang-code {
+  font-size: 0.7rem;
+  font-weight: 800;
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: #000;
+  color: #fff;
+  padding: 1px 3px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.header.lang-expanded {
+  height: 140px;
+  border-radius: 40px;
+  background: rgba(0, 0, 0, 0.98);
+}
+
+.header-lang-area {
+  width: 100%;
+  height: 0;
+  overflow: hidden;
+  padding: 0 2rem;
+  opacity: 0;
+  visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header-lang-area.visible {
+  height: 76px;
+  opacity: 1;
+  visibility: visible;
+}
+
+.lang-options {
+  display: flex;
+  gap: 1rem;
+}
+
+.lang-option {
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lang-option:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.lang-option.active {
+  background: #ffffff;
+  color: rgb(0, 0, 0);
+  border-color: #000000;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* AI Chat Icon Styling */
+.ai-icon {
+  width: 44px;
+  height: 44px;
+  background: transparent !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.5rem;
 }

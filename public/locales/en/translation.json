@@ -1,0 +1,185 @@
+{
+    "welcome": "Welcome",
+    "language": "Language",
+    "nav": {
+        "dashboard": "Dashboard",
+        "teachers": "Teachers",
+        "students": "Students",
+        "statistics": "Statistics",
+        "total": "Total",
+        "classes": "Classes",
+        "tests": "Tests",
+        "ratings": "Ratings",
+        "cabinet": "Cabinet",
+        "results": "Results",
+        "home": "Home",
+        "schoolSite": "Our School Site",
+        "contact": "Contact",
+        "login": "Login",
+        "logout": "Logout",
+        "profile": "Profile",
+        "systemMessages": "System Messages",
+        "noNewMessages": "No new messages yet",
+        "savedData": "Saved Data",
+        "clearAll": "Clear All",
+        "sentMessages": "Sent Messages",
+        "clear": "Clear",
+        "noSubject": "No Subject",
+        "notifications": "Notifications",
+        "close": "Close",
+        "saved": "saved",
+        "changeLanguage": "Change Language",
+        "aiAssistant": "AI Assistant"
+    },
+    "home": {
+        "heroTitle": "EXAMIFY PREP",
+        "heroSubtitle": "Start your future here. Modern solution for specialized education.",
+        "start": "Get Started",
+        "moreInfo": "More Info",
+        "forWhom": "FOR WHOM?",
+        "forWhomDesc": "Unified platform for Teachers, Students and Administrators",
+        "roles": {
+            "student": {
+                "title": "STUDENT",
+                "desc": "Test your knowledge and track your results.",
+                "details": [
+                    "Interactive tests and textbooks",
+                    "Personal success statistics",
+                    "Error analysis for self-improvement",
+                    "Weekly ratings and prize olympiads"
+                ]
+            },
+            "teacher": {
+                "title": "TEACHER",
+                "desc": "Create tests and monitor student statistics.",
+                "details": [
+                    "Automatic checking and grading system",
+                    "Group and student progress management",
+                    "Library of ready-made methodological resources",
+                    "Formation of individual learning trajectories"
+                ]
+            },
+            "admin": {
+                "title": "ADMINISTRATOR",
+                "desc": "Fully control the system and manage processes.",
+                "details": [
+                    "Full user and role control",
+                    "System security and data protection",
+                    "Comprehensive analytics and reporting",
+                    "Digitization of School/Center activities"
+                ]
+            }
+        },
+        "save": "Save",
+        "alreadySaved": "This information is already saved",
+        "tech": "MODERN TECHNOLOGIES",
+        "techDesc": "Our platform is built on the latest and most secure technologies",
+        "features": {
+            "analytics": {
+                "title": "Real Time Analysis",
+                "desc": "Track and analyze results online. Monitor every test process live."
+            },
+            "security": {
+                "title": "Secure System",
+                "desc": "Protected test processes and personal data. We put your safety first."
+            },
+            "flexibility": {
+                "title": "Flexibility",
+                "desc": "Convenient interface and fast performance on any device — from phone to computer."
+            }
+        },
+        "stats": "WE IN NUMBERS",
+        "statsLabels": {
+            "tests": "Created Tests",
+            "students": "Active Students",
+            "teachers": "Qualified Teachers",
+            "attempts": "Completed Tests"
+        }
+    },
+    "onboarding": {
+        "steps": {
+            "welcome": {
+                "title": "WELCOME",
+                "subtitle": "STEP INTO THE WORLD OF EXAMIFY PREP",
+                "desc": "Through our platform, you can control your knowledge and conquer new heights.",
+                "label": "START"
+            },
+            "nav": {
+                "title": "NAVIGATION PANEL",
+                "subtitle": "MAIN PANEL LOCATED AT TOP",
+                "desc": "The main navigation panel is located at the top of the site. Through it, you can quickly go to any section of the site.",
+                "label": "HEADER"
+            },
+            "save": {
+                "title": "SAVING SYSTEM",
+                "subtitle": "DON'T MISS ANYTHING",
+                "desc": "Save necessary information via the 'Inventory' icon on the top panel. You can return to them at any time.",
+                "label": "SAVED"
+            },
+            "messages": {
+                "title": "MESSAGES CENTER",
+                "subtitle": "STAY IN TOUCH",
+                "desc": "Don't forget to use the special 'Messages' section to contact us and track your sent messages.",
+                "label": "MESSAGES"
+            },
+            "profile": {
+                "title": "PERSONAL PROFILE",
+                "subtitle": "TRACK YOUR ACHIEVEMENTS",
+                "desc": "Enter your profile and use extended features suitable for your role (Admin, Teacher, Student).",
+                "label": "PROFILE"
+            },
+            "ready": {
+                "title": "ARE YOU READY?",
+                "subtitle": "LET'S START!",
+                "desc": "Everything is ready. Now you are ready to use the full capabilities of the platform.",
+                "label": "READY"
+            }
+        },
+        "back": "BACK",
+        "next": "NEXT",
+        "ready": "I'M READY",
+        "skip": "SKIP SETUP"
+    },
+    "contact": {
+        "heroTitle": "CONTACT US",
+        "heroDesc": "Have questions? Contact us.",
+        "formTitle": "SEND A MESSAGE",
+        "namePlaceholder": "YOUR NAME",
+        "emailPlaceholder": "EMAIL",
+        "phonePlaceholder": "PHONE",
+        "selectSubject": "SELECT SUBJECT",
+        "subjects": {
+            "technical": "Technical Support",
+            "billing": "Billing Issues",
+            "feature": "New Feature Suggestion",
+            "partnership": "Partnership",
+            "other": "Other"
+        },
+        "messagePlaceholder": "WRITE YOUR MESSAGE...",
+        "sending": "SENDING...",
+        "send": "SEND",
+        "ourAddress": "OUR ADDRESS",
+        "phone": "PHONE",
+        "email": "EMAIL",
+        "address": "ADDRESS",
+        "addressText": "SERGELI, TASHKENT",
+        "myMessages": "MY MESSAGES",
+        "noHistory": "No messages yet.",
+        "successSent": "Message sent successfully!",
+        "errorSent": "Error sending message. Please try again."
+    },
+    "login": {
+        "title": "EXAMIFY PREP",
+        "subtitle": "Enter details to login to your profile",
+        "idOrEmail": "ID OR EMAIL",
+        "idPlaceholder": "Your ID number",
+        "password": "PASSWORD",
+        "loggingIn": "Logging in...",
+        "login": "Login",
+        "backHome": "Return to home",
+        "systemLogin": "Logging into system...",
+        "loadingData": "Loading data...",
+        "welcome": "Welcome!",
+        "error": "Login error occurred"
+    }
+}

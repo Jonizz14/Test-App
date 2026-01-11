@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import '../styles/Onboarding.css';
+import { useTranslation } from 'react-i18next';
 
 const Onboarding = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
   const [isEntering, setIsEntering] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const timer = setTimeout(() => setIsEntering(false), 100);
@@ -16,47 +18,47 @@ const Onboarding = () => {
 
   const steps = [
     {
-      title: "HUSH KELIBSIZ",
-      subtitle: "EXAMIFY PREP DUNYOSIGA QADAM QO'YING",
-      description: "Bizning platforma orqali siz o'z bilimlaringizni nazorat qilishingiz va yangi cho'qqilarni zabt etishingiz mumkin.",
-      label: "BOSHLASH",
+      title: t('onboarding.steps.welcome.title'),
+      subtitle: t('onboarding.steps.welcome.subtitle'),
+      description: t('onboarding.steps.welcome.desc'),
+      label: t('onboarding.steps.welcome.label'),
       highlightElement: null
     },
     {
-      title: "NAVIGATSIYA PANELI",
-      subtitle: "TEPA QISMDA JOYLASHTIRILGAN ASOSIY PANEL",
-      description: "Saytning yuqori qismida asosiy navigatsiya paneli joylashgan. U orqali siz saytning istalgan bo'limiga tezda o'tishingiz mumkin.",
-      label: "HEADER",
+      title: t('onboarding.steps.nav.title'),
+      subtitle: t('onboarding.steps.nav.subtitle'),
+      description: t('onboarding.steps.nav.desc'),
+      label: t('onboarding.steps.nav.label'),
       highlightElement: "header"
     },
     {
-      title: "SAQLASH TIZIMI",
-      subtitle: "HECH NARRSANI BOY BERMANG",
-      description: "Kerakli ma'lumotlarni tepa paneldagi 'Inventory' iconkasi orqali saqlab qo'ying. Ularga xohlagan vaqtda qaytishingiz mumkin.",
-      label: "SAQLANGANLAR",
+      title: t('onboarding.steps.save.title'),
+      subtitle: t('onboarding.steps.save.subtitle'),
+      description: t('onboarding.steps.save.desc'),
+      label: t('onboarding.steps.save.label'),
       highlightElement: "storage",
       demoAction: "save"
     },
     {
-      title: "XABARLAR MARKAZI",
-      subtitle: "DOIMIY ALOQADA BO'LING",
-      description: "Biz bilan bog'lanish va yuborilgan xabarlaringizni kuzatib borish uchun maxsus 'Messages' bo'limidan foydalanishni unutmang.",
-      label: "XABARLAR",
+      title: t('onboarding.steps.messages.title'),
+      subtitle: t('onboarding.steps.messages.subtitle'),
+      description: t('onboarding.steps.messages.desc'),
+      label: t('onboarding.steps.messages.label'),
       highlightElement: "messages",
       demoAction: "message"
     },
     {
-      title: "SHAXSIY PROFIL",
-      subtitle: "O'Z YUTUQLARINGIZNI KUZATING",
-      description: "Profilingizga kiring va o'z rolingizga mos (Admin, Ustoz, O'quvchi) kengaytirilgan imkoniyatlardan foydalaning.",
-      label: "PROFIL",
+      title: t('onboarding.steps.profile.title'),
+      subtitle: t('onboarding.steps.profile.subtitle'),
+      description: t('onboarding.steps.profile.desc'),
+      label: t('onboarding.steps.profile.label'),
       highlightElement: "profile"
     },
     {
-      title: "TAYYORMISIZ?",
-      subtitle: "KELING, BOSHLAYMIZ!",
-      description: "Hamma narsa tayyor. Endi siz platformaning to'liq imkoniyatlaridan foydalanishga tayyorsiz.",
-      label: "TAYYOR",
+      title: t('onboarding.steps.ready.title'),
+      subtitle: t('onboarding.steps.ready.subtitle'),
+      description: t('onboarding.steps.ready.desc'),
+      label: t('onboarding.steps.ready.label'),
       highlightElement: null
     }
   ];
@@ -145,21 +147,21 @@ const Onboarding = () => {
               onClick={handleBack}
               disabled={currentStep === 0}
             >
-              ORQAGA
+              {t('onboarding.back')}
             </button>
             
             {currentStep === steps.length - 1 ? (
               <button className="brutal-action-btn" onClick={finishOnboarding}>
-                TAYYORMAN
+                {t('onboarding.ready')}
               </button>
             ) : (
               <button className="brutal-nav-btn" onClick={handleNext}>
-                KEYINGI
+                {t('onboarding.next')}
               </button>
             )}
           </div>
           
-          <button className="brutal-skip-link" onClick={finishOnboarding}>SOZLAMANI O'TKAZIB YUBORISH</button>
+          <button className="brutal-skip-link" onClick={finishOnboarding}>{t('onboarding.skip')}</button>
         </div>
       </div>
     </div>

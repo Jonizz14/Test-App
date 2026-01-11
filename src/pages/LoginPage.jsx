@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import UnbanModal from '../components/UnbanModal';
 import Layout from '../components/Layout';
 import '../styles/Login.css';
+import { useTranslation } from "react-i18next";
 
 const LoginPage = () => {
   const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -18,6 +19,7 @@ const LoginPage = () => {
   const { login, currentUser, isAuthenticated, isBanned, isUserCached } = useAuth();
   const navigate = useNavigate();
   const [bannedUser, setBannedUser] = useState(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const timer = setTimeout(() => setIsEntering(false), 100);
@@ -59,11 +61,11 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
     setBannedUser(null);
-    triggerIsland('loading', 'Tizimga kirilmoqda...');
+    triggerIsland('loading', t('login.systemLogin'));
 
     try {
       if (isUserCached(loginData.email)) {
-        triggerIsland('loading', 'Ma\'lumotlar yuklanmoqda...');
+        triggerIsland('loading', t('login.loadingData'));
         await new Promise(r => setTimeout(r, 1500));
       }
 
@@ -75,11 +77,11 @@ const LoginPage = () => {
         return;
       }
 
-      triggerIsland('success', `Xush kelibsiz!`);
+      triggerIsland('success', t('login.welcome'));
       await new Promise(r => setTimeout(r, 1500));
       
     } catch (err) {
-      triggerIsland('error', err.message || 'Login xatosi yuz berdi');
+      triggerIsland('error', err.message || t('login.error'));
     } finally {
       setLoading(false);
     }
@@ -111,27 +113,27 @@ const LoginPage = () => {
           <div className="login-card-modern glass-effect-modern">
             <div className="login-card-header-modern">
 
-              <h1>EXAMIFY PREP</h1>
-              <p>Profilingizga kirish uchun ma'lumotlarni kiriting</p>
+              <h1>{t('login.title')}</h1>
+              <p>{t('login.subtitle')}</p>
             </div>
 
             <form onSubmit={handleLoginSubmit} className="modern-login-form-content">
               <div className="modern-input-group-field">
-                <label>ID YOKI EMAIL</label>
+                <label>{t('login.idOrEmail')}</label>
                 <div className="input-wrapper-modern">
                   <input
                     type="text"
                     name="email"
                     value={loginData.email}
                     onChange={handleLoginChange}
-                    placeholder="ID raqamingiz"
+                    placeholder={t('login.idPlaceholder')}
                     required
                   />
                 </div>
               </div>
 
               <div className="modern-input-group-field">
-                <label>PAROL</label>
+                <label>{t('login.password')}</label>
                 <div className="input-wrapper-modern">
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -154,16 +156,16 @@ const LoginPage = () => {
                 {loading ? (
                   <div className="btn-loader-modern">
                     <div className="spinner-modern"></div>
-                    <span>Kirish...</span>
+                    <span>{t('login.loggingIn')}</span>
                   </div>
                 ) : (
-                  <span>Kirish</span>
+                  <span>{t('login.login')}</span>
                 )}
               </button>
             </form>
 
             <button className="minimal-back-btn-modern" onClick={() => navigate('/')}>
-              Bosh sahifaga qaytish
+              {t('login.backHome')}
             </button>
           </div>
         </div>

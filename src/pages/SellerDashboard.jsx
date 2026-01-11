@@ -8,7 +8,7 @@ import {
   UsergroupAddOutlined,
   DollarOutlined,
   LogoutOutlined,
-  SettingOutlined,
+
   UserOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../context/AuthContext';
@@ -57,19 +57,6 @@ const SellerDashboard = () => {
   };
 
   const userMenuItems = [
-    {
-      key: 'profile',
-      icon: <UserOutlined />,
-      label: 'Profil',
-    },
-    {
-      key: 'settings',
-      icon: <SettingOutlined />,
-      label: 'Sozlamalar',
-    },
-    {
-      type: 'divider',
-    },
     {
       key: 'logout',
       icon: <LogoutOutlined />,

@@ -4,6 +4,8 @@ import '../styles/Header.css';
 import { useSavedItems } from '../context/SavedItemsContext';
 import { useSentMessages } from '../context/SentMessagesContext';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
+import AIChat from './AIChat';
 
 const Header = ({ demoMode = false }) => {
   const navigate = useNavigate();
@@ -13,9 +15,12 @@ const Header = ({ demoMode = false }) => {
   const { sentMessages, removeMessage, clearMessages } = useSentMessages();
   const { currentUser, isAuthenticated, logout } = useAuth();
   
+  const { t, i18n } = useTranslation();
   const [showSaved, setShowSaved] = React.useState(false);
   const [showMessages, setShowMessages] = React.useState(false);
   const [showNotifications, setShowNotifications] = React.useState(false);
+  const [showLanguages, setShowLanguages] = React.useState(false);
+  const [showAIChat, setShowAIChat] = React.useState(false);
   
   const [notification, setNotification] = React.useState(null);
   const [isVisible, setIsVisible] = React.useState(false);
@@ -59,9 +64,9 @@ const Header = ({ demoMode = false }) => {
   React.useEffect(() => {
     const handleClickOutside = (event) => {
       if (headerRef.current && !headerRef.current.contains(event.target)) {
-        setShowSaved(false);
-        setShowMessages(false);
         setShowNotifications(false);
+        setShowLanguages(false);
+        // Don't auto close AI chat on outside click immediately as it has its own overlay
       }
     };
 
@@ -91,47 +96,47 @@ const Header = ({ demoMode = false }) => {
     if (location.pathname.startsWith('/admin') || location.pathname.startsWith('/headadmin')) {
       const dashboardPath = currentUser?.role === 'head_admin' ? '/headadmin' : '/admin';
       return [
-        { label: 'Boshqaruv', path: dashboardPath },
-        { label: "O'qituvchilar", path: '/admin/teachers' },
-        { label: "O'quvchilar", path: '/admin/students' },
+        { label: t('nav.dashboard'), path: dashboardPath },
+        { label: t('nav.teachers'), path: '/admin/teachers' },
+        { label: t('nav.students'), path: '/admin/students' },
         { 
-          label: 'Statistika', 
+          label: t('nav.statistics'), 
           children: [
-            { label: 'Jami', path: '/admin/statistics' },
-            { label: 'Sinflar', path: '/admin/classes' },
-            { label: "O'quvchilar", path: '/admin/students-page' },
-            { label: 'Testlar', path: '/admin/tests-page' }
+            { label: t('nav.total'), path: '/admin/statistics' },
+            { label: t('nav.classes'), path: '/admin/classes' },
+            { label: t('nav.students'), path: '/admin/students-page' },
+            { label: t('nav.tests'), path: '/admin/tests-page' }
           ]
         },
         { 
-          label: 'Reytinglar', 
+          label: t('nav.ratings'), 
           children: [
-            { label: 'Sinflar', path: '/admin/class-stats' },
-            { label: "O'quvchilar", path: '/admin/student-ratings' },
-            { label: 'Testlar', path: '/admin/test-stats' }
+            { label: t('nav.classes'), path: '/admin/class-stats' },
+            { label: t('nav.students'), path: '/admin/student-ratings' },
+            { label: t('nav.tests'), path: '/admin/test-stats' }
           ]
         }
       ];
     }
     if (location.pathname.startsWith('/teacher')) {
       return [
-        { label: 'Kabinet', path: '/teacher' },
-        { label: 'Sinflar', path: '/teacher/classes' },
-        { label: 'Testlar', path: '/teacher/tests' }
+        { label: t('nav.cabinet'), path: '/teacher' },
+        { label: t('nav.classes'), path: '/teacher/classes' },
+        { label: t('nav.tests'), path: '/teacher/tests' }
       ];
     }
     if (location.pathname.startsWith('/student')) {
       return [
-        { label: 'Kabinet', path: '/student' },
-        { label: 'Testlar', path: '/student/tests' },
-        { label: 'Natijalar', path: '/student/results' }
+        { label: t('nav.cabinet'), path: '/student' },
+        { label: t('nav.tests'), path: '/student/tests' },
+        { label: t('nav.results'), path: '/student/results' }
       ];
     }
     // Default Home Links
     return [
-      { label: 'Bosh sahifa', path: '/', isAction: true },
-      { label: 'Maktabimiz sayti', href: 'https://sergelitim.uz', isExternal: true },
-      { label: "Bog'lanish", path: '/contact', isAction: true }
+      { label: t('nav.home'), path: '/', isAction: true },
+      { label: t('nav.schoolSite'), href: 'https://sergelitim.uz', isExternal: true },
+      { label: t('nav.contact'), path: '/contact', isAction: true }
     ];
   };
 
@@ -154,6 +159,8 @@ const Header = ({ demoMode = false }) => {
     if (showSaved && savedItems.length > 0) classes.push('storage-expanded');
     if (showMessages && sentMessages.length > 0) classes.push('messages-expanded');
     if (showNotifications) classes.push('messages-expanded'); // Reuse expanded style
+    if (showLanguages && !isDashboard) classes.push('lang-expanded');
+    if (showAIChat) classes.push('messages-expanded'); // Expand for AI too
     
     // Only apply dashboard-mode (collapsed) if it IS a dashboard AND NOT expanded
     if (isDashboard && !isDashboardExpanded) {
@@ -174,6 +181,8 @@ const Header = ({ demoMode = false }) => {
     setShowSaved(false);
     setShowMessages(false);
     setShowNotifications(false);
+    setShowLanguages(false);
+    setShowAIChat(false);
   };
 
   const toggleSaved = () => {
@@ -181,6 +190,8 @@ const Header = ({ demoMode = false }) => {
       setShowSaved(!showSaved);
       setShowMessages(false);
       setShowNotifications(false);
+      setShowLanguages(false);
+      setShowAIChat(false);
     }
   };
 
@@ -189,6 +200,8 @@ const Header = ({ demoMode = false }) => {
       setShowMessages(!showMessages);
       setShowSaved(false);
       setShowNotifications(false);
+      setShowLanguages(false);
+      setShowAIChat(false);
     }
   };
 
@@ -196,6 +209,24 @@ const Header = ({ demoMode = false }) => {
     setShowNotifications(!showNotifications);
     setShowSaved(false);
     setShowMessages(false);
+    setShowLanguages(false);
+    setShowAIChat(false);
+  };
+
+  const toggleLanguages = () => {
+    setShowLanguages(!showLanguages);
+    setShowSaved(false);
+    setShowMessages(false);
+    setShowNotifications(false);
+    setShowAIChat(false);
+  };
+
+  const toggleAIChat = () => {
+    setShowAIChat(!showAIChat);
+    setShowSaved(false);
+    setShowMessages(false);
+    setShowNotifications(false);
+    setShowLanguages(false);
   };
 
   const handleProfileClick = () => {
@@ -281,7 +312,7 @@ const Header = ({ demoMode = false }) => {
               <div className="nav-buttons">
                 {isDashboard ? (
                   <>
-                    <button className="btn-secondary" onClick={logout} style={{ background: '#ff4757', color: 'white' }}>Chiqish</button>
+                    <button className="btn-secondary" onClick={logout} style={{ background: '#ff4757', color: 'white' }}>{t('nav.logout')}</button>
                     
                     {/* Dashboard Notification Icon */}
                     <div 
@@ -296,17 +327,37 @@ const Header = ({ demoMode = false }) => {
                 ) : (
                   <>
                     {(isAuthenticated || demoMode) ? (
-                      <button className="btn-secondary" onClick={(e) => { if (demoMode) e.preventDefault(); else handleProfileClick(); }} style={{ cursor: demoMode ? 'default' : 'pointer' }}>Profil</button>
+                      <button className="btn-secondary" onClick={(e) => { if (demoMode) e.preventDefault(); else handleProfileClick(); }} style={{ cursor: demoMode ? 'default' : 'pointer' }}>{t('nav.profile')}</button>
                     ) : (
-                      <button className="btn-secondary" onClick={() => !demoMode && navigate('/login')} style={{ cursor: demoMode ? 'default' : 'pointer' }}>Kirish</button>
+                      <button className="btn-secondary" onClick={() => !demoMode && navigate('/login')} style={{ cursor: demoMode ? 'default' : 'pointer' }}>{t('nav.login')}</button>
                     )}
+
+                    {/* AI Chat Toggle */}
+                    <div 
+                      className={`storage-icon-container ai-icon ${showAIChat ? 'active' : ''}`}
+                      onClick={toggleAIChat}
+                      title={t('nav.aiAssistant')}
+                      style={{ overflow: 'visible' }}
+                    >
+                      <div className="ai-orb"></div>
+                    </div>
+
+                    {/* Language Switcher */}
+                    <div 
+                      className={`storage-icon-container lang-icon ${showLanguages ? 'active' : ''}`}
+                      onClick={toggleLanguages}
+                      title={t('nav.changeLanguage')}
+                    >
+                      <span className="material-symbols-outlined">language</span>
+                      <span className="current-lang-code">{i18n.language ? i18n.language.split('-')[0].toUpperCase() : 'UZ'}</span>
+                    </div>
       
                     {/* Messages Icon */}
                     <div 
                       className={`storage-icon-container message-icon ${sentMessages.length > 0 ? 'is-visible' : ''} ${showMessages ? 'active' : ''}`}
                       onClick={toggleMessages}
                       id="header-message-icon"
-                      title="Yuborilgan xabarlar"
+                      title={t('nav.sentMessages')}
                     >
                       <span className="material-symbols-outlined">forum</span>
                       <span className="item-count msg-count">{sentMessages.length}</span>
@@ -317,7 +368,7 @@ const Header = ({ demoMode = false }) => {
                       className={`storage-icon-container has-items ${savedItems.length > 0 ? 'is-visible' : ''} ${showSaved ? 'active' : ''}`}
                       onClick={toggleSaved}
                       id="header-storage-bin"
-                      title="Saqlanganlar"
+                      title={t('nav.savedData')}
                     >
                       <span className="material-symbols-outlined">inventory_2</span>
                       <span className="item-count">{savedItems.length}</span>
@@ -333,16 +384,16 @@ const Header = ({ demoMode = false }) => {
         <div className={`header-storage-area ${showNotifications && isDashboard ? 'visible' : ''}`}>
           <div className="storage-content-wrapper">
             <div className="storage-header">
-              <h3>Bildirishnomalar</h3>
-              <button className="clear-minimal-btn" onClick={() => setShowNotifications(false)}>Yopish</button>
+              <h3>{t('nav.notifications')}</h3>
+              <button className="clear-minimal-btn" onClick={() => setShowNotifications(false)}>{t('nav.close')}</button>
             </div>
             <div className="saved-items-grid">
                <div className="saved-item-row">
                   <div className="item-main">
                     <span className="material-symbols-outlined">info</span>
                     <div className="item-text">
-                      <h4>Tizim xabarlari</h4>
-                      <p>Hozircha yangi xabarlar yo'q</p>
+                      <h4>{t('nav.systemMessages')}</h4>
+                      <p>{t('nav.noNewMessages')}</p>
                     </div>
                   </div>
                </div>
@@ -354,11 +405,11 @@ const Header = ({ demoMode = false }) => {
         <div className={`header-storage-area ${showSaved && savedItems.length > 0 && !isDashboard ? 'visible' : ''}`}>
           <div className="storage-content-wrapper">
             <div className="storage-header">
-              <h3>Saqlangan Ma'lumotlar</h3>
+              <h3>{t('nav.savedData')}</h3>
               <button className="clear-minimal-btn" onClick={() => {
                 clearItems();
                 setShowSaved(false);
-              }}>Barchasini o'chirish</button>
+              }}>{t('nav.clearAll')}</button>
             </div>
             
             <div className="saved-items-grid">
@@ -384,11 +435,11 @@ const Header = ({ demoMode = false }) => {
         <div className={`header-storage-area header-messages-area ${showMessages && sentMessages.length > 0 && !isDashboard ? 'visible' : ''}`}>
           <div className="storage-content-wrapper">
             <div className="storage-header">
-              <h3>Yuborilgan Xabarlar</h3>
+              <h3>{t('nav.sentMessages')}</h3>
               <button className="clear-minimal-btn" onClick={() => {
                 clearMessages();
                 setShowMessages(false);
-              }}>Tozalash</button>
+              }}>{t('nav.clear')}</button>
             </div>
             
             <div className="saved-items-grid">
@@ -397,7 +448,7 @@ const Header = ({ demoMode = false }) => {
                   <div className="item-main">
                     <span className="material-symbols-outlined">mail</span>
                     <div className="item-text">
-                      <h4>{msg.subject || 'Mavzusiz xabar'}</h4>
+                      <h4>{msg.subject || t('nav.noSubject')}</h4>
                       <p className="msg-preview">{msg.message}</p>
                       <span className="msg-date">{new Date(msg.date).toLocaleDateString('uz-UZ')}</span>
                     </div>
@@ -407,6 +458,32 @@ const Header = ({ demoMode = false }) => {
                   </button>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Language Selection Area */}
+        <div className={`header-storage-area header-lang-area ${showLanguages && !isDashboard ? 'visible' : ''}`}>
+          <div className="storage-content-wrapper" style={{ justifyContent: 'center' }}>
+            <div className="lang-options">
+              <button 
+                className={`lang-option ${i18n.language?.startsWith('uz') ? 'active' : ''}`} 
+                onClick={() => i18n.changeLanguage('uz')}
+              >
+                <span>🇺🇿</span> O'zbekcha
+              </button>
+              <button 
+                className={`lang-option ${i18n.language?.startsWith('ru') ? 'active' : ''}`} 
+                onClick={() => i18n.changeLanguage('ru')}
+              >
+                <span>🇷🇺</span> Русский
+              </button>
+              <button 
+                className={`lang-option ${i18n.language?.startsWith('en') ? 'active' : ''}`} 
+                onClick={() => i18n.changeLanguage('en')}
+              >
+                <span>🇺🇸</span> English
+              </button>
             </div>
           </div>
         </div>
@@ -421,12 +498,17 @@ const Header = ({ demoMode = false }) => {
               ) : (
                 <>
                   <span className="save-title">{notification.title}</span>
-                  <span className="save-text"> saqlandi</span>
+                  <span className="save-text"> {t('nav.saved')}</span>
                 </>
               )}
             </div>
           </div>
         )}
+
+        {/* AI Chat Integrated Area */}
+        <div className={`header-storage-area ${showAIChat && !isDashboard ? 'visible' : ''}`}>
+           <AIChat isOpen={showAIChat} />
+        </div>
       </header>
     </>
   );

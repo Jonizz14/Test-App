@@ -4,10 +4,12 @@ import Layout from "../components/Layout";
 import apiService from "../data/apiService";
 import "../styles/Home.css";
 import { useSavedItems } from "../context/SavedItemsContext";
+import { useTranslation } from "react-i18next";
 
 const Home = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
+  const { t } = useTranslation();
 
   const videoRef = React.useRef(null);
 
@@ -72,7 +74,7 @@ const Home = () => {
     // Check if duplicate before running any animation or logic
     if (savedItems.find(i => i.id === role.id)) {
       window.dispatchEvent(new CustomEvent('saveError', { 
-        detail: { message: "Bu informatsiya allaqachon saqlangan", icon: 'warning' } 
+        detail: { message: t('home.alreadySaved'), icon: 'warning' } 
       }));
       return;
     }
@@ -132,38 +134,23 @@ const Home = () => {
     {
       id: 'student',
       icon: 'school',
-      title: "O'QUVCHI",
-      description: "Bilimingizni sinovdan o'tkazing va natijalarni kuzatib boring.",
-      details: [
-        "Interaktiv testlar va darsliklar",
-        "Shaxsiy muvaffaqiyat statistikasi",
-        "O'z ustingizda ishlash uchun xatolar tahlili",
-        "Haftalik reyting va sovrinli olimpiadalar"
-      ]
+      title: t('home.roles.student.title'),
+      description: t('home.roles.student.desc'),
+      details: t('home.roles.student.details', { returnObjects: true })
     },
     {
       id: 'teacher',
       icon: 'cast_for_education',
-      title: "O'QITUVCHI",
-      description: "Testlar tuzing va o'quvchilarni statistikasini kuzatib boring.",
-      details: [
-        "Avtomatik tekshirish va baholash tizimi",
-        "Guruhlar va o'quvchilar progress boshqaruvi",
-        "Tayyor metodik manbalar kutubxonasi",
-        "Individual ta'lim traektoriyasini shakllantirish"
-      ]
+      title: t('home.roles.teacher.title'),
+      description: t('home.roles.teacher.desc'),
+      details: t('home.roles.teacher.details', { returnObjects: true })
     },
     {
       id: 'admin',
       icon: 'admin_panel_settings',
-      title: "ADMINISTRATOR",
-      description: "Tizimni to'liq nazorat qiling va jarayonlarni boshqaring.",
-      details: [
-        "To'liq foydalanuvchilar va rollar nazorati",
-        "Tizim xavfsizligi va ma'lumotlar himoyasi",
-        "Keng qamrovli analitika va hisobotlar",
-        "Maktab/Markaz faoliyatini raqamlashtirish"
-      ]
+      title: t('home.roles.admin.title'),
+      description: t('home.roles.admin.desc'),
+      details: t('home.roles.admin.details', { returnObjects: true })
     }
   ];
 
@@ -179,14 +166,14 @@ const Home = () => {
         </div>
         
         <div className="hero-content">
-          <h1>EXAMIFY PREP</h1>
-          <p>Kelajagingizni shu yerdan boshlang. Ixtisoslashtirilgan ta'lim uchun zamonaviy yechim.</p>
+          <h1>{t('home.heroTitle')}</h1>
+          <p>{t('home.heroSubtitle')}</p>
           <div className="hero-actions">
             <button className="btn-hero-primary" onClick={() => navigate('/login')}>
-              Boshlash
+              {t('home.start')}
             </button>
             <button className="btn-hero-outline" onClick={() => scrollToSection('.users-section')}>
-              Ko'proq ma'lumot
+              {t('home.moreInfo')}
             </button>
           </div>
         </div>
@@ -196,8 +183,8 @@ const Home = () => {
       <section className="users-section">
         <div className="section-container">
           <div className="section-header">
-            <h2>KIMLAR UCHUN?</h2>
-            <p>O'qituvchilar, O'quvchilar va Ma'murlar uchun yagona platforma</p>
+            <h2>{t('home.forWhom')}</h2>
+            <p>{t('home.forWhomDesc')}</p>
           </div>
           
           <div className="roles-showcase">
@@ -218,7 +205,7 @@ const Home = () => {
                   </div>
                   <button className="save-info-btn" onClick={(e) => handleSaveInfo(e, role)}>
                     <span className="material-symbols-outlined">content_copy</span>
-                    <span>Saqlash</span>
+                    <span>{t('home.save')}</span>
                   </button>
                 </div>
               </div>
@@ -231,8 +218,8 @@ const Home = () => {
       <section className="features-section">
         <div className="section-container">
           <div className="section-header">
-            <h2>ZAMONAVIY TEXNOLOGIYALAR</h2>
-            <p>Platformamiz eng so'nggi va xavfsiz texnologiyalar asosida yaratilgan</p>
+            <h2>{t('home.tech')}</h2>
+            <p>{t('home.techDesc')}</p>
           </div>
           
           <div className="features-grid">
@@ -241,8 +228,8 @@ const Home = () => {
                 <div className="feature-icon">
                   <span className="material-symbols-outlined">analytics</span>
                 </div>
-                <h3>Real Vaqt Tahlili</h3>
-                <p>Natijalarni onlayn kuzatish va tahlil qilish imkoniyati. Har bir test jarayonini jonli kuzatib boring.</p>
+                <h3>{t('home.features.analytics.title')}</h3>
+                <p>{t('home.features.analytics.desc')}</p>
                 <div className="feature-visual">
                   <img src="/banner/inf1.png" alt="Analysis" className="feature-img" />
                 </div>
@@ -254,8 +241,8 @@ const Home = () => {
                 <div className="feature-icon">
                   <span className="material-symbols-outlined">security</span>
                 </div>
-                <h3>Xavfsiz Tizim</h3>
-                <p>Himoyalangan test jarayonlari va shaxsiy ma'lumotlar. Biz sizning xavfsizligingizni birinchi o'ringa qo'yamiz.</p>
+                <h3>{t('home.features.security.title')}</h3>
+                <p>{t('home.features.security.desc')}</p>
                 <div className="feature-visual">
                   <img src="/banner/inf2.png" alt="Security" className="feature-img" />
                 </div>
@@ -267,8 +254,8 @@ const Home = () => {
                 <div className="feature-icon">
                   <span className="material-symbols-outlined">devices</span>
                 </div>
-                <h3>Moslashuvchanlik</h3>
-                <p>Har qanday qurilmada — telefondan tortib kompyutergacha — qulay interfeys va tezkor ishlash.</p>
+                <h3>{t('home.features.flexibility.title')}</h3>
+                <p>{t('home.features.flexibility.desc')}</p>
                 <div className="feature-visual">
                    <img src="/banner/inf3.png" alt="Flexibility" className="feature-img" />
                 </div>
@@ -282,25 +269,25 @@ const Home = () => {
       <section className="stats-section">
         <div className="section-container">
           <div className="stats-header">
-             <h2>RAQAMLARDA BIZ</h2>
+             <h2>{t('home.stats')}</h2>
           </div>
           
           <div className="stats-grid-large">
             <div className="stat-box">
               <span className="stat-number">{stats?.tests_count || 1500}+</span>
-              <span className="stat-label">Yaratilgan Testlar</span>
+              <span className="stat-label">{t('home.statsLabels.tests')}</span>
             </div>
             <div className="stat-box">
               <span className="stat-number">{stats?.students_count || 800}+</span>
-              <span className="stat-label">Faol O'quvchilar</span>
+              <span className="stat-label">{t('home.statsLabels.students')}</span>
             </div>
             <div className="stat-box">
               <span className="stat-number">{stats?.teachers_count || 50}+</span>
-              <span className="stat-label">Malakali Ustozlar</span>
+              <span className="stat-label">{t('home.statsLabels.teachers')}</span>
             </div>
             <div className="stat-box">
               <span className="stat-number">{stats?.attempts_count || 12000}+</span>
-              <span className="stat-label">Topshirilgan Testlar</span>
+              <span className="stat-label">{t('home.statsLabels.attempts')}</span>
             </div>
           </div>
         </div>

@@ -1,0 +1,185 @@
+{
+    "welcome": "Xush kelibsiz",
+    "language": "Til",
+    "nav": {
+        "dashboard": "Boshqaruv",
+        "teachers": "O'qituvchilar",
+        "students": "O'quvchilar",
+        "statistics": "Statistika",
+        "total": "Jami",
+        "classes": "Sinflar",
+        "tests": "Testlar",
+        "ratings": "Reytinglar",
+        "cabinet": "Kabinet",
+        "results": "Natijalar",
+        "home": "Bosh sahifa",
+        "schoolSite": "Maktabimiz sayti",
+        "contact": "Bog'lanish",
+        "login": "Kirish",
+        "logout": "Chiqish",
+        "profile": "Profil",
+        "systemMessages": "Tizim xabarlari",
+        "noNewMessages": "Hozircha yangi xabarlar yo'q",
+        "savedData": "Saqlangan Ma'lumotlar",
+        "clearAll": "Barchasini o'chirish",
+        "sentMessages": "Yuborilgan Xabarlar",
+        "clear": "Tozalash",
+        "noSubject": "Mavzusiz xabar",
+        "notifications": "Bildirishnomalar",
+        "close": "Yopish",
+        "saved": "saqlandi",
+        "changeLanguage": "Tilni o'zgartirish",
+        "aiAssistant": "AI Yordamchi"
+    },
+    "home": {
+        "heroTitle": "EXAMIFY PREP",
+        "heroSubtitle": "Kelajagingizni shu yerdan boshlang. Ixtisoslashtirilgan ta'lim uchun zamonaviy yechim.",
+        "start": "Boshlash",
+        "moreInfo": "Ko'proq ma'lumot",
+        "forWhom": "KIMLAR UCHUN?",
+        "forWhomDesc": "O'qituvchilar, O'quvchilar va Ma'murlar uchun yagona platforma",
+        "roles": {
+            "student": {
+                "title": "O'QUVCHI",
+                "desc": "Bilimingizni sinovdan o'tkazing va natijalarni kuzatib boring.",
+                "details": [
+                    "Interaktiv testlar va darsliklar",
+                    "Shaxsiy muvaffaqiyat statistikasi",
+                    "O'z ustingizda ishlash uchun xatolar tahlili",
+                    "Haftalik reyting va sovrinli olimpiadalar"
+                ]
+            },
+            "teacher": {
+                "title": "O'QITUVCHI",
+                "desc": "Testlar tuzing va o'quvchilarni statistikasini kuzatib boring.",
+                "details": [
+                    "Avtomatik tekshirish va baholash tizimi",
+                    "Guruhlar va o'quvchilar progress boshqaruvi",
+                    "Tayyor metodik manbalar kutubxonasi",
+                    "Individual ta'lim traektoriyasini shakllantirish"
+                ]
+            },
+            "admin": {
+                "title": "ADMINISTRATOR",
+                "desc": "Tizimni to'liq nazorat qiling va jarayonlarni boshqaring.",
+                "details": [
+                    "To'liq foydalanuvchilar va rollar nazorati",
+                    "Tizim xavfsizligi va ma'lumotlar himoyasi",
+                    "Keng qamrovli analitika va hisobotlar",
+                    "Maktab/Markaz faoliyatini raqamlashtirish"
+                ]
+            }
+        },
+        "save": "Saqlash",
+        "alreadySaved": "Bu informatsiya allaqachon saqlangan",
+        "tech": "ZAMONAVIY TEXNOLOGIYALAR",
+        "techDesc": "Platformamiz eng so'nggi va xavfsiz texnologiyalar asosida yaratilgan",
+        "features": {
+            "analytics": {
+                "title": "Real Vaqt Tahlili",
+                "desc": "Natijalarni onlayn kuzatish va tahlil qilish imkoniyati. Har bir test jarayonini jonli kuzatib boring."
+            },
+            "security": {
+                "title": "Xavfsiz Tizim",
+                "desc": "Himoyalangan test jarayonlari va shaxsiy ma'lumotlar. Biz sizning xavfsizligingizni birinchi o'ringa qo'yamiz."
+            },
+            "flexibility": {
+                "title": "Moslashuvchanlik",
+                "desc": "Har qanday qurilmada — telefondan tortib kompyutergacha — qulay interfeys va tezkor ishlash."
+            }
+        },
+        "stats": "RAQAMLARDA BIZ",
+        "statsLabels": {
+            "tests": "Yaratilgan Testlar",
+            "students": "Faol O'quvchilar",
+            "teachers": "Malakali Ustozlar",
+            "attempts": "Topshirilgan Testlar"
+        }
+    },
+    "onboarding": {
+        "steps": {
+            "welcome": {
+                "title": "XUSH KELIBSIZ",
+                "subtitle": "EXAMIFY PREP DUNYOSIGA QADAM QO'YING",
+                "desc": "Bizning platforma orqali siz o'z bilimlaringizni nazorat qilishingiz va yangi cho'qqilarni zabt etishingiz mumkin.",
+                "label": "BOSHLASH"
+            },
+            "nav": {
+                "title": "NAVIGATSIYA PANELI",
+                "subtitle": "TEPA QISMDA JOYLASHTIRILGAN ASOSIY PANEL",
+                "desc": "Saytning yuqori qismida asosiy navigatsiya paneli joylashgan. U orqali siz saytning istalgan bo'limiga tezda o'tishingiz mumkin.",
+                "label": "HEADER"
+            },
+            "save": {
+                "title": "SAQLASH TIZIMI",
+                "subtitle": "HECH NARRSANI BOY BERMANG",
+                "desc": "Kerakli ma'lumotlarni tepa paneldagi 'Inventory' iconkasi orqali saqlab qo'ying. Ularga xohlagan vaqtda qaytishingiz mumkin.",
+                "label": "SAQLANGANLAR"
+            },
+            "messages": {
+                "title": "XABARLAR MARKAZI",
+                "subtitle": "DOIMIY ALOQADA BO'LING",
+                "desc": "Biz bilan bog'lanish va yuborilgan xabarlaringizni kuzatib borish uchun maxsus 'Messages' bo'limidan foydalanishni unutmang.",
+                "label": "XABARLAR"
+            },
+            "profile": {
+                "title": "SHAXSIY PROFIL",
+                "subtitle": "O'Z YUTUQLARINGIZNI KUZATING",
+                "desc": "Profilingizga kiring va o'z rolingizga mos (Admin, Ustoz, O'quvchi) kengaytirilgan imkoniyatlardan foydalaning.",
+                "label": "PROFIL"
+            },
+            "ready": {
+                "title": "TAYYORMISIZ?",
+                "subtitle": "KELING, BOSHLAYMIZ!",
+                "desc": "Hamma narsa tayyor. Endi siz platformaning to'liq imkoniyatlaridan foydalanishga tayyorsiz.",
+                "label": "TAYYOR"
+            }
+        },
+        "back": "ORQAGA",
+        "next": "KEYINGI",
+        "ready": "TAYYORMAN",
+        "skip": "SOZLAMANI O'TKAZIB YUBORISH"
+    },
+    "contact": {
+        "heroTitle": "BOG'LANING",
+        "heroDesc": "Savollaringiz bormi? Biz bilan bog'laning.",
+        "formTitle": "XABAR YUBORING",
+        "namePlaceholder": "ISMINGIZ",
+        "emailPlaceholder": "EMAIL",
+        "phonePlaceholder": "TELEFON",
+        "selectSubject": "MAVZUNI TANLANG",
+        "subjects": {
+            "technical": "Texnik yordam",
+            "billing": "To'lov masalalari",
+            "feature": "Yangi funksiya taklifi",
+            "partnership": "Hamkorlik",
+            "other": "Boshqa"
+        },
+        "messagePlaceholder": "XABARINGIZNI YOZING...",
+        "sending": "YUBORILMOQDA...",
+        "send": "YUBORISH",
+        "ourAddress": "BIZNING MANZIL",
+        "phone": "TELEFON",
+        "email": "EMAIL",
+        "address": "MANZIL",
+        "addressText": "SERGELI, TOSHKENT",
+        "myMessages": "MENING XABARLARIM",
+        "noHistory": "Hozircha xabarlar mavjud emas.",
+        "successSent": "Xabar muvaffaqiyatli yuborildi!",
+        "errorSent": "Xabar yuborishda xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring."
+    },
+    "login": {
+        "title": "EXAMIFY PREP",
+        "subtitle": "Profilingizga kirish uchun ma'lumotlarni kiriting",
+        "idOrEmail": "ID YOKI EMAIL",
+        "idPlaceholder": "ID raqamingiz",
+        "password": "PAROL",
+        "loggingIn": "Kirish...",
+        "login": "Kirish",
+        "backHome": "Bosh sahifaga qaytish",
+        "systemLogin": "Tizimga kirilmoqda...",
+        "loadingData": "Ma'lumotlar yuklanmoqda...",
+        "welcome": "Xush kelibsiz!",
+        "error": "Login xatosi yuz berdi"
+    }
+}

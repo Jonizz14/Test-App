@@ -356,7 +356,7 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
 }
 
 .role-details {
-  transform: translateY(101%); /* Start hidden below the card boundary */
+  transform: translateY(130%); /* Start hidden below the card boundary */
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   margin-top: 2rem;
   text-align: left;
@@ -364,7 +364,7 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
 }
 
 .role-item:hover .role-details {
-  transform: translateY(0);
+  transform: translateY(-100px);
 }
 
 .role-details ul {

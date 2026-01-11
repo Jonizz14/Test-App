@@ -255,6 +255,7 @@ const TestPage = () => {
 };
 
 import HelpButton from './components/HelpButton';
+import TextSelectionHandler from './components/TextSelectionHandler';
 
 // Main App component - Entry point of the application
 // Provides routing, authentication, theming, and error handling
@@ -284,6 +285,7 @@ function App() {
                   <StatisticsProvider>
                     <ServerTestProvider>
                     <Router>
+                      <TextSelectionHandler />
                       <HelpButton />
                       {/* Global route loading indicator */}
                       <RouteLoadingIndicator 
