@@ -13,27 +13,32 @@
 
 .ai-chat-container {
   position: relative;
-  background: rgba(10, 10, 10, 0.85);
-  backdrop-filter: blur(30px);
+  background: rgba(255, 255, 255, 0.03); /* Minimalist transparent bg */
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
   border-radius: 30px;
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  /* New animated gradient border from orange to purple */
-  border: 2px solid transparent;
-  background-image: linear-gradient(rgba(10, 10, 10, 0.85), rgba(10, 10, 10, 0.85)), 
-                    linear-gradient(45deg, #ff9500, #ff5e3a, #ff2d55, #5856d6, #af52de);
-  background-origin: border-box;
-  background-clip: padding-box, border-box;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
-  animation: borderGlowFlow 6s infinite alternate;
+  /* Shiny Glow Border */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 0 20px rgba(59, 130, 246, 0.3),
+    0 0 40px rgba(168, 85, 247, 0.2),
+    inset 0 0 20px rgba(255, 255, 255, 0.05);
+  animation: shinyGlow 4s infinite alternate ease-in-out;
 }
 
-@keyframes borderGlowFlow {
-  0% { background-position: 0% 50%; border-color: rgba(255, 149, 0, 0.3); }
-  50% { background-position: 100% 50%; border-color: rgba(175, 82, 222, 0.3); }
-  100% { background-position: 0% 50%; border-color: rgba(255, 149, 0, 0.3); }
+@keyframes shinyGlow {
+  0% { 
+    border-color: rgba(59, 130, 246, 0.5); 
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  }
+  100% { 
+    border-color: rgba(168, 85, 247, 0.5); 
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.4);
+  }
 }
 
 .ai-messages-list {
@@ -88,7 +93,7 @@
 
 .ai-message.assistant {
   align-self: flex-start;
-  background: linear-gradient(135deg, rgba(88, 86, 214, 0.2), rgba(0, 122, 255, 0.2));
+  background: rgba(255, 255, 255, 0.05); /* Clean minimalist bg */
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
   border-bottom-left-radius: 4px;
@@ -327,4 +332,3 @@
 @keyframes shimmerText {
   to { background-position: 200% center; }
 }
-

@@ -105,22 +105,28 @@
                 "label": "BOSHLASH"
             },
             "nav": {
-                "title": "NAVIGATSIYA PANELI",
+                "title": "DYNAMIC ISLAND",
                 "subtitle": "TEPA QISMDA JOYLASHTIRILGAN ASOSIY PANEL",
                 "desc": "Saytning yuqori qismida asosiy navigatsiya paneli joylashgan. U orqali siz saytning istalgan bo'limiga tezda o'tishingiz mumkin.",
-                "label": "HEADER"
+                "label": "DYNAMIC ISLAND"
             },
             "save": {
-                "title": "SAQLASH TIZIMI",
-                "subtitle": "HECH NARRSANI BOY BERMANG",
-                "desc": "Kerakli ma'lumotlarni tepa paneldagi 'Inventory' iconkasi orqali saqlab qo'ying. Ularga xohlagan vaqtda qaytishingiz mumkin.",
-                "label": "SAQLANGANLAR"
+                "title": "SAQLASH TIZIMI (STORAGE)",
+                "subtitle": "HECH NARSANI BOY BERMANG",
+                "desc": "Kerakli testlar yoki ma'lumotlarni tepa paneldagi 'Inventory' iconkasi orqali saqlab qo'ying. Bu bo'lim sizga muhim narsalarni doim qo'l ostingizda saqlashga yordam beradi.",
+                "label": "STORAGE"
             },
             "messages": {
-                "title": "XABARLAR MARKAZI",
+                "title": "XABARLAR MARKAZI (MESSAGES)",
                 "subtitle": "DOIMIY ALOQADA BO'LING",
-                "desc": "Biz bilan bog'lanish va yuborilgan xabarlaringizni kuzatib borish uchun maxsus 'Messages' bo'limidan foydalanishni unutmang.",
-                "label": "XABARLAR"
+                "desc": "Yuborilgan xabarlaringiz va tizim bildirishnomalarini shu bo'limda kuzatishingiz mumkin. Markazlashtirilgan xabarlar boshqaruvi bilan hech bir ma'lumot e'tiborsiz qolmaydi.",
+                "label": "MESSAGES"
+            },
+            "ai": {
+                "title": "AI YORDAMCHI (EXAMIFY AI)",
+                "subtitle": "APPLE INTELLIGENCE USLUBIDA",
+                "desc": "Platformadagi AI yordamchi sizga testlarni tushuntirishda, savollarga javob berishda va o'qish jarayonini osonlashtirishda yordam beradi. Uni xohlagan vaqtingizda ishga tushirishingiz mumkin.",
+                "label": "AI CHAT"
             },
             "profile": {
                 "title": "SHAXSIY PROFIL",

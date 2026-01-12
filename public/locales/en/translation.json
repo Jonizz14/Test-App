@@ -105,22 +105,28 @@
                 "label": "START"
             },
             "nav": {
-                "title": "NAVIGATION PANEL",
+                "title": "DYNAMIC ISLAND",
                 "subtitle": "MAIN PANEL LOCATED AT TOP",
                 "desc": "The main navigation panel is located at the top of the site. Through it, you can quickly go to any section of the site.",
-                "label": "HEADER"
+                "label": "DYNAMIC ISLAND"
             },
             "save": {
-                "title": "SAVING SYSTEM",
+                "title": "SAVING SYSTEM (STORAGE)",
                 "subtitle": "DON'T MISS ANYTHING",
-                "desc": "Save necessary information via the 'Inventory' icon on the top panel. You can return to them at any time.",
-                "label": "SAVED"
+                "desc": "Save necessary tests or information via the 'Inventory' icon on the top panel. This section helps you always keep important things at hand.",
+                "label": "STORAGE"
             },
             "messages": {
-                "title": "MESSAGES CENTER",
+                "title": "MESSAGES CENTER (MESSAGES)",
                 "subtitle": "STAY IN TOUCH",
-                "desc": "Don't forget to use the special 'Messages' section to contact us and track your sent messages.",
+                "desc": "You can track your sent messages and system notifications in this section. With centralized message management, no information will go unnoticed.",
                 "label": "MESSAGES"
+            },
+            "ai": {
+                "title": "AI ASSISTANT (EXAMIFY AI)",
+                "subtitle": "APPLE INTELLIGENCE STYLE",
+                "desc": "The AI assistant on the platform will help you in explaining tests, answering questions, and facilitate the learning process. You can launch it at any time.",
+                "label": "AI CHAT"
             },
             "profile": {
                 "title": "PERSONAL PROFILE",

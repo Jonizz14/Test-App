@@ -48,6 +48,14 @@ const Onboarding = () => {
       demoAction: "message"
     },
     {
+      title: t('onboarding.steps.ai.title'),
+      subtitle: t('onboarding.steps.ai.subtitle'),
+      description: t('onboarding.steps.ai.desc'),
+      label: t('onboarding.steps.ai.label'),
+      highlightElement: "ai",
+      demoAction: "ai"
+    },
+    {
       title: t('onboarding.steps.profile.title'),
       subtitle: t('onboarding.steps.profile.subtitle'),
       description: t('onboarding.steps.profile.desc'),
@@ -112,6 +120,18 @@ const Onboarding = () => {
             icon: 'mail',
             isFullMessage: true,
             message: 'Demo xabar muvaffaqiyatli yuborildi'
+          }
+        }));
+      }, 800);
+    } else if (currentStepData.demoAction === 'ai') {
+      // Simulate AI Assistant notification
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('itemSaved', {
+          detail: {
+            title: 'Examify AI',
+            icon: 'smart_toy',
+            isFullMessage: true,
+            message: 'AI Yordamchi har doim siz bilan!'
           }
         }));
       }, 800);

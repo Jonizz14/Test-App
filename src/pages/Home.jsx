@@ -14,13 +14,6 @@ const Home = () => {
   const videoRef = React.useRef(null);
 
   useEffect(() => {
-    const hasSeen = localStorage.getItem('hasSeenOnboarding');
-    if (!hasSeen) {
-      navigate('/welcome');
-    }
-  }, [navigate]);
-
-  useEffect(() => {
     if (videoRef.current) {
       videoRef.current.playbackRate = 0.5;
     }

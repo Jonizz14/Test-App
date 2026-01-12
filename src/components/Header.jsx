@@ -21,6 +21,7 @@ const Header = ({ demoMode = false }) => {
   const [showNotifications, setShowNotifications] = React.useState(false);
   const [showLanguages, setShowLanguages] = React.useState(false);
   const [showAIChat, setShowAIChat] = React.useState(false);
+  const [showAIFullscreen, setShowAIFullscreen] = React.useState(false);
   
   const [notification, setNotification] = React.useState(null);
   const [isVisible, setIsVisible] = React.useState(false);
@@ -59,6 +60,19 @@ const Header = ({ demoMode = false }) => {
       window.removeEventListener('saveError', handleSaveError);
     };
   }, []);
+
+  // Enforce onboarding for new users
+  React.useEffect(() => {
+    const hasSeen = localStorage.getItem('hasSeenOnboarding');
+    const isPublicPath = ['/welcome', '/test', '/health'].some(path => 
+      location.pathname.startsWith(path)
+    );
+
+    // Special check for demoMode (onboarding page) to avoid infinite loop
+    if (!hasSeen && !demoMode && !isPublicPath) {
+      navigate('/welcome');
+    }
+  }, [demoMode, location.pathname, navigate]);
 
   // Close dropdowns on click outside
   React.useEffect(() => {
@@ -161,6 +175,8 @@ const Header = ({ demoMode = false }) => {
     if (showNotifications) classes.push('messages-expanded'); // Reuse expanded style
     if (showLanguages && !isDashboard) classes.push('lang-expanded');
     if (showAIChat) classes.push('messages-expanded'); // Expand for AI too
+    if (showAIFullscreen) classes.push('ai-fullscreen');
+    if (demoMode) classes.push('demo-mode');
     
     // Only apply dashboard-mode (collapsed) if it IS a dashboard AND NOT expanded
     if (isDashboard && !isDashboardExpanded) {
@@ -183,6 +199,7 @@ const Header = ({ demoMode = false }) => {
     setShowNotifications(false);
     setShowLanguages(false);
     setShowAIChat(false);
+    setShowAIFullscreen(false);
   };
 
   const toggleSaved = () => {
@@ -222,7 +239,9 @@ const Header = ({ demoMode = false }) => {
   };
 
   const toggleAIChat = () => {
-    setShowAIChat(!showAIChat);
+    const newState = !showAIChat;
+    setShowAIChat(newState);
+    setShowAIFullscreen(newState);
     setShowSaved(false);
     setShowMessages(false);
     setShowNotifications(false);
@@ -263,11 +282,11 @@ const Header = ({ demoMode = false }) => {
 
         <div className="layout-container">
           <div className="layout-content-container">
-            <div className="logo-section" onClick={(e) => { if (demoMode) e.preventDefault(); else navigate('/'); }} style={{ cursor: demoMode ? 'default' : 'pointer' }}>
+            <div className={`logo-section ${showAIFullscreen ? 'content-hidden' : ''}`} onClick={(e) => { if (demoMode) e.preventDefault(); else navigate('/'); }} style={{ cursor: demoMode ? 'default' : 'pointer' }}>
               <h2 className="logo-text">Examify Prep</h2>
             </div>
             
-            <nav className="nav-desktop">
+            <nav className={`nav-desktop ${showAIFullscreen ? 'content-hidden' : ''}`}>
               <div className="nav-links">
                 {navLinks.map((link, index) => (
                   <div 
@@ -377,6 +396,13 @@ const Header = ({ demoMode = false }) => {
                 )}
               </div>
             </nav>
+
+            {/* AI Fullscreen Close Button */}
+            {showAIFullscreen && (
+              <div className="ai-close-btn" onClick={handleCollapse} title="Yopish">
+                <span className="material-symbols-outlined">close</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -506,7 +532,7 @@ const Header = ({ demoMode = false }) => {
         )}
 
         {/* AI Chat Integrated Area */}
-        <div className={`header-storage-area ${showAIChat && !isDashboard ? 'visible' : ''}`}>
+        <div className={`header-storage-area ${showAIChat && !isDashboard ? 'visible' : ''} ${showAIFullscreen ? 'fullscreen-chat' : ''}`}>
            <AIChat isOpen={showAIChat} />
         </div>
       </header>
