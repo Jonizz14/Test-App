@@ -8,27 +8,22 @@ import {
   Input,
   Space,
   Alert,
-  Card,
   Select,
   Row,
   Col,
   Badge,
-  Avatar,
-  Divider,
+  ConfigProvider,
 } from 'antd';
 import {
   EyeOutlined,
   MessageOutlined,
-  MailOutlined,
   SearchOutlined,
   FilterOutlined,
-  CloseOutlined,
-  MailTwoTone,
 } from '@ant-design/icons';
 import apiService from '../../data/apiService';
+import 'animate.css';
 
 const { Title, Text, Paragraph } = Typography;
-const { Search } = Input;
 const { TextArea } = Input;
 
 const ContactMessages = () => {
@@ -42,13 +37,11 @@ const ContactMessages = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Fetch contact messages
   const fetchMessages = async () => {
     try {
       setLoading(true);
       const response = await apiService.getContactMessages();
       setMessages(Array.isArray(response) ? response : response.data || []);
-      console.log('Messages fetched:', response);
     } catch (error) {
       console.error('Failed to fetch messages:', error);
     } finally {
@@ -60,7 +53,6 @@ const ContactMessages = () => {
     fetchMessages();
   }, []);
 
-  // Filter messages based on status, subject, and search term
   const filteredMessages = messages.filter(message => {
     const matchesStatus = filterStatus === 'all' || message.status === filterStatus;
     const matchesSubject = filterSubject === 'all' || message.subject === filterSubject;
@@ -72,18 +64,6 @@ const ContactMessages = () => {
     return matchesStatus && matchesSubject && matchesSearch;
   });
 
-  // Get status color
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'new': return 'error';
-      case 'read': return 'warning';
-      case 'replied': return 'success';
-      case 'closed': return 'default';
-      default: return 'default';
-    }
-  };
-
-  // Get status text in Uzbek
   const getStatusText = (status) => {
     switch (status) {
       case 'new': return 'Yangi';
@@ -94,23 +74,21 @@ const ContactMessages = () => {
     }
   };
 
-  // Get subject text in Uzbek
   const getSubjectText = (subject) => {
     switch (subject) {
       case 'technical': return 'Texnik yordam';
       case 'billing': return 'To\'lov masalalari';
-      case 'feature': return 'Yangi funksiya taklifi';
+      case 'feature': return 'Funksiya taklifi';
       case 'partnership': return 'Hamkorlik';
       case 'other': return 'Boshqa';
       default: return subject;
     }
   };
 
-  // Update message status
   const updateMessageStatus = async (messageId, newStatus) => {
     try {
       await apiService.updateContactMessageStatus(messageId, { status: newStatus });
-      setSuccessMessage('Xabar holati yangilandi');
+      setSuccessMessage('XABAR HOLATI YANGILANDI');
       fetchMessages();
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
@@ -118,20 +96,11 @@ const ContactMessages = () => {
     }
   };
 
-  // Reply to message
   const replyToMessage = async () => {
     if (!replyText.trim()) return;
-    
     try {
       const response = await apiService.replyToContactMessage(selectedMessage.id, { admin_reply: replyText });
-      
-      // Show success message based on email sending status
-      if (response.email_sent) {
-        setSuccessMessage('Javob yuborildi va email xabar yuborildi!');
-      } else {
-        setSuccessMessage('Javob yuborildi (email yuborishda muammo)');
-      }
-      
+      setSuccessMessage(response.email_sent ? 'JAVOB YUBORILDI!' : 'JAVOB YUBORILDI (EMAIL XATOSI)');
       fetchMessages();
       setReplyDialogOpen(false);
       setReplyText('');
@@ -142,120 +111,76 @@ const ContactMessages = () => {
     }
   };
 
-  // Open message details
-  const openMessageDetails = (message) => {
-    setSelectedMessage(message);
-    // Mark as read if it's new
-    if (message.status === 'new') {
-      updateMessageStatus(message.id, 'read');
-    }
-  };
-
-  // Format date
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('uz-UZ', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
     });
   };
 
   const columns = [
     {
-      title: 'Ism',
+      title: 'ISM',
       dataIndex: 'name',
       key: 'name',
       render: (name, record) => (
-        <div>
-          <Text strong={record.status === 'new'}>{name}</Text>
-          {record.status === 'new' && (
-            <Badge 
-              count="Yangi" 
-              style={{ 
-                backgroundColor: '#ff4d4f', 
-                fontSize: '10px',
-                marginLeft: '8px'
-              }} 
-            />
-          )}
-        </div>
+        <Space>
+          <Text style={{ fontWeight: 900, textTransform: 'uppercase' }}>{name}</Text>
+          {record.status === 'new' && <Badge status="error" />}
+        </Space>
       ),
     },
     {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-      render: (email) => (
-        <Text code style={{ fontSize: '12px' }}>{email}</Text>
-      ),
-    },
-    {
-      title: 'Telefon',
-      dataIndex: 'phone',
-      key: 'phone',
-      render: (phone) => phone || '-',
-    },
-    {
-      title: 'Mavzu',
+      title: 'MAVZU',
       dataIndex: 'subject',
       key: 'subject',
-      render: (subject) => getSubjectText(subject),
+      render: (subject) => <Text style={{ fontWeight: 700 }}>{getSubjectText(subject).toUpperCase()}</Text>,
     },
     {
-      title: 'Holati',
+      title: 'HOLAT',
       dataIndex: 'status',
       key: 'status',
       render: (status) => (
-        <Tag color={getStatusColor(status)}>
-          {getStatusText(status)}
+        <Tag style={{ 
+          borderRadius: 0, 
+          border: '2px solid #000', 
+          fontWeight: 900, 
+          backgroundColor: status === 'new' ? '#ff4d4f' : (status === 'replied' ? '#000' : '#fff'),
+          color: status === 'new' || status === 'replied' ? '#fff' : '#000'
+        }}>
+          {getStatusText(status).toUpperCase()}
         </Tag>
       ),
     },
     {
-      title: 'Sana',
+      title: 'SANA',
       dataIndex: 'created_at',
       key: 'created_at',
-      render: (date) => formatDate(date),
+      render: (date) => <Text style={{ fontSize: '12px', fontWeight: 600 }}>{formatDate(date)}</Text>,
     },
     {
-      title: 'Amallar',
+      title: 'AMALLAR',
       key: 'actions',
       render: (_, record) => (
         <Space size="small">
           <Button
             size="small"
-            type="primary"
             icon={<EyeOutlined />}
-            onClick={() => openMessageDetails(record)}
-          >
-            Ko'rish
-          </Button>
-          
+            onClick={() => {
+              setSelectedMessage(record);
+              if (record.status === 'new') updateMessageStatus(record.id, 'read');
+            }}
+            style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 800 }}
+          >KO'RISH</Button>
           {record.status !== 'replied' && (
             <Button
               size="small"
-              type="primary"
               icon={<MessageOutlined />}
               onClick={() => {
                 setSelectedMessage(record);
                 setReplyDialogOpen(true);
               }}
-              style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
-            >
-              Javob
-            </Button>
-          )}
-          
-          {record.status === 'new' && (
-            <Button
-              size="small"
-              icon={<MailTwoTone twoToneColor="#faad14" />}
-              onClick={() => updateMessageStatus(record.id, 'read')}
-            >
-              O'qilgan
-            </Button>
+              style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 800, backgroundColor: '#000', color: '#fff' }}
+            >JAVOB</Button>
           )}
         </Space>
       ),
@@ -263,269 +188,180 @@ const ContactMessages = () => {
   ];
 
   return (
-    <div style={{ padding: '24px 0' }}>
-      {/* Header */}
-      <div style={{
-        marginBottom: '24px',
-        paddingBottom: '16px',
-        borderBottom: '1px solid #e2e8f0'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Title level={1} style={{ margin: 0, color: '#1e293b', marginBottom: '8px' }}>
+    <ConfigProvider
+      theme={{
+        token: {
+          borderRadius: 0,
+          colorPrimary: '#000',
+        },
+      }}
+    >
+      <div style={{ padding: '40px 0' }}>
+        {/* Brutalist Header */}
+        <div className="animate__animated animate__fadeIn" style={{ marginBottom: '60px' }}>
+          <div style={{ 
+            display: 'inline-block', 
+            backgroundColor: '#000', 
+            color: '#fff', 
+            padding: '8px 16px', 
+            fontWeight: 900, 
+            fontSize: '14px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.2em',
+            marginBottom: '16px'
+          }}>
             Xabarlar
-          </Title>
-          <Space>
-            <MailOutlined style={{ color: '#6366f1', fontSize: '24px' }} />
-            <Text style={{ color: '#6366f1', fontSize: '18px', fontWeight: 600 }}>
-              {filteredMessages.length} ta xabar
-            </Text>
-          </Space>
-        </div>
-      </div>
-
-      {/* Success Alert */}
-      {successMessage && (
-        <Alert
-          message={successMessage}
-          type="success"
-          showIcon
-          closable
-          onClose={() => setSuccessMessage('')}
-          style={{ marginBottom: '16px' }}
-        />
-      )}
-
-      {/* Filters and Search */}
-      <Card style={{ marginBottom: '16px' }}>
-        <Space orientation="vertical" style={{ width: '100%' }} size="middle">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FilterOutlined style={{ color: '#374151' }} />
-            <Text strong style={{ color: '#374151' }}>
-              Filtr va Qidiruv
-            </Text>
           </div>
-          
-          <Row gutter={16}>
-            <Col xs={24} sm={12} md={8}>
-              <Search
-                placeholder="Qidirish..."
+          <Title level={1} style={{ 
+            margin: 0, 
+            fontWeight: 900, 
+            fontSize: '2.5rem', 
+            lineHeight: 0.9, 
+            textTransform: 'uppercase',
+            letterSpacing: '-0.05em',
+            color: '#000'
+          }}>
+            Foydalanuvchi Murojaatlari
+          </Title>
+          <div style={{ 
+            width: '80px', 
+            height: '10px', 
+            backgroundColor: '#000', 
+            margin: '24px 0' 
+          }}></div>
+          <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, color: '#333', maxWidth: '600px' }}>
+            Kontakt formasi orqali kelgan barcha savol va takliflarni boshqarish markazi.
+          </Paragraph>
+        </div>
+
+        {successMessage && (
+          <Alert
+            message={successMessage}
+            type="success"
+            showIcon
+            style={{ borderRadius: 0, border: '3px solid #000', boxShadow: '6px 6px 0px #000', fontWeight: 900, marginBottom: '24px' }}
+          />
+        )}
+
+        {/* Filter Section */}
+        <div className="animate__animated animate__fadeIn" style={{ 
+          marginBottom: '32px', 
+          padding: '24px', 
+          border: '4px solid #000', 
+          backgroundColor: '#eee',
+          boxShadow: '8px 8px 0px #000' 
+        }}>
+          <Row gutter={[16, 16]}>
+            <Col xs={24} md={10}>
+              <Input
+                placeholder="QIDIRISH..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ borderRadius: 0, border: '2px solid #000', height: '45px', fontWeight: 700 }}
                 prefix={<SearchOutlined />}
               />
             </Col>
-            
-            <Col xs={24} sm={12} md={6}>
+            <Col xs={12} md={7}>
               <Select
-                placeholder="Holati"
                 value={filterStatus}
                 onChange={setFilterStatus}
-                style={{ width: '100%' }}
-                allowClear
+                style={{ width: '100%', height: '45px' }}
+                className="brutalist-select"
               >
-                <Select.Option value="all">Barchasi</Select.Option>
-                <Select.Option value="new">Yangi</Select.Option>
-                <Select.Option value="read">O'qilgan</Select.Option>
-                <Select.Option value="replied">Javob berilgan</Select.Option>
-                <Select.Option value="closed">Yopilgan</Select.Option>
+                <Select.Option value="all">BARCHA HOLATLAR</Select.Option>
+                <Select.Option value="new">YANGI</Select.Option>
+                <Select.Option value="read">O'QILGAN</Select.Option>
+                <Select.Option value="replied">JAVOB BERILGAN</Select.Option>
               </Select>
             </Col>
-            
-            <Col xs={24} sm={12} md={6}>
+            <Col xs={12} md={7}>
               <Select
-                placeholder="Mavzu"
                 value={filterSubject}
                 onChange={setFilterSubject}
-                style={{ width: '100%' }}
-                allowClear
+                style={{ width: '100%', height: '45px' }}
               >
-                <Select.Option value="all">Barchasi</Select.Option>
-                <Select.Option value="technical">Texnik yordam</Select.Option>
-                <Select.Option value="billing">To'lov masalalari</Select.Option>
-                <Select.Option value="feature">Yangi funksiya taklifi</Select.Option>
-                <Select.Option value="partnership">Hamkorlik</Select.Option>
-                <Select.Option value="other">Boshqa</Select.Option>
+                <Select.Option value="all">BARCHA MAVZULAR</Select.Option>
+                <Select.Option value="technical">TEXNIK YORDAM</Select.Option>
+                <Select.Option value="billing">TO'LOV</Select.Option>
+                <Select.Option value="feature">TAKLIFLAR</Select.Option>
               </Select>
             </Col>
-            
-            <Col xs={24} sm={12} md={4}>
-              <Button
-                onClick={() => {
-                  setFilterStatus('all');
-                  setFilterSubject('all');
-                  setSearchTerm('');
-                }}
-                style={{ width: '100%' }}
-              >
-                Tozalash
-              </Button>
-            </Col>
           </Row>
-        </Space>
-      </Card>
+        </div>
 
-      {/* Messages Table */}
-      <Table
-        columns={columns}
-        dataSource={filteredMessages}
-        rowKey="id"
-        loading={loading}
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: true,
-          showQuickJumper: true,
-          showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} xabar`,
-        }}
-        locale={{
-          emptyText: 'Xabarlar topilmadi',
-        }}
-        rowClassName={(record) => record.status === 'new' ? 'new-message-row' : ''}
-        style={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          overflow: 'hidden',
-        }}
-      />
+        {/* Table Section */}
+        <div className="animate__animated animate__fadeIn" style={{ border: '4px solid #000', boxShadow: '12px 12px 0px #000', backgroundColor: '#fff' }}>
+          <Table
+            columns={columns}
+            dataSource={filteredMessages}
+            rowKey="id"
+            loading={loading}
+            pagination={{ pageSize: 10 }}
+            scroll={{ x: 1000 }}
+          />
+        </div>
 
-      {/* Message Details Modal */}
-      <Modal
-        title="Xabar tafsilotlari"
-        open={!!selectedMessage && !replyDialogOpen}
-        onCancel={() => setSelectedMessage(null)}
-        footer={[
-          <Button key="close" onClick={() => setSelectedMessage(null)}>
-            Yopish
-          </Button>,
-          selectedMessage?.status !== 'replied' && (
-            <Button
-              key="reply"
-              type="primary"
-              icon={<MessageOutlined />}
-              onClick={() => setReplyDialogOpen(true)}
-              style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
-            >
-              Javob berish
-            </Button>
-          ),
-        ]}
-        width={600}
-      >
-        {selectedMessage && (
-          <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
-            <div>
-              <Text strong>Ism:</Text>
-              <br />
-              <Text>{selectedMessage.name}</Text>
-            </div>
-            
-            <div>
-              <Text strong>Email:</Text>
-              <br />
-              <Text code>{selectedMessage.email}</Text>
-            </div>
-            
-            {selectedMessage.phone && (
-              <div>
-                <Text strong>Telefon:</Text>
-                <br />
-                <Text>{selectedMessage.phone}</Text>
+        {/* Details Modal */}
+        <Modal
+          title={<Text style={{ fontWeight: 900, textTransform: 'uppercase' }}>Xabar Tafsilotlari</Text>}
+          open={!!selectedMessage && !replyDialogOpen}
+          onCancel={() => setSelectedMessage(null)}
+          footer={[
+            <Button key="close" onClick={() => setSelectedMessage(null)} style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 800 }}>YOPISH</Button>
+          ]}
+          width={700}
+          styles={{
+            content: {
+              border: '6px solid #000',
+              borderRadius: 0,
+              boxShadow: '15px 15px 0px #000',
+            }
+          }}
+        >
+          {selectedMessage && (
+            <div style={{ padding: '20px 0' }}>
+              <Paragraph><strong>ISM:</strong> {selectedMessage.name.toUpperCase()}</Paragraph>
+              <Paragraph><strong>EMAIL:</strong> {selectedMessage.email}</Paragraph>
+              <Paragraph><strong>MAVZU:</strong> {getSubjectText(selectedMessage.subject).toUpperCase()}</Paragraph>
+              <div style={{ padding: '20px', border: '2px solid #000', backgroundColor: '#f9f9f9', marginBottom: '20px' }}>
+                <Text style={{ fontWeight: 600 }}>{selectedMessage.message}</Text>
               </div>
-            )}
-            
-            <div>
-              <Text strong>Mavzu:</Text>
-              <br />
-              <Tag>{getSubjectText(selectedMessage.subject)}</Tag>
-            </div>
-            
-            <div>
-              <Text strong>Xabar:</Text>
-              <div style={{ 
-                marginTop: '8px',
-                padding: '12px', 
-                backgroundColor: '#f8fafc', 
-                borderRadius: '6px',
-                whiteSpace: 'pre-wrap'
-              }}>
-                {selectedMessage.message}
-              </div>
-            </div>
-            
-            <div>
-              <Text strong>Yuborilgan sana:</Text>
-              <br />
-              <Text>{formatDate(selectedMessage.created_at)}</Text>
-            </div>
-            
-            <div>
-              <Text strong>Holati:</Text>
-              <br />
-              <Tag color={getStatusColor(selectedMessage.status)}>
-                {getStatusText(selectedMessage.status)}
-              </Tag>
-            </div>
-            
-            {selectedMessage.admin_reply && (
-              <>
-                <Divider />
-                <div>
-                  <Text strong>Admin javobi:</Text>
-                  <div style={{ 
-                    marginTop: '8px',
-                    padding: '12px', 
-                    backgroundColor: '#e0f2fe', 
-                    borderRadius: '6px',
-                    whiteSpace: 'pre-wrap'
-                  }}>
-                    {selectedMessage.admin_reply}
-                  </div>
-                  {selectedMessage.replied_by_name && (
-                    <Text type="secondary" style={{ fontSize: '12px' }}>
-                      Javob bergan: {selectedMessage.replied_by_name} - {selectedMessage.replied_at && formatDate(selectedMessage.replied_at)}
-                    </Text>
-                  )}
+              {selectedMessage.admin_reply && (
+                <div style={{ padding: '20px', border: '2px solid #000', backgroundColor: '#000', color: '#fff' }}>
+                  <Text style={{ fontWeight: 900, color: '#fff', display: 'block', marginBottom: '10px' }}>ADMIN JAVOBI:</Text>
+                  <Text style={{ fontWeight: 500, color: '#fff' }}>{selectedMessage.admin_reply}</Text>
                 </div>
-              </>
-            )}
-          </Space>
-        )}
-      </Modal>
+              )}
+            </div>
+          )}
+        </Modal>
 
-      {/* Reply Modal */}
-      <Modal
-        title={`${selectedMessage?.name} ga javob berish`}
-        open={replyDialogOpen}
-        onCancel={() => {
-          setReplyDialogOpen(false);
-          setReplyText('');
-        }}
-        footer={[
-          <Button key="cancel" onClick={() => {
-            setReplyDialogOpen(false);
-            setReplyText('');
-          }}>
-            Bekor qilish
-          </Button>,
-          <Button
-            key="send"
-            type="primary"
-            onClick={replyToMessage}
-            disabled={!replyText.trim()}
-            style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
-          >
-            Javob yuborish
-          </Button>,
-        ]}
-      >
-        <TextArea
-          rows={4}
-          placeholder="Javobingizni yozing..."
-          value={replyText}
-          onChange={(e) => setReplyText(e.target.value)}
-        />
-      </Modal>
-    </div>
+        {/* Reply Modal */}
+        <Modal
+          title={<Text style={{ fontWeight: 900, textTransform: 'uppercase' }}>Javob Berish</Text>}
+          open={replyDialogOpen}
+          onCancel={() => setReplyDialogOpen(false)}
+          footer={[
+            <Button key="send" onClick={replyToMessage} style={{ borderRadius: 0, border: '2px solid #000', backgroundColor: '#000', color: '#fff', fontWeight: 900 }}>YUBORISH</Button>
+          ]}
+          styles={{
+            content: {
+              border: '6px solid #000',
+              borderRadius: 0,
+              boxShadow: '15px 15px 0px #000',
+            }
+          }}
+        >
+          <TextArea
+            rows={6}
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            style={{ borderRadius: 0, border: '2px solid #000', marginTop: '20px' }}
+            placeholder="JAVOBINGIZNI YOZING..."
+          />
+        </Modal>
+      </div>
+    </ConfigProvider>
   );
 };
 

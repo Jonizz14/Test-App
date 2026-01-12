@@ -107,10 +107,17 @@ const Header = ({ demoMode = false }) => {
 
   // Dynamic links based on route
   const getNavLinks = () => {
-    if (location.pathname.startsWith('/admin') || location.pathname.startsWith('/headadmin')) {
-      const dashboardPath = currentUser?.role === 'head_admin' ? '/headadmin' : '/admin';
+    if (location.pathname.startsWith('/headadmin')) {
+      const headadminLinks = [
+        { label: 'Umumiy', path: '/headadmin' },
+        { label: 'Adminlar', path: '/headadmin/admins' },
+        { label: 'Xabarlar', path: '/headadmin/messages' },
+      ];
+      return headadminLinks;
+    }
+    if (location.pathname.startsWith('/admin')) {
       return [
-        { label: t('nav.dashboard'), path: dashboardPath },
+        { label: t('nav.dashboard'), path: '/admin' },
         { label: t('nav.teachers'), path: '/admin/teachers' },
         { label: t('nav.students'), path: '/admin/students' },
         { 

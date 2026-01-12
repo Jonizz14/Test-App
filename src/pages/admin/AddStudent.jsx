@@ -1,43 +1,40 @@
 import React, { useState } from 'react';
 import 'animate.css';
-import { Form, Input, Select, Button, Alert, Spin, Typography, Card, DatePicker } from 'antd';
+import { Form, Input, Select, Button, Alert, Spin, Typography, Space, DatePicker, ConfigProvider, Divider } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiService from '../../data/apiService';
 import dayjs from 'dayjs';
 
+const { Title, Text, Paragraph } = Typography;
+
 const AddStudent = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // Get student ID from URL for editing
-  const isEditMode = !!id; // Check if we're in edit mode
+  const { id } = useParams();
+  const isEditMode = !!id;
   const [form] = Form.useForm();
 
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     classGroup: '',
-    direction: 'natural', // Will be auto-set based on class suffix
-    registrationDate: dayjs(), // Default to today
+    direction: 'natural',
+    registrationDate: dayjs(),
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(isEditMode); // Loading state for edit mode
+  const [loading, setLoading] = useState(isEditMode);
 
-  // Load student data for editing
   React.useEffect(() => {
     if (isEditMode) {
       const loadStudentData = async () => {
         try {
           const student = await apiService.getUser(id);
           if (student) {
-            // Split name into first and last name
             const nameParts = student.name ? student.name.split(' ') : ['', ''];
-            const firstName = nameParts[0] || '';
-            const lastName = nameParts.slice(1).join(' ') || '';
-
             const data = {
-              firstName,
-              lastName,
+              firstName: nameParts[0] || '',
+              lastName: nameParts.slice(1).join(' ') || '',
               classGroup: student.class_group || '',
               direction: student.direction || 'natural',
               registrationDate: student.registration_date ? dayjs(student.registration_date.split('T')[0]) : dayjs(),
@@ -46,246 +43,197 @@ const AddStudent = () => {
             form.setFieldsValue(data);
           }
         } catch (error) {
-          console.error('Failed to load student data:', error);
           setError('O\'quvchi ma\'lumotlarini yuklashda xatolik yuz berdi');
         } finally {
           setLoading(false);
         }
       };
-
       loadStudentData();
     }
   }, [id, isEditMode, form]);
 
-  // ID generation is now handled by backend with admin-specific isolation
-
   const handleSubmit = async (values) => {
     setError('');
     setSuccess('');
-
     try {
       const studentData = {
-        name: `${formData.firstName} ${formData.lastName}`,
-        class_group: formData.classGroup,
+        name: `${values.firstName} ${values.lastName}`,
+        class_group: values.classGroup,
         direction: formData.direction,
         registration_date: formData.registrationDate.format('YYYY-MM-DD'),
       };
 
       if (isEditMode) {
-        // Update existing student
         await apiService.updateUser(id, studentData);
-        setSuccess('O\'quvchi ma\'lumotlari muvaffaqiyatli yangilandi!');
+        setSuccess('O\'QUVCHI MA\'LUMOTLARI YANGILANDI!');
       } else {
-        // Create new student via API (ID generation handled by backend)
-        const newStudentData = {
+        const response = await apiService.post('/users/', {
           ...studentData,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
+          first_name: values.firstName,
+          last_name: values.lastName,
           role: 'student',
-        };
-
-        const response = await apiService.post('/users/', newStudentData);
-        const createdStudent = response;
-
-        setSuccess(
-          <div>
-            <strong>✅ O'quvchi muvaffaqiyatli qo'shildi!</strong><br/>
-            <strong>ID:</strong> {createdStudent.display_id || createdStudent.username}<br/>
-            <strong>Parol:</strong> {createdStudent.generated_password}
-          </div>
-        );
-        setFormData({
-          firstName: '',
-          lastName: '',
-          classGroup: '',
-          direction: 'natural', // Will be auto-set based on class suffix
-          registrationDate: dayjs(),
         });
+        setSuccess('YANGI O\'QUVCHI MUVAFFAQIYATLI QO\'SHILDI!');
+        form.resetFields();
       }
-
     } catch (err) {
-      console.error('Failed to save student:', err);
       setError('Xatolik yuz berdi: ' + (err.message || 'Noma\'lum xatolik'));
     }
   };
 
   if (loading) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '400px'
-      }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px', flexDirection: 'column' }}>
         <Spin size="large" />
-        <Typography.Text style={{ marginLeft: 16 }}>
-          Ma'lumotlar yuklanmoqda...
-        </Typography.Text>
+        <Text style={{ marginTop: 16, fontWeight: 800 }}>YUKLANMOQDA...</Text>
       </div>
     );
   }
 
   return (
-    <div className="animate__animated animate__fadeIn" style={{ padding: '24px', backgroundColor: '#ffffff' }}>
-      {/* Header */}
-      <div className="animate__animated animate__slideInDown" style={{
-        marginBottom: '24px',
-        paddingBottom: '16px',
-        borderBottom: '1px solid #e2e8f0',
-        animationDelay: '0.1s',
-        animationFillMode: 'both'
-      }}>
-        <Button
-          className="animate__animated animate__fadeInLeft"
-          type="default"
-          icon={<ArrowLeftOutlined />}
-          onClick={() => navigate('/admin/students')}
-          style={{ marginRight: '12px', marginBottom: '8px', animationDelay: '0.2s', animationFillMode: 'both' }}
-        >
-          O'quvchilarni boshqarishga qaytish
-        </Button>
-        <Typography.Title level={1} className="animate__animated animate__fadeInUp" style={{ color: '#1e293b', marginBottom: '8px', animationDelay: '0.3s', animationFillMode: 'both' }}>
-          {isEditMode ? 'O\'quvchi ma\'lumotlarini tahrirlash' : 'Yangi o\'quvchi qo\'shish'}
-        </Typography.Title>
-        <Typography.Text className="animate__animated animate__fadeInUp" style={{ fontSize: '18px', color: '#64748b', animationDelay: '0.4s', animationFillMode: 'both' }}>
-          {isEditMode ? 'O\'quvchi ma\'lumotlarini yangilang' : 'Yangi o\'quvchi ma\'lumotlarini kiriting'}
-        </Typography.Text>
-      </div>
-
-      {/* Success Message */}
-      {success && (
-        <Alert
-          className="animate__animated animate__bounceIn"
-          message="Muvaffaqiyat"
-          description={success}
-          type="success"
-          showIcon
-          style={{ marginBottom: '24px' }}
-        />
-      )}
-
-      {/* Error Message */}
-      {error && (
-        <Alert
-          className="animate__animated animate__shakeX"
-          message="Xatolik"
-          description={error}
-          type="error"
-          showIcon
-          style={{ marginBottom: '24px' }}
-        />
-      )}
-
-      {/* Form */}
-      <Card className="animate__animated animate__fadeInUp" style={{
-        padding: '24px',
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        maxWidth: '600px',
-        margin: '0 auto',
-        animationDelay: '0.5s',
-        animationFillMode: 'both'
-      }}>
-        <Form form={form} onFinish={handleSubmit} layout="vertical">
-          <Form.Item
-            label="Ism"
-            name="firstName"
-            rules={[{ required: true, message: 'Ismni kiriting' }]}
-            style={{ marginBottom: '16px' }}
+    <ConfigProvider
+      theme={{
+        token: {
+          borderRadius: 0,
+          colorPrimary: '#000',
+        },
+      }}
+    >
+      <div className="animate__animated animate__fadeIn" style={{ padding: '40px 0' }}>
+        {/* Brutalist Header */}
+        <div style={{ marginBottom: '60px' }}>
+          <Button
+            type="text"
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate('/admin/students')}
+            style={{ marginBottom: 24, fontWeight: 800, textTransform: 'uppercase', padding: 0 }}
           >
-            <Input
-              autoFocus
-              value={formData.firstName}
-              onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Familiya"
-            name="lastName"
-            rules={[{ required: true, message: 'Familiyani kiriting' }]}
-            style={{ marginBottom: '16px' }}
-          >
-            <Input
-              value={formData.lastName}
-              onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Sinf"
-            name="classGroup"
-            rules={[{ required: true, message: 'Sinfni tanlang' }]}
-            style={{ marginBottom: '16px' }}
-          >
-            <Select
-              value={formData.classGroup}
-              onChange={(value) => {
-                const direction = value.endsWith('-A') ? 'exact' : value.endsWith('-T') ? 'natural' : 'natural';
-                setFormData({ ...formData, classGroup: value, direction });
-              }}
-            >
-              {[5,6,7,8,9,10,11].flatMap(grade =>
-                [1,2,3,4].flatMap(num => {
-                  const baseClass = `${grade}-${String(num).padStart(2,'0')}`;
-                  return ['A', 'T'].map(suffix => {
-                    const classGroup = `${baseClass}-${suffix}`;
-                    return <Select.Option key={classGroup} value={classGroup}>{classGroup}</Select.Option>;
-                  });
-                })
-              )}
-            </Select>
-          </Form.Item>
-
-          <Form.Item label="Ro'yxatdan o'tgan sana" style={{ marginBottom: '16px' }}>
-            <DatePicker
-              value={formData.registrationDate}
-              onChange={(date) => setFormData({ ...formData, registrationDate: date })}
-              style={{ width: '100%' }}
-            />
-          </Form.Item>
-
-          {formData.firstName && formData.lastName && formData.classGroup && (
-            <Alert
-              message="Ma'lumot"
-              description={
-                <>
-                  <strong>Yo'nalish:</strong> {formData.direction === 'exact' ? 'Aniq fanlar' : 'Tabiiy fanlar'}
-                  <br />
-                  <strong>ID va parol:</strong> Backend tomonidan admin-specific tarzda generatsiya qilinadi
-                  <br />
-                  <strong>ID format:</strong> ADM[AdminID]_[IsmFamiliya]...@test
-                  <br />
-                  <strong>Parol:</strong> 12 ta belgidan iborat tasodifiy parol
-                </>
-              }
-              type="info"
-              showIcon
-              style={{ marginTop: '16px', marginBottom: '16px' }}
-            />
-          )}
-
-          <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
-            <Button
-              type="primary"
-              htmlType="submit"
-              block
-              style={{ padding: '12px', fontWeight: 600 }}
-            >
-              {isEditMode ? 'O\'quvchi ma\'lumotlarini saqlash' : 'O\'quvchi qo\'shish'}
-            </Button>
-            <Button
-              block
-              onClick={() => navigate('/admin/students')}
-              style={{ padding: '12px' }}
-            >
-              Bekor qilish
-            </Button>
+            ORTGA QAYTISH
+          </Button>
+          
+          <div style={{ 
+            display: 'inline-block', 
+            backgroundColor: '#000', 
+            color: '#fff', 
+            padding: '8px 16px', 
+            fontWeight: 900, 
+            fontSize: '14px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.2em',
+            marginBottom: '16px'
+          }}>
+            {isEditMode ? 'Tahrirlash' : 'Qo\'shish'}
           </div>
-        </Form>
-      </Card>
-    </div>
+          <Title level={1} style={{ 
+            margin: 0, 
+            fontWeight: 900, 
+            fontSize: '2.5rem', 
+            lineHeight: 0.9, 
+            textTransform: 'uppercase',
+            letterSpacing: '-0.05em',
+            color: '#000'
+          }}>
+            {isEditMode ? 'Profilni Tahrirlash' : 'Yangi O\'quvchi Qo\'shish'}
+          </Title>
+          <div style={{ 
+            width: '80px', 
+            height: '10px', 
+            backgroundColor: '#000', 
+            margin: '24px 0' 
+          }}></div>
+          <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, color: '#333', maxWidth: '600px' }}>
+            O'quvchi ma'lumotlarini aniq va to'g'ri kiriting.
+          </Paragraph>
+        </div>
+
+        {success && (
+          <Alert
+            message={success}
+            type="success"
+            showIcon
+            style={{ borderRadius: 0, border: '3px solid #000', boxShadow: '6px 6px 0px #000', fontWeight: 900, marginBottom: '24px', maxWidth: '800px' }}
+          />
+        )}
+
+        {error && (
+          <Alert
+            message={error}
+            type="error"
+            showIcon
+            style={{ borderRadius: 0, border: '3px solid #000', boxShadow: '6px 6px 0px #000', fontWeight: 900, marginBottom: '24px', maxWidth: '800px' }}
+          />
+        )}
+
+        <div className="animate__animated animate__fadeIn" style={{ 
+          maxWidth: '800px',
+          padding: '40px',
+          border: '4px solid #000',
+          boxShadow: '15px 15px 0px #000',
+          backgroundColor: '#fff',
+          margin: '0 auto'
+        }}>
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+            size="large"
+          >
+            <Space style={{ width: '100%' }} size="large" direction="vertical">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <Form.Item name="firstName" label={<Text style={{ fontWeight: 900 }}>ISM</Text>} rules={[{ required: true }]}>
+                  <Input style={{ borderRadius: 0, border: '3px solid #000' }} />
+                </Form.Item>
+                <Form.Item name="lastName" label={<Text style={{ fontWeight: 900 }}>FAMILIYA</Text>} rules={[{ required: true }]}>
+                  <Input style={{ borderRadius: 0, border: '3px solid #000' }} />
+                </Form.Item>
+              </div>
+
+              <Form.Item name="classGroup" label={<Text style={{ fontWeight: 900 }}>SINF</Text>} rules={[{ required: true }]}>
+                <Select
+                  onChange={(value) => {
+                    const direction = value.endsWith('-A') ? 'exact' : 'natural';
+                    setFormData({ ...formData, classGroup: value, direction });
+                  }}
+                  style={{ borderRadius: 0, height: '50px' }}
+                >
+                  {[5,6,7,8,9,10,11].flatMap(grade =>
+                    [1,2,3,4].flatMap(num => {
+                      const baseClass = `${grade}-${String(num).padStart(2,'0')}`;
+                      return ['A', 'T'].map(suffix => {
+                        const classGroup = `${baseClass}-${suffix}`;
+                        return <Select.Option key={classGroup} value={classGroup}>{classGroup}</Select.Option>;
+                      });
+                    })
+                  )}
+                </Select>
+              </Form.Item>
+
+              <Form.Item label={<Text style={{ fontWeight: 900 }}>RO'YXATDAN O'TGAN SANA</Text>}>
+                <DatePicker
+                  value={formData.registrationDate}
+                  onChange={(date) => setFormData({ ...formData, registrationDate: date })}
+                  style={{ width: '100%', borderRadius: 0, border: '3px solid #000', height: '50px' }}
+                />
+              </Form.Item>
+
+              <Divider style={{ borderTop: '4px solid #000', margin: '20px 0' }} />
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px' }}>
+                <Button 
+                  onClick={() => navigate('/admin/students')}
+                  style={{ borderRadius: 0, border: '3px solid #000', height: '50px', fontWeight: 900, padding: '0 30px' }}
+                >BEKOR QILISH</Button>
+                <Button 
+                  type="primary"
+                  htmlType="submit"
+                  style={{ borderRadius: 0, border: '3px solid #000', height: '50px', fontWeight: 900, padding: '0 30px', backgroundColor: '#000', color: '#fff' }}
+                >{isEditMode ? 'SAQLASH' : 'QO\'SHISH'}</Button>
+              </div>
+            </Space>
+          </Form>
+        </div>
+      </div>
+    </ConfigProvider>
   );
 };
 

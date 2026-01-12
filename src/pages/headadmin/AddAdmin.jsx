@@ -6,53 +6,47 @@ import {
   Button,
   Alert,
   Space,
-  Card,
   Spin,
   Divider,
+  ConfigProvider,
 } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiService from '../../data/apiService';
+import 'animate.css';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 
 const AddAdmin = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // Get admin ID from URL for editing
-  const isEditMode = !!id; // Check if we're in edit mode
+  const { id } = useParams();
+  const isEditMode = !!id;
 
   const [form] = Form.useForm();
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(isEditMode); // Loading state for edit mode
+  const [loading, setLoading] = useState(isEditMode);
 
-  // Load admin data for editing
   React.useEffect(() => {
     if (isEditMode) {
       const loadAdminData = async () => {
         try {
           const admin = await apiService.getUser(id);
           if (admin) {
-            // Split name into first and last name
             const nameParts = admin.name ? admin.name.split(' ') : ['', ''];
-            const firstName = nameParts[0] || '';
-            const lastName = nameParts.slice(1).join(' ') || '';
-
             form.setFieldsValue({
-              firstName,
-              lastName,
+              firstName: nameParts[0] || '',
+              lastName: nameParts.slice(1).join(' ') || '',
               email: admin.email || '',
               organization: admin.organization || 'Default Organization',
             });
           }
         } catch (error) {
-          console.error('Failed to load admin data:', error);
           setError('Admin ma\'lumotlarini yuklashda xatolik yuz berdi');
         } finally {
           setLoading(false);
         }
       };
-
       loadAdminData();
     }
   }, [id, isEditMode, form]);
@@ -60,52 +54,20 @@ const AddAdmin = () => {
   const handleSubmit = async (values) => {
     setError('');
     setSuccess('');
-
-    // Validate required fields
-    if (!values.firstName || !values.lastName || !values.email || !values.organization) {
-      setError('Barcha maydonlarni to\'ldiring');
-      return;
-    }
-
-    // In create mode, password is required
-    if (!isEditMode && !values.password) {
-      setError('Parol kiritish majburiy');
-      return;
-    }
-
     try {
-      const adminData = {
-        name: `${values.firstName} ${values.lastName}`,
-      };
-
+      const adminData = { name: `${values.firstName} ${values.lastName}` };
       if (isEditMode) {
-        // Update existing admin
         const updateData = {
           first_name: values.firstName,
           last_name: values.lastName,
           name: adminData.name,
           organization: values.organization,
         };
-
-        // Only include password if it's provided
-        if (values.password) {
-          updateData.password = values.password;
-        }
-
-        console.log('Updating admin with data:', updateData);
+        if (values.password) updateData.password = values.password;
         await apiService.updateUser(id, updateData);
-        setSuccess('Admin ma\'lumotlari muvaffaqiyatli yangilandi!');
+        setSuccess('ADMIN MA\'LUMOTLARI YANGILANDI!');
       } else {
-        // Check if email already exists
-        const allUsers = await apiService.getUsers();
-        const existingAdmin = allUsers.find(a => a.email === values.email);
-        if (existingAdmin) {
-          setError('Bu email bilan admin allaqachon mavjud');
-          return;
-        }
-
-        // Create new admin via API
-        console.log('Creating admin with data:', {
+        await apiService.post('/users/', {
           username: values.email,
           email: values.email,
           password: values.password,
@@ -115,208 +77,137 @@ const AddAdmin = () => {
           name: adminData.name,
           organization: values.organization,
         });
-
-        const response = await apiService.post('/users/', {
-          username: values.email,
-          email: values.email,
-          password: values.password,
-          role: 'admin',
-          first_name: values.firstName,
-          last_name: values.lastName,
-          name: adminData.name,
-          organization: values.organization,
-        });
-
-        console.log('Admin creation response:', response);
-
-        setSuccess(
-          <div>
-            <strong>✅ Admin muvaffaqiyatli qo'shildi!</strong><br/>
-            <strong>Login ma'lumotlari:</strong><br/>
-            Email: {values.email}<br/>
-            Parol: {values.password}<br/>
-            Tashkilot: {values.organization}
-          </div>
-        );
-        
-        // Reset form
+        setSuccess('YANGI ADMIN MUVAFFAQIYATLI QO\'SHILDI!');
         form.resetFields();
       }
-
     } catch (err) {
-      console.error('Failed to save admin:', err);
       setError('Xatolik yuz berdi: ' + (err.message || 'Noma\'lum xatolik'));
     }
   };
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '400px',
-        flexDirection: 'column'
-      }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px', flexDirection: 'column' }}>
         <Spin size="large" />
-        <Text style={{ marginTop: 16 }}>Ma'lumotlar yuklanmoqda...</Text>
+        <Text style={{ marginTop: 16, fontWeight: 800 }}>YUKLANMOQDA...</Text>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '24px 0' }}>
-      {/* Header */}
-      <div style={{
-        marginBottom: '24px',
-        paddingBottom: '16px',
-        borderBottom: '1px solid #e2e8f0'
-      }}>
-        <Button
-          type="text"
-          icon={<ArrowLeftOutlined />}
-          onClick={() => navigate('/headadmin/admins')}
-          style={{ marginBottom: 16 }}
-        >
-          Adminlarni boshqarishga qaytish
-        </Button>
-        
-        <Title level={1} style={{ margin: 0, color: '#1e293b', marginBottom: '8px' }}>
-          {isEditMode ? 'Admin ma\'lumotlarini tahrirlash' : 'Yangi admin qo\'shish'}
-        </Title>
-        <Text style={{ fontSize: '18px', color: '#64748b' }}>
-          {isEditMode ? 'Admin ma\'lumotlarini yangilang' : 'Yangi admin ma\'lumotlarini kiriting'}
-        </Text>
-      </div>
+    <ConfigProvider
+      theme={{
+        token: {
+          borderRadius: 0,
+          colorPrimary: '#000',
+        },
+      }}
+    >
+      <div style={{ padding: '40px 0' }}>
+        {/* Brutalist Header */}
+        <div className="animate__animated animate__fadeIn" style={{ marginBottom: '60px' }}>
+          <Button
+            type="text"
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate('/headadmin/admins')}
+            style={{ marginBottom: 24, fontWeight: 800, textTransform: 'uppercase', padding: 0 }}
+          >
+            ORTGA QAYTISH
+          </Button>
+          <Title level={1} style={{ 
+            margin: 0, 
+            fontWeight: 900, 
+            fontSize: '2.5rem', 
+            lineHeight: 0.9, 
+            textTransform: 'uppercase',
+            letterSpacing: '-0.05em',
+            color: '#000'
+          }}>
+            {isEditMode ? 'Profilni Tahrirlash' : 'Yangi Admin Qo\'shish'}
+          </Title>
+          <div style={{ 
+            width: '80px', 
+            height: '10px', 
+            backgroundColor: '#000', 
+            margin: '24px 0' 
+          }}></div>
+          <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, color: '#333', maxWidth: '600px' }}>
+            Administrator ma'lumotlarini aniq va to'g'ri kiriting.
+          </Paragraph>
+        </div>
 
-      {/* Success Message */}
-      {success && (
-        <Alert
-          message={success}
-          type="success"
-          showIcon
-          style={{ marginBottom: '16px' }}
-        />
-      )}
+        {success && (
+          <Alert
+            message={success}
+            type="success"
+            showIcon
+            style={{ borderRadius: 0, border: '3px solid #000', boxShadow: '6px 6px 0px #000', fontWeight: 900, marginBottom: '24px', maxWidth: '800px' }}
+          />
+        )}
 
-      {/* Error Message */}
-      {error && (
-        <Alert
-          message={error}
-          type="error"
-          showIcon
-          style={{ marginBottom: '16px' }}
-        />
-      )}
+        {error && (
+          <Alert
+            message={error}
+            type="error"
+            showIcon
+            style={{ borderRadius: 0, border: '3px solid #000', boxShadow: '6px 6px 0px #000', fontWeight: 900, marginBottom: '24px', maxWidth: '800px' }}
+          />
+        )}
 
-      {/* Form */}
-      <Card
-        style={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          maxWidth: '600px',
+        <div className="animate__animated animate__fadeIn" style={{ 
+          maxWidth: '800px',
+          padding: '40px',
+          border: '4px solid #000',
+          boxShadow: '15px 15px 0px #000',
+          backgroundColor: '#fff',
           margin: '0 auto'
-        }}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          initialValues={{
-            firstName: '',
-            lastName: '',
-            email: '',
-            password: '',
-            organization: 'Default Organization',
-          }}
-        >
-          <Form.Item
-            name="firstName"
-            label="Ism"
-            rules={[{ required: true, message: 'Ism kiritish majburiy!' }]}
+        }}>
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+            size="large"
           >
-            <Input
-              size="large"
-              placeholder="Ism kiriting"
-            />
-          </Form.Item>
+            <Space style={{ width: '100%' }} size="large" direction="vertical">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <Form.Item name="firstName" label={<Text style={{ fontWeight: 900 }}>ISM</Text>} rules={[{ required: true }]}>
+                  <Input style={{ borderRadius: 0, border: '3px solid #000' }} />
+                </Form.Item>
+                <Form.Item name="lastName" label={<Text style={{ fontWeight: 900 }}>FAMILIYA</Text>} rules={[{ required: true }]}>
+                  <Input style={{ borderRadius: 0, border: '3px solid #000' }} />
+                </Form.Item>
+              </div>
 
-          <Form.Item
-            name="lastName"
-            label="Familiya"
-            rules={[{ required: true, message: 'Familiya kiritish majburiy!' }]}
-          >
-            <Input
-              size="large"
-              placeholder="Familiya kiriting"
-            />
-          </Form.Item>
+              <Form.Item name="email" label={<Text style={{ fontWeight: 900 }}>EMAIL MANZIL</Text>} rules={[{ required: true, type: 'email' }]}>
+                <Input disabled={isEditMode} style={{ borderRadius: 0, border: '3px solid #000' }} />
+              </Form.Item>
 
-          <Form.Item
-            name="email"
-            label="Email manzil"
-            rules={[
-              { required: true, message: 'Email kiritish majburiy!' },
-              { type: 'email', message: 'To\'g\'ri email manzili kiriting!' }
-            ]}
-          >
-            <Input
-              size="large"
-              placeholder="admin@example.com"
-            />
-          </Form.Item>
+              <Form.Item name="password" label={<Text style={{ fontWeight: 900 }}>{isEditMode ? "YANGI PAROL (IXTIYORIY)" : "PAROL"}</Text>} rules={[{ required: !isEditMode, min: 6 }]}>
+                <Input.Password style={{ borderRadius: 0, border: '3px solid #000' }} />
+              </Form.Item>
 
-          <Form.Item
-            name="password"
-            label={isEditMode ? "Yangi parol (ixtiyoriy)" : "Parol"}
-            rules={[
-              !isEditMode && { required: true, message: 'Parol kiritish majburiy!' },
-              { min: 6, message: 'Parol kamida 6 ta belgidan iborat bo\'lishi kerak!' }
-            ].filter(Boolean)}
-          >
-            <Input.Password
-              size="large"
-              placeholder={isEditMode ? "O'zgartirish uchun yangi parol kiriting" : "Xavfsiz parol kiriting"}
-            />
-          </Form.Item>
+              <Form.Item name="organization" label={<Text style={{ fontWeight: 900 }}>TASHKILOT</Text>} rules={[{ required: true }]}>
+                <Input style={{ borderRadius: 0, border: '3px solid #000' }} />
+              </Form.Item>
 
-          <Form.Item
-            name="organization"
-            label="Tashkilot"
-            rules={[{ required: true, message: 'Tashkilot nomini kiritish majburiy!' }]}
-          >
-            <Input
-              size="large"
-              placeholder="Qaysi tashkilotda ishlaydi"
-            />
-          </Form.Item>
+              <Divider style={{ borderTop: '4px solid #000', margin: '20px 0' }} />
 
-          <Divider />
-
-          <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-            <Button
-              size="large"
-              onClick={() => navigate('/headadmin/admins')}
-            >
-              Bekor qilish
-            </Button>
-            <Button
-              type="primary"
-              size="large"
-              htmlType="submit"
-              style={{
-                backgroundColor: '#dc2626',
-                borderColor: '#dc2626',
-                fontWeight: 600
-              }}
-            >
-              {isEditMode ? 'Admin ma\'lumotlarini saqlash' : 'Admin qo\'shish'}
-            </Button>
-          </Space>
-        </Form>
-      </Card>
-    </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px' }}>
+                <Button 
+                  onClick={() => navigate('/headadmin/admins')}
+                  style={{ borderRadius: 0, border: '3px solid #000', height: '50px', fontWeight: 900, padding: '0 30px' }}
+                >BEKOR QILISH</Button>
+                <Button 
+                  type="primary"
+                  htmlType="submit"
+                  style={{ borderRadius: 0, border: '3px solid #000', height: '50px', fontWeight: 900, padding: '0 30px', backgroundColor: '#000', color: '#fff' }}
+                >{isEditMode ? 'SAQLASH' : 'QO\'SHISH'}</Button>
+              </div>
+            </Space>
+          </Form>
+        </div>
+      </div>
+    </ConfigProvider>
   );
 };
 

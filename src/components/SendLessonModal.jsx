@@ -12,6 +12,7 @@ import {
   Row,
   Col,
   message,
+  ConfigProvider,
 } from 'antd';
 import {
   SendOutlined,
@@ -124,8 +125,8 @@ const SendLessonModal = ({ open, onClose, student, testResult, teacherInfo }) =>
     <Modal
       title={
         <Space>
-          <BankOutlined style={{ color: '#1890ff', fontSize: '20px' }} />
-          <Title level={4} style={{ margin: 0 }}>
+          <BankOutlined style={{ color: '#000', fontSize: '20px' }} />
+          <Title level={4} style={{ margin: 0, fontWeight: 900, textTransform: 'uppercase' }}>
             Qo'shimcha dars yuborish
           </Title>
         </Space>
@@ -134,8 +135,8 @@ const SendLessonModal = ({ open, onClose, student, testResult, teacherInfo }) =>
       onCancel={handleCancel}
       width={800}
       footer={[
-        <Button key="cancel" onClick={handleCancel}>
-          Bekor qilish
+        <Button key="cancel" onClick={handleCancel} style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 800 }}>
+          BEKOR QILISH
         </Button>,
         <Button
           key="send"
@@ -144,12 +145,20 @@ const SendLessonModal = ({ open, onClose, student, testResult, teacherInfo }) =>
           loading={sending}
           onClick={handleSend}
           disabled={sending}
+          style={{ borderRadius: 0, border: '2px solid #000', backgroundColor: '#000', color: '#fff', fontWeight: 900 }}
         >
-          {sending ? 'Yuborilmoqda...' : 'Darsni yuborish'}
+          {sending ? 'YUBORILMOQDA...' : 'DARSNI YUBORISH'}
         </Button>,
       ]}
       style={{ top: 20 }}
-      styles={{ body: { padding: '24px' } }}
+      styles={{
+        content: {
+          border: '6px solid #000',
+          borderRadius: 0,
+          boxShadow: '15px 15px 0px #000',
+        },
+        body: { padding: '24px' }
+      }}
     >
       <div style={{ marginBottom: '16px' }}>
         <Text type="secondary">
@@ -178,112 +187,122 @@ const SendLessonModal = ({ open, onClose, student, testResult, teacherInfo }) =>
         </Card>
       )}
 
-      <Form
-        form={form}
-        layout="vertical"
-        initialValues={initialValues}
+      <ConfigProvider
+        theme={{
+          token: {
+            borderRadius: 0,
+            colorPrimary: '#000',
+          },
+        }}
       >
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              name="subject"
-              label="Fan"
-              rules={[{ required: true, message: 'Fan tanlang!' }]}
-            >
-              <Select placeholder="Fanni tanlang">
-                {subjects.map(subject => (
-                  <Option key={subject} value={subject}>{subject}</Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={initialValues}
+        >
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="subject"
+                label={<Text style={{ fontWeight: 900 }}>FAN</Text>}
+                rules={[{ required: true, message: 'Fan tanlang!' }]}
+              >
+                <Select placeholder="Fanni tanlang" style={{ borderRadius: 0 }}>
+                  {subjects.map(subject => (
+                    <Option key={subject} value={subject}>{subject}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
 
-          <Col span={12}>
-            <Form.Item
-              name="room"
-              label="Hona"
-              rules={[{ required: true, message: 'Hona raqamini kiriting!' }]}
-            >
-              <Input placeholder="Masalan: 101, V-5" />
-            </Form.Item>
-          </Col>
+            <Col span={12}>
+              <Form.Item
+                name="room"
+                label={<Text style={{ fontWeight: 900 }}>HONA</Text>}
+                rules={[{ required: true, message: 'Hona raqamini kiriting!' }]}
+              >
+                <Input placeholder="Masalan: 101, V-5" style={{ borderRadius: 0, border: '2px solid #000' }} />
+              </Form.Item>
+            </Col>
 
-          <Col span={12}>
-            <Form.Item
-              name="lessonDate"
-              label="Dars sanasi"
-              rules={[{ required: true, message: 'Dars sanasini tanlang!' }]}
-            >
-              <Input type="date" />
-            </Form.Item>
-          </Col>
+            <Col span={12}>
+              <Form.Item
+                name="lessonDate"
+                label={<Text style={{ fontWeight: 900 }}>DARS SANASI</Text>}
+                rules={[{ required: true, message: 'Dars sanasini tanlang!' }]}
+              >
+                <Input type="date" style={{ borderRadius: 0, border: '2px solid #000' }} />
+              </Form.Item>
+            </Col>
 
-          <Col span={12}>
-            <Form.Item
-              name="lessonTime"
-              label="Dars vaqti"
-              rules={[{ required: true, message: 'Dars vaqtini tanlang!' }]}
-            >
-              <Input type="time" />
-            </Form.Item>
-          </Col>
+            <Col span={12}>
+              <Form.Item
+                name="lessonTime"
+                label={<Text style={{ fontWeight: 900 }}>DARS VAQTI</Text>}
+                rules={[{ required: true, message: 'Dars vaqtini tanlang!' }]}
+              >
+                <Input type="time" style={{ borderRadius: 0, border: '2px solid #000' }} />
+              </Form.Item>
+            </Col>
 
-          <Col span={12}>
-            <Form.Item
-              name="difficulty"
-              label="Qiyinlik darajasi"
-              rules={[{ required: true, message: 'Qiyinlik darajasini tanlang!' }]}
-            >
-              <Select>
-                <Option value="easy">Oson</Option>
-                <Option value="medium">O'rtacha</Option>
-                <Option value="hard">Qiyin</Option>
-              </Select>
-            </Form.Item>
-          </Col>
+            <Col span={12}>
+              <Form.Item
+                name="difficulty"
+                label={<Text style={{ fontWeight: 900 }}>QIYINLIK DARAJASI</Text>}
+                rules={[{ required: true, message: 'Qiyinlik darajasini tanlang!' }]}
+              >
+                <Select style={{ borderRadius: 0 }}>
+                  <Option value="easy">OSON</Option>
+                  <Option value="medium">O'RTACHA</Option>
+                  <Option value="hard">QIYIN</Option>
+                </Select>
+              </Form.Item>
+            </Col>
 
-          <Col span={12}>
-            <Form.Item
-              name="estimatedTime"
-              label="Dars davomiyligi (daqiqa)"
-              rules={[{ required: true, message: 'Davomiylikni kiriting!' }]}
-            >
-              <Input type="number" placeholder="Masalan: 60" min="15" max="180" />
-            </Form.Item>
-          </Col>
+            <Col span={12}>
+              <Form.Item
+                name="estimatedTime"
+                label={<Text style={{ fontWeight: 900 }}>DARS DAVOMIYLIGI (DAQIQA)</Text>}
+                rules={[{ required: true, message: 'Davomiylikni kiriting!' }]}
+              >
+                <Input type="number" placeholder="Masalan: 60" min="15" max="180" style={{ borderRadius: 0, border: '2px solid #000' }} />
+              </Form.Item>
+            </Col>
 
-          <Col span={24}>
-            <Form.Item
-              name="topic"
-              label="Mavzu"
-              rules={[{ required: true, message: 'Mavzuni kiriting!' }]}
-            >
-              <Input placeholder="Masalan: Algebra asoslari, Newton qonunlari" />
-            </Form.Item>
-          </Col>
+            <Col span={24}>
+              <Form.Item
+                name="topic"
+                label={<Text style={{ fontWeight: 900 }}>MAVZU</Text>}
+                rules={[{ required: true, message: 'Mavzuni kiriting!' }]}
+              >
+                <Input placeholder="Masalan: Algebra asoslari, Newton qonunlari" style={{ borderRadius: 0, border: '2px solid #000' }} />
+              </Form.Item>
+            </Col>
 
-          <Col span={24}>
-            <Form.Item
-              name="description"
-              label="Tafsilot"
-              rules={[{ required: true, message: 'Tafsilotni kiriting!' }]}
-            >
-              <TextArea 
-                rows={4} 
-                placeholder="Darsning mazmuni, o'rganiladigan tushunchalar, amaliy mashqlar haqida batafsil yozing..."
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-      </Form>
+            <Col span={24}>
+              <Form.Item
+                name="description"
+                label={<Text style={{ fontWeight: 900 }}>TAFSILOT</Text>}
+                rules={[{ required: true, message: 'Tafsilotni kiriting!' }]}
+              >
+                <TextArea 
+                  rows={4} 
+                  placeholder="Darsning mazmuni, o'rganiladigan tushunchalar, amaliy mashqlar haqida batafsil yozing..."
+                  style={{ borderRadius: 0, border: '2px solid #000' }}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
 
-      <Alert
-        message="💡 Maslahat"
-        description="Darsni talabaning test natijalariga qarab, uning zaif tomonlariga e'tibor qaratib tuzing."
-        type="info"
-        showIcon
-        style={{ marginTop: '16px' }}
-      />
+        <Alert
+          message={<Text style={{ fontWeight: 900 }}>MASLAHAT</Text>}
+          description="Darsni talabaning test natijalariga qarab, uning zaif tomonlariga e'tibor qaratib tuzing."
+          type="info"
+          showIcon
+          style={{ marginTop: '16px', borderRadius: 0, border: '2px solid #000' }}
+        />
+      </ConfigProvider>
     </Modal>
   );
 };

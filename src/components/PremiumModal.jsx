@@ -1,23 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Modal,
   Button,
   Typography,
-  Box,
-  Card,
-  CardContent,
-  RadioGroup,
-  FormControlLabel,
+  Space,
   Radio,
-  Chip,
-} from '@mui/material';
+  Card,
+  Tag,
+  Divider,
+} from 'antd';
 import {
-  Star as StarIcon,
-} from '@mui/icons-material';
+  StarOutlined,
+} from '@ant-design/icons';
 import apiService from '../data/apiService';
+
+const { Text, Title } = Typography;
 
 const PremiumModal = ({ open, onClose, student, onConfirm }) => {
   const [pricing, setPricing] = useState([]);
@@ -45,7 +42,6 @@ const PremiumModal = ({ open, onClose, student, onConfirm }) => {
 
   const handleConfirm = async () => {
     if (!selectedPlan) return;
-
     setLoading(true);
     try {
       const selectedPricing = pricing.find(p => p.id.toString() === selectedPlan);
@@ -53,7 +49,6 @@ const PremiumModal = ({ open, onClose, student, onConfirm }) => {
       onClose();
     } catch (error) {
       console.error('Failed to grant premium:', error);
-      showError('Premium berishda xatolik yuz berdi');
     } finally {
       setLoading(false);
     }
@@ -64,118 +59,98 @@ const PremiumModal = ({ open, onClose, student, onConfirm }) => {
   };
 
   return (
-    <Dialog
+    <Modal
+      title={
+        <Space>
+          <StarOutlined style={{ color: '#000' }} />
+          <Text style={{ fontWeight: 900, textTransform: 'uppercase' }}>Premium berish: {student?.name}</Text>
+        </Space>
+      }
       open={open}
-      onClose={onClose}
-      maxWidth="sm"
-      fullWidth
-    >
-      <DialogTitle sx={{
-        fontWeight: 600,
-        color: '#1e293b',
-        borderBottom: '1px solid #e2e8f0',
-        pb: 2
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <StarIcon sx={{ color: '#d97706' }} />
-          Premium berish: {student?.name}
-        </Box>
-      </DialogTitle>
-
-      <DialogContent sx={{ p: 3 }}>
-        <Typography variant="body1" sx={{ mb: 3, color: '#64748b' }}>
-          O'quvchiga premium berish uchun obuna muddatini tanlang:
-        </Typography>
-
-        <RadioGroup
-          value={selectedPlan}
-          onChange={(e) => setSelectedPlan(e.target.value)}
-          sx={{ gap: 2 }}
+      onCancel={onClose}
+      footer={[
+        <Button key="cancel" onClick={onClose} style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 800 }}>BEKOR QILISH</Button>,
+        <Button 
+          key="confirm" 
+          type="primary" 
+          loading={loading} 
+          onClick={handleConfirm} 
+          style={{ borderRadius: 0, border: '2px solid #000', backgroundColor: '#000', color: '#fff', fontWeight: 900 }}
         >
-          {pricing.map((plan) => (
-            <Card
-              key={plan.id}
-              sx={{
-                border: selectedPlan === plan.id.toString() ? '2px solid #d97706' : '1px solid #e2e8f0',
-                backgroundColor: selectedPlan === plan.id.toString() ? '#fef3c7' : '#ffffff',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  borderColor: '#d97706',
-                  backgroundColor: '#fef3c7'
-                }
-              }}
-              onClick={() => setSelectedPlan(plan.id.toString())}
-            >
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <FormControlLabel
-                      value={plan.id.toString()}
-                      control={<Radio sx={{ color: '#d97706' }} />}
-                      label=""
-                      sx={{ m: 0 }}
-                    />
-                    <Box>
-                      <Typography variant="h6" sx={{ fontWeight: 600, color: '#1e293b', mb: 1 }}>
-                        {plan.plan_name}
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography variant="h5" sx={{ fontWeight: 700, color: '#d97706' }}>
-                          ${plan.discounted_price}
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: '#64748b', textDecoration: 'line-through' }}>
-                          ${plan.original_price}
-                        </Typography>
-                        <Chip
-                          label={`${plan.discount_percentage}% chegirma`}
-                          size="small"
-                          sx={{
-                            backgroundColor: '#ecfdf5',
-                            color: '#059669',
-                            fontWeight: 600
-                          }}
-                        />
-                      </Box>
-                    </Box>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          ))}
-        </RadioGroup>
+          PREMIUM BERISH
+        </Button>
+      ]}
+      width={600}
+      styles={{
+        content: {
+          border: '6px solid #000',
+          borderRadius: 0,
+          boxShadow: '15px 15px 0px #000',
+        }
+      }}
+    >
+      <div style={{ padding: '20px 0' }}>
+        <Text style={{ display: 'block', marginBottom: '24px', fontWeight: 600, color: '#666' }}>
+          O'quvchiga premium berish uchun obuna muddatini tanlang:
+        </Text>
+
+        <Radio.Group 
+          value={selectedPlan} 
+          onChange={(e) => setSelectedPlan(e.target.value)}
+          style={{ width: '100%' }}
+        >
+          <Space direction="vertical" style={{ width: '100%' }} size="middle">
+            {pricing.map((plan) => (
+              <Card
+                key={plan.id}
+                hoverable={false}
+                onClick={() => setSelectedPlan(plan.id.toString())}
+                style={{
+                  borderRadius: 0,
+                  border: selectedPlan === plan.id.toString() ? '4px solid #000' : '2px solid #eee',
+                  transition: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: selectedPlan === plan.id.toString() ? '#fff' : '#fafafa'
+                }}
+                styles={{ body: { padding: '20px' } }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <Radio value={plan.id.toString()} style={{ transform: 'scale(1.2)' }} />
+                  <div style={{ flex: 1 }}>
+                    <Text style={{ display: 'block', fontWeight: 900, fontSize: '16px', textTransform: 'uppercase' }}>{plan.plan_name}</Text>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
+                      <Text style={{ fontWeight: 900, fontSize: '20px', color: '#000' }}>${plan.discounted_price}</Text>
+                      <Text style={{ color: '#999', textDecoration: 'line-through' }}>${plan.original_price}</Text>
+                      <div style={{ 
+                        backgroundColor: '#000', 
+                        color: '#fff', 
+                        padding: '2px 8px', 
+                        fontWeight: 900, 
+                        fontSize: '10px' 
+                      }}>
+                        {plan.discount_percentage}% CHEGIRMA
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </Space>
+        </Radio.Group>
 
         {getSelectedPlan() && (
-          <Box sx={{ mt: 3, p: 2, backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <Typography variant="body2" sx={{ color: '#64748b' }}>
-              <strong>Tanlangan:</strong> {getSelectedPlan().plan_name} - ${getSelectedPlan().discounted_price}
-            </Typography>
-          </Box>
+          <div style={{ 
+            marginTop: '32px', 
+            padding: '16px', 
+            border: '2px solid #000', 
+            backgroundColor: '#eee',
+            fontWeight: 800
+          }}>
+            TANLANGAN: {getSelectedPlan().plan_name.toUpperCase()} — ${getSelectedPlan().discounted_price}
+          </div>
         )}
-      </DialogContent>
-
-      <DialogActions sx={{ p: 3, borderTop: '1px solid #e2e8f0' }}>
-        <Button
-          onClick={onClose}
-          sx={{ color: '#64748b' }}
-        >
-          Bekor qilish
-        </Button>
-        <Button
-          onClick={handleConfirm}
-          variant="contained"
-          disabled={!selectedPlan || loading}
-          sx={{
-            backgroundColor: '#d97706',
-            '&:hover': {
-              backgroundColor: '#b45309'
-            }
-          }}
-        >
-          {loading ? 'Berilmoqda...' : 'Premium berish'}
-        </Button>
-      </DialogActions>
-    </Dialog>
+      </div>
+    </Modal>
   );
 };
 

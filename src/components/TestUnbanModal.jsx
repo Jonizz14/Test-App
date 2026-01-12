@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
+  Modal,
+  Input,
   Button,
   Typography,
-  Box,
+  Space,
   Alert,
-  CircularProgress,
-} from '@mui/material';
-import { Warning as WarningIcon } from '@mui/icons-material';
+} from 'antd';
+import {
+  WarningOutlined,
+} from '@ant-design/icons';
+
+const { Text, Title } = Typography;
 
 const TestUnbanModal = ({
   open,
@@ -26,16 +26,10 @@ const TestUnbanModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!unbanCode.trim()) {
-      return;
-    }
-
+    if (!unbanCode.trim()) return;
     setIsLoading(true);
-
     const success = await handleUnbanSubmit(unbanCode.trim());
-
     setIsLoading(false);
-
     if (success) {
       onUnbanSuccess();
     } else {
@@ -44,144 +38,90 @@ const TestUnbanModal = ({
   };
 
   return (
-    <Dialog
+    <Modal
       open={open}
-      maxWidth="sm"
-      fullWidth
-      disableEscapeKeyDown
-      disableBackdropClick
-      sx={{
-        '& .MuiDialog-paper': {
-          borderRadius: '8px',
+      closable={false}
+      footer={null}
+      width={500}
+      styles={{
+        content: {
+          border: '6px solid #000',
+          borderRadius: 0,
+          boxShadow: '15px 15px 0px #000',
+          padding: 0
         }
       }}
     >
-      <DialogTitle sx={{
-        backgroundColor: '#fef3c7',
-        color: '#d97706',
-        textAlign: 'center',
-        py: 2,
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
-          <WarningIcon sx={{ fontSize: '1.5rem' }} />
-          <Typography variant="h5" sx={{
-            fontWeight: 600,
-            color: '#d97706',
-          }}>
-            Ogohlantirishlar tugadi!
-          </Typography>
-        </Box>
-        <Typography sx={{
-          fontSize: '0.9rem',
-          color: '#b45309'
-        }}>
-          Testni davom ettirish uchun kodni kiriting
-        </Typography>
-      </DialogTitle>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ backgroundColor: '#000', color: '#fff', padding: '30px' }}>
+          <Space direction="vertical">
+            <WarningOutlined style={{ fontSize: '40px' }} />
+            <Title level={3} style={{ color: '#fff', margin: 0, fontWeight: 900, textTransform: 'uppercase' }}>Ogohlantirishlar Tugadi!</Title>
+            <Text style={{ color: '#fff', fontWeight: 700 }}>Testni davom ettirish uchun kodni kiriting</Text>
+          </Space>
+        </div>
 
-      <DialogContent sx={{ p: 4 }}>
-        <Box sx={{ textAlign: 'center', mb: 3 }}>
-          <Typography sx={{
-            color: '#374151',
-            mb: 2,
-            lineHeight: 1.6
-          }}>
+        <div style={{ padding: '30px' }}>
+          <Paragraph style={{ fontWeight: 600, color: '#333', marginBottom: '24px' }}>
             Siz 3 ta ogohlantirish oldingiz. Testni davom ettirish uchun quyidagi kodni kiriting.
-          </Typography>
+          </Paragraph>
 
-          <Box sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 1,
-            mb: 3,
-            flexWrap: 'wrap'
-          }}>
-            {[...Array(3)].map((_, i) => (
-              <Box
-                key={i}
-                sx={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: '50%',
-                  backgroundColor: '#dc2626',
-                  display: 'inline-block'
-                }}
-              />
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '24px' }}>
+            {[1, 2, 3].map(i => (
+              <div key={i} style={{ width: '20px', height: '20px', backgroundColor: '#000' }} />
             ))}
-          </Box>
-        </Box>
+          </div>
 
-        {unbanError && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {unbanError}
-          </Alert>
-        )}
+          {unbanError && <Alert message={unbanError} type="error" style={{ border: '2px solid #000', fontWeight: 800, borderRadius: 0, marginBottom: '24px' }} />}
 
-        <Box component="form" onSubmit={handleSubmit}>
-          <TextField
-            autoFocus
-            fullWidth
-            label="Blokdan ochish kodi"
-            value={unbanCode}
-            onChange={(e) => setUnbanCode(e.target.value)}
-            placeholder="4 ta raqam"
-            inputProps={{
-              maxLength: 4,
-              style: {
+          <form onSubmit={handleSubmit}>
+            <Input
+              autoFocus
+              size="large"
+              placeholder="4 TA RAQAM"
+              value={unbanCode}
+              onChange={(e) => setUnbanCode(e.target.value)}
+              maxLength={4}
+              style={{
+                height: '70px',
                 textAlign: 'center',
-                fontSize: '1.5rem',
-                letterSpacing: '0.5rem',
-                fontWeight: 'bold',
+                fontSize: '28px',
+                fontWeight: 900,
+                letterSpacing: '0.4em',
+                border: '4px solid #000',
+                borderRadius: 0,
+                marginBottom: '24px',
                 fontFamily: 'monospace'
-              }
-            }}
-            sx={{
-              mb: 3,
-            }}
-            disabled={isLoading}
-          />
+              }}
+            />
 
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            disabled={isLoading || !unbanCode.trim()}
-            sx={{
-              py: 1.5,
-              fontSize: '1rem',
-              fontWeight: 600,
-              backgroundColor: '#059669',
-              color: '#ffffff',
-              '&:hover': {
-                backgroundColor: '#047857',
-              },
-              '&:disabled': {
-                backgroundColor: '#d1d5db',
-                color: '#9ca3af'
-              }
-            }}
-          >
-            {isLoading ? (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <CircularProgress size={20} color="inherit" />
-                <span>Tekshirilmoqda...</span>
-              </Box>
-            ) : (
-              'Testni davom ettirish'
-            )}
-          </Button>
-        </Box>
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              block
+              loading={isLoading}
+              disabled={!unbanCode.trim()}
+              style={{
+                height: '60px',
+                backgroundColor: '#000',
+                color: '#fff',
+                fontSize: '18px',
+                fontWeight: 900,
+                borderRadius: 0,
+                border: '4px solid #000'
+              }}
+            >
+              TESTNI DAVOM ETTIRISH
+            </Button>
+          </form>
 
-        <Typography sx={{
-          textAlign: 'center',
-          color: '#6b7280',
-          mt: 3,
-          fontSize: '0.85rem'
-        }}>
-          Kodni admin paneldan olishingiz mumkin
-        </Typography>
-      </DialogContent>
-    </Dialog>
+          <Text style={{ display: 'block', marginTop: '24px', color: '#999', fontWeight: 800, fontSize: '12px', textTransform: 'uppercase' }}>
+            KODNI ADMIN PANELDAN OLISHINGIZ MUMKIN
+          </Text>
+        </div>
+      </div>
+    </Modal>
   );
 };
 

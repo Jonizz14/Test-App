@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import {
   Typography,
   Button,
-  Card,
   Avatar,
   Row,
   Col,
   Alert,
   Spin,
   Space,
+  ConfigProvider,
+  Divider,
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -20,8 +21,9 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiService from '../../data/apiService';
+import 'animate.css';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 
 const AdminDetails = () => {
   const navigate = useNavigate();
@@ -37,231 +39,174 @@ const AdminDetails = () => {
         const adminData = await apiService.getUser(id);
         setAdmin(adminData);
       } catch (error) {
-        console.error('Failed to load data:', error);
         setError('Ma\'lumotlarni yuklashda xatolik yuz berdi');
       } finally {
         setLoading(false);
       }
     };
-
-    if (id) {
-      loadData();
-    }
+    if (id) loadData();
   }, [id]);
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '400px',
-        flexDirection: 'column'
-      }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px', flexDirection: 'column' }}>
         <Spin size="large" />
-        <Text style={{ marginTop: 16 }}>Ma'lumotlar yuklanmoqda...</Text>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={{ padding: '24px' }}>
-        <Alert
-          message={error}
-          type="error"
-          showIcon
-          style={{ marginBottom: '16px' }}
-        />
-        <Button
-          type="text"
-          icon={<ArrowLeftOutlined />}
-          onClick={() => navigate('/headadmin/admins')}
-        >
-          Adminlarga qaytish
-        </Button>
-      </div>
-    );
-  }
-
-  if (!admin) {
-    return (
-      <div style={{ padding: '24px' }}>
-        <Alert
-          message="Admin topilmadi"
-          type="warning"
-          showIcon
-          style={{ marginBottom: '16px' }}
-        />
-        <Button
-          type="text"
-          icon={<ArrowLeftOutlined />}
-          onClick={() => navigate('/headadmin/admins')}
-        >
-          Adminlarga qaytish
-        </Button>
+        <Text style={{ marginTop: 16, fontWeight: 800 }}>YUKLANMOQDA...</Text>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '24px 0' }}>
-      {/* Header */}
-      <div style={{
-        marginBottom: '24px',
-        paddingBottom: '16px',
-        borderBottom: '1px solid #e2e8f0'
-      }}>
-        <Button
-          type="text"
-          icon={<ArrowLeftOutlined />}
-          onClick={() => navigate('/headadmin/admins')}
-          style={{ marginBottom: 16 }}
-        >
-          Adminlarni boshqarishga qaytish
-        </Button>
-        
-        <Title level={1} style={{ margin: 0, color: '#1e293b', marginBottom: '8px' }}>
-          Admin ma'lumotlari
-        </Title>
-        <Text style={{ fontSize: '18px', color: '#64748b' }}>
-          {admin.name} haqida batafsil ma'lumot
-        </Text>
-      </div>
-
-      <Row gutter={[24, 24]}>
-        {/* Profile Card */}
-        <Col xs={24}>
-          <Card
-            style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '16px',
-              textAlign: 'center',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            }}
-            styles={{ body: { padding: '48px 24px' } }}
+    <ConfigProvider
+      theme={{
+        token: {
+          borderRadius: 0,
+          colorPrimary: '#000',
+        },
+      }}
+    >
+      <div style={{ padding: '40px 0' }}>
+        {/* Brutalist Header */}
+        <div className="animate__animated animate__fadeIn" style={{ marginBottom: '60px' }}>
+          <Button
+            type="text"
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate('/headadmin/admins')}
+            style={{ marginBottom: 24, fontWeight: 800, textTransform: 'uppercase', padding: 0 }}
           >
-            <Avatar
-              size={160}
-              icon={<SafetyCertificateOutlined />}
-              style={{
-                backgroundColor: '#dc2626',
-                fontSize: '64px',
-                marginBottom: '24px',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-              }}
-            />
+            ORTGA QAYTISH
+          </Button>
+          
+          <div style={{ 
+            display: 'inline-block', 
+            backgroundColor: '#000', 
+            color: '#fff', 
+            padding: '8px 16px', 
+            fontWeight: 900, 
+            fontSize: '14px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.2em',
+            marginBottom: '16px'
+          }}>
+            Tafsilotlar
+          </div>
+          <Title level={1} style={{ 
+            margin: 0, 
+            fontWeight: 900, 
+            fontSize: '2.5rem', 
+            lineHeight: 0.9, 
+            textTransform: 'uppercase',
+            letterSpacing: '-0.05em',
+            color: '#000'
+          }}>
+            Admin Profili
+          </Title>
+          <div style={{ 
+            width: '80px', 
+            height: '10px', 
+            backgroundColor: '#000', 
+            margin: '24px 0' 
+          }}></div>
+          <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, color: '#333', maxWidth: '600px' }}>
+            Administrator haqida batafsil ma'lumotlar va tizimdagi huquqlari.
+          </Paragraph>
+        </div>
 
-            <Title level={2} style={{ margin: 0, color: '#1e293b', marginBottom: '16px' }}>
-              {admin.name}
-            </Title>
+        {error && (
+          <Alert
+            message={error}
+            type="error"
+            showIcon
+            style={{ borderRadius: 0, border: '3px solid #000', boxShadow: '6px 6px 0px #000', fontWeight: 900, marginBottom: '24px', maxWidth: '800px' }}
+          />
+        )}
 
-            <div
-              style={{
-                fontFamily: 'monospace',
-                fontSize: '16px',
-                backgroundColor: '#f1f5f9',
-                padding: '12px 20px',
-                borderRadius: '8px',
-                color: '#475569',
-                display: 'inline-block'
-              }}
-            >
-              {admin.email}
-            </div>
-          </Card>
-        </Col>
-
-        {/* Details Card */}
-        <Col xs={24}>
-          <Card
-            style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '16px',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-            }}
-          >
-            <Title level={3} style={{ marginBottom: '24px', color: '#1e293b' }}>
-              Ma'lumotlar
-            </Title>
-
-            <Row gutter={[24, 24]}>
-              <Col xs={24} sm={12}>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-                  <UserOutlined style={{ color: '#64748b', fontSize: '24px', marginRight: '16px' }} />
-                  <div>
-                    <Text style={{ fontSize: '14px', color: '#64748b', fontWeight: 500, display: 'block' }}>
-                      To'liq ism
-                    </Text>
-                    <Text style={{ fontSize: '18px', color: '#1e293b', fontWeight: 600 }}>
-                      {admin.name}
-                    </Text>
-                  </div>
+        {admin && (
+          <div className="animate__animated animate__fadeIn" style={{ maxWidth: '900px', margin: '0 auto' }}>
+            <Row gutter={[32, 32]}>
+              {/* Profile Card */}
+              <Col xs={24} md={8}>
+                <div style={{ 
+                  padding: '40px 24px', 
+                  border: '4px solid #000', 
+                  boxShadow: '10px 10px 0px #000', 
+                  backgroundColor: '#fff',
+                  textAlign: 'center'
+                }}>
+                  <Avatar
+                    size={120}
+                    icon={<SafetyCertificateOutlined />}
+                    style={{ backgroundColor: '#000', borderRadius: 0, border: '4px solid #000', marginBottom: '20px' }}
+                  />
+                  <Title level={3} style={{ fontWeight: 900, textTransform: 'uppercase', margin: 0 }}>{admin.name}</Title>
+                  <Text style={{ fontWeight: 700, color: '#666', fontSize: '12px' }}>ADMINISTRATOR</Text>
                 </div>
               </Col>
 
-              <Col xs={24} sm={12}>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-                  <MailOutlined style={{ color: '#64748b', fontSize: '24px', marginRight: '16px' }} />
-                  <div>
-                    <Text style={{ fontSize: '14px', color: '#64748b', fontWeight: 500, display: 'block' }}>
-                      Email
-                    </Text>
-                    <Text style={{ fontSize: '18px', color: '#1e293b', fontWeight: 600 }}>
-                      {admin.email}
-                    </Text>
-                  </div>
-                </div>
-              </Col>
+              {/* Info Card */}
+              <Col xs={24} md={16}>
+                <div style={{ 
+                  padding: '40px', 
+                  border: '4px solid #000', 
+                  boxShadow: '10px 10px 0px #000', 
+                  backgroundColor: '#fff'
+                }}>
+                  <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                      <UserOutlined style={{ fontSize: '24px', color: '#000' }} />
+                      <div>
+                        <Text style={{ fontSize: '12px', fontWeight: 900, color: '#999', textTransform: 'uppercase' }}>Foydalanuvchi nomi</Text>
+                        <Paragraph style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>{admin.name.toUpperCase()}</Paragraph>
+                      </div>
+                    </div>
 
-              <Col xs={24} sm={12}>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-                  <CalendarOutlined style={{ color: '#64748b', fontSize: '24px', marginRight: '16px' }} />
-                  <div>
-                    <Text style={{ fontSize: '14px', color: '#64748b', fontWeight: 500, display: 'block' }}>
-                      Ro'yxatdan o'tgan
-                    </Text>
-                    <Text style={{ fontSize: '18px', color: '#1e293b', fontWeight: 600 }}>
-                      {admin.registration_date ? new Date(admin.registration_date).toLocaleDateString('uz-UZ') : 'Noma\'lum'}
-                    </Text>
-                  </div>
-                </div>
-              </Col>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                      <MailOutlined style={{ fontSize: '24px', color: '#000' }} />
+                      <div>
+                        <Text style={{ fontSize: '12px', fontWeight: 900, color: '#999', textTransform: 'uppercase' }}>Email manzil</Text>
+                        <Paragraph style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>{admin.email}</Paragraph>
+                      </div>
+                    </div>
 
-              <Col xs={24} sm={12}>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-                  <SafetyCertificateOutlined style={{ color: '#64748b', fontSize: '24px', marginRight: '16px' }} />
-                  <div>
-                    <Text style={{ fontSize: '14px', color: '#64748b', fontWeight: 500, display: 'block' }}>
-                      Rol
-                    </Text>
-                    <Text style={{ fontSize: '18px', color: '#1e293b', fontWeight: 600 }}>
-                      Administrator
-                    </Text>
-                  </div>
-                </div>
-              </Col>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                      <BankOutlined style={{ fontSize: '24px', color: '#000' }} />
+                      <div>
+                        <Text style={{ fontSize: '12px', fontWeight: 900, color: '#999', textTransform: 'uppercase' }}>Tashkilot</Text>
+                        <Paragraph style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>{admin.organization?.toUpperCase() || 'ANIQLANMAGAN'}</Paragraph>
+                      </div>
+                    </div>
 
-              <Col xs={24} sm={12}>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-                  <BankOutlined style={{ color: '#64748b', fontSize: '24px', marginRight: '16px' }} />
-                  <div>
-                    <Text style={{ fontSize: '14px', color: '#64748b', fontWeight: 500, display: 'block' }}>
-                      Tashkilot
-                    </Text>
-                    <Text style={{ fontSize: '18px', color: '#1e293b', fontWeight: 600 }}>
-                      {admin.organization || 'Aniqlanmagan'}
-                    </Text>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                      <CalendarOutlined style={{ fontSize: '24px', color: '#000' }} />
+                      <div>
+                        <Text style={{ fontSize: '12px', fontWeight: 900, color: '#999', textTransform: 'uppercase' }}>Ro'yxatdan o'tgan sana</Text>
+                        <Paragraph style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>
+                          {admin.registration_date ? new Date(admin.registration_date).toLocaleDateString('uz-UZ') : 'NOMA\'LUM'}
+                        </Paragraph>
+                      </div>
+                    </div>
+                  </Space>
+
+                  <Divider style={{ borderTop: '4px solid #000', margin: '40px 0' }} />
+
+                  <div style={{ display: 'flex', gap: '16px' }}>
+                    <Button 
+                      type="primary" 
+                      onClick={() => navigate(`/headadmin/edit-admin/${admin.id}`)}
+                      style={{ borderRadius: 0, border: '3px solid #000', height: '50px', fontWeight: 900, padding: '0 30px', backgroundColor: '#000', color: '#fff' }}
+                    >TAHRIRLASH</Button>
+                    <Button 
+                      onClick={() => navigate('/headadmin/admins')}
+                      style={{ borderRadius: 0, border: '3px solid #000', height: '50px', fontWeight: 900, padding: '0 30px' }}
+                    >ORTGA</Button>
                   </div>
                 </div>
               </Col>
             </Row>
-          </Card>
-        </Col>
-      </Row>
-    </div>
+          </div>
+        )}
+      </div>
+    </ConfigProvider>
   );
 };
 

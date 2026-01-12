@@ -1,67 +1,58 @@
 import React, { useState } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
+  Modal,
+  Input,
   Button,
   Typography,
-  Box,
+  Space,
   Alert,
-  CircularProgress,
   Divider,
-} from '@mui/material';
-import { ExitToApp as LogoutIcon, Lock as LockIcon, VpnKey as KeyIcon } from '@mui/icons-material';
+} from 'antd';
+import {
+  LockOutlined,
+  KeyOutlined,
+  LogoutOutlined,
+} from '@ant-design/icons';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+
+const { Text, Title } = Typography;
 
 const UnbanModal = ({ open, onClose }) => {
   const [code, setCode] = useState(['', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { unbanWithCode, currentUser, logout } = useAuth();
+  const { unbanWithCode, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleCodeChange = (e, index) => {
-    const value = e.target.value.replace(/[^0-9]/g, ''); // Only allow numbers
-
+    const value = e.target.value.replace(/[^0-9]/g, '');
     if (value.length <= 1) {
       const newCode = [...code];
       newCode[index] = value;
       setCode(newCode);
-
-      // Auto-focus next input
       if (value && index < 3) {
         const nextInput = document.querySelector(`input[data-index="${index + 1}"]`);
-        if (nextInput) {
-          setTimeout(() => nextInput.focus(), 10);
-        }
+        if (nextInput) setTimeout(() => nextInput.focus(), 10);
       }
     }
   };
 
   const handleKeyDown = (e, index) => {
     if (e.key === 'Backspace' && !code[index] && index > 0) {
-      // Move to previous input on backspace if current is empty
       const prevInput = document.querySelector(`input[data-index="${index - 1}"]`);
-      if (prevInput) {
-        setTimeout(() => prevInput.focus(), 10);
-      }
+      if (prevInput) setTimeout(() => prevInput.focus(), 10);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     const fullCode = code.join('');
     if (fullCode.length !== 4) {
       setError('Iltimos, to\'liq 4 ta raqamli kodni kiriting');
       return;
     }
-
     setIsLoading(true);
     setError('');
-
     try {
       await unbanWithCode(fullCode);
       onClose();
@@ -74,209 +65,109 @@ const UnbanModal = ({ open, onClose }) => {
 
   const handleLogout = () => {
     logout();
-    onClose(); // Close modal before redirecting
+    onClose();
     navigate('/login');
   };
 
   return (
-    <Dialog
+    <Modal
       open={open}
-      maxWidth="sm"
-      fullWidth
-      disableEscapeKeyDown
-      disableBackdropClick
-      sx={{
-        '& .MuiDialog-paper': {
-          borderRadius: '12px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+      closable={false}
+      footer={null}
+      width={500}
+      styles={{
+        content: {
+          border: '6px solid #000',
+          borderRadius: 0,
+          boxShadow: '15px 15px 0px #000',
+          padding: 0
         }
       }}
     >
-      <DialogTitle sx={{
-        backgroundColor: '#fef2f2',
-        color: '#dc2626',
-        textAlign: 'center',
-        py: 2,
-      }}>
-        <Box sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 1,
-        }}>
-          <LockIcon sx={{
-            fontSize: '2rem',
-            color: '#dc2626',
-          }} />
-          <Typography variant="h5" sx={{
-            fontWeight: 600,
-            color: '#dc2626',
-          }}>
-            Profil bloklangan
-          </Typography>
-        </Box>
-      </DialogTitle>
+      <div style={{ backgroundColor: '#fff', textAlign: 'center' }}>
+        <div style={{ backgroundColor: '#000', color: '#fff', padding: '40px 20px' }}>
+          <LockOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
+          <Title level={2} style={{ color: '#fff', margin: 0, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Profil Bloklangan</Title>
+        </div>
 
-      <DialogContent sx={{ p: 4, pb: 3 }}>
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
-          <Box sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 1,
-            mb: 2
-          }}>
-            <KeyIcon sx={{ color: '#6b7280', fontSize: '1.2rem' }} />
-            <Typography sx={{
-              color: '#374151',
-              fontSize: '1.1rem',
-              fontWeight: 600,
-              letterSpacing: '0.3px'
-            }}>
-              Unban kodi
-            </Typography>
-          </Box>
-          <Typography sx={{
-            color: '#6b7280',
-            fontSize: '0.95rem',
-            lineHeight: 1.5,
-            maxWidth: '280px',
-            mx: 'auto'
-          }}>
-            Profilingizni ochish uchun 4 ta raqamli maxsus kodni kiriting
-          </Typography>
-        </Box>
+        <div style={{ padding: '40px' }}>
+          <Space direction="vertical" size="large" style={{ width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+              <KeyOutlined style={{ fontSize: '24px' }} />
+              <Text style={{ fontWeight: 900, fontSize: '18px', textTransform: 'uppercase' }}>Unban Kodi</Text>
+            </div>
+            
+            <Text style={{ fontWeight: 600, color: '#666' }}>
+              Profilingizni ochish uchun 4 ta raqamli maxsus kodni kiriting
+            </Text>
 
-        <Divider sx={{ mb: 4, borderColor: '#e5e7eb' }} />
+            <Divider style={{ borderTop: '4px solid #000' }} />
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
+            {error && <Alert message={error} type="error" showIcon style={{ border: '2px solid #000', fontWeight: 800, borderRadius: 0 }} />}
 
-        <Box component="form" onSubmit={handleSubmit}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
-            <Box sx={{
-              display: 'flex',
-              gap: 2,
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', margin: '20px 0' }}>
               {[0, 1, 2, 3].map((index) => (
-                <TextField
+                <Input
                   key={index}
-                  autoFocus={index === 0}
-                  value={code[index] || ''}
+                  data-index={index}
+                  value={code[index]}
                   onChange={(e) => handleCodeChange(e, index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
-                  inputProps={{
-                    maxLength: 1,
-                    'data-index': index,
-                    style: {
-                      textAlign: 'center',
-                      fontSize: '2.2rem',
-                      fontWeight: 'bold',
-                      fontFamily: 'monospace',
-                      padding: '16px 0'
-                    }
-                  }}
-                  sx={{
+                  style={{
                     width: '60px',
-                    '& .MuiOutlinedInput-root': {
-                      backgroundColor: '#ffffff',
-                      '&:hover': {
-                        borderColor: '#059669',
-                      },
-                      '&.Mui-focused': {
-                        borderColor: '#059669',
-                      }
-                    },
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      border: 'none'
-                    }
+                    height: '80px',
+                    textAlign: 'center',
+                    fontSize: '32px',
+                    fontWeight: 900,
+                    border: '4px solid #000',
+                    borderRadius: 0,
+                    backgroundColor: '#fafafa'
                   }}
-                  disabled={isLoading}
+                  maxLength={1}
                 />
               ))}
-            </Box>
-          </Box>
+            </div>
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'center' }}>
             <Button
-              type="submit"
-              variant="contained"
-              disabled={isLoading || code.some(digit => !digit)}
-              sx={{
-                minWidth: '200px',
-                py: 1.5,
-                fontSize: '1rem',
-                fontWeight: 600,
-                backgroundColor: '#059669',
-                color: '#ffffff',
-                '&:hover': {
-                  backgroundColor: '#047857',
-                },
-                '&:disabled': {
-                  backgroundColor: '#d1d5db',
-                  color: '#9ca3af',
-                }
+              type="primary"
+              size="large"
+              block
+              loading={isLoading}
+              onClick={handleSubmit}
+              disabled={code.some(digit => !digit)}
+              style={{
+                height: '60px',
+                backgroundColor: '#000',
+                color: '#fff',
+                fontWeight: 900,
+                fontSize: '18px',
+                borderRadius: 0,
+                border: '4px solid #000'
               }}
             >
-              {isLoading ? (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <CircularProgress size={20} color="inherit" />
-                  <span>Tekshirilmoqda...</span>
-                </Box>
-              ) : (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <KeyIcon sx={{ fontSize: '1.2rem' }} />
-                  <span>Profilni ochish</span>
-                </Box>
-              )}
+              PROFILNI OCHISH
             </Button>
 
-            <Box sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 2,
-              width: '100%',
-              maxWidth: '250px'
-            }}>
-              <Divider sx={{ flex: 1, borderColor: '#e5e7eb' }} />
-              <Typography sx={{
-                color: '#9ca3af',
-                fontSize: '0.85rem',
-                fontWeight: 500,
-                px: 1
-              }}>
-                yoki
-              </Typography>
-              <Divider sx={{ flex: 1, borderColor: '#e5e7eb' }} />
-            </Box>
+            <div style={{ margin: '16px 0', fontWeight: 900, color: '#999' }}>YOKI</div>
 
             <Button
+              size="large"
+              block
+              icon={<LogoutOutlined />}
               onClick={handleLogout}
-              variant="outlined"
-              startIcon={<LogoutIcon />}
-              sx={{
-                color: '#dc2626',
-                borderColor: '#fecaca',
-                backgroundColor: '#fef2f2',
-                '&:hover': {
-                  backgroundColor: '#fecaca',
-                  borderColor: '#f87171',
-                  color: '#b91c1c',
-                }
+              style={{
+                height: '60px',
+                fontWeight: 800,
+                borderRadius: 0,
+                border: '3px solid #000'
               }}
             >
-              Tizimdan chiqish
+              TIZIMDAN CHIQISH
             </Button>
-          </Box>
-        </Box>
-
-      </DialogContent>
-    </Dialog>
+          </Space>
+        </div>
+      </div>
+    </Modal>
   );
 };
 

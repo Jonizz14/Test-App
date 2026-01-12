@@ -84,7 +84,7 @@ const ManagePrices = () => {
     >
       <div className="animate__animated animate__fadeIn" style={{ padding: '40px 0' }}>
         {/* Header */}
-        <div className="animate__animated animate__fadeInDown" style={{ marginBottom: '60px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div className="animate__animated animate__fadeIn" style={{ marginBottom: '60px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <div style={{ 
               display: 'inline-block', 
@@ -156,7 +156,7 @@ const ManagePrices = () => {
         )}
 
         {/* Tabs */}
-        <div className="animate__animated animate__fadeInUp" style={{ marginBottom: '32px' }}>
+        <div className="animate__animated animate__fadeIn" style={{ marginBottom: '32px' }}>
           <Tabs
             activeKey={activeTab.toString()}
             onChange={(key) => setActiveTab(parseInt(key))}
@@ -175,7 +175,7 @@ const ManagePrices = () => {
         </div>
 
         {/* Pricing Table Section */}
-        <div className="animate__animated animate__fadeInUpBig" style={{ 
+        <div className="animate__animated animate__fadeIn" style={{ 
           border: '4px solid #000', 
           boxShadow: '12px 12px 0px #000', 
           backgroundColor: '#fff',

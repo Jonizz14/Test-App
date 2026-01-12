@@ -135,7 +135,7 @@ const ManageStudents = () => {
     >
       <div className="animate__animated animate__fadeIn" style={{ padding: '40px 0' }}>
         {/* Header */}
-        <div className="animate__animated animate__fadeInDown" style={{ marginBottom: '60px' }}>
+        <div className="animate__animated animate__fadeIn" style={{ marginBottom: '60px' }}>
           <div style={{ 
             display: 'inline-block', 
             backgroundColor: '#000', 
@@ -188,7 +188,7 @@ const ManageStudents = () => {
         )}
 
         {/* Search Input */}
-        <div className="animate__animated animate__fadeInUp" style={{ marginBottom: '32px' }}>
+        <div className="animate__animated animate__fadeIn" style={{ marginBottom: '32px' }}>
           <Input
             placeholder="QIDIRISH..."
             size="large"
@@ -207,7 +207,7 @@ const ManageStudents = () => {
         </div>
 
         {/* Table Section */}
-        <div className="animate__animated animate__fadeInUpBig" style={{ border: '4px solid #000', boxShadow: '12px 12px 0px #000', backgroundColor: '#fff' }}>
+        <div className="animate__animated animate__fadeIn" style={{ border: '4px solid #000', boxShadow: '12px 12px 0px #000', backgroundColor: '#fff' }}>
           <Table
             dataSource={filteredStudents}
             loading={loading}

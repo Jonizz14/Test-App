@@ -65,7 +65,7 @@ const SellerOverview = () => {
   };
 
   const StatBox = ({ title, value, icon, color, delay, suffix }) => (
-    <div className="animate__animated animate__zoomIn" style={{ animationDelay: delay }}>
+    <div className="animate__animated animate__fadeIn" style={{ animationDelay: delay }}>
       <Card
         style={{
           borderRadius: 0,
@@ -139,7 +139,7 @@ const SellerOverview = () => {
     >
       <div style={{ padding: '40px 0' }}>
         {/* Brutalist Header */}
-        <div className="animate__animated animate__fadeInDown" style={{ marginBottom: '60px' }}>
+        <div className="animate__animated animate__fadeIn" style={{ marginBottom: '60px' }}>
           <div style={{ 
             display: 'inline-block', 
             backgroundColor: '#000', 
@@ -228,7 +228,7 @@ const SellerOverview = () => {
         </Row>
 
         {/* Action Button Section (Brutalist Style) */}
-        <div className="animate__animated animate__fadeInUp" style={{ marginTop: '80px' }}>
+        <div className="animate__animated animate__fadeIn" style={{ marginTop: '80px' }}>
           <div style={{ 
             border: '4px solid #000', 
             padding: '40px', 
