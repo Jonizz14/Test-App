@@ -18,8 +18,8 @@
   top: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
-  width: 900px;
-  min-width: 320px;
+  width: max-content;
+  min-width: 200px;
   max-width: 95%;
   height: 64px;
   overflow: visible; /* Allow dropdown to show */
@@ -585,46 +585,7 @@ body:has(.header.ai-fullscreen) {
 .material-symbols-outlined {
   font-size: 24px;
 }
-/* Dashboard Mode (Admin Panel Handle) */
-/* When in dashboard mode (collapsed), header slides UP off-screen */
-.header.dashboard-mode {
-  top: -150px !important; /* Completely hidden above */
-  transition: top 1s cubic-bezier(0.22, 1, 0.36, 1); /* Slower and smoother */
-  box-shadow: none;
-}
-
-/* The standalone Handle that stays visible */
-.dashboard-handle {
-  position: fixed;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 200px;
-  height: 24px;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 0 0 20px 20px;
-  backdrop-filter: blur(10px);
-  cursor: pointer;
-  z-index: 3100; /* Above header */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  animation: handleSlideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.dashboard-handle:hover {
-  background: rgba(255, 255, 255, 0.8);
-  height: 28px;
-}
-
-.handle-bar {
-  width: 40px;
-  height: 4px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 2px;
-}
+/* Dashboard Mode Styles Removed */
 
 @keyframes handleSlideDown {
   from { top: -30px; }
@@ -636,36 +597,7 @@ body:has(.header.ai-fullscreen) {
   top: 1.5rem; /* Slide down to this position */
 }
 
-/* Collapse Button Styling */
-.collapse-arrow-btn {
-  position: absolute;
-  bottom: -24px; /* Initially hidden */
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 24px;
-  background: rgba(0, 0, 0, 0.8);
-  border-radius: 0 0 12px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-top: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: white;
-  opacity: 0;
-  transition: all 0.3s ease;
-  z-index: -1;
-}
-
-.header:not(.dashboard-mode) .collapse-arrow-btn {
-  opacity: 1;
-  bottom: -24px;
-}
-
-.header:not(.dashboard-mode):hover .collapse-arrow-btn {
-  opacity: 1;
-}
+/* Collapse Button Styles Removed */
 /* Dropdown Menu Styles */
 .nav-item {
   position: relative;

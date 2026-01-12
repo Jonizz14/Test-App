@@ -139,6 +139,13 @@ const Header = ({ demoMode = false }) => {
         { label: t('nav.tests'), path: '/teacher/tests' }
       ];
     }
+    if (location.pathname.startsWith('/seller')) {
+      return [
+        { label: 'Umumiy', path: '/seller' },
+        { label: "O'quvchilar", path: '/seller/students' },
+        { label: 'Narxlar', path: '/seller/prices' }
+      ];
+    }
     if (location.pathname.startsWith('/student')) {
       return [
         { label: t('nav.cabinet'), path: '/student' },
@@ -178,10 +185,6 @@ const Header = ({ demoMode = false }) => {
     if (showAIFullscreen) classes.push('ai-fullscreen');
     if (demoMode) classes.push('demo-mode');
     
-    // Only apply dashboard-mode (collapsed) if it IS a dashboard AND NOT expanded
-    if (isDashboard && !isDashboardExpanded) {
-      classes.push('dashboard-mode');
-    }
     return classes.join(' ');
   };
 
@@ -193,7 +196,6 @@ const Header = ({ demoMode = false }) => {
 
   const handleCollapse = (e) => {
     e.stopPropagation();
-    setIsDashboardExpanded(false);
     setShowSaved(false);
     setShowMessages(false);
     setShowNotifications(false);
@@ -265,20 +267,8 @@ const Header = ({ demoMode = false }) => {
 
   return (
     <>
-      {/* Dashboard Handle (Trigger) */}
-      {isDashboard && !isDashboardExpanded && (
-        <div className="dashboard-handle" onClick={handleHeaderClick}>
-          <div className="handle-bar"></div>
-        </div>
-      )}
-
       <header className={getHeaderClass()} ref={headerRef}>
-        {/* Collapse Button for Dashboard Mode */}
-        {isDashboard && isDashboardExpanded && (
-          <div className="collapse-arrow-btn" onClick={handleCollapse} title="Yopish">
-            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>keyboard_arrow_up</span>
-          </div>
-        )}
+        {/* Collapse Button Removed per request */}
 
         <div className="layout-container">
           <div className="layout-content-container">
