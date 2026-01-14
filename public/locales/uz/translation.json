@@ -29,7 +29,79 @@
         "close": "Yopish",
         "saved": "saqlandi",
         "changeLanguage": "Tilni o'zgartirish",
-        "aiAssistant": "AI Yordamchi"
+        "aiAssistant": "AI Yordamchi",
+        "search": {
+            "placeholder": "Qidirish...",
+            "noResults": "Hech narsa topilmadi",
+            "typeToSearch": "Qidirish uchun kalit so'zni kiriting",
+            "results": {
+                "home": {
+                    "title": "Bosh sahifa",
+                    "desc": "Examify Prep asosiy sahifasi",
+                    "content": "Examify Prep platformasi orqali imtihonlarga tayyorlaning. Bizning tizim o'quvchilar va o'qituvchilar uchun qulay imkoniyatlarni taqdim etadi. Asosiy imkoniyatlar, onlayn testlar, natijalar tahlili."
+                },
+                "contact": {
+                    "title": "Aloqa",
+                    "desc": "Biz bilan bog'lanish",
+                    "content": "Savollaringiz bormi? Bizga murojaat qiling. Telefon: +998 90 123 45 67, Email: info@examify.uz. Manzil: Toshkent sh., Sergeli tumani. Texnik yordam va hamkorlik masalalari bo'yicha murojaat."
+                },
+                "login": {
+                    "title": "Kirish",
+                    "desc": "Tizimga kirish",
+                    "content": "Shaxsiy kabinetingizga kiring. O'qituvchi, o'quvchi yoki admin sifatida davom eting. Login va parol orqali kirish. Parolni tiklash imkoniyati."
+                },
+                "welcome": {
+                    "title": "Xush kelibsiz",
+                    "desc": "Xush kelibsiz",
+                    "content": "Yangi foydalanuvchilar uchun qo'llanma. Tizim imkoniyatlari bilan tanishing: testlar ishlash, natijalarni ko'rish, sun'iy intellekt yordamchisi. Tizimdan qanday foydalanish bo'yicha to'liq ko'rsatma."
+                },
+                "adminDashboard": {
+                    "title": "Admin Dashboard",
+                    "desc": "Boshqaruv paneli",
+                    "content": "Statistika, foydalanuvchilar boshqaruvi, darslar va testlar yaratish. Adminlar uchun maxsus imkoniyatlar. O'quv markazi faoliyatini to'liq nazorat qilish."
+                },
+                "adminTeachers": {
+                    "title": "O'qituvchilar",
+                    "desc": "O'qituvchilar ro'yxati va boshqaruvi",
+                    "content": "Yangi o'qituvchi qo'shish, ma'lumotlarini tahrirlash, o'chirish. O'qituvchilarning faolligi va reytingini kuzatish."
+                },
+                "adminStudents": {
+                    "title": "O'quvchilar",
+                    "desc": "O'quvchilar ro'yxati va boshqaruvi",
+                    "content": "O'quvchilarni guruhlarga ajratish, imtihon natijalarini ko'rish, davomatni tekshirish."
+                },
+                "teacherClasses": {
+                    "title": "Sinflarim",
+                    "desc": "Biriktirilgan sinflar",
+                    "content": "O'qituvchi o'z sinflarini boshqarishi, o'quvchilarga vazifalar berishi va ularning o'zlashtirishini nazorat qilishi mumkin."
+                },
+                "teacherTests": {
+                    "title": "Testlar Boshqaruvi",
+                    "desc": "Testlar yaratish va tahrirlash",
+                    "content": "Yangi testlar tuzish, savollar bankini shakllantirish, test vaqtini va baholash mezonlarini belgilash."
+                },
+                "studentTests": {
+                    "title": "Testlar",
+                    "desc": "Mavjud testlar",
+                    "content": "Fanlar bo'yicha testlar ishlash. Bilimni sinash. Test natijalarini darhol bilib olish."
+                },
+                "studentResults": {
+                    "title": "Natijalar",
+                    "desc": "Test natijalari tarixi",
+                    "content": "O'tgan barcha testlar natijalari, xatolar ustida ishlash, o'zlashtirish dinamikasi."
+                },
+                "profile": {
+                    "title": "Profil",
+                    "desc": "Foydalanuvchi ma'lumotlari",
+                    "content": "Ism, familiya, rasm va shaxsiy sozlamalar. Hisob xavfsizligi, parolni o'zgartirish, til sozlamalari."
+                },
+                "aiHelp": {
+                    "title": "AI Yordamchi",
+                    "desc": "Sun'iy intellekt",
+                    "content": "Savollaringizga tezkor javob oling. AI orqali testlar tahlili va o'quv rejalari tuzish. Chat orqali muloqot."
+                }
+            }
+        }
     },
     "home": {
         "heroTitle": "EXAMIFY PREP",

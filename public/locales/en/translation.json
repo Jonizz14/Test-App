@@ -29,7 +29,79 @@
         "close": "Close",
         "saved": "saved",
         "changeLanguage": "Change Language",
-        "aiAssistant": "AI Assistant"
+        "aiAssistant": "AI Assistant",
+        "search": {
+            "placeholder": "Search...",
+            "noResults": "No results found",
+            "typeToSearch": "Type to search",
+            "results": {
+                "home": {
+                    "title": "Home",
+                    "desc": "Examify Prep main page",
+                    "content": "Prepare for exams with Examify Prep. Our system offers convenient opportunities for students and teachers. Key features, online tests, results analysis."
+                },
+                "contact": {
+                    "title": "Contact",
+                    "desc": "Contact us",
+                    "content": "Have questions? Contact us. Phone: +998 90 123 45 67, Email: info@examify.uz. Address: Tashkent, Sergeli district. Technical support and partnership inquiries."
+                },
+                "login": {
+                    "title": "Login",
+                    "desc": "System Login",
+                    "content": "Log in to your dashboard. Continue as a teacher, student, or admin. Login with username and password. Password recovery options."
+                },
+                "welcome": {
+                    "title": "Welcome / Onboarding",
+                    "desc": "Welcome",
+                    "content": "Guide for new users. Explore system features: taking tests, viewing results, AI assistant. Full guide on how to use the system."
+                },
+                "adminDashboard": {
+                    "title": "Admin Dashboard",
+                    "desc": "Control Panel",
+                    "content": "Statistics, user management, creating classes and tests. Special features for admins. Full control over the activities of the Study Center."
+                },
+                "adminTeachers": {
+                    "title": "Teachers",
+                    "desc": "Teachers list and management",
+                    "content": "Add new teachers, edit information, delete. Monitor teachers' activity and ratings."
+                },
+                "adminStudents": {
+                    "title": "Students",
+                    "desc": "Students list and management",
+                    "content": "Divide students into groups, view exam results, check attendance."
+                },
+                "teacherClasses": {
+                    "title": "My Classes",
+                    "desc": "Assigned Classes",
+                    "content": "Teachers can manage their classes, assign tasks to students, and monitor their progress."
+                },
+                "teacherTests": {
+                    "title": "Test Management",
+                    "desc": "Create and edit tests",
+                    "content": "Create new tests, form a question bank, set test duration and evaluation criteria."
+                },
+                "studentTests": {
+                    "title": "Tests",
+                    "desc": "Available Tests",
+                    "content": "Take tests by subject. Test your knowledge. Get test results immediately."
+                },
+                "studentResults": {
+                    "title": "Results",
+                    "desc": "Test Results History",
+                    "content": "Results of all previous tests, work on mistakes, progress dynamics."
+                },
+                "profile": {
+                    "title": "Profile",
+                    "desc": "User Information",
+                    "content": "Name, surname, photo, and personal settings. Account security, password change, language settings."
+                },
+                "aiHelp": {
+                    "title": "AI Assistant",
+                    "desc": "Artificial Intelligence",
+                    "content": "Get quick answers to your questions. Test analysis and study plan creation via AI. Chat communication."
+                }
+            }
+        }
     },
     "home": {
         "heroTitle": "EXAMIFY PREP",

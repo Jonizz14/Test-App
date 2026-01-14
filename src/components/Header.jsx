@@ -5,7 +5,7 @@ import { useSavedItems } from '../context/SavedItemsContext';
 import { useSentMessages } from '../context/SentMessagesContext';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import AIChat from './AIChat';
+
 
 const Header = ({ demoMode = false }) => {
   const navigate = useNavigate();
@@ -20,8 +20,176 @@ const Header = ({ demoMode = false }) => {
   const [showMessages, setShowMessages] = React.useState(false);
   const [showNotifications, setShowNotifications] = React.useState(false);
   const [showLanguages, setShowLanguages] = React.useState(false);
-  const [showAIChat, setShowAIChat] = React.useState(false);
-  const [showAIFullscreen, setShowAIFullscreen] = React.useState(false);
+  const [showSearch, setShowSearch] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  
+  // Search Data
+  // Enhanced Search Data with "Content" simulation
+  // Enhanced Search Data with "Content" simulation for all pages
+  const getSearchData = (t) => [
+    // Pages
+    { 
+      id: 'home', 
+      title: t('search.results.home.title'), 
+      path: '/', 
+      icon: 'home',
+      category: t('nav.home') || 'Page',
+      description: t('search.results.home.desc'),
+      content: t('search.results.home.content')
+    },
+    { 
+      id: 'contact', 
+      title: t('search.results.contact.title'), 
+      path: '/contact', 
+      icon: 'contact_support',
+      category: t('nav.contact') || 'Page',
+      description: t('search.results.contact.desc'),
+      content: t('search.results.contact.content')
+    },
+    { 
+      id: 'login', 
+      title: t('search.results.login.title'), 
+      path: '/login', 
+      icon: 'login',
+      category: t('nav.login') || 'Auth',
+      description: t('search.results.login.desc'),
+      content: t('search.results.login.content')
+    },
+    { 
+      id: 'welcome', 
+      title: t('search.results.welcome.title'), 
+      path: '/welcome', 
+      icon: 'waving_hand',
+      category: 'Intro',
+      description: t('search.results.welcome.desc'),
+      content: t('search.results.welcome.content')
+    },
+    
+    // Admin Pages
+    { 
+      id: 'dashboard-admin', 
+      title: t('search.results.adminDashboard.title'), 
+      path: '/admin', 
+      icon: 'dashboard',
+      category: t('nav.dashboard') || 'Admin',
+      description: t('search.results.adminDashboard.desc'),
+      content: t('search.results.adminDashboard.content')
+    },
+    { 
+      id: 'admin-teachers', 
+      title: t('search.results.adminTeachers.title'), 
+      path: '/admin/teachers', 
+      icon: 'school',
+      category: t('nav.teachers') || 'Admin',
+      description: t('search.results.adminTeachers.desc'),
+      content: t('search.results.adminTeachers.content')
+    },
+    { 
+      id: 'admin-students', 
+      title: t('search.results.adminStudents.title'), 
+      path: '/admin/students', 
+      icon: 'face',
+      category: t('nav.students') || 'Admin',
+      description: t('search.results.adminStudents.desc'),
+      content: t('search.results.adminStudents.content')
+    },
+
+    // Teacher Pages
+    { 
+      id: 'teacher-classes', 
+      title: t('search.results.teacherClasses.title'), 
+      path: '/teacher/classes', 
+      icon: 'groups',
+      category: t('nav.classes') || 'Teacher',
+      description: t('search.results.teacherClasses.desc'),
+      content: t('search.results.teacherClasses.content')
+    },
+    { 
+      id: 'teacher-tests', 
+      title: t('search.results.teacherTests.title'), 
+      path: '/teacher/tests', 
+      icon: 'quiz',
+      category: t('nav.tests') || 'Teacher',
+      description: t('search.results.teacherTests.desc'),
+      content: t('search.results.teacherTests.content')
+    },
+
+    // Student Pages
+    { 
+      id: 'student-tests', 
+      title: t('search.results.studentTests.title'), 
+      path: '/student/tests', 
+      icon: 'assignment',
+      category: t('nav.tests') || 'Student',
+      description: t('search.results.studentTests.desc'),
+      content: t('search.results.studentTests.content')
+    },
+    { 
+      id: 'student-results', 
+      title: t('search.results.studentResults.title'), 
+      path: '/student/results', 
+      icon: 'bar_chart',
+      category: t('nav.results') || 'Student',
+      description: t('search.results.studentResults.desc'),
+      content: t('search.results.studentResults.content')
+    },
+
+    // User & System
+    { 
+      id: 'profile', 
+      title: t('search.results.profile.title'), 
+      path: '/profile', 
+      icon: 'person',
+      category: t('nav.profile') || 'User',
+      description: t('search.results.profile.desc'),
+      content: t('search.results.profile.content')
+    },
+    {
+      id: 'ai-help',
+      title: t('search.results.aiHelp.title'), 
+      path: '#',
+      icon: 'smart_toy',
+      category: 'AI',
+      description: t('search.results.aiHelp.desc'),
+      content: t('search.results.aiHelp.content')
+    }
+  ];
+
+  const searchData = React.useMemo(() => getSearchData(t), [t]);
+
+  const filteredSearchResults = React.useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    
+    const query = searchQuery.toLowerCase();
+    
+    return searchData.filter(item => {
+      const titleMatch = item.title.toLowerCase().includes(query);
+      const descMatch = item.description.toLowerCase().includes(query);
+      const contentMatch = item.content.toLowerCase().includes(query);
+      return titleMatch || descMatch || contentMatch;
+    });
+  }, [searchQuery, searchData]);
+
+  // Helper to highlight matching text
+  const HighlightedText = ({ text, highlight }) => {
+    if (!highlight.trim()) {
+      return <span>{text}</span>;
+    }
+    const regex = new RegExp(`(${highlight})`, 'gi');
+    const parts = text.split(regex);
+    return (
+      <span>
+        {parts.map((part, i) => 
+          part.toLowerCase() === highlight.toLowerCase() ? (
+            <span key={i} className="search-highlight">{part}</span>
+          ) : (
+            part
+          )
+        )}
+      </span>
+    );
+  };
+
   
   const [notification, setNotification] = React.useState(null);
   const [isVisible, setIsVisible] = React.useState(false);
@@ -79,10 +247,13 @@ const Header = ({ demoMode = false }) => {
     const handleClickOutside = (event) => {
       if (headerRef.current && !headerRef.current.contains(event.target)) {
         setShowNotifications(false);
+        setShowSaved(false);
+        setShowMessages(false);
         setShowLanguages(false);
-        // Don't auto close AI chat on outside click immediately as it has its own overlay
+        setShowSearch(false);
       }
     };
+
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -188,8 +359,8 @@ const Header = ({ demoMode = false }) => {
     if (showMessages && sentMessages.length > 0) classes.push('messages-expanded');
     if (showNotifications) classes.push('messages-expanded'); // Reuse expanded style
     if (showLanguages && !isDashboard) classes.push('lang-expanded');
-    if (showAIChat) classes.push('messages-expanded'); // Expand for AI too
-    if (showAIFullscreen) classes.push('ai-fullscreen');
+    if (showSearch && !isDashboard) classes.push('search-expanded');
+
     if (demoMode) classes.push('demo-mode');
     
     return classes.join(' ');
@@ -207,8 +378,8 @@ const Header = ({ demoMode = false }) => {
     setShowMessages(false);
     setShowNotifications(false);
     setShowLanguages(false);
-    setShowAIChat(false);
-    setShowAIFullscreen(false);
+    setShowLanguages(false);
+    setShowSearch(false);
   };
 
   const toggleSaved = () => {
@@ -217,7 +388,8 @@ const Header = ({ demoMode = false }) => {
       setShowMessages(false);
       setShowNotifications(false);
       setShowLanguages(false);
-      setShowAIChat(false);
+      setShowLanguages(false);
+      setShowSearch(false);
     }
   };
 
@@ -227,7 +399,8 @@ const Header = ({ demoMode = false }) => {
       setShowSaved(false);
       setShowNotifications(false);
       setShowLanguages(false);
-      setShowAIChat(false);
+      setShowLanguages(false);
+      setShowSearch(false);
     }
   };
 
@@ -236,7 +409,8 @@ const Header = ({ demoMode = false }) => {
     setShowSaved(false);
     setShowMessages(false);
     setShowLanguages(false);
-    setShowAIChat(false);
+    setShowLanguages(false);
+    setShowSearch(false);
   };
 
   const toggleLanguages = () => {
@@ -244,17 +418,19 @@ const Header = ({ demoMode = false }) => {
     setShowSaved(false);
     setShowMessages(false);
     setShowNotifications(false);
-    setShowAIChat(false);
+    setShowNotifications(false);
+    setShowSearch(false);
   };
 
-  const toggleAIChat = () => {
-    const newState = !showAIChat;
-    setShowAIChat(newState);
-    setShowAIFullscreen(newState);
+  const toggleSearch = () => {
+    setShowSearch(!showSearch);
     setShowSaved(false);
     setShowMessages(false);
     setShowNotifications(false);
     setShowLanguages(false);
+    if (!showSearch) {
+      setTimeout(() => document.getElementById('global-search-input')?.focus(), 100);
+    }
   };
 
   const handleProfileClick = () => {
@@ -279,11 +455,11 @@ const Header = ({ demoMode = false }) => {
 
         <div className="layout-container">
           <div className="layout-content-container">
-            <div className={`logo-section ${showAIFullscreen ? 'content-hidden' : ''}`} onClick={(e) => { if (demoMode) e.preventDefault(); else navigate('/'); }} style={{ cursor: demoMode ? 'default' : 'pointer' }}>
+            <div className="logo-section" onClick={(e) => { if (demoMode) e.preventDefault(); else navigate('/'); }} style={{ cursor: demoMode ? 'default' : 'pointer' }}>
               <h2 className="logo-text">Examify Prep</h2>
             </div>
             
-            <nav className={`nav-desktop ${showAIFullscreen ? 'content-hidden' : ''}`}>
+            <nav className="nav-desktop">
               <div className="nav-links">
                 {navLinks.map((link, index) => (
                   <div 
@@ -348,14 +524,16 @@ const Header = ({ demoMode = false }) => {
                       <button className="btn-secondary" onClick={() => !demoMode && navigate('/login')} style={{ cursor: demoMode ? 'default' : 'pointer' }}>{t('nav.login')}</button>
                     )}
 
-                    {/* AI Chat Toggle */}
-                    <div 
-                      className={`storage-icon-container ai-icon ${showAIChat ? 'active' : ''}`}
-                      onClick={toggleAIChat}
-                      title={t('nav.aiAssistant')}
-                      style={{ overflow: 'visible' }}
+
+
+                    {/* Content Search Icon */}
+                     <div 
+                      className={`storage-icon-container search-icon ${showSearch ? 'active' : ''}`}
+                      onClick={toggleSearch}
+                      title="Qidirish"
+                      style={{ width: '44px', opacity: 1, transform: 'scale(1)', overflow: 'visible', marginRight: 0 }}
                     >
-                      <div className="ai-orb"></div>
+                      <span className="material-symbols-outlined">search</span>
                     </div>
 
                     {/* Language Switcher */}
@@ -394,12 +572,7 @@ const Header = ({ demoMode = false }) => {
               </div>
             </nav>
 
-            {/* AI Fullscreen Close Button */}
-            {showAIFullscreen && (
-              <div className="ai-close-btn" onClick={handleCollapse} title="Yopish">
-                <span className="material-symbols-outlined">close</span>
-              </div>
-            )}
+
           </div>
         </div>
 
@@ -510,6 +683,73 @@ const Header = ({ demoMode = false }) => {
             </div>
           </div>
         </div>
+        
+        {/* Integrated Search Area */}
+        <div className={`header-storage-area header-search-area ${showSearch && !isDashboard ? 'visible' : ''}`}>
+          <div className="storage-content-wrapper">
+             <div className="search-input-container">
+                <span className="material-symbols-outlined search-input-icon">search</span>
+                <input 
+                  id="global-search-input"
+                  type="text" 
+                  className="global-search-input" 
+                  placeholder={t('nav.search.placeholder')} 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchQuery && (
+                  <button className="clear-search-btn" onClick={() => setSearchQuery('')}>
+                    <span className="material-symbols-outlined">close</span>
+                  </button>
+                )}
+             </div>
+
+             <div className="saved-items-grid search-results-grid">
+               {searchQuery.trim() === '' ? (
+                 <div className="no-results" style={{ padding: '2rem' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>manage_search</span>
+                    <p>{t('nav.search.typeToSearch')}</p>
+                 </div>
+               ) : filteredSearchResults.length > 0 ? (
+                 filteredSearchResults.map((result, index) => (
+                   <div 
+                    key={result.id} // Use stable ID for better animation
+                    className="saved-item-row search-result-row"
+                    style={{ animationDelay: `${index * 0.05}s` }} // Inline delay for dynamic list
+                    onClick={() => {
+                      navigate(result.path);
+                      setShowSearch(false);
+                    }}
+                   >
+                      <div className="item-main">
+                        <span className="material-symbols-outlined">{result.icon}</span>
+                        <div className="item-text">
+                          <h4>
+                            <HighlightedText text={result.title} highlight={searchQuery} />
+                            <span className="search-category-tag">{result.category}</span>
+                          </h4>
+                          <p>
+                            <HighlightedText text={result.description} highlight={searchQuery} />
+                          </p>
+                          {/* Show content snippet if query matches content */}
+                          {result.content.toLowerCase().includes(searchQuery.toLowerCase()) && searchQuery.length > 2 && (
+                             <p className="search-content-snippet">
+                               "...<HighlightedText text={result.content} highlight={searchQuery} />..."
+                             </p>
+                          )}
+                        </div>
+                      </div>
+                      <span className="material-symbols-outlined arrow-icon">arrow_forward</span>
+                   </div>
+                 ))
+               ) : (
+                 <div className="no-results">
+                    <p>{t('nav.search.noResults')}</p>
+                 </div>
+               )}
+             </div>
+          </div>
+        </div>
 
         {/* Notification Area */}
         {notification && (
@@ -528,10 +768,7 @@ const Header = ({ demoMode = false }) => {
           </div>
         )}
 
-        {/* AI Chat Integrated Area */}
-        <div className={`header-storage-area ${showAIChat && !isDashboard ? 'visible' : ''} ${showAIFullscreen ? 'fullscreen-chat' : ''}`}>
-           <AIChat isOpen={showAIChat} />
-        </div>
+
       </header>
     </>
   );

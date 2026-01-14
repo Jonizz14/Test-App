@@ -44,30 +44,6 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
-/* Fullscreen state overrides at bottom for highest priority */
-body:has(.header.ai-fullscreen) {
-  overflow: hidden; /* Prevent background scrolling when AI is full screen */
-}
-
-.header.ai-fullscreen {
-  width: 90vw !important;
-  height: 90vh !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  border-radius: 30px;
-  background: rgba(10, 10, 10, 0.98) !important;
-  box-shadow: 0 0 100px rgba(0, 0, 0, 0.8), 0 0 40px rgba(88, 86, 214, 0.3);
-  /* Snappier, simpler expansion */
-    transition: 
-    height 1.3s cubic-bezier(0.19, 1, 0.22, 1), 
-    width 1.3s cubic-bezier(0.19, 1, 0.22, 1),
-    top 1.3s cubic-bezier(0.19, 1, 0.22, 1),
-    left 1.3s cubic-bezier(0.19, 1, 0.22, 1),
-    transform 1.3s cubic-bezier(0.19, 1, 0.22, 1),
-    background 0.6s ease;
-}
-
 .header.demo-mode {
   pointer-events: none !important;
   user-select: none;
@@ -261,7 +237,7 @@ body:has(.header.ai-fullscreen) {
   width: 44px;
   opacity: 1;
   transform: scale(1);
-  margin-right: 0.5rem;
+  margin-right: 0;
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
   overflow: visible;
 }
@@ -294,7 +270,8 @@ body:has(.header.ai-fullscreen) {
 }
 
 .header.storage-expanded,
-.header.messages-expanded {
+.header.messages-expanded,
+.header.search-expanded {
   height: 380px;
   border-radius: 40px;
   background: rgba(0, 0, 0, 0.98);
@@ -316,7 +293,7 @@ body:has(.header.ai-fullscreen) {
 }
 
 .header-storage-area.visible {
-  height: 316px; /* Default for saved/messages */
+  height: 316px;
   padding: 1.2rem 2rem;
   border-top-color: rgba(255, 255, 255, 0.1);
   opacity: 1;
@@ -324,27 +301,9 @@ body:has(.header.ai-fullscreen) {
   transform: translateY(0);
 }
 
-.header.ai-fullscreen .header-storage-area.visible.fullscreen-chat {
-  height: calc(100% - 70px) !important;
-  border-top-color: rgba(255, 255, 255, 0.1);
-  padding: 1.5rem;
-  opacity: 1;
-  visibility: visible;
-}
-
-.header.ai-fullscreen .ai-chat-header-section {
-  max-width: 100%;
-  height: 100%;
-  padding: 0;
-}
-
-/* Expansion for AI Chat */
-.header.messages-expanded .header-storage-area.visible:has(.ai-chat-header-section) {
-  height: 700px;
-}
-
 .storage-content-wrapper {
   height: 100%;
+  max-width: 800px;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -764,46 +723,161 @@ body:has(.header.ai-fullscreen) {
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
-/* AI Chat Icon Styling */
-.ai-icon {
-  width: 44px;
-  height: 44px;
-  background: transparent !important;
-  overflow: visible !important;
-  opacity: 1 !important;
-  transform: scale(1) !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 0.5rem;
+/* Search Styles */
+.search-icon {
+  background: #ffffff !important;
+  color: #000000 !important;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
 }
 
-.ai-close-btn {
-  position: absolute;
-  top: 1.2rem;
-  right: 1.5rem;
-  width: 40px;
-  height: 40px;
+.search-icon.active {
+  background: #f0f0f0 !important; /* Updated from blue to match general style */
+  color: #000000 !important;
+}
+
+/* Search Header Area */
+.search-input-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 0.8rem 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.search-input-container:focus-within {
   background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.search-input-icon {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.5rem;
+}
+
+.global-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+  outline: none;
+}
+
+.global-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.clear-search-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
   border-radius: 50%;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: white;
-  transition: all 0.3s ease;
-  z-index: 100;
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.2s ease;
+}
+
+.clear-search-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.search-results-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.search-result-row {
+  cursor: pointer;
+  position: relative;
+  /* Animation Hook */
+  animation: searchResultSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   opacity: 0;
-  animation: fadeInClose 0.5s 0.3s forwards ease;
+  transform: translateY(10px);
 }
 
-.ai-close-btn:hover {
-  background: rgba(255, 71, 87, 0.2);
-  color: #ff4757;
-  transform: rotate(90deg);
+@keyframes searchResultSlideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-@keyframes fadeInClose {
-  from { opacity: 0; transform: scale(0.8); }
-  to { opacity: 1; transform: scale(1); }
+/* Stagger Animations */
+.search-result-row:nth-child(1) { animation-delay: 0.05s; }
+.search-result-row:nth-child(2) { animation-delay: 0.1s; }
+.search-result-row:nth-child(3) { animation-delay: 0.15s; }
+.search-result-row:nth-child(4) { animation-delay: 0.2s; }
+.search-result-row:nth-child(5) { animation-delay: 0.25s; }
+.search-result-row:nth-child(6) { animation-delay: 0.3s; }
+
+.search-result-row:hover .arrow-icon {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.search-category-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  margin-left: 8px;
+  vertical-align: middle;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.search-content-snippet {
+  font-size: 0.75rem !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+  margin-top: 4px !important;
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  background: rgba(0,0,0,0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.search-highlight {
+  background: rgba(255, 255, 0, 0.2);
+  color: #ffff00;
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.arrow-icon {
+  color: rgba(255, 255, 255, 0.3);
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.no-results {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 600;
+  font-size: 1.2rem;
+  animation: fadeIn 0.3s ease;
 }
