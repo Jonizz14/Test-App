@@ -103,17 +103,16 @@
 }
 
 .app-main-content {
-  transition: opacity 2s cubic-bezier(0.25, 1, 0.5, 1),
-              filter 2s cubic-bezier(0.25, 1, 0.5, 1);
-  will-change: opacity, filter;
+  transition: opacity 2s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: opacity;
+  position: relative;
+  z-index: 1;
 }
 
 .app-main-content.loading {
   opacity: 0;
-  filter: blur(10px);
 }
 
 .app-main-content.ready {
   opacity: 1;
-  filter: blur(0);
 }

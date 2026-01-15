@@ -83,14 +83,11 @@ const Contact = () => {
         }));
       }, 1300);
       
-      showSuccess(response.message || t('contact.successSent'));
-      
       // Reset form
       e.target.reset();
       
     } catch (error) {
       console.error('Failed to send message:', error);
-      showError(t('contact.errorSent'));
     } finally {
       setIsSubmitting(false);
     }
@@ -117,22 +114,20 @@ const Contact = () => {
   const handleEditMessage = async (messageId, updatedData) => {
     try {
       await apiService.editContactMessage(messageId, updatedData);
-      showSuccess('Xabar muvaffaqiyatli yangilandi');
       setEditingMessage(null);
       fetchMyMessages();
     } catch (error) {
-      showError('Xabarni tahrirlashda xatolik yuz berdi');
+      console.error('Failed to edit message:', error);
     }
   };
 
   const handleDeleteMessage = async (messageId) => {
     try {
       await apiService.deleteContactMessage(messageId);
-      showSuccess('Xabar muvaffaqiyatli o\'chirildi');
       setDeleteConfirm(null);
       fetchMyMessages();
     } catch (error) {
-      showError('Xabarni o\'chirishda xatolik yuz berdi');
+      console.error('Failed to delete message:', error);
     }
   };
 

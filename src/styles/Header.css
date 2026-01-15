@@ -14,7 +14,7 @@
 }
 
 .header {
-  position: fixed;
+  position: fixed !important;
   top: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
@@ -25,7 +25,7 @@
   overflow: visible; /* Allow dropdown to show */
   display: flex;
   flex-direction: column;
-  z-index: 3000; /* Increased to stay on top */
+  z-index: 9999 !important; /* Extremely high z-index */
   background: rgba(0, 0, 0, 0.95);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
