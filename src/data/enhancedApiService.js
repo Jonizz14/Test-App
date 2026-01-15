@@ -351,6 +351,21 @@ class EnhancedApiService {
     }
   }
 
+  async getPublicStats(loadingCallback) {
+    const url = `${this.baseURL}/tests/public_stats/`;
+    if (loadingCallback) loadingCallback(true);
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      if (loadingCallback) loadingCallback(false);
+      return data;
+    } catch (error) {
+      if (loadingCallback) loadingCallback(false);
+      throw error;
+    }
+  }
+
   async getTest(id, loadingCallback) {
     return this.get(`/tests/${id}/`, { 
       loadingCallback,

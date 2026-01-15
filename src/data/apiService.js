@@ -195,6 +195,15 @@ class ApiService {
     return response.json();
   }
 
+  async getPublicStats() {
+    const url = `${this.baseURL}/tests/public_stats/`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.json();
+  }
+
   async getTest(id) {
     return this.get(`/tests/${id}/`);
   }

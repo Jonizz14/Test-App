@@ -529,6 +529,16 @@ class TestViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    def public_stats(self, request):
+        """Public endpoint to get landing page statistics"""
+        return Response({
+            'tests_count': Test.objects.count(),
+            'students_count': User.objects.filter(role='student').count(),
+            'teachers_count': User.objects.filter(role='teacher').count(),
+            'attempts_count': TestAttempt.objects.count()
+        })
+
     def perform_create(self, serializer):
         serializer.save(teacher=self.request.user)
 
