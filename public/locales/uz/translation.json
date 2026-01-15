@@ -38,22 +38,22 @@
                 "home": {
                     "title": "Bosh sahifa",
                     "desc": "Examify Prep asosiy sahifasi",
-                    "content": "Examify Prep platformasi orqali imtihonlarga tayyorlaning. Bizning tizim o'quvchilar va o'qituvchilar uchun qulay imkoniyatlarni taqdim etadi. Asosiy imkoniyatlar, onlayn testlar, natijalar tahlili."
+                    "content": "Examify Prep platformasi orqali imtihonlarga tayyorlaning. Kelajagingizni shu yerdan boshlang. Ixtisoslashtirilgan ta'lim uchun zamonaviy yechim. O'quvchilar, O'qituvchilar va Ma'murlar uchun yagona platforma. Interaktiv testlar, Shaxsiy muvaffaqiyat statistikasi, Xatolar tahlili, Haftalik reyting. Avtomatik tekshirish, Guruhlar boshqaruvi, Tayyor metodik manbalar. Real Vaqt Tahlili, Xavfsiz Tizim, Moslashuvchanlik. Yaratilgan Testlar, Faol O'quvchilar, Malakali Ustozlar."
                 },
                 "contact": {
                     "title": "Aloqa",
                     "desc": "Biz bilan bog'lanish",
-                    "content": "Savollaringiz bormi? Bizga murojaat qiling. Telefon: +998 90 123 45 67, Email: info@examify.uz. Manzil: Toshkent sh., Sergeli tumani. Texnik yordam va hamkorlik masalalari bo'yicha murojaat."
+                    "content": "Savollaringiz bormi? Biz bilan bog'laning. Xabar yuboring: Ismingiz, Email, Telefon. Mavzuni tanlang: Texnik yordam, To'lov masalalari, Yangi funksiya taklifi, Hamkorlik. Telefon: +998 90 123 45 67, Email: info@examify.uz. Manzil: Toshkent sh., Sergeli tumani. Mening xabarlarim bo'limi."
                 },
                 "login": {
                     "title": "Kirish",
                     "desc": "Tizimga kirish",
-                    "content": "Shaxsiy kabinetingizga kiring. O'qituvchi, o'quvchi yoki admin sifatida davom eting. Login va parol orqali kirish. Parolni tiklash imkoniyati."
+                    "content": "Examify Prep - Profilingizga kirish uchun ma'lumotlarni kiriting. ID yoki Email, Parol. O'qituvchi, o'quvchi yoki admin sifatida davom eting. Tizimga kirilmoqda, Ma'lumotlar yuklanmoqda."
                 },
                 "welcome": {
                     "title": "Xush kelibsiz",
-                    "desc": "Xush kelibsiz",
-                    "content": "Yangi foydalanuvchilar uchun qo'llanma. Tizim imkoniyatlari bilan tanishing: testlar ishlash, natijalarni ko'rish, sun'iy intellekt yordamchisi. Tizimdan qanday foydalanish bo'yicha to'liq ko'rsatma."
+                    "desc": "Xush kelibsiz qo'llanmasi",
+                    "content": "Examify Prep dunyosiga qadam qo'ying. Dynamic Island navigatsiya paneli, Saqlash tizimi (Storage), Xabarlar markazi (Messages), AI yordamchi (Examify AI), Shaxsiy profil. O'z yutuqlaringizni kuzating."
                 },
                 "adminDashboard": {
                     "title": "Admin Dashboard",

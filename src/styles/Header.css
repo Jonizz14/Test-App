@@ -201,12 +201,6 @@
   z-index: 5;
 }
 
-.btn-secondary:hover {
-  transform: scale(1.05);
-  background: #f0f0f0;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-}
-
 /* Storage Icon Base */
 .storage-icon-container {
   position: relative;

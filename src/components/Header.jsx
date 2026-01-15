@@ -30,128 +30,128 @@ const Header = ({ demoMode = false }) => {
     // Pages
     { 
       id: 'home', 
-      title: t('search.results.home.title'), 
+      title: t('nav.search.results.home.title'), 
       path: '/', 
       icon: 'home',
       category: t('nav.home') || 'Page',
-      description: t('search.results.home.desc'),
-      content: t('search.results.home.content')
+      description: t('nav.search.results.home.desc'),
+      content: t('nav.search.results.home.content')
     },
     { 
       id: 'contact', 
-      title: t('search.results.contact.title'), 
+      title: t('nav.search.results.contact.title'), 
       path: '/contact', 
       icon: 'contact_support',
       category: t('nav.contact') || 'Page',
-      description: t('search.results.contact.desc'),
-      content: t('search.results.contact.content')
+      description: t('nav.search.results.contact.desc'),
+      content: t('nav.search.results.contact.content')
     },
     { 
       id: 'login', 
-      title: t('search.results.login.title'), 
+      title: t('nav.search.results.login.title'), 
       path: '/login', 
       icon: 'login',
       category: t('nav.login') || 'Auth',
-      description: t('search.results.login.desc'),
-      content: t('search.results.login.content')
+      description: t('nav.search.results.login.desc'),
+      content: t('nav.search.results.login.content')
     },
     { 
       id: 'welcome', 
-      title: t('search.results.welcome.title'), 
+      title: t('nav.search.results.welcome.title'), 
       path: '/welcome', 
       icon: 'waving_hand',
       category: 'Intro',
-      description: t('search.results.welcome.desc'),
-      content: t('search.results.welcome.content')
+      description: t('nav.search.results.welcome.desc'),
+      content: t('nav.search.results.welcome.content')
     },
     
     // Admin Pages
     { 
       id: 'dashboard-admin', 
-      title: t('search.results.adminDashboard.title'), 
+      title: t('nav.search.results.adminDashboard.title'), 
       path: '/admin', 
       icon: 'dashboard',
       category: t('nav.dashboard') || 'Admin',
-      description: t('search.results.adminDashboard.desc'),
-      content: t('search.results.adminDashboard.content')
+      description: t('nav.search.results.adminDashboard.desc'),
+      content: t('nav.search.results.adminDashboard.content')
     },
     { 
       id: 'admin-teachers', 
-      title: t('search.results.adminTeachers.title'), 
+      title: t('nav.search.results.adminTeachers.title'), 
       path: '/admin/teachers', 
       icon: 'school',
       category: t('nav.teachers') || 'Admin',
-      description: t('search.results.adminTeachers.desc'),
-      content: t('search.results.adminTeachers.content')
+      description: t('nav.search.results.adminTeachers.desc'),
+      content: t('nav.search.results.adminTeachers.content')
     },
     { 
       id: 'admin-students', 
-      title: t('search.results.adminStudents.title'), 
+      title: t('nav.search.results.adminStudents.title'), 
       path: '/admin/students', 
       icon: 'face',
       category: t('nav.students') || 'Admin',
-      description: t('search.results.adminStudents.desc'),
-      content: t('search.results.adminStudents.content')
+      description: t('nav.search.results.adminStudents.desc'),
+      content: t('nav.search.results.adminStudents.content')
     },
 
     // Teacher Pages
     { 
       id: 'teacher-classes', 
-      title: t('search.results.teacherClasses.title'), 
+      title: t('nav.search.results.teacherClasses.title'), 
       path: '/teacher/classes', 
       icon: 'groups',
       category: t('nav.classes') || 'Teacher',
-      description: t('search.results.teacherClasses.desc'),
-      content: t('search.results.teacherClasses.content')
+      description: t('nav.search.results.teacherClasses.desc'),
+      content: t('nav.search.results.teacherClasses.content')
     },
     { 
       id: 'teacher-tests', 
-      title: t('search.results.teacherTests.title'), 
+      title: t('nav.search.results.teacherTests.title'), 
       path: '/teacher/tests', 
       icon: 'quiz',
       category: t('nav.tests') || 'Teacher',
-      description: t('search.results.teacherTests.desc'),
-      content: t('search.results.teacherTests.content')
+      description: t('nav.search.results.teacherTests.desc'),
+      content: t('nav.search.results.teacherTests.content')
     },
 
     // Student Pages
     { 
       id: 'student-tests', 
-      title: t('search.results.studentTests.title'), 
+      title: t('nav.search.results.studentTests.title'), 
       path: '/student/tests', 
       icon: 'assignment',
       category: t('nav.tests') || 'Student',
-      description: t('search.results.studentTests.desc'),
-      content: t('search.results.studentTests.content')
+      description: t('nav.search.results.studentTests.desc'),
+      content: t('nav.search.results.studentTests.content')
     },
     { 
       id: 'student-results', 
-      title: t('search.results.studentResults.title'), 
+      title: t('nav.search.results.studentResults.title'), 
       path: '/student/results', 
       icon: 'bar_chart',
       category: t('nav.results') || 'Student',
-      description: t('search.results.studentResults.desc'),
-      content: t('search.results.studentResults.content')
+      description: t('nav.search.results.studentResults.desc'),
+      content: t('nav.search.results.studentResults.content')
     },
 
     // User & System
     { 
       id: 'profile', 
-      title: t('search.results.profile.title'), 
+      title: t('nav.search.results.profile.title'), 
       path: '/profile', 
       icon: 'person',
       category: t('nav.profile') || 'User',
-      description: t('search.results.profile.desc'),
-      content: t('search.results.profile.content')
+      description: t('nav.search.results.profile.desc'),
+      content: t('nav.search.results.profile.content')
     },
     {
       id: 'ai-help',
-      title: t('search.results.aiHelp.title'), 
+      title: t('nav.search.results.aiHelp.title'), 
       path: '#',
       icon: 'smart_toy',
       category: 'AI',
-      description: t('search.results.aiHelp.desc'),
-      content: t('search.results.aiHelp.content')
+      description: t('nav.search.results.aiHelp.desc'),
+      content: t('nav.search.results.aiHelp.content')
     }
   ];
 
@@ -172,10 +172,10 @@ const Header = ({ demoMode = false }) => {
 
   // Helper to highlight matching text
   const HighlightedText = ({ text, highlight }) => {
-    if (!highlight.trim()) {
+    if (!highlight.trim() || !text) {
       return <span>{text}</span>;
     }
-    const regex = new RegExp(`(${highlight})`, 'gi');
+    const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
     const parts = text.split(regex);
     return (
       <span>
@@ -187,6 +187,30 @@ const Header = ({ demoMode = false }) => {
           )
         )}
       </span>
+    );
+  };
+
+  // Helper to render content snippet with match
+  const renderSearchSnippet = (content, query) => {
+    if (!content || !query || query.length < 2) return null;
+    
+    const lowerContent = content.toLowerCase();
+    const lowerQuery = query.toLowerCase();
+    const index = lowerContent.indexOf(lowerQuery);
+    
+    if (index === -1) return null;
+    
+    const start = Math.max(0, index - 35);
+    const end = Math.min(content.length, index + query.length + 35);
+    let snippet = content.slice(start, end);
+    
+    if (start > 0) snippet = '...' + snippet;
+    if (end < content.length) snippet = snippet + '...';
+    
+    return (
+      <p className="search-content-snippet">
+        <HighlightedText text={snippet} highlight={query} />
+      </p>
     );
   };
 
@@ -732,11 +756,7 @@ const Header = ({ demoMode = false }) => {
                             <HighlightedText text={result.description} highlight={searchQuery} />
                           </p>
                           {/* Show content snippet if query matches content */}
-                          {result.content.toLowerCase().includes(searchQuery.toLowerCase()) && searchQuery.length > 2 && (
-                             <p className="search-content-snippet">
-                               "...<HighlightedText text={result.content} highlight={searchQuery} />..."
-                             </p>
-                          )}
+                          {renderSearchSnippet(result.content, searchQuery)}
                         </div>
                       </div>
                       <span className="material-symbols-outlined arrow-icon">arrow_forward</span>

@@ -38,22 +38,22 @@
                 "home": {
                     "title": "Home",
                     "desc": "Examify Prep main page",
-                    "content": "Prepare for exams with Examify Prep. Our system offers convenient opportunities for students and teachers. Key features, online tests, results analysis."
+                    "content": "Prepare for exams with Examify Prep. Start your future here. Modern solution for specialized education. Unified platform for Teachers, Students and Administrators. Interactive tests, Personal success statistics, Error analysis, Weekly ratings. Automatic checking, Group management, Methodological resources. Real Time Analysis, Secure System, Flexibility. Created Tests, Active Students, Qualified Teachers."
                 },
                 "contact": {
                     "title": "Contact",
                     "desc": "Contact us",
-                    "content": "Have questions? Contact us. Phone: +998 90 123 45 67, Email: info@examify.uz. Address: Tashkent, Sergeli district. Technical support and partnership inquiries."
+                    "content": "Have questions? Contact us. Send a message: Your Name, Email, Phone. Select subject: Technical Support, Billing Issues, New Feature Suggestion, Partnership. Phone: +998 90 123 45 67, Email: info@examify.uz. Address: Tashkent, Sergeli district. My messages section."
                 },
                 "login": {
                     "title": "Login",
                     "desc": "System Login",
-                    "content": "Log in to your dashboard. Continue as a teacher, student, or admin. Login with username and password. Password recovery options."
+                    "content": "Examify Prep - Enter details to login to your profile. ID or Email, Password. Continue as a teacher, student, or admin. Logging into system, Loading data."
                 },
                 "welcome": {
                     "title": "Welcome / Onboarding",
-                    "desc": "Welcome",
-                    "content": "Guide for new users. Explore system features: taking tests, viewing results, AI assistant. Full guide on how to use the system."
+                    "desc": "Welcome Guide",
+                    "content": "Step into the world of Examify Prep. Dynamic Island navigation, Saving system (Storage), Message center (Messages), AI assistant (Examify AI), Personal profile. Track your achievements."
                 },
                 "adminDashboard": {
                     "title": "Admin Dashboard",

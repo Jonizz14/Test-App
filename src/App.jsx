@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import GlobalLoader from './components/GlobalLoader';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import AOS from 'aos';
@@ -260,6 +261,9 @@ import TextSelectionHandler from './components/TextSelectionHandler';
 // Main App component - Entry point of the application
 // Provides routing, authentication, theming, and error handling
 function App() {
+  const [isAppReady, setIsAppReady] = React.useState(false);
+  const [isLoaderRemoved, setIsLoaderRemoved] = React.useState(false);
+
   // Register service worker
   React.useEffect(() => {
     registerSW({
@@ -277,113 +281,121 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <CustomThemeProvider>
-          <LoadingProvider>
-            <AuthProvider>
-              <SentMessagesProvider>
-                <SavedItemsProvider>
-                  <StatisticsProvider>
-                    <ServerTestProvider>
-                    <Router>
-                      <TextSelectionHandler />
-                      <HelpButton />
-                      {/* Global route loading indicator */}
-                      <RouteLoadingIndicator 
-                        showFullScreen={false}
-                        threshold={300}
+        {!isLoaderRemoved && (
+          <GlobalLoader 
+            onTransitionStart={() => setIsAppReady(true)} 
+            onFinished={() => setIsLoaderRemoved(true)} 
+          />
+        )}
+        <div className={`app-main-content ${isAppReady ? 'ready' : 'loading'}`}>
+          <CustomThemeProvider>
+            <LoadingProvider>
+              <AuthProvider>
+                <SentMessagesProvider>
+                  <SavedItemsProvider>
+                    <StatisticsProvider>
+                      <ServerTestProvider>
+                      <Router>
+                        <TextSelectionHandler />
+                        <HelpButton />
+                        {/* Global route loading indicator */}
+                        <RouteLoadingIndicator 
+                          showFullScreen={false}
+                          threshold={300}
+                        />
+                        <Routes>
+                      {/* Test routes - Health check and testing endpoints */}
+                      <Route path="/test" element={<TestPage />} />
+                      <Route path="/health" element={
+                        <div className="center p-4">
+                          ✅ App is healthy! Port: {window.location.port}
+                        </div>
+                      } />
+
+                      {/* Public routes - Accessible without authentication */}
+                      <Route path="/login" element={<LoginPage />} />
+
+                      <Route path="/user/password/questions" element={<Questions />} />
+
+                      {/* Protected routes - Require authentication and specific roles */}
+                      <Route
+                        path="/headadmin/*"
+                        element={
+                          <HeadAdminRoute>
+                            <HeadAdminDashboard />
+                          </HeadAdminRoute>
+                        }
                       />
-                      <Routes>
-                    {/* Test routes - Health check and testing endpoints */}
-                    <Route path="/test" element={<TestPage />} />
-                    <Route path="/health" element={
-                      <div className="center p-4">
-                        ✅ App is healthy! Port: {window.location.port}
-                      </div>
-                    } />
 
-                    {/* Public routes - Accessible without authentication */}
-                    <Route path="/login" element={<LoginPage />} />
+                      <Route
+                        path="/admin/*"
+                        element={
+                          <AdminRoute>
+                            <AdminDashboard />
+                          </AdminRoute>
+                        }
+                      />
 
-                    <Route path="/user/password/questions" element={<Questions />} />
+                      <Route
+                        path="/teacher/*"
+                        element={
+                          <TeacherRoute>
+                            <TeacherDashboard />
+                          </TeacherRoute>
+                        }
+                      />
 
-                    {/* Protected routes - Require authentication and specific roles */}
-                    <Route
-                      path="/headadmin/*"
-                      element={
-                        <HeadAdminRoute>
-                          <HeadAdminDashboard />
-                        </HeadAdminRoute>
-                      }
-                    />
+                      <Route
+                        path="/student/*"
+                        element={
+                          <StudentRoute>
+                            <StudentDashboard />
+                          </StudentRoute>
+                        }
+                      />
 
-                    <Route
-                      path="/admin/*"
-                      element={
-                        <AdminRoute>
-                          <AdminDashboard />
-                        </AdminRoute>
-                      }
-                    />
+                      <Route
+                        path="/seller/*"
+                        element={
+                          <SellerRoute>
+                            <SellerDashboard />
+                          </SellerRoute>
+                        }
+                      />
 
-                    <Route
-                      path="/teacher/*"
-                      element={
-                        <TeacherRoute>
-                          <TeacherDashboard />
-                        </TeacherRoute>
-                      }
-                    />
+                      {/* Home page */}
+                      <Route path="/" element={<Home />} />
+                      
+                      {/* Contact page */}
+                      <Route path="/contact" element={<Contact />} />
 
-                    <Route
-                      path="/student/*"
-                      element={
-                        <StudentRoute>
-                          <StudentDashboard />
-                        </StudentRoute>
-                      }
-                    />
-
-                    <Route
-                      path="/seller/*"
-                      element={
-                        <SellerRoute>
-                          <SellerDashboard />
-                        </SellerRoute>
-                      }
-                    />
-
-                    {/* Home page */}
-                    <Route path="/" element={<Home />} />
-                    
-                    {/* Contact page */}
-                    <Route path="/contact" element={<Contact />} />
-
-                    {/* Onboarding / Welcome page */}
-                    <Route path="/welcome" element={<Onboarding />} />
+                      {/* Onboarding / Welcome page */}
+                      <Route path="/welcome" element={<Onboarding />} />
 
 
 
-                    {/* Dashboard redirect based on user role */}
-                    <Route
-                      path="/dashboard"
-                      element={
-                        <ProtectedRoute>
-                          <RoleBasedRedirect />
-                        </ProtectedRoute>
-                      }
-                    />
+                      {/* Dashboard redirect based on user role */}
+                      <Route
+                        path="/dashboard"
+                        element={
+                          <ProtectedRoute>
+                            <RoleBasedRedirect />
+                          </ProtectedRoute>
+                        }
+                      />
 
-                    {/* 404 page - Catch all unmatched routes */}
-                    <Route path="*" element={<NotFoundPage />} />
-                  </Routes>
-                  </Router>
-                    </ServerTestProvider>
-                  </StatisticsProvider>
-                </SavedItemsProvider>
-              </SentMessagesProvider>
-            </AuthProvider>
-          </LoadingProvider>
-        </CustomThemeProvider>
+                      {/* 404 page - Catch all unmatched routes */}
+                      <Route path="*" element={<NotFoundPage />} />
+                    </Routes>
+                    </Router>
+                      </ServerTestProvider>
+                    </StatisticsProvider>
+                  </SavedItemsProvider>
+                </SentMessagesProvider>
+              </AuthProvider>
+            </LoadingProvider>
+          </CustomThemeProvider>
+        </div>
       </ThemeProvider>
     </ErrorBoundary>
   );
