@@ -15,6 +15,7 @@ import { registerSW } from './utils/serviceWorker';
 import RouteLoadingIndicator from './components/RouteLoadingIndicator';
 import { SavedItemsProvider } from './context/SavedItemsContext';
 import { SentMessagesProvider } from './context/SentMessagesContext';
+import { SettingsProvider } from './context/SettingsContext';
 
 // Import pages (we'll create these next)
 import LoginPage from './pages/LoginPage';
@@ -294,7 +295,8 @@ function App() {
                 <SentMessagesProvider>
                   <SavedItemsProvider>
                     <StatisticsProvider>
-                      <ServerTestProvider>
+                      <SettingsProvider>
+                        <ServerTestProvider>
                       <Router>
                         <TextSelectionHandler />
                         <HelpButton />
@@ -389,7 +391,8 @@ function App() {
                     </Routes>
                     </Router>
                       </ServerTestProvider>
-                    </StatisticsProvider>
+                    </SettingsProvider>
+                  </StatisticsProvider>
                   </SavedItemsProvider>
                 </SentMessagesProvider>
               </AuthProvider>

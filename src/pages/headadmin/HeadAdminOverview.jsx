@@ -8,7 +8,9 @@ import {
   Spin,
   Statistic,
   ConfigProvider,
+  Divider,
 } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import {
   UserOutlined,
   TeamOutlined,
@@ -26,6 +28,7 @@ const { Title, Text, Paragraph } = Typography;
 
 const HeadAdminOverview = () => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalAdmins: 0,
@@ -265,6 +268,73 @@ const HeadAdminOverview = () => {
             />
           </Col>
         </Row>
+
+        <Divider style={{ margin: '48px 0', borderTop: '4px solid #000' }} />
+
+        <div className="animate__animated animate__fadeIn" style={{ animationDelay: '0.9s' }}>
+          <Title level={2} style={{ fontWeight: 900, textTransform: 'uppercase', marginBottom: '32px' }}>
+            Tezkor Amallar
+          </Title>
+          <Row gutter={[32, 32]}>
+            <Col xs={24} sm={12} lg={8}>
+              <Card
+                hoverable
+                onClick={() => navigate('/headadmin/settings')}
+                style={{
+                  borderRadius: 0,
+                  border: '4px solid #000',
+                  boxShadow: '10px 10px 0px #000',
+                  cursor: 'pointer',
+                  height: '100%'
+                }}
+              >
+                <div style={{ textAlign: 'center', padding: '12px' }}>
+                  <RiseOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
+                  <Title level={4} style={{ fontWeight: 800, textTransform: 'uppercase', margin: 0 }}>Sayt Sozlamalari</Title>
+                  <Text style={{ fontWeight: 600 }}>Header va Welcome page qismlarini boshqarish</Text>
+                </div>
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} lg={8}>
+              <Card
+                hoverable
+                onClick={() => navigate('/headadmin/admins')}
+                style={{
+                  borderRadius: 0,
+                  border: '4px solid #000',
+                  boxShadow: '10px 10px 0px #000',
+                  cursor: 'pointer',
+                  height: '100%'
+                }}
+              >
+                <div style={{ textAlign: 'center', padding: '12px' }}>
+                  <SafetyCertificateOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
+                  <Title level={4} style={{ fontWeight: 800, textTransform: 'uppercase', margin: 0 }}>Adminlarni Boshqarish</Title>
+                  <Text style={{ fontWeight: 600 }}>Yangi adminlar qo'shish va tahrirlash</Text>
+                </div>
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} lg={8}>
+              <Card
+                hoverable
+                onClick={() => navigate('/headadmin/messages')}
+                style={{
+                  borderRadius: 0,
+                  border: '4px solid #000',
+                  boxShadow: '10px 10px 0px #000',
+                  cursor: 'pointer',
+                  height: '100%'
+                }}
+              >
+                <div style={{ textAlign: 'center', padding: '12px' }}>
+                  <UserOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
+                  <Title level={4} style={{ fontWeight: 800, textTransform: 'uppercase', margin: 0 }}>Aloqa Xabarlari</Title>
+                  <Text style={{ fontWeight: 600 }}>Foydalanuvchilardan kelgan murojaatlar</Text>
+                </div>
+              </Card>
+            </Col>
+          </Row>
+        </div>
       </div>
     </ConfigProvider>
   );

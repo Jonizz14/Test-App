@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import '../styles/Onboarding.css';
 import { useTranslation } from 'react-i18next';
+import { useSettings } from '../context/SettingsContext';
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -10,14 +11,16 @@ const Onboarding = () => {
   const [isExiting, setIsExiting] = useState(false);
   const [isEntering, setIsEntering] = useState(true);
   const { t } = useTranslation();
+  const { settings } = useSettings();
 
   useEffect(() => {
     const timer = setTimeout(() => setIsEntering(false), 100);
     return () => clearTimeout(timer);
   }, []);
 
-  const steps = [
+  const allSteps = [
     {
+      id: 0,
       title: t('onboarding.steps.welcome.title'),
       subtitle: t('onboarding.steps.welcome.subtitle'),
       description: t('onboarding.steps.welcome.desc'),
@@ -25,6 +28,7 @@ const Onboarding = () => {
       highlightElement: null
     },
     {
+      id: 1,
       title: t('onboarding.steps.nav.title'),
       subtitle: t('onboarding.steps.nav.subtitle'),
       description: t('onboarding.steps.nav.desc'),
@@ -32,6 +36,7 @@ const Onboarding = () => {
       highlightElement: "header"
     },
     {
+      id: 2,
       title: t('onboarding.steps.save.title'),
       subtitle: t('onboarding.steps.save.subtitle'),
       description: t('onboarding.steps.save.desc'),
@@ -40,6 +45,7 @@ const Onboarding = () => {
       demoAction: "save"
     },
     {
+      id: 3,
       title: t('onboarding.steps.messages.title'),
       subtitle: t('onboarding.steps.messages.subtitle'),
       description: t('onboarding.steps.messages.desc'),
@@ -47,8 +53,8 @@ const Onboarding = () => {
       highlightElement: "messages",
       demoAction: "message"
     },
-
     {
+      id: 4,
       title: t('onboarding.steps.profile.title'),
       subtitle: t('onboarding.steps.profile.subtitle'),
       description: t('onboarding.steps.profile.desc'),
@@ -56,6 +62,7 @@ const Onboarding = () => {
       highlightElement: "profile"
     },
     {
+      id: 5,
       title: t('onboarding.steps.ready.title'),
       subtitle: t('onboarding.steps.ready.subtitle'),
       description: t('onboarding.steps.ready.desc'),
@@ -63,6 +70,8 @@ const Onboarding = () => {
       highlightElement: null
     }
   ];
+
+  const steps = allSteps.filter(step => settings?.welcome?.steps?.[step.id]);
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {

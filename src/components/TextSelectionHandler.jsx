@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useSavedItems } from '../context/SavedItemsContext';
 import { useTranslation } from 'react-i18next';
+import { useSettings } from '../context/SettingsContext';
 
 const TextSelectionHandler = () => {
+  const { settings } = useSettings();
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [showButton, setShowButton] = useState(false);
   const [selectedText, setSelectedText] = useState('');
@@ -18,7 +20,7 @@ const TextSelectionHandler = () => {
   );
 
   useEffect(() => {
-    if (isDashboard) return;
+    if (isDashboard || !settings?.features?.textSelection) return;
 
     const handleSelection = () => {
       const selection = window.getSelection();
@@ -86,45 +88,51 @@ const TextSelectionHandler = () => {
     };
 
     // Flyer animation logic
-    const rect = buttonRef.current.getBoundingClientRect();
-    const flyer = document.createElement('div');
-    flyer.className = 'flyer-icon';
-    flyer.innerHTML = `<span class="material-symbols-outlined">format_quote</span>`;
-    flyer.style.left = `${rect.left + rect.width / 2 - 25}px`;
-    flyer.style.top = `${rect.top + rect.height / 2 - 25}px`;
-    document.body.appendChild(flyer);
+    if (settings?.features?.flyerAnimation) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const flyer = document.createElement('div');
+      flyer.className = 'flyer-icon';
+      flyer.innerHTML = `<span class="material-symbols-outlined">format_quote</span>`;
+      flyer.style.left = `${rect.left + rect.width / 2 - 25}px`;
+      flyer.style.top = `${rect.top + rect.height / 2 - 25}px`;
+      document.body.appendChild(flyer);
 
-    // Save item
-    saveItem(itemToSave);
+      // Animate to bin
+      setTimeout(() => {
+        const target = document.getElementById('header-storage-bin');
+        const targetRect = target?.getBoundingClientRect();
 
-    // Animate to bin
-    setTimeout(() => {
-      const target = document.getElementById('header-storage-bin');
-      const targetRect = target?.getBoundingClientRect();
+        if (targetRect) {
+          flyer.style.left = `${targetRect.left + (targetRect.width / 2) - 25}px`;
+          flyer.style.top = `${targetRect.top + (targetRect.height / 2) - 25}px`;
+          flyer.style.transform = 'scale(0.5) rotate(360deg)';
+          flyer.style.opacity = '0.5';
+        }
+      }, 50);
 
-      if (targetRect) {
-        flyer.style.left = `${targetRect.left + (targetRect.width / 2) - 25}px`;
-        flyer.style.top = `${targetRect.top + (targetRect.height / 2) - 25}px`;
-        flyer.style.transform = 'scale(0.5) rotate(360deg)';
-        flyer.style.opacity = '0.5';
-      }
-    }, 50);
+      // Cleanup
+      setTimeout(() => {
+        flyer.style.opacity = '0';
+        flyer.style.transform = 'scale(0) rotate(720deg)';
+        flyer.style.filter = 'blur(10px)';
+      }, 700);
 
-    // Cleanup
-    setTimeout(() => {
-      flyer.style.opacity = '0';
-      flyer.style.transform = 'scale(0) rotate(720deg)';
-      flyer.style.filter = 'blur(10px)';
-    }, 700);
-
-    setTimeout(() => {
-      if (document.body.contains(flyer)) {
-        document.body.removeChild(flyer);
-      }
+      setTimeout(() => {
+        if (document.body.contains(flyer)) {
+          document.body.removeChild(flyer);
+        }
+        window.dispatchEvent(new CustomEvent('itemSaved', { 
+          detail: { title: t('nav.saved'), icon: 'format_quote' } 
+        }));
+      }, 1200);
+    } else {
+      // Dispatch immediately if no animation
       window.dispatchEvent(new CustomEvent('itemSaved', { 
         detail: { title: t('nav.saved'), icon: 'format_quote' } 
       }));
-    }, 1200);
+    }
+
+    saveItem(itemToSave);
 
     setShowButton(false);
     window.getSelection().removeAllRanges();

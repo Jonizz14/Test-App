@@ -13,6 +13,7 @@ import ManageAdmins from './headadmin/ManageAdmins';
 import AddAdmin from './headadmin/AddAdmin';
 import AdminDetails from './headadmin/AdminDetails';
 import ContactMessages from './headadmin/ContactMessages';
+import AppSettings from './headadmin/AppSettings';
 
 const { Content } = Layout;
 
@@ -79,6 +80,7 @@ const HeadAdminDashboard = () => {
             <Route path="/edit-admin/:id" element={<AddAdmin />} />
             <Route path="/admin-details/:id" element={<AdminDetails />} />
             <Route path="/messages" element={<ContactMessages />} />
+            <Route path="/settings" element={<AppSettings />} />
           </Routes>
         </div>
       </Content>

@@ -5,6 +5,7 @@ import { useSavedItems } from '../context/SavedItemsContext';
 import { useSentMessages } from '../context/SentMessagesContext';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { useSettings } from '../context/SettingsContext';
 
 
 const Header = ({ demoMode = false }) => {
@@ -14,6 +15,7 @@ const Header = ({ demoMode = false }) => {
   const { savedItems, removeItem, clearItems } = useSavedItems();
   const { sentMessages, removeMessage, clearMessages } = useSentMessages();
   const { currentUser, isAuthenticated, logout } = useAuth();
+  const { settings } = useSettings();
   
   const { t, i18n } = useTranslation();
   const [showSaved, setShowSaved] = React.useState(false);
@@ -307,6 +309,7 @@ const Header = ({ demoMode = false }) => {
         { label: 'Umumiy', path: '/headadmin' },
         { label: 'Adminlar', path: '/headadmin/admins' },
         { label: 'Xabarlar', path: '/headadmin/messages' },
+        { label: 'Sozlamalar', path: '/headadmin/settings' },
       ];
       return headadminLinks;
     }
@@ -551,46 +554,54 @@ const Header = ({ demoMode = false }) => {
 
 
                     {/* Content Search Icon */}
-                     <div 
-                      className={`storage-icon-container search-icon ${showSearch ? 'active' : ''}`}
-                      onClick={toggleSearch}
-                      title="Qidirish"
-                      style={{ width: '44px', opacity: 1, transform: 'scale(1)', overflow: 'visible', marginRight: 0 }}
-                    >
-                      <span className="material-symbols-outlined">search</span>
-                    </div>
+                     {settings.header.search && (
+                       <div 
+                        className={`storage-icon-container search-icon ${showSearch ? 'active' : ''}`}
+                        onClick={toggleSearch}
+                        title="Qidirish"
+                        style={{ width: '44px', opacity: 1, transform: 'scale(1)', overflow: 'visible', marginRight: 0 }}
+                      >
+                        <span className="material-symbols-outlined">search</span>
+                      </div>
+                     )}
 
                     {/* Language Switcher */}
-                    <div 
-                      className={`storage-icon-container lang-icon ${showLanguages ? 'active' : ''}`}
-                      onClick={toggleLanguages}
-                      title={t('nav.changeLanguage')}
-                    >
-                      <span className="material-symbols-outlined">language</span>
-                      <span className="current-lang-code">{i18n.language ? i18n.language.split('-')[0].toUpperCase() : 'UZ'}</span>
-                    </div>
+                    {settings.header.language && (
+                      <div 
+                        className={`storage-icon-container lang-icon ${showLanguages ? 'active' : ''}`}
+                        onClick={toggleLanguages}
+                        title={t('nav.changeLanguage')}
+                      >
+                        <span className="material-symbols-outlined">language</span>
+                        <span className="current-lang-code">{i18n.language ? i18n.language.split('-')[0].toUpperCase() : 'UZ'}</span>
+                      </div>
+                    )}
       
                     {/* Messages Icon */}
-                    <div 
-                      className={`storage-icon-container message-icon ${sentMessages.length > 0 ? 'is-visible' : ''} ${showMessages ? 'active' : ''}`}
-                      onClick={toggleMessages}
-                      id="header-message-icon"
-                      title={t('nav.sentMessages')}
-                    >
-                      <span className="material-symbols-outlined">forum</span>
-                      <span className="item-count msg-count">{sentMessages.length}</span>
-                    </div>
+                    {settings.header.messages && (
+                      <div 
+                        className={`storage-icon-container message-icon ${sentMessages.length > 0 ? 'is-visible' : ''} ${showMessages ? 'active' : ''}`}
+                        onClick={toggleMessages}
+                        id="header-message-icon"
+                        title={t('nav.sentMessages')}
+                      >
+                        <span className="material-symbols-outlined">forum</span>
+                        <span className="item-count msg-count">{sentMessages.length}</span>
+                      </div>
+                    )}
       
                     {/* Storage Icon */}
-                    <div 
-                      className={`storage-icon-container has-items ${savedItems.length > 0 ? 'is-visible' : ''} ${showSaved ? 'active' : ''}`}
-                      onClick={toggleSaved}
-                      id="header-storage-bin"
-                      title={t('nav.savedData')}
-                    >
-                      <span className="material-symbols-outlined">inventory_2</span>
-                      <span className="item-count">{savedItems.length}</span>
-                    </div>
+                    {settings.header.storage && (
+                      <div 
+                        className={`storage-icon-container has-items ${savedItems.length > 0 ? 'is-visible' : ''} ${showSaved ? 'active' : ''}`}
+                        onClick={toggleSaved}
+                        id="header-storage-bin"
+                        title={t('nav.savedData')}
+                      >
+                        <span className="material-symbols-outlined">inventory_2</span>
+                        <span className="item-count">{savedItems.length}</span>
+                      </div>
+                    )}
                   </>
                 )}
               </div>

@@ -5,8 +5,10 @@ import apiService from "../data/apiService";
 import "../styles/Home.css";
 import { useSavedItems } from "../context/SavedItemsContext";
 import { useTranslation } from "react-i18next";
+import { useSettings } from "../context/SettingsContext";
 
 const Home = () => {
+  const { settings } = useSettings();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const { t } = useTranslation();
@@ -71,56 +73,54 @@ const Home = () => {
       }));
       return;
     }
-    
-    // Get start position
-    const rect = e.currentTarget.getBoundingClientRect();
-    
-    // Create flying element immediately
-    const flyer = document.createElement('div');
-    flyer.className = 'flyer-icon';
-    flyer.innerHTML = `<span class="material-symbols-outlined">${role.icon}</span>`;
-    flyer.style.left = `${rect.left + rect.width / 2 - 25}px`;
-    flyer.style.top = `${rect.top + rect.height / 2 - 25}px`;
-    document.body.appendChild(flyer);
-
-    // 1. Save immediately so the storage icon appears in Header and starts its animation
-    saveItem(role);
-
-    // 2. Wait a moment for the header layout to calculate the NEW position of the bin
-    setTimeout(() => {
-      const target = document.getElementById('header-storage-bin');
-      const targetRect = target?.getBoundingClientRect();
-
-      if (targetRect) {
-        // Target the bin accurately as it appears
-        // Aligning center: (target center) - (flyer half-width)
-        // targetRect.width is 44, targetRect.left is absolute. 
-        // flyer is 50px wide. target center is left + 22. 
-        // flyer should be at left + 22 - 25 = left - 3.
-        flyer.style.left = `${targetRect.left + (targetRect.width / 2) - 25}px`;
-        flyer.style.top = `${targetRect.top + (targetRect.height / 2) - 25}px`;
-        
-        // Scale 0.88 because bin is 44px and flyer is 50px (44/50 = 0.88)
-        flyer.style.transform = 'scale(0.88) rotate(0deg)';
-      }
-    }, 100);
-
-    // Beautiful Disappearance: Implode into the bin
-    setTimeout(() => {
-      flyer.style.opacity = '0';
-      flyer.style.transform = 'scale(0) rotate(180deg)';
-      flyer.style.filter = 'blur(10px) brightness(1.5)';
-    }, 850);
-
-    // Cleanup and trigger notification
-    setTimeout(() => {
-      if (document.body.contains(flyer)) {
-        document.body.removeChild(flyer);
-      }
+    // 2. Flyer Animation logic
+    if (settings?.features?.flyerAnimation) {
+      // Get start position
+      const rect = e.currentTarget.getBoundingClientRect();
       
-      // Dispatch custom event for Header notification
+      // Create flying element immediately
+      const flyer = document.createElement('div');
+      flyer.className = 'flyer-icon';
+      flyer.innerHTML = `<span class="material-symbols-outlined">${role.icon}</span>`;
+      flyer.style.left = `${rect.left + rect.width / 2 - 25}px`;
+      flyer.style.top = `${rect.top + rect.height / 2 - 25}px`;
+      document.body.appendChild(flyer);
+
+      // Wait a moment for the header layout to calculate the NEW position of the bin
+      setTimeout(() => {
+        const target = document.getElementById('header-storage-bin');
+        const targetRect = target?.getBoundingClientRect();
+
+        if (targetRect) {
+          flyer.style.left = `${targetRect.left + (targetRect.width / 2) - 25}px`;
+          flyer.style.top = `${targetRect.top + (targetRect.height / 2) - 25}px`;
+          flyer.style.transform = 'scale(0.88) rotate(0deg)';
+        }
+      }, 100);
+
+      // Beautiful Disappearance: Implode into the bin
+      setTimeout(() => {
+        flyer.style.opacity = '0';
+        flyer.style.transform = 'scale(0) rotate(180deg)';
+        flyer.style.filter = 'blur(10px) brightness(1.5)';
+      }, 850);
+
+      // Cleanup and trigger notification
+      setTimeout(() => {
+        if (document.body.contains(flyer)) {
+          document.body.removeChild(flyer);
+        }
+        
+        // Dispatch custom event for Header notification
+        window.dispatchEvent(new CustomEvent('itemSaved', { detail: role }));
+      }, 1300);
+    } else {
+      // If no animation, dispatch immediately
       window.dispatchEvent(new CustomEvent('itemSaved', { detail: role }));
-    }, 1300); // Slightly longer to finish the implosion
+    }
+
+    // 1. Save immediately
+    saveItem(role);
   };
 
   const rolesData = [
@@ -196,10 +196,12 @@ const Home = () => {
                       ))}
                     </ul>
                   </div>
-                  <button className="save-info-btn" onClick={(e) => handleSaveInfo(e, role)}>
-                    <span className="material-symbols-outlined">content_copy</span>
-                    <span>{t('home.save')}</span>
-                  </button>
+                  {settings?.features?.homeSaveButton && (
+                    <button className="save-info-btn" onClick={(e) => handleSaveInfo(e, role)}>
+                      <span className="material-symbols-outlined">content_copy</span>
+                      <span>{t('home.save')}</span>
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
