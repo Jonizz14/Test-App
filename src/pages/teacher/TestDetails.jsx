@@ -221,7 +221,7 @@ const TestDetails = () => {
           <Space>
             {student?.is_premium && student?.profile_photo ? (
               <Avatar 
-                src={student.profile_photo.startsWith('http') ? student.profile_photo : `https://test-app-kam9.onrender.com${student.profile_photo}`}
+                src={student.profile_photo.startsWith('http') ? student.profile_photo : `http://localhost:8000${student.profile_photo}`}
                 style={{ 
                   border: '2px solid #f59e0b'
                 }} 
