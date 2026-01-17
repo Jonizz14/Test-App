@@ -19,7 +19,7 @@
   left: 50%;
   transform: translateX(-50%);
   width: max-content;
-  min-width: 200px;
+  min-width: 300px;
   max-width: 95%;
   height: 64px;
   overflow: visible; /* Allow dropdown to show */
@@ -43,6 +43,7 @@
   will-change: height, width, top, left, transform, background;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
+
 
 .header.demo-mode {
   pointer-events: none !important;
@@ -304,6 +305,7 @@
   flex-direction: column;
   gap: 1.5rem;
 }
+
 
 .storage-header {
   display: flex;

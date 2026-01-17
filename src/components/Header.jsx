@@ -436,7 +436,7 @@ const Header = ({ demoMode = false }) => {
     setShowSaved(false);
     setShowMessages(false);
     setShowLanguages(false);
-    setShowLanguages(false);
+    setShowNotifications(false);
     setShowSearch(false);
   };
 
@@ -535,7 +535,7 @@ const Header = ({ demoMode = false }) => {
                     
                     {/* Dashboard Notification Icon */}
                     <div 
-                      className={`storage-icon-container message-icon ${showNotifications ? 'active' : ''}`}
+                      className={`storage-icon-container message-icon is-visible ${showNotifications ? 'active' : ''}`}
                       onClick={toggleNotifications}
                       style={{ width: '44px', opacity: 1, transform: 'scale(1)', overflow: 'visible' }}
                     >
@@ -632,7 +632,7 @@ const Header = ({ demoMode = false }) => {
           </div>
         </div>
 
-        {/* Integrated Storage Area (Normal Mode) */}
+         {/* Integrated Storage Area (Normal Mode) */}
         <div className={`header-storage-area ${showSaved && savedItems.length > 0 && !isDashboard ? 'visible' : ''}`}>
           <div className="storage-content-wrapper">
             <div className="storage-header">
