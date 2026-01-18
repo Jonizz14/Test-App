@@ -227,7 +227,6 @@ const Header = ({ demoMode = false }) => {
   
   const [notification, setNotification] = React.useState(null);
   const [isVisible, setIsVisible] = React.useState(false);
-  const [isEntering, setIsEntering] = React.useState(true);
   
   // Dashboard state
   const isDashboard = ['/admin', '/headadmin', '/teacher', '/student', '/seller'].some(path => 
@@ -293,13 +292,7 @@ const Header = ({ demoMode = false }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Entering animation timing
-  React.useEffect(() => {
-    if (isEntering) {
-      const timer = setTimeout(() => setIsEntering(false), 1200);
-      return () => clearTimeout(timer);
-    }
-  }, [isEntering]);
+
 
   // Auto-close empty lists
   React.useEffect(() => {
@@ -391,7 +384,7 @@ const Header = ({ demoMode = false }) => {
   const getHeaderClass = () => {
     let classes = ['header'];
     if (i18n.language) classes.push(`lang-${i18n.language.split('-')[0]}`);
-    if (isEntering) classes.push('entering');
+
     if (notification && isVisible) classes.push('expanding-down');
     if (showSaved && savedItems.length > 0) classes.push('storage-expanded');
     if (showMessages && sentMessages.length > 0) classes.push('messages-expanded');

@@ -15,41 +15,25 @@ const NewsPage = () => {
     return new Date(dateString).toLocaleDateString('uz-UZ', options);
   };
 
-  // Animation Logic - Once per session
+  // Animation Logic - Trigger on scroll
   useEffect(() => {
-    const sections = document.querySelectorAll('section');
-    const hasViewed = sessionStorage.getItem('news_intro_shown');
+    const observerOptions = {
+      threshold: 0.15
+    };
 
-    if (hasViewed) {
-      // If already viewed in this session, show immediately without animation
-      sections.forEach(section => {
-        section.classList.add('in-view');
-        section.style.transition = 'none';
-        section.style.opacity = '1';
-        section.style.transform = 'none';
-        section.style.filter = 'none';
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          observer.unobserve(entry.target);
+        }
       });
-    } else {
-      const observerOptions = {
-        threshold: 0.1
-      };
+    }, observerOptions);
 
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('in-view');
-            observer.unobserve(entry.target);
-          }
-        });
-      }, observerOptions);
+    const sections = document.querySelectorAll('section');
+    sections.forEach(section => observer.observe(section));
 
-      sections.forEach(section => observer.observe(section));
-      
-      // Mark as viewed
-      sessionStorage.setItem('news_intro_shown', 'true');
-
-      return () => observer.disconnect();
-    }
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -59,7 +43,7 @@ const NewsPage = () => {
         <section className="news-hero-section">
           <div className="news-hero-content">
             <h1>YANGILANISHLAR</h1>
-            <p className="description">Platformamizdagi so'nggi o'zgarishlar va yangi imkoniyatlar</p>
+            <p className="description">Platformamizdagi so'nggi o'zgarishlarc</p>
           </div>
         </section>
 

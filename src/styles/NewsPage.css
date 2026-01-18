@@ -38,6 +38,15 @@ section.in-view .news-card {
   filter: blur(0);
 }
 
+section.in-view h1 { transition-delay: 0.1s; }
+section.in-view h2 { transition-delay: 0.15s; }
+section.in-view p { transition-delay: 0.2s; }
+section.in-view .news-card { transition-delay: 0.3s; }
+section.in-view .news-card:nth-child(2) { transition-delay: 0.4s; }
+section.in-view .news-card:nth-child(3) { transition-delay: 0.5s; }
+
+
+
 /* Hero Section */
 .news-hero-section {
   background: #000;

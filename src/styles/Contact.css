@@ -231,11 +231,19 @@ section.in-view .modern-message-card {
   filter: blur(0);
 }
 
+section.in-view h1 { transition-delay: 0.1s; }
+section.in-view h2 { transition-delay: 0.15s; }
+section.in-view p { transition-delay: 0.2s; }
+section.in-view .stat-box { transition-delay: 0.3s; }
+section.in-view .minimal-form { transition-delay: 0.35s; }
+section.in-view .modern-message-card { transition-delay: 0.3s; }
+
 /* Staggered entrance for form elements */
-section.in-view .minimal-form input:nth-child(1) { transition-delay: 0.1s; }
-section.in-view .minimal-form input:nth-child(2) { transition-delay: 0.2s; }
-section.in-view .minimal-form select { transition-delay: 0.3s; }
-section.in-view .minimal-form textarea { transition-delay: 0.4s; }
+section.in-view .minimal-form input:nth-child(1) { transition-delay: 0.4s; }
+section.in-view .minimal-form input:nth-child(2) { transition-delay: 0.45s; }
+section.in-view .minimal-form select { transition-delay: 0.5s; }
+section.in-view .minimal-form textarea { transition-delay: 0.55s; }
+section.in-view .btn-modern-submit { transition-delay: 0.6s; }
 /* Mobile Responsive Adjustments */
 @media (max-width: 768px) {
   html {

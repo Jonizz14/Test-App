@@ -162,39 +162,25 @@ const Contact = () => {
     });
   };
 
-  // Animation Logic - Once per session
+  // Animation Logic - Trigger on scroll
   useEffect(() => {
-    const sections = document.querySelectorAll('section');
-    const hasViewed = sessionStorage.getItem('contact_intro_shown');
+    const observerOptions = {
+      threshold: 0.15
+    };
 
-    if (hasViewed) {
-      sections.forEach(section => {
-        section.classList.add('in-view');
-        section.style.transition = 'none';
-        section.style.opacity = '1';
-        section.style.transform = 'none';
-        section.style.filter = 'none';
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          observer.unobserve(entry.target);
+        }
       });
-    } else {
-      const observerOptions = {
-        threshold: 0.15
-      };
+    }, observerOptions);
 
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('in-view');
-            observer.unobserve(entry.target);
-          }
-        });
-      }, observerOptions);
+    const sections = document.querySelectorAll('section');
+    sections.forEach(section => observer.observe(section));
 
-      sections.forEach(section => observer.observe(section));
-      
-      sessionStorage.setItem('contact_intro_shown', 'true');
-
-      return () => observer.disconnect();
-    }
+    return () => observer.disconnect();
   }, []);
 
   return (
