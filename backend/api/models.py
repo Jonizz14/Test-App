@@ -440,5 +440,20 @@ class ContactMessage(models.Model):
             models.Index(fields=['subject']),
         ]
     
+    
     def __str__(self):
         return f"{self.name} - {self.get_subject_display()} ({self.get_status_display()})"
+
+class SiteUpdate(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    media_type = models.CharField(max_length=10, choices=[('image', 'Rasm'), ('video', 'Video')], default='image')
+    media_file = models.FileField(upload_to='updates_media/', blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title

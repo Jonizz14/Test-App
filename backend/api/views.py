@@ -7,8 +7,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.db import models
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, ContactMessage
-from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, PricingSerializer, StarPackageSerializer
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, ContactMessage, SiteUpdate
+from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, PricingSerializer, StarPackageSerializer, ContactMessageSerializer, SiteUpdateSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -798,6 +798,403 @@ class TestSessionViewSet(viewsets.ModelViewSet):
             # Return existing session
             serializer = self.get_serializer(existing_session)
             return Response(serializer.data)
+
+        # Create new session
+        from django.utils import timezone
+        now = timezone.now()
+        expires_at = now + timezone.timedelta(minutes=test.time_limit)
+        
+        # Generate unique session ID
+        import uuid
+        session_id = str(uuid.uuid4())
+        
+        session = TestSession.objects.create(
+            session_id=session_id,
+            test=test,
+            student=request.user,
+            started_at=now,
+            expires_at=expires_at,
+            is_completed=False,
+            is_expired=False
+        )
+        
+        serializer = self.get_serializer(session)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'])
+    def get_session(self, request):
+        """Get session by ID"""
+        session_id = request.query_params.get('session_id')
+        if not session_id:
+            return Response({'error': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            session = TestSession.objects.get(session_id=session_id)
+            
+            # Check permissions
+            if request.user.role == 'student' and session.student != request.user:
+                return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+                
+            serializer = self.get_serializer(session)
+            return Response(serializer.data)
+        except TestSession.DoesNotExist:
+            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=['put'])
+    def update_answers(self, request):
+        """Update answers for a session"""
+        session_id = request.data.get('session_id')
+        answers = request.data.get('answers')
+        
+        if not session_id or answers is None:
+            return Response({'error': 'session_id and answers are required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            session = TestSession.objects.get(session_id=session_id)
+            
+            # Check permissions
+            if session.student != request.user:
+                return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+                
+            # Check if session is active
+            if not session.is_active:
+                return Response({'error': 'Session is expired or completed'}, status=status.HTTP_400_BAD_REQUEST)
+                
+            # Update answers
+            session.answers = answers
+            session.save()
+            
+            return Response({'status': 'success'})
+        except TestSession.DoesNotExist:
+            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=['post'])
+    def complete_session(self, request):
+        """Complete a session and grade it"""
+        session_id = request.data.get('session_id')
+        
+        if not session_id:
+            return Response({'error': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            session = TestSession.objects.get(session_id=session_id)
+            
+            # Check permissions
+            if session.student != request.user:
+                return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+                
+            if session.is_completed:
+                return Response({'error': 'Session already completed'}, status=status.HTTP_400_BAD_REQUEST)
+                
+            # Mark session as completed
+            session.complete()
+            
+            # Create TestAttempt
+            test = session.test
+            answers = session.answers
+            
+            # Calculate score
+            correct_count = 0
+            total_score = 0
+            student_answers = {}
+            
+            questions = test.questions.all()
+            total_questions = questions.count()
+            
+            for question in questions:
+                # Get student answer for this question
+                # The format is typically { "question_id": "answer" }
+                question_id_str = str(question.id)
+                student_answer = answers.get(question_id_str)
+                
+                if student_answer:
+                    # Clean and normalize answer
+                    normalized_student = str(student_answer).strip().lower()
+                    normalized_correct = str(question.correct_answer).strip().lower()
+                    
+                    if normalized_student == normalized_correct:
+                        correct_count += 1
+                        # For now assume 1 point per question, can be improved later
+                        
+                    student_answers[question_id_str] = student_answer
+            
+            score_percentage = (correct_count / total_questions * 100) if total_questions > 0 else 0
+            
+            # Calculate time taken
+            from django.utils import timezone
+            time_taken = int((session.completed_at - session.started_at).total_seconds() / 60)
+            
+            # Create attempt
+            attempt = TestAttempt.objects.create(
+                student=request.user,
+                test=test,
+                answers=student_answers,
+                score=score_percentage,
+                submitted_at=timezone.now(),
+                time_taken=time_taken
+            )
+            
+            return Response({
+                'message': 'Test completed successfully',
+                'attempt_id': attempt.id,
+                'score': score_percentage
+            })
+            
+        except TestSession.DoesNotExist:
+            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=['post'])
+    def auto_expire_sessions(self, request):
+        """Auto expire sessions that have passed their time limit"""
+        # This endpoint should be called by a cron job or scheduled task
+        # But can be called manually by admins for maintenance
+        if not request.user.is_authenticated or request.user.role not in ['admin', 'head_admin']:
+             return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+             
+        from django.utils import timezone
+        now = timezone.now()
+        
+        # Find active sessions that have expired
+        expired_sessions = TestSession.objects.filter(
+            is_completed=False,
+            is_expired=False,
+            expires_at__lte=now
+        )
+        
+        count = expired_sessions.count()
+        
+        for session in expired_sessions:
+            session.mark_expired()
+            
+        return Response({'message': f'{count} sessions marked as expired'})
+
+
+class PricingViewSet(viewsets.ModelViewSet):
+    queryset = Pricing.objects.all()
+    serializer_class = PricingSerializer
+    permission_classes = [AllowAny] # Allow viewing pricing publicly
+
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [IsAuthenticated()] # Only authenticated users can modify (further restricted in perform_create)
+        return [AllowAny()]
+
+    def perform_create(self, serializer):
+        if self.request.user.role != 'head_admin':
+             from rest_framework.exceptions import PermissionDenied
+             raise PermissionDenied("Only head admin can manage pricing")
+        serializer.save()
+
+    def perform_update(self, serializer):
+        if self.request.user.role != 'head_admin':
+             from rest_framework.exceptions import PermissionDenied
+             raise PermissionDenied("Only head admin can manage pricing")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if self.request.user.role != 'head_admin':
+             from rest_framework.exceptions import PermissionDenied
+             raise PermissionDenied("Only head admin can manage pricing")
+        instance.delete()
+
+
+class StarPackageViewSet(viewsets.ModelViewSet):
+    queryset = StarPackage.objects.all()
+    serializer_class = StarPackageSerializer
+    permission_classes = [AllowAny]
+
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [IsAuthenticated()]
+        return [AllowAny()]
+    
+    def perform_create(self, serializer):
+        if self.request.user.role != 'head_admin':
+             from rest_framework.exceptions import PermissionDenied
+             raise PermissionDenied("Only head admin can manage star packages")
+        serializer.save()
+
+    def perform_update(self, serializer):
+        if self.request.user.role != 'head_admin':
+             from rest_framework.exceptions import PermissionDenied
+             raise PermissionDenied("Only head admin can manage star packages")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if self.request.user.role != 'head_admin':
+             from rest_framework.exceptions import PermissionDenied
+             raise PermissionDenied("Only head admin can manage star packages")
+        instance.delete()
+
+
+class ContactMessageViewSet(viewsets.ModelViewSet):
+    queryset = ContactMessage.objects.all()
+    serializer_class = ContactMessageSerializer
+    permission_classes = [AllowAny]
+
+    def get_permissions(self):
+        # Anyone can create (submit) a message
+        if self.action == 'create':
+            return [AllowAny()]
+        # Only authenticated users can list/retrieve/update/delete
+        return [IsAuthenticated()]
+
+    def get_queryset(self):
+        queryset = ContactMessage.objects.all()
+        
+        # If user is admin/head_admin, they can see messages
+        if self.request.user.is_authenticated:
+            if self.request.user.role in ['admin', 'head_admin']:
+                # Filter by status if provided
+                status = self.request.query_params.get('status')
+                if status:
+                    queryset = queryset.filter(status=status)
+                return queryset
+            
+            # If user is not admin, they can only see their own messages (by email)
+            # This handles the case where a logged-in user wants to see their submitted messages
+            return queryset.filter(email=self.request.user.email)
+            
+        # Unauthenticated users can't see list
+        return queryset.none()
+
+    @action(detail=False, methods=['get'])
+    def admin_list(self, request):
+        """Endpoint for admins to list contact messages"""
+        if not request.user.is_authenticated or request.user.role not in ['admin', 'head_admin']:
+             return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+        
+        return self.list(request)
+        
+    @action(detail=False, methods=['get'])
+    def my_messages(self, request):
+        """Endpoint for users to see their own messages"""
+        if not request.user.is_authenticated:
+             return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        queryset = ContactMessage.objects.filter(email=request.user.email)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def reply(self, request, pk=None):
+        """Admin reply to a contact message"""
+        if not request.user.is_authenticated or request.user.role not in ['admin', 'head_admin']:
+             return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+             
+        message = self.get_object()
+        reply_text = request.data.get('reply')
+        
+        if not reply_text:
+            return Response({'error': 'Reply text is required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        message.admin_reply = reply_text
+        message.replied_by = request.user
+        message.replied_at = timezone.now()
+        message.status = 'replied'
+        message.save()
+        
+        # TODO: Send email with reply
+        
+        serializer = self.get_serializer(message)
+        return Response(serializer.data)
+        
+    @action(detail=True, methods=['patch'])
+    def update_status(self, request, pk=None):
+        """Update status of a message"""
+        if not request.user.is_authenticated or request.user.role not in ['admin', 'head_admin']:
+             return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+             
+        message = self.get_object()
+        new_status = request.data.get('status')
+        
+        if not new_status or new_status not in dict(ContactMessage.STATUS_CHOICES):
+            return Response({'error': 'Invalid status'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        message.status = new_status
+        message.save()
+        
+        serializer = self.get_serializer(message)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['put'])
+    def edit_message(self, request, pk=None):
+        """Allow users to edit their own NEW messages"""
+        if not request.user.is_authenticated:
+             return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+             
+        # Look up directly to ensure ownership check avoids admin override in get_queryset
+        try:
+            message = ContactMessage.objects.get(pk=pk)
+        except ContactMessage.DoesNotExist:
+            return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+            
+        # Check ownership
+        if message.email != request.user.email:
+            return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+            
+        # Check status - can only edit new messages
+        if message.status != 'new':
+            return Response({'error': 'Cannot edit processed messages'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Update allowed fields
+        name = request.data.get('name')
+        subject = request.data.get('subject')
+        msg_text = request.data.get('message')
+        phone = request.data.get('phone')
+        
+        if name: message.name = name
+        if subject: message.subject = subject
+        if msg_text: message.message = msg_text
+        if phone is not None: message.phone = phone
+        
+        message.save()
+        
+        serializer = self.get_serializer(message)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['delete'])
+    def delete_message(self, request, pk=None):
+        """Allow users to delete their own NEW messages"""
+        if not request.user.is_authenticated:
+             return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+             
+        try:
+            message = ContactMessage.objects.get(pk=pk)
+        except ContactMessage.DoesNotExist:
+             return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+             
+        if message.email != request.user.email:
+             return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+             
+        if message.status != 'new':
+             return Response({'error': 'Cannot delete processed messages'}, status=status.HTTP_400_BAD_REQUEST)
+             
+        message.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class SiteUpdateViewSet(viewsets.ModelViewSet):
+    queryset = SiteUpdate.objects.all()
+    serializer_class = SiteUpdateSerializer
+    permission_classes = [AllowAny]
+
+    def get_permissions(self):
+        # Create/Update/Delete requires admin/head_admin
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [IsAuthenticated()]
+        return [AllowAny()]
+    
+    def create(self, request, *args, **kwargs):
+        # Only admins/head_admins can create updates
+        if request.user.role not in ['admin', 'head_admin']:
+            return Response({'error': 'Only admins can create updates'}, status=status.HTTP_403_FORBIDDEN)
+        return super().create(request, *args, **kwargs)
+
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    def public_list(self, request):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
         # Create new session
         from django.utils import timezone

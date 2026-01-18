@@ -14,6 +14,7 @@ import AddAdmin from './headadmin/AddAdmin';
 import AdminDetails from './headadmin/AdminDetails';
 import ContactMessages from './headadmin/ContactMessages';
 import AppSettings from './headadmin/AppSettings';
+import ManageNews from './headadmin/ManageNews';
 
 const { Content } = Layout;
 
@@ -80,6 +81,7 @@ const HeadAdminDashboard = () => {
             <Route path="/edit-admin/:id" element={<AddAdmin />} />
             <Route path="/admin-details/:id" element={<AdminDetails />} />
             <Route path="/messages" element={<ContactMessages />} />
+            <Route path="/updates" element={<ManageNews />} />
             <Route path="/settings" element={<AppSettings />} />
           </Routes>
         </div>

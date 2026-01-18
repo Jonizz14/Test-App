@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, ContactMessage
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, ContactMessage, SiteUpdate
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
@@ -231,4 +231,21 @@ class ContactMessageSerializer(serializers.ModelSerializer):
                   'status', 'status_name', 'created_at', 'updated_at', 'replied_at', 
                   'admin_reply', 'replied_by', 'replied_by_name']
         read_only_fields = ['id', 'created_at', 'updated_at', 'replied_at', 'replied_by']
+
+
+class SiteUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SiteUpdate
+        fields = ['id', 'title', 'description', 'media_type', 'media_file', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.media_file:
+            request = self.context.get('request')
+            if request:
+                data['media_file'] = request.build_absolute_uri(instance.media_file.url)
+            else:
+                data['media_file'] = instance.media_file.url
+        return data
 

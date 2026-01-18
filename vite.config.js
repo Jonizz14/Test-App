@@ -17,6 +17,21 @@ export default defineConfig({
       port: 5173,
     }
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          mui: ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
+          antd: ['antd', '@ant-design/icons'],
+          xlsx: ['xlsx'],
+          charts: ['chart.js', 'react-chartjs-2'],
+          utils: ['axios', 'dayjs', 'i18next', 'react-i18next']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  },
   preview: {
     host: true,
     port: 5173,

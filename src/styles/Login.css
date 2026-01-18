@@ -284,3 +284,54 @@
   background: radial-gradient(circle at 10% 10%, rgba(0,0,0,0.02) 0%, transparent 50%);
   z-index: 2;
 }
+
+/* Responsive Design for Mobile */
+@media (max-width: 768px) {
+  .login-page-modern {
+    padding: 60px 1rem 1rem;
+    align-items: flex-start; /* Allow scroll on small screens */
+  }
+
+  .login-card-wrapper-modern {
+    padding: 1rem 0;
+    max-width: 100%;
+  }
+
+  .glass-effect-modern {
+    padding: 2rem 1.5rem;
+    box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.05); /* Smaller shadow */
+  }
+
+  .login-card-header-modern {
+    margin-bottom: 2rem;
+  }
+
+  .login-card-header-modern h1 {
+    font-size: 2rem;
+  }
+
+  .login-card-header-modern p {
+    font-size: 0.95rem;
+  }
+
+  .login-logo-circle-modern {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .modern-login-form-content {
+    gap: 1.5rem;
+  }
+
+  .input-wrapper-modern input {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  .login-submit-btn-modern {
+    padding: 1.2rem;
+    font-size: 1rem;
+  }
+}

@@ -24,6 +24,14 @@ const Header = ({ demoMode = false }) => {
   const [showLanguages, setShowLanguages] = React.useState(false);
   const [showSearch, setShowSearch] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   
   // Search Data
   // Enhanced Search Data with "Content" simulation
@@ -308,6 +316,7 @@ const Header = ({ demoMode = false }) => {
       const headadminLinks = [
         { label: 'Umumiy', path: '/headadmin' },
         { label: 'Adminlar', path: '/headadmin/admins' },
+        { label: 'Yangilanishlar', path: '/headadmin/updates' },
         { label: 'Xabarlar', path: '/headadmin/messages' },
         { label: 'Sozlamalar', path: '/headadmin/settings' },
       ];
@@ -361,6 +370,7 @@ const Header = ({ demoMode = false }) => {
     // Default Home Links
     return [
       { label: t('nav.home'), path: '/', isAction: true },
+      { label: t('nav.news') || 'Yangilanishlar', path: '/updates' },
       { label: t('nav.schoolSite'), href: 'https://sergelitim.uz', isExternal: true },
       { label: t('nav.contact'), path: '/contact', isAction: true }
     ];
@@ -380,6 +390,7 @@ const Header = ({ demoMode = false }) => {
 
   const getHeaderClass = () => {
     let classes = ['header'];
+    if (i18n.language) classes.push(`lang-${i18n.language.split('-')[0]}`);
     if (isEntering) classes.push('entering');
     if (notification && isVisible) classes.push('expanding-down');
     if (showSaved && savedItems.length > 0) classes.push('storage-expanded');
@@ -387,6 +398,7 @@ const Header = ({ demoMode = false }) => {
     if (showNotifications) classes.push('messages-expanded'); // Reuse expanded style
     if (showLanguages && !isDashboard) classes.push('lang-expanded');
     if (showSearch && !isDashboard) classes.push('search-expanded');
+
 
     if (demoMode) classes.push('demo-mode');
     
@@ -405,8 +417,8 @@ const Header = ({ demoMode = false }) => {
     setShowMessages(false);
     setShowNotifications(false);
     setShowLanguages(false);
-    setShowLanguages(false);
     setShowSearch(false);
+
   };
 
   const toggleSaved = () => {
@@ -415,8 +427,8 @@ const Header = ({ demoMode = false }) => {
       setShowMessages(false);
       setShowNotifications(false);
       setShowLanguages(false);
-      setShowLanguages(false);
       setShowSearch(false);
+  
     }
   };
 
@@ -426,8 +438,8 @@ const Header = ({ demoMode = false }) => {
       setShowSaved(false);
       setShowNotifications(false);
       setShowLanguages(false);
-      setShowLanguages(false);
       setShowSearch(false);
+  
     }
   };
 
@@ -436,8 +448,8 @@ const Header = ({ demoMode = false }) => {
     setShowSaved(false);
     setShowMessages(false);
     setShowLanguages(false);
-    setShowNotifications(false);
     setShowSearch(false);
+
   };
 
   const toggleLanguages = () => {
@@ -445,8 +457,8 @@ const Header = ({ demoMode = false }) => {
     setShowSaved(false);
     setShowMessages(false);
     setShowNotifications(false);
-    setShowNotifications(false);
     setShowSearch(false);
+
   };
 
   const toggleSearch = () => {
@@ -457,6 +469,7 @@ const Header = ({ demoMode = false }) => {
     setShowLanguages(false);
     if (!showSearch) {
       setTimeout(() => document.getElementById('global-search-input')?.focus(), 100);
+  
     }
   };
 
@@ -482,18 +495,18 @@ const Header = ({ demoMode = false }) => {
 
         <div className="layout-container">
           <div className="layout-content-container">
-            <div className="logo-section" onClick={(e) => { if (demoMode) e.preventDefault(); else navigate('/'); }} style={{ cursor: demoMode ? 'default' : 'pointer' }}>
-              <h2 className="logo-text">Examify Prep</h2>
-            </div>
-            
             <nav className="nav-desktop">
+              <div className="logo-section" onClick={(e) => { if (demoMode) e.preventDefault(); else navigate('/'); }} style={{ cursor: demoMode ? 'default' : 'pointer' }}>
+                <h2 className="logo-text">Examify Prep</h2>
+              </div>
               <div className="nav-links">
                 {navLinks.map((link, index) => (
                   <div 
                     key={index} 
-                    className={`nav-item ${link.children ? 'has-dropdown' : ''}`}
-                    onMouseEnter={() => link.children && setActiveDropdown(index)}
-                    onMouseLeave={() => link.children && setActiveDropdown(null)}
+                    className={`nav-item ${link.children ? 'has-dropdown' : ''} ${isMobile ? 'hidden-desktop-nav' : ''}`} // Hide in CSS if needed, or filter here
+                    style={{ display: isMobile ? 'none' : 'flex' }}
+                    onMouseEnter={() => !isMobile && link.children && setActiveDropdown(index)}
+                    onMouseLeave={() => !isMobile && link.children && setActiveDropdown(null)}
                   >
                     <a 
                       className={`nav-link ${link.children ? 'dropdown-trigger' : ''}`}
@@ -546,9 +559,31 @@ const Header = ({ demoMode = false }) => {
                 ) : (
                   <>
                     {(isAuthenticated || demoMode) ? (
-                      <button className="btn-secondary" onClick={(e) => { if (demoMode) e.preventDefault(); else handleProfileClick(); }} style={{ cursor: demoMode ? 'default' : 'pointer' }}>{t('nav.profile')}</button>
+                      !isMobile ? (
+                        <button className="btn-secondary" onClick={(e) => { if (demoMode) e.preventDefault(); else handleProfileClick(); }} style={{ cursor: demoMode ? 'default' : 'pointer' }}>{t('nav.profile')}</button>
+                      ) : (
+                        <div 
+                          className="storage-icon-container is-visible"
+                          onClick={(e) => { if (demoMode) e.preventDefault(); else handleProfileClick(); }}
+                          title={t('nav.profile')}
+                          style={{ cursor: demoMode ? 'default' : 'pointer', marginLeft: '0.4rem' }}
+                        >
+                          <span className="material-symbols-outlined">person</span>
+                        </div>
+                      )
                     ) : (
-                      <button className="btn-secondary" onClick={() => !demoMode && navigate('/login')} style={{ cursor: demoMode ? 'default' : 'pointer' }}>{t('nav.login')}</button>
+                      !isMobile ? (
+                        <button className="btn-secondary" onClick={() => !demoMode && navigate('/login')} style={{ cursor: demoMode ? 'default' : 'pointer' }}>{t('nav.login')}</button>
+                      ) : (
+                        <div 
+                          className="storage-icon-container is-visible" 
+                          onClick={() => !demoMode && navigate('/login')}
+                          title={t('nav.login')}
+                          style={{ cursor: demoMode ? 'default' : 'pointer', marginLeft: '0.4rem' }}
+                        >
+                          <span className="material-symbols-outlined">login</span>
+                        </div>
+                      )
                     )}
 
 
@@ -578,7 +613,7 @@ const Header = ({ demoMode = false }) => {
                     )}
       
                     {/* Messages Icon */}
-                    {settings.header.messages && (
+                    {settings.header.messages && !isMobile && (
                       <div 
                         className={`storage-icon-container message-icon ${sentMessages.length > 0 ? 'is-visible' : ''} ${showMessages ? 'active' : ''}`}
                         onClick={toggleMessages}
@@ -591,7 +626,7 @@ const Header = ({ demoMode = false }) => {
                     )}
       
                     {/* Storage Icon */}
-                    {settings.header.storage && (
+                    {settings.header.storage && !isMobile && (
                       <div 
                         className={`storage-icon-container has-items ${savedItems.length > 0 ? 'is-visible' : ''} ${showSaved ? 'active' : ''}`}
                         onClick={toggleSaved}
@@ -603,6 +638,62 @@ const Header = ({ demoMode = false }) => {
                       </div>
                     )}
                   </>
+                )}
+                
+                {/* Mobile Menu Button - Shown only on Mobile */}
+                {isMobile && (
+                  <div 
+                    className="nav-item has-dropdown mobile-menu-container"
+                    onClick={() => setActiveDropdown(activeDropdown === 'mobile-menu' ? null : 'mobile-menu')}
+                    style={{ marginLeft: '0.4rem' }}
+                  >
+                    <div className="storage-icon-container is-visible" style={{ width: '36px', height: '36px', margin: 0 }}>
+                       <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>menu</span>
+                    </div>
+                    
+                    <div 
+                      className={`nav-dropdown-menu ${activeDropdown === 'mobile-menu' ? 'visible' : ''}`} 
+                      style={{ 
+                        minWidth: '200px', 
+                        right: '0', 
+                        left: 'auto',
+                        transform: 'translateY(10px)',
+                        padding: '8px'
+                      }}
+                    >
+                       {navLinks.map((link, index) => (
+                         <div key={index}>
+                            <div 
+                              className="dropdown-item"
+                              style={{ padding: '8px 12px', fontSize: '0.8rem' }}
+                              onClick={(e) => {
+                                if (link.children) {
+                                  e.stopPropagation(); 
+                                  return;
+                                }
+                                if (!demoMode) handleLinkClick(link);
+                                setActiveDropdown(null);
+                              }}
+                            >
+                              {link.label}
+                            </div>
+                            {link.children && link.children.map((child, cIdx) => (
+                              <div 
+                                key={`c-${cIdx}`} 
+                                className="dropdown-item" 
+                                style={{ padding: '6px 12px 6px 24px', opacity: 0.7, fontSize: '0.75rem' }}
+                                onClick={() => {
+                                  if (!demoMode) navigate(child.path);
+                                  setActiveDropdown(null);
+                                }}
+                              >
+                                {child.label}
+                              </div>
+                            ))}
+                         </div>
+                       ))}
+                    </div>
+                  </div>
                 )}
               </div>
             </nav>
@@ -616,7 +707,10 @@ const Header = ({ demoMode = false }) => {
           <div className="storage-content-wrapper">
             <div className="storage-header">
               <h3>{t('nav.notifications')}</h3>
-              <button className="clear-minimal-btn" onClick={() => setShowNotifications(false)}>{t('nav.close')}</button>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+
+                <button className="clear-minimal-btn" onClick={() => setShowNotifications(false)}>{t('nav.close')}</button>
+              </div>
             </div>
             <div className="saved-items-grid">
                <div className="saved-item-row">
@@ -637,10 +731,14 @@ const Header = ({ demoMode = false }) => {
           <div className="storage-content-wrapper">
             <div className="storage-header">
               <h3>{t('nav.savedData')}</h3>
-              <button className="clear-minimal-btn" onClick={() => {
-                clearItems();
-                setShowSaved(false);
-              }}>{t('nav.clearAll')}</button>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+
+                <button className="clear-minimal-btn" onClick={() => {
+                  clearItems();
+                  setShowSaved(false);
+              
+                }}>{t('nav.clearAll')}</button>
+              </div>
             </div>
             
             <div className="saved-items-grid">
@@ -667,10 +765,14 @@ const Header = ({ demoMode = false }) => {
           <div className="storage-content-wrapper">
             <div className="storage-header">
               <h3>{t('nav.sentMessages')}</h3>
-              <button className="clear-minimal-btn" onClick={() => {
-                clearMessages();
-                setShowMessages(false);
-              }}>{t('nav.clear')}</button>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+
+                <button className="clear-minimal-btn" onClick={() => {
+                  clearMessages();
+                  setShowMessages(false);
+              
+                }}>{t('nav.clear')}</button>
+              </div>
             </div>
             
             <div className="saved-items-grid">
@@ -699,19 +801,25 @@ const Header = ({ demoMode = false }) => {
             <div className="lang-options">
               <button 
                 className={`lang-option ${i18n.language?.startsWith('uz') ? 'active' : ''}`} 
-                onClick={() => i18n.changeLanguage('uz')}
+                onClick={() => {
+                  i18n.changeLanguage('uz').then(() => window.location.reload());
+                }}
               >
                 <span>🇺🇿</span> O'zbekcha
               </button>
               <button 
                 className={`lang-option ${i18n.language?.startsWith('ru') ? 'active' : ''}`} 
-                onClick={() => i18n.changeLanguage('ru')}
+                onClick={() => {
+                  i18n.changeLanguage('ru').then(() => window.location.reload());
+                }}
               >
                 <span>🇷🇺</span> Русский
               </button>
               <button 
                 className={`lang-option ${i18n.language?.startsWith('en') ? 'active' : ''}`} 
-                onClick={() => i18n.changeLanguage('en')}
+                onClick={() => {
+                  i18n.changeLanguage('en').then(() => window.location.reload());
+                }}
               >
                 <span>🇺🇸</span> English
               </button>

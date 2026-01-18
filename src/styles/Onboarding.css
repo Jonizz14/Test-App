@@ -216,16 +216,42 @@
 }
 
 /* Mobile */
-@media (max-width: 650px) {
+@media (max-width: 768px) {
   .onboarding-card-brutal {
-    padding: 2.5rem 1.5rem;
-    width: 90%;
+    padding: 2rem 1.5rem;
+    width: 95%;
+    max-width: 100%;
+    min-height: auto; /* Allow flexible height */
+    height: auto; /* Remove fixed height constraint */
+    overflow-y: auto; /* Allow scrolling inside card if needed */
+    max-height: 85vh; /* Keep it within viewport essentially */
   }
+  
+  .onboarding-header-brutal {
+    margin-bottom: 2rem;
+  }
+
   .brutal-title {
-    font-size: 2.2rem;
+    font-size: 2.5rem;
   }
+  
+  .brutal-description {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
   .brutal-nav-group {
     flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .brutal-nav-btn {
+    padding: 1rem;
+  }
+  
+  .brutal-action-btn {
+    padding: 1rem;
+    font-size: 1rem;
   }
 }
 

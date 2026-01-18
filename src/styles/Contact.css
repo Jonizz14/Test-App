@@ -197,7 +197,7 @@
 /* Base sections from Home.css logic */
 section {
   scroll-snap-align: start;
-  scroll-snap-stop: always;
+  scroll-snap-stop: normal;
 }
 
 section h1,
@@ -236,4 +236,73 @@ section.in-view .minimal-form input:nth-child(1) { transition-delay: 0.1s; }
 section.in-view .minimal-form input:nth-child(2) { transition-delay: 0.2s; }
 section.in-view .minimal-form select { transition-delay: 0.3s; }
 section.in-view .minimal-form textarea { transition-delay: 0.4s; }
-section.in-view .btn-modern-submit { transition-delay: 0.5s; }
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+  html {
+     scroll-snap-type: none !important;
+  }
+  
+  section {
+     scroll-snap-align: none !important;
+  }
+
+  .contact-modern-hero {
+    padding: 10rem 0 4rem; /* Significantly increased top padding */
+  }
+
+  .contact-modern-hero h1 {
+    font-size: 3rem;
+  }
+  
+  .contact-modern-hero .description {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+  
+  .contact-modern-form-section h2,
+  .contact-modern-info h2,
+  .contact-modern-messages h2 {
+    font-size: 2.2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .minimal-form {
+    padding: 0 1rem;
+    gap: 1.5rem;
+  }
+  
+  .input-row {
+    gap: 1.5rem;
+  }
+  
+  .minimal-form input,
+  .minimal-form select,
+  .minimal-form textarea {
+    padding: 1rem 0;
+    font-size: 1rem;
+  }
+  
+  .btn-modern-submit {
+    width: 100%;
+    padding: 1.2rem;
+    align-self: center;
+  }
+  
+  .contact-modern-info .stats-grid-large {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  
+  .modern-message-card {
+    padding: 1.5rem !important;
+    gap: 1rem;
+  }
+  
+  .modern-message-card h3 {
+    font-size: 1.2rem;
+  }
+  
+  .card-header {
+    flex-wrap: wrap;
+  }
+}

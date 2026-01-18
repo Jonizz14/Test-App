@@ -1,0 +1,196 @@
+/* NewsPage.css - Mirroring Contact.css EXACTLY */
+
+.news-page-container {
+  background: #000;
+  color: #fff;
+}
+
+/* Base Section Logic - Same as Contact/Home */
+section {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem 2rem;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Animations */
+section h1,
+section h2,
+section p,
+section .news-card {
+  opacity: 0;
+  transform: translateY(60px);
+  filter: blur(5px);
+  transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+section.in-view h1,
+section.in-view h2,
+section.in-view p,
+section.in-view .news-card {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+/* Hero Section */
+.news-hero-section {
+  background: #000;
+  color: #fff;
+  text-align: center;
+  padding: 0;
+  align-items: center;
+}
+
+.news-hero-content {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center; /* Ensure explicitly centered */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Flex center */
+}
+
+.news-hero-content h1 {
+  font-size: clamp(3rem, 10vw, 10rem);
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  margin-bottom: 2rem;
+  line-height: 0.85;
+  text-transform: uppercase;
+}
+
+.news-hero-content p {
+  font-size: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+  opacity: 0.8;
+}
+
+/* News List Section - White Background like Contact Form Section */
+.news-list-section {
+  background: #fff;
+  color: #000;
+  display: block; /* Allow normal flow inside */
+  height: auto;
+  min-height: 100vh;
+}
+
+.news-section-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Grid Layout */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 3rem;
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.news-card {
+  background: #fff; /* Restored white background */
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  border: 4px solid #000; /* Restored Brutalist Border */
+  box-shadow: 10px 10px 0px #000; /* Restored Brutalist Shadow */
+  padding-bottom: 0; 
+  margin-bottom: 0;
+  border-bottom: 4px solid #000; /* Ensure bottom border exists */
+}
+
+.news-card:last-child {
+  border-bottom: 4px solid #000;
+}
+
+/* Media styling similar to Home feature cards but static */
+.news-media-container {
+  width: 100%;
+  height: 300px;
+  background: #f5f5f5;
+  margin-bottom: 0;
+  overflow: hidden;
+  border-bottom: 4px solid #000;
+}
+
+.news-media-container img,
+.news-media-container video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.news-content-body {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+}
+
+.news-date {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  opacity: 0.5;
+  color: #3b82f6; /* Blue accent like Contact stats */
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.news-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.news-description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  opacity: 0.8;
+}
+
+/* Empty State */
+.news-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  text-align: center;
+  opacity: 0.5;
+}
+
+.news-empty-state .icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .news-grid {
+    grid-template-columns: 1fr;
+    gap: 4rem;
+  }
+  
+  .news-media-container {
+    height: 250px;
+  }
+}

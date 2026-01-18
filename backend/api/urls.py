@@ -13,6 +13,7 @@ router.register(r'sessions', views.TestSessionViewSet, basename='testsession')
 router.register(r'pricing', views.PricingViewSet)
 router.register(r'star-packages', views.StarPackageViewSet)
 router.register(r'contact-messages', views.ContactMessageViewSet)
+router.register(r'updates', views.SiteUpdateViewSet)
 
 
 urlpatterns = [

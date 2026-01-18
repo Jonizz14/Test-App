@@ -8,6 +8,7 @@ import 'aos/dist/aos.css';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { StatisticsProvider } from './context/StatisticsContext';
+import { SettingsProvider } from './context/SettingsContext';
 import { ServerTestProvider } from './context/ServerTestContext';
 import { ThemeProvider as CustomThemeProvider } from './context/ThemeContext';
 import { LoadingProvider } from './context/LoadingContext';
@@ -15,24 +16,22 @@ import { registerSW } from './utils/serviceWorker';
 import RouteLoadingIndicator from './components/RouteLoadingIndicator';
 import { SavedItemsProvider } from './context/SavedItemsContext';
 import { SentMessagesProvider } from './context/SentMessagesContext';
-import { SettingsProvider } from './context/SettingsContext';
+import { NewsProvider } from './context/NewsContext';
+// Lazy Load Pages for Performance Optimization
+const NewsPage = React.lazy(() => import('./pages/NewsPage'));
+const Home = React.lazy(() => import('./pages/Home'));
+const Contact = React.lazy(() => import('./pages/Contact'));
+const Onboarding = React.lazy(() => import('./pages/Onboarding'));
+const LoginPage = React.lazy(() => import('./pages/LoginPage'));
+const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
+const Questions = React.lazy(() => import('./pages/admin/Questions'));
+const HeadAdminDashboard = React.lazy(() => import('./pages/HeadAdminDashboard'));
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const TeacherDashboard = React.lazy(() => import('./pages/TeacherDashboard'));
+const StudentDashboard = React.lazy(() => import('./pages/StudentDashboard'));
+const SellerDashboard = React.lazy(() => import('./pages/SellerDashboard'));
 
-// Import pages (we'll create these next)
-import LoginPage from './pages/LoginPage';
-import AdminDashboard from './pages/AdminDashboard';
-import HeadAdminDashboard from './pages/HeadAdminDashboard';
-import TeacherDashboard from './pages/TeacherDashboard';
-import StudentDashboard from './pages/StudentDashboard';
-import SellerDashboard from './pages/SellerDashboard';
-import NotFoundPage from './pages/NotFoundPage';
-import Home from './pages/Home';
-import Contact from './pages/Contact';
-import Onboarding from './pages/Onboarding';
-
-
-import Questions from './pages/admin/Questions';
-
-// Theme configuration
+// Theme definition
 const theme = createTheme({
   palette: {
     primary: {
@@ -149,7 +148,7 @@ const HeadAdminRoute = ({ children }) => (
   <ProtectedRoute allowedRoles={['head_admin']}>{children}</ProtectedRoute>
 );
 
-import { Box, Card, CardContent, Typography, Button, Alert } from '@mui/material';
+import { Box, Card, CardContent, Typography, Button, Alert, CircularProgress } from '@mui/material';
 
 // Error Boundary Component - Catches and handles React errors gracefully
 // Provides user-friendly error messages and recovery options
@@ -294,6 +293,7 @@ function App() {
               <AuthProvider>
                 <SentMessagesProvider>
                   <SavedItemsProvider>
+                    <NewsProvider>
                     <StatisticsProvider>
                       <SettingsProvider>
                         <ServerTestProvider>
@@ -305,6 +305,11 @@ function App() {
                           showFullScreen={false}
                           threshold={300}
                         />
+                        <React.Suspense fallback={
+                          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+                            <CircularProgress size={40} />
+                          </Box>
+                        }>
                         <Routes>
                       {/* Test routes - Health check and testing endpoints */}
                       <Route path="/test" element={<TestPage />} />
@@ -316,6 +321,7 @@ function App() {
 
                       {/* Public routes - Accessible without authentication */}
                       <Route path="/login" element={<LoginPage />} />
+                      <Route path="/updates" element={<NewsPage />} />
 
                       <Route path="/user/password/questions" element={<Questions />} />
 
@@ -389,10 +395,12 @@ function App() {
                       {/* 404 page - Catch all unmatched routes */}
                       <Route path="*" element={<NotFoundPage />} />
                     </Routes>
+                    </React.Suspense>
                     </Router>
                       </ServerTestProvider>
                     </SettingsProvider>
                   </StatisticsProvider>
+                    </NewsProvider>
                   </SavedItemsProvider>
                 </SentMessagesProvider>
               </AuthProvider>

@@ -1,0 +1,23 @@
+# Examify Prep - Robots.txt
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://examify.uz/sitemap.xml
+
+# Disallow admin areas
+User-agent: *
+Disallow: /headadmin/
+Disallow: /admin/
+Disallow: /teacher/
+Disallow: /student/
+Disallow: /seller/
+
+# Allow public pages
+Allow: /
+Allow: /contact
+Allow: /updates
+Allow: /welcome
+
+# Crawl delay (optional)
+Crawl-delay: 1

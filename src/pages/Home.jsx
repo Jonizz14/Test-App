@@ -21,17 +21,64 @@ const Home = () => {
     }
   }, []);
 
+  // SEO Optimization & Structured Data
+  useEffect(() => {
+    document.title = "Examify Prep - Zamonaviy Ta'lim Platformasi";
+    
+    // Helper to set meta tag
+    const setMeta = (name, content) => {
+      let element = document.querySelector(`meta[name="${name}"]`);
+      if (!element) {
+        element = document.createElement('meta');
+        element.setAttribute('name', name);
+        document.head.appendChild(element);
+      }
+      element.setAttribute('content', content);
+    };
+
+    setMeta('description', "Examify Prep - maktab o'quvchilari va o'qituvchilari uchun maxsus testlar, tahlillar va qulay boshqaruv tizimi.");
+    setMeta('keywords', "testlar, maktab, o'quvchi, o'qituvchi, ta'lim, examify, onlayn test, O'zbekiston ta'lim");
+    setMeta('og:title', "Examify Prep - Kelajagingizni shu yerdan boshlang");
+    setMeta('og:description', "Zamonaviy va qulay ta'lim platformasi.");
+    setMeta('og:image', "/og-image.jpg");
+    setMeta('author', 'Examify Team');
+
+    // JSON-LD Structured Data for Google
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Examify Prep",
+      "url": window.location.origin,
+      "description": "Zamonaviy ta'lim platformasi",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": `${window.location.origin}/search?q={search_term_string}`,
+        "query-input": "required name=search_term_string"
+      }
+    };
+
+    let script = document.getElementById('structured-data');
+    if (!script) {
+      script = document.createElement('script');
+      script.id = 'structured-data';
+      script.type = 'application/ld+json';
+      document.head.appendChild(script);
+    }
+    script.text = JSON.stringify(structuredData);
+  }, []);
+
+  // Animation Logic - Trigger on scroll, but only once per section
   useEffect(() => {
     const observerOptions = {
-      threshold: 0.2
+      threshold: 0.15 
     };
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('in-view');
-        } else {
-          entry.target.classList.remove('in-view');
+          // Stop observing once visible to ensure animation does not repeat (runs only once per page load)
+          observer.unobserve(entry.target);
         }
       });
     }, observerOptions);
@@ -147,14 +194,35 @@ const Home = () => {
     }
   ];
 
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth > 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <Layout>
       {/* Hero Section - Full Screen Video */}
       <section className="hero-section">
         <div className="video-background">
-          <video ref={videoRef} autoPlay loop muted playsInline>
-            <source src="/Export-Typeface-Animator (2).mp4" type="video/mp4" />
-          </video>
+          {isDesktop && (
+            <video 
+              ref={videoRef} 
+              autoPlay 
+              loop 
+              muted 
+              playsInline 
+              preload="auto"
+              poster="/banner/inf1.png"
+              aria-hidden="true"
+            >
+              <source src="/Export-Typeface-Animator (2).mp4" type="video/mp4" />
+            </video>
+          )}
+          {/* Static background for mobile or while video loads */}
+          {!isDesktop && <div className="mobile-hero-bg"></div>}
           <div className="overlay"></div>
         </div>
         
@@ -226,7 +294,17 @@ const Home = () => {
                 <h3>{t('home.features.analytics.title')}</h3>
                 <p>{t('home.features.analytics.desc')}</p>
                 <div className="feature-visual">
-                  <img src="/banner/inf1.png" alt="Analysis" className="feature-img" />
+                  <picture>
+                    <source srcSet="/banner/inf1.webp" type="image/webp" />
+                    <img 
+                      src="/banner/inf1.png" 
+                      alt="Analysis" 
+                      className="feature-img" 
+                      width="750" 
+                      height="500" 
+                      loading="lazy"
+                    />
+                  </picture>
                 </div>
               </div>
             </div>
@@ -239,7 +317,17 @@ const Home = () => {
                 <h3>{t('home.features.security.title')}</h3>
                 <p>{t('home.features.security.desc')}</p>
                 <div className="feature-visual">
-                  <img src="/banner/inf2.png" alt="Security" className="feature-img" />
+                  <picture>
+                    <source srcSet="/banner/inf2.webp" type="image/webp" />
+                    <img 
+                      src="/banner/inf2.png" 
+                      alt="Security" 
+                      className="feature-img"
+                      width="750" 
+                      height="500" 
+                      loading="lazy"
+                    />
+                  </picture>
                 </div>
               </div>
             </div>
@@ -252,7 +340,17 @@ const Home = () => {
                 <h3>{t('home.features.flexibility.title')}</h3>
                 <p>{t('home.features.flexibility.desc')}</p>
                 <div className="feature-visual">
-                   <img src="/banner/inf3.png" alt="Flexibility" className="feature-img" />
+                  <picture>
+                    <source srcSet="/banner/inf3.webp" type="image/webp" />
+                    <img 
+                      src="/banner/inf3.png" 
+                      alt="Flexibility" 
+                      className="feature-img"
+                      width="750" 
+                      height="500" 
+                      loading="lazy"
+                    />
+                  </picture>
                 </div>
               </div>
             </div>

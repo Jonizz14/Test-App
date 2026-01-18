@@ -13,7 +13,8 @@ export function registerSW(config = {}) {
       return;
     }
 
-    window.addEventListener('load', () => {
+    // Defer SW registration to avoid blocking critical path
+    const register = () => {
       const swUrl = `${import.meta.env.VITE_PUBLIC_URL || '/'}/sw.js`;
 
       if (isLocalhost) {
@@ -26,7 +27,15 @@ export function registerSW(config = {}) {
       } else {
         registerValidSW(swUrl, config);
       }
-    });
+    };
+
+    // Use requestIdleCallback for better performance
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(register, { timeout: 2000 });
+    } else {
+      // Fallback: register after a short delay
+      setTimeout(register, 1000);
+    }
   }
 }
 

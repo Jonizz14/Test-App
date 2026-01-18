@@ -37,7 +37,7 @@ section {
   overflow: hidden;
   padding: 4rem 2rem;
   scroll-snap-align: start;
-  scroll-snap-stop: always; /* Prevents skipping sections on quick scroll */
+  scroll-snap-stop: normal; /* Allows smoother scrolling past sections */
 }
 
 /* Animations for maximal smoothness */
@@ -138,6 +138,13 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
   z-index: 1;
   transform: scale(1.1); /* Subtle zoom out on load */
   animation: heroZoomOut 20s infinite alternate linear;
+}
+
+.mobile-hero-bg {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  background-size: cover;
 }
 
 @keyframes heroZoomOut {
@@ -322,7 +329,7 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
 }
 
 .role-item:hover .role-icon {
-  transform: scale(0.5) translateY(-20px);
+  transform: scale(0.5) translateY(-30px);
   opacity: 0.2;
 }
 
@@ -364,7 +371,7 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
 }
 
 .role-item:hover .role-details {
-  transform: translateY(-100px);
+  transform: translateY(-70px);
 }
 
 .role-details ul {
@@ -565,13 +572,22 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
 }
 
 @media (max-width: 1024px) {
+  .roles-showcase {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns for tablets */
+    gap: 2rem;
+  }
+}
+
+/* ... existing styles ... */
+
+@media (max-width: 1024px) {
   .features-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns for tablets */
     gap: 2rem;
   }
   
   .feature-card {
-    height: 420px;
+    height: 450px;
   }
 }
 
@@ -627,9 +643,231 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
 }
 
 /* Responsive adjustments */
+/* Responsive adjustments */
 @media (max-width: 768px) {
+  html {
+    scroll-snap-type: none !important;
+  }
+
   section {
-    padding: 3rem 1rem;
+    padding: 3rem 1rem !important;
+    min-height: auto;
+    scroll-snap-align: none !important; /* Disable section snapping */
+    scroll-snap-stop: normal !important;
+  }
+
+  /* Hero Section Mobile */
+  .hero-content {
+    padding: 8rem 1rem 2rem 1rem; /* Much more top padding to clear header */
+  }
+
+  .hero-content h1 {
+    font-size: 3.5rem; /* Force a reasonable mobile size */
+    line-height: 1;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Disable Hovers on Mobile for Roles */
+  .role-item {
+    height: auto !important; /* Auto height to show content */
+    min-height: 480px;
+    background: #000 !important;
+    border-color: rgba(255,255,255,0.2) !important;
+  }
+  
+  .role-item:hover,
+  .role-item:active {
+    transform: none !important;
+    height: auto !important;
+  }
+  
+  .role-item .role-content {
+      transform: none !important;
+  }
+  
+  .role-item .role-icon {
+      transform: none !important;
+      opacity: 1 !important;
+      scale: 1 !important;
+  }
+  
+  .role-item p {
+      opacity: 0.8 !important;
+      transform: none !important;
+      display: block !important;
+  }
+  
+  /* Hide details on mobile again */
+  .role-details {
+      display: none !important;
+  }
+  
+  .save-info-btn {
+      display: none !important; 
+  }
+
+  /* Disable Hovers on Mobile for Features */
+  .feature-card {
+    height: auto !important;
+    min-height: 450px; /* Ensure enough height for text + image */
+    background: #000 !important;
+    overflow: hidden; /* Cut off image overflow */
+  }
+  
+  .feature-card:hover,
+  .feature-card:active {
+      transform: none !important;
+      background: #000 !important;
+  }
+  
+  .feature-card .feature-content {
+      transform: none !important;
+      padding-bottom: 200px !important; /* Make room for image */
+      justify-content: flex-start;
+  }
+  
+  .feature-card p {
+      opacity: 0.8 !important;
+      transform: none !important;
+  }
+  
+  .feature-card .feature-icon {
+      transform: none !important;
+      opacity: 1 !important;
+      scale: 1 !important;
+  }
+
+  /* Make image visible and filling the bottom */
+  .feature-visual {
+      display: flex !important;
+      position: absolute !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 200px !important; /* Fixed height for image area */
+      opacity: 1 !important;
+      padding: 0 !important;
+  }
+  
+  .feature-img {
+      filter: grayscale(0%) !important;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      border-radius: 0 !important; /* Flush with card edges */
+  }
+
+  .hero-content p {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    max-width: 100%;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .btn-hero-primary,
+  .btn-hero-outline {
+    width: 100%;
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+
+  /* Roles Section Mobile */
+  .section-header h2 {
+    font-size: 2.5rem;
+  }
+
+  .roles-showcase {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .role-item {
+    height: 380px;
+  }
+
+  .role-content {
+    padding: 2rem 1rem;
+  }
+
+  .role-icon .material-symbols-outlined {
+    font-size: 3.5rem;
+  }
+
+  .role-item h3 {
+    font-size: 1.5rem;
+  }
+
+  .role-item p {
+    font-size: 1rem;
+  }
+
+  /* Features Section Mobile */
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .feature-card {
+    height: 400px;
+  }
+
+  .feature-content {
+    padding: 2rem 1.5rem;
+  }
+  
+  .feature-icon .material-symbols-outlined {
+    font-size: 3rem;
+  }
+
+  .feature-card h3 {
+    font-size: 1.5rem;
+  }
+
+  .feature-card p {
+    font-size: 0.95rem;
+  }
+
+  /* Stats Section Mobile */
+  .stats-header {
+    margin-bottom: 3rem;
+  }
+  
+  .stats-header h2 {
+    font-size: 2.5rem;
+  }
+
+  .stats-grid-large {
+    gap: 2rem;
+  }
+
+  .stat-number {
+    font-size: 4rem;
+  }
+
+  .stat-label {
+    font-size: 1rem;
+  }
+  /* Disable Entrance Animations on Mobile */
+  section h1, 
+  section h2, 
+  section p, 
+  section .hero-actions,
+  section .role-item,
+  section .feature-item,
+  section .stat-box,
+  section .split-image,
+  section .feature-card {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
   }
 }
+
 

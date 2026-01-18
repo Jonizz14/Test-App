@@ -469,6 +469,34 @@ class ApiService {
     });
   }
 
+  // Site Updates methods
+  async getNews() {
+    return this.get('/updates/');
+  }
+
+  async getPublicNews() {
+    const url = `${this.baseURL}/updates/public_list/`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.json();
+  }
+
+  async createNews(data) {
+    // Check if data has file attachment for FormData
+    // The base post method handles FormData check
+    return this.post('/updates/', data);
+  }
+
+  async updateNews(id, data) {
+    return this.patch(`/updates/${id}/`, data);
+  }
+
+  async deleteNews(id) {
+    return this.delete(`/updates/${id}/`);
+  }
+
 }
 
 const apiService = new ApiService();
