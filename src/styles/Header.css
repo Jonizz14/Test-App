@@ -33,6 +33,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: 
     height 1.2s cubic-bezier(0.19, 1, 0.22, 1), 
+    min-height 1.2s cubic-bezier(0.19, 1, 0.22, 1), 
     width 1.2s cubic-bezier(0.19, 1, 0.22, 1),
     min-width 1.2s cubic-bezier(0.19, 1, 0.22, 1),
     top 1.2s cubic-bezier(0.19, 1, 0.22, 1),
@@ -245,14 +246,11 @@
 }
 
 /* Header States */
-.header.expanding-down {
-  height: 130px;
-}
+/* Header states handled via JS inline styles */
 
 .header.storage-expanded,
 .header.messages-expanded,
 .header.search-expanded {
-  height: 380px;
   border-radius: 40px;
   background: rgba(0, 0, 0, 0.98);
 }
@@ -465,28 +463,37 @@
 }
 
 /* Existing Animation Hooks */
-.header.expanding-down {
-  height: 130px;
+/* Notifications stack for multiple messages */
+
+.notifications-stack {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: visible;
 }
 
 .header-notification-area {
   width: 100%;
   height: 0;
+  margin-top: 0;
   overflow: hidden;
   padding: 0 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-top: 1px solid rgba(255, 255, 255, 0);
+  border-top: 0 solid rgba(255, 255, 255, 0);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
   transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+  flex-shrink: 0;
 }
 
 .header-notification-area.visible {
-  height: 66px; /* 130px - 64px */
-  border-top-color: rgba(255, 255, 255, 0.1);
+  height: 60px; 
+  margin-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   opacity: 1;
   visibility: visible;
   transform: translateY(0);

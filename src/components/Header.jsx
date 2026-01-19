@@ -225,8 +225,8 @@ const Header = ({ demoMode = false }) => {
   };
 
   
-  const [notification, setNotification] = React.useState(null);
-  const [isVisible, setIsVisible] = React.useState(false);
+  const [activeNotifications, setActiveNotifications] = React.useState([]);
+  const [headerHeight, setHeaderHeight] = React.useState(64);
   
   // Dashboard state
   const isDashboard = ['/admin', '/headadmin', '/teacher', '/student', '/seller'].some(path => 
@@ -234,25 +234,59 @@ const Header = ({ demoMode = false }) => {
   );
   const [isDashboardExpanded, setIsDashboardExpanded] = React.useState(false);
 
+  const isSellerOrHeadAdmin = location.pathname.startsWith('/seller') || location.pathname.startsWith('/headadmin');
+
+  // Calculate Dynamic Header Height for Smooth Transitions
+  React.useEffect(() => {
+    let newHeight = 64; // Base height
+
+    const isExpanded = 
+      (showSaved && savedItems.length > 0) || 
+      (showMessages && sentMessages.length > 0) || 
+      (showNotifications) || 
+      (showLanguages && (!isDashboard || isSellerOrHeadAdmin)) || 
+      (showSearch && (!isDashboard || isSellerOrHeadAdmin));
+
+    if (isExpanded) {
+      if (showLanguages && (!isDashboard || isSellerOrHeadAdmin)) newHeight = 140;
+      else if (showSearch && (!isDashboard || isSellerOrHeadAdmin)) newHeight = 380;
+      else newHeight = 380; // Default for expanded storage/messages
+    }
+
+    // Add height for notifications
+    const visibleNotificationsCount = activeNotifications.filter(n => n.isVisible).length;
+    if (visibleNotificationsCount > 0) {
+      newHeight += (visibleNotificationsCount * 64);
+    }
+
+    setHeaderHeight(newHeight);
+  }, [activeNotifications, showSaved, showMessages, showNotifications, showLanguages, showSearch, isDashboard, isSellerOrHeadAdmin, savedItems.length, sentMessages.length]);
+
   // Listen for custom 'itemSaved' event
   React.useEffect(() => {
-    const handleItemSaved = (e) => {
-      setNotification(e.detail);
-      setTimeout(() => setIsVisible(true), 10);
+    const handleNotification = (data) => {
+      const id = Date.now() + Math.random();
+      const newNotification = { ...data, id, isVisible: false };
+      
+      setActiveNotifications(prev => [...prev, newNotification]);
+      
+      // Trigger entrance animation
       setTimeout(() => {
-        setIsVisible(false);
-        setTimeout(() => setNotification(null), 700);
+        setActiveNotifications(prev => prev.map(n => n.id === id ? { ...n, isVisible: true } : n));
+      }, 10);
+
+      // Remove after 3 seconds
+      setTimeout(() => {
+        setActiveNotifications(prev => prev.map(n => n.id === id ? { ...n, isVisible: false } : n));
+        // Cleanup from state after exit animation
+        setTimeout(() => {
+          setActiveNotifications(prev => prev.filter(n => n.id !== id));
+        }, 700);
       }, 3000);
     };
 
-    const handleSaveError = (e) => {
-      setNotification({ ...e.detail, isError: true });
-      setTimeout(() => setIsVisible(true), 10);
-      setTimeout(() => {
-        setIsVisible(false);
-        setTimeout(() => setNotification(null), 700);
-      }, 3000);
-    };
+    const handleItemSaved = (e) => handleNotification(e.detail);
+    const handleSaveError = (e) => handleNotification({ ...e.detail, isError: true });
 
     window.addEventListener('itemSaved', handleItemSaved);
     window.addEventListener('saveError', handleSaveError);
@@ -385,12 +419,19 @@ const Header = ({ demoMode = false }) => {
     let classes = ['header'];
     if (i18n.language) classes.push(`lang-${i18n.language.split('-')[0]}`);
 
-    if (notification && isVisible) classes.push('expanding-down');
+    const hasExpandedContent = 
+      (showSaved && savedItems.length > 0) || 
+      (showMessages && sentMessages.length > 0) || 
+      (showNotifications) || 
+      (showLanguages && (!isDashboard || isSellerOrHeadAdmin)) || 
+      (showSearch && (!isDashboard || isSellerOrHeadAdmin));
+
+    if (activeNotifications.length > 0 && !hasExpandedContent) classes.push('expanding-down');
     if (showSaved && savedItems.length > 0) classes.push('storage-expanded');
     if (showMessages && sentMessages.length > 0) classes.push('messages-expanded');
     if (showNotifications) classes.push('messages-expanded'); // Reuse expanded style
-    if (showLanguages && !isDashboard) classes.push('lang-expanded');
-    if (showSearch && !isDashboard) classes.push('search-expanded');
+    if (showLanguages && (!isDashboard || isSellerOrHeadAdmin)) classes.push('lang-expanded');
+    if (showSearch && (!isDashboard || isSellerOrHeadAdmin)) classes.push('search-expanded');
 
 
     if (demoMode) classes.push('demo-mode');
@@ -483,7 +524,11 @@ const Header = ({ demoMode = false }) => {
 
   return (
     <>
-      <header className={getHeaderClass()} ref={headerRef}>
+      <header 
+        className={getHeaderClass()} 
+        ref={headerRef}
+        style={{ height: `${headerHeight}px` }}
+      >
         {/* Collapse Button Removed per request */}
 
         <div className="layout-container">
@@ -539,6 +584,30 @@ const Header = ({ demoMode = false }) => {
                   <>
                     <button className="btn-secondary" onClick={logout} style={{ background: '#ff4757', color: 'white' }}>{t('nav.logout')}</button>
                     
+                    {/* Seller & HeadAdmin Icons */}
+                    {isSellerOrHeadAdmin && !isMobile && (
+                      <>
+                        <div 
+                          className={`storage-icon-container message-icon ${sentMessages.length > 0 ? 'is-visible' : ''} ${showMessages ? 'active' : ''}`}
+                          onClick={toggleMessages}
+                          id="header-message-icon"
+                          title={t('nav.sentMessages')}
+                        >
+                          <span className="material-symbols-outlined">forum</span>
+                          <span className="item-count msg-count">{sentMessages.length}</span>
+                        </div>
+                        <div 
+                          className={`storage-icon-container has-items ${savedItems.length > 0 ? 'is-visible' : ''} ${showSaved ? 'active' : ''}`}
+                          onClick={toggleSaved}
+                          id="header-storage-bin"
+                          title={t('nav.savedData')}
+                        >
+                          <span className="material-symbols-outlined">inventory_2</span>
+                          <span className="item-count">{savedItems.length}</span>
+                        </div>
+                      </>
+                    )}
+
                     {/* Dashboard Notification Icon */}
                     <div 
                       className={`storage-icon-container message-icon is-visible ${showNotifications ? 'active' : ''}`}
@@ -720,7 +789,7 @@ const Header = ({ demoMode = false }) => {
         </div>
 
          {/* Integrated Storage Area (Normal Mode) */}
-        <div className={`header-storage-area ${showSaved && savedItems.length > 0 && !isDashboard ? 'visible' : ''}`}>
+        <div className={`header-storage-area ${showSaved && savedItems.length > 0 && (!isDashboard || isSellerOrHeadAdmin) ? 'visible' : ''}`}>
           <div className="storage-content-wrapper">
             <div className="storage-header">
               <h3>{t('nav.savedData')}</h3>
@@ -754,7 +823,7 @@ const Header = ({ demoMode = false }) => {
         </div>
 
         {/* Integrated Messages Area (Normal Mode) */}
-        <div className={`header-storage-area header-messages-area ${showMessages && sentMessages.length > 0 && !isDashboard ? 'visible' : ''}`}>
+        <div className={`header-storage-area header-messages-area ${showMessages && sentMessages.length > 0 && (!isDashboard || isSellerOrHeadAdmin) ? 'visible' : ''}`}>
           <div className="storage-content-wrapper">
             <div className="storage-header">
               <h3>{t('nav.sentMessages')}</h3>
@@ -883,22 +952,24 @@ const Header = ({ demoMode = false }) => {
           </div>
         </div>
 
-        {/* Notification Area */}
-        {notification && (
-          <div className={`header-notification-area ${isVisible ? 'visible' : ''} ${notification.isError ? 'is-error' : ''}`}>
-            <div className="notification-content">
-              <span className="material-symbols-outlined">{notification.icon}</span>
-              {notification.isError || notification.isFullMessage ? (
-                <span className="save-title">{notification.message || notification.title}</span>
-              ) : (
-                <>
-                  <span className="save-title">{notification.title}</span>
-                  <span className="save-text"> {t('nav.saved')}</span>
-                </>
-              )}
+        {/* Notification Area(s) */}
+        <div className="notifications-stack">
+          {activeNotifications.map(notification => (
+            <div key={notification.id} className={`header-notification-area ${notification.isVisible ? 'visible' : ''} ${notification.isError ? 'is-error' : ''}`}>
+              <div className="notification-content">
+                <span className="material-symbols-outlined">{notification.icon}</span>
+                {notification.isError || notification.isFullMessage ? (
+                  <span className="save-title">{notification.message || notification.title}</span>
+                ) : (
+                  <>
+                    <span className="save-title">{notification.title}</span>
+                    <span className="save-text"> {t('nav.saved')}</span>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          ))}
+        </div>
 
 
       </header>
