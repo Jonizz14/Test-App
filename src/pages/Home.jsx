@@ -264,13 +264,12 @@ const Home = () => {
                       ))}
                     </ul>
                   </div>
-                  {settings?.features?.homeSaveButton && (
-                    <button className="save-info-btn" onClick={(e) => handleSaveInfo(e, role)}>
-                      <span className="material-symbols-outlined">content_copy</span>
-                      <span>{t('home.save')}</span>
-                    </button>
-                  )}
                 </div>
+                {settings?.features?.homeSaveButton && (
+                  <button className="save-info-btn" onClick={(e) => handleSaveInfo(e, role)} title={t('home.save')}>
+                    <span className="material-symbols-outlined">content_copy</span>
+                  </button>
+                )}
               </div>
             ))}
           </div>

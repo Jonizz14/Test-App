@@ -445,8 +445,22 @@ class ContactMessage(models.Model):
         return f"{self.name} - {self.get_subject_display()} ({self.get_status_display()})"
 
 class SiteUpdate(models.Model):
-    title = models.CharField(max_length=200)
-    description = models.TextField()
+    # Uzbek
+    title_uz = models.CharField(max_length=200, default='')
+    description_uz = models.TextField(default='')
+    
+    # Russian
+    title_ru = models.CharField(max_length=200, default='')
+    description_ru = models.TextField(default='')
+    
+    # English
+    title_en = models.CharField(max_length=200, default='')
+    description_en = models.TextField(default='')
+
+    # Unified fields (for backward compatibility if needed)
+    title = models.CharField(max_length=200, blank=True)
+    description = models.TextField(blank=True)
+    
     media_type = models.CharField(max_length=10, choices=[('image', 'Rasm'), ('video', 'Video')], default='image')
     media_file = models.FileField(upload_to='updates_media/', blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
@@ -456,4 +470,4 @@ class SiteUpdate(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return self.title
+        return self.title_uz or self.title

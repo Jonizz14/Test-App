@@ -4,7 +4,7 @@
 .app-container {
   min-height: 100vh;
   width: 100%;
-  background: var(--blue-50);
+  background: #ffffff;
 }
 
 /* Alternating backgrounds */

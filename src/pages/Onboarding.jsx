@@ -90,9 +90,28 @@ const Onboarding = () => {
   const finishOnboarding = () => {
     setIsExiting(true);
     localStorage.setItem('hasSeenOnboarding', 'true');
+    
+    // Dispatch global event with comprehensive data to make the ghost perfectly match
+    window.dispatchEvent(new CustomEvent('onboardingExiting', {
+      detail: {
+        step: steps[currentStep] || steps[0],
+        showHeader: showHeader,
+        currentStepIndex: currentStep,
+        totalSteps: steps.length,
+        isLastStep: currentStep === steps.length - 1,
+        labels: {
+          back: t('onboarding.back'),
+          next: t('onboarding.next'),
+          ready: t('onboarding.ready'),
+          skip: t('onboarding.skip')
+        }
+      }
+    }));
+    
+    // Navigate slightly after the curtain covers the skip to Home
     setTimeout(() => {
       navigate('/');
-    }, 600);
+    }, 150);
   };
 
   // Show header from step 2 onwards

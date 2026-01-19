@@ -4,7 +4,6 @@ import { Layout } from 'antd';
 import { useAuth } from '../context/AuthContext';
 import apiService from '../data/apiService';
 import BannedStudentsModal from '../components/BannedStudentsModal';
-import CustomHeader from '../components/Header';
 import 'antd/dist/reset.css';
 
 // Import head admin sub-pages
@@ -50,7 +49,6 @@ const HeadAdminDashboard = () => {
 
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#f8fafc' }}>
-      <CustomHeader />
       
       <Content
         style={{

@@ -7,7 +7,7 @@ import '../styles/NewsPage.css';
 
 const NewsPage = () => {
   const { news } = useNews();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   // Helper to format date
   const formatDate = (dateString) => {
@@ -78,9 +78,15 @@ const NewsPage = () => {
                           {formatDate(item.created_at)}
                         </div>
 
-                        <h3 className="news-title">{item.title}</h3>
+                        <h3 className="news-title">
+                          {(i18n.language === 'uz' ? item.title_uz : 
+                             i18n.language === 'ru' ? item.title_ru : 
+                             item.title_en) || item.title}
+                        </h3>
                         <p className="news-description">
-                          {item.description}
+                          {(i18n.language === 'uz' ? item.description_uz : 
+                             i18n.language === 'ru' ? item.description_ru : 
+                             item.description_en) || item.description}
                         </p>
                       </div>
                   </article>

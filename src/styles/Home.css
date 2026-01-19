@@ -334,9 +334,9 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
 }
 
 .role-item h3 {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 900;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   transition: all 0.6s ease;
@@ -393,38 +393,37 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
 
 .save-info-btn {
   position: absolute;
-  bottom: -70px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  top: 20px;
+  left: 20px;
+  width: 44px;
+  height: 44px;
+  transform: translateY(-20px); /* Slide from top */
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  padding: 0.8rem 2rem;
-  border-radius: 30px;
+  border-radius: 50%; /* Circular */
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  font-weight: 700;
-  font-size: 0.9rem;
+  justify-content: center;
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  backdrop-filter: blur(10px);
-  z-index: 10;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(12px);
+  z-index: 20;
 }
 
 .role-item:hover .save-info-btn {
   opacity: 1;
   pointer-events: auto;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
 }
 
 .save-info-btn:hover {
   background: white;
   color: black;
-  transform: translateX(-50%) translateY(-5px);
-  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+  transform: scale(1.1); /* Subtle scale up instead of translate */
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
 }
 
 .save-info-btn span {
@@ -468,19 +467,15 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
 
 .feature-card {
   position: relative;
-  height: 480px;
+  height: 430px;
   background: #000;
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
-  cursor: pointer;
 }
 
-.feature-card:hover {
-  background: #0a0a0a;
-  border-color: rgba(255, 255, 255, 0.3);
-}
+/* Hover effect removed */
 
 .feature-content {
   width: 100%;
@@ -493,9 +488,7 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.feature-card:hover .feature-content {
-  transform: translateY(-100px);
-}
+/* Hover transform removed */
 
 .feature-icon {
   margin-bottom: 2rem;
@@ -507,23 +500,17 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
   font-weight: 200;
 }
 
-.feature-card:hover .feature-icon {
-  transform: scale(0.6) translateY(-20px);
-  opacity: 0.3;
-}
+/* Hover icon transform removed */
 
 .feature-card h3 {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 900;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1rem;
   text-transform: uppercase;
   transition: all 0.6s ease;
 }
 
-.feature-card:hover h3 {
-  transform: none;
-  opacity: 1;
-}
+/* Hover title transform removed */
 
 .feature-card p {
   font-size: 1.05rem;
@@ -532,43 +519,11 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
   transition: opacity 0.3s ease, transform 0.4s ease;
 }
 
-.feature-card:hover p {
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: opacity 0.1s ease; /* Daroov yoqolsin */
-}
+/* Hover description transition removed */
 
-/* Feature Visuals Revealed from below */
+/* Feature visual hidden as hover is removed */
 .feature-visual {
-  position: absolute;
-  bottom: -150px;
-  left: 0;
-  width: 100%;
-  height: 220px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  padding: 0 2rem;
-  opacity: 0;
-}
-
-.feature-card:hover .feature-visual {
-  bottom: 25px;
-  opacity: 1;
-}
-
-.feature-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 20px;
-  filter: grayscale(100%);
-  transition: filter 0.5s ease;
-}
-
-.feature-card:hover .feature-img {
-  filter: grayscale(0%);
+  display: none;
 }
 
 @media (max-width: 1024px) {
@@ -627,7 +582,7 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
 }
 
 .stat-number {
-  font-size: clamp(3rem, 5vw, 5rem);
+  font-size: clamp(2.5rem, 4vw, 4rem);
   font-weight: 800;
   line-height: 1;
   color: inherit;

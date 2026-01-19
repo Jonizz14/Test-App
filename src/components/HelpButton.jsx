@@ -6,8 +6,8 @@ const HelpButton = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Only show on these paths
-  const allowedPaths = ['/', '/login', '/contact'];
+  // Show only on public facing pages
+  const allowedPaths = ['/', '/login', '/contact', '/updates'];
   
   if (!allowedPaths.includes(location.pathname)) {
     return null;

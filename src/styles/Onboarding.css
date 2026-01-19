@@ -86,19 +86,19 @@
 }
 
 .brutal-title {
-  font-size: 3.5rem;
+  font-size: 2.5rem;
   font-weight: 900;
-  line-height: 1;
+  line-height: 1.1;
   margin-bottom: 1rem;
   letter-spacing: -0.05em;
   text-transform: uppercase;
 }
 
 .brutal-subtitle {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 800;
   color: #666;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   letter-spacing: 0.05em;
 }
 
@@ -110,10 +110,10 @@
 }
 
 .brutal-description {
-  font-size: 1.1rem;
-  line-height: 1.5;
+  font-size: 0.95rem;
+  line-height: 1.6;
   color: #333;
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
   font-weight: 500;
 }
 
@@ -208,11 +208,29 @@
 .onboarding-brutalist:not(.entering) .brutal-subtitle { opacity: 1; transform: translateY(0); transition-delay: 0.3s; }
 .onboarding-brutalist:not(.entering) .brutal-description { opacity: 1; transform: translateY(0); transition-delay: 0.4s; }
 
-/* Exit Logic */
+/* Exit Logic - Solid curtain lift (Refresh style) */
 .onboarding-brutalist.exiting {
-  opacity: 0;
-  transform: scale(0.95);
-  transition: all 0.6s ease-in;
+  pointer-events: none;
+  transform: translateY(-100%);
+  transition: transform 0.7s cubic-bezier(0.645, 0.045, 0.355, 1);
+  opacity: 1 !important; /* Keep it solid until off-screen */
+}
+
+/* Ensure card and text stay solid and move with the page */
+.onboarding-brutalist.exiting .onboarding-card-brutal,
+.onboarding-brutalist.exiting .onboarding-bg-brutal,
+.onboarding-brutalist.exiting .brutal-title,
+.onboarding-brutalist.exiting .brutal-subtitle,
+.onboarding-brutalist.exiting .brutal-description {
+  transform: none !important;
+  opacity: 1 !important;
+  transition: none !important;
+}
+
+.onboarding-brutalist.exiting .onboarding-header-reveal.visible {
+  transform: none !important;
+  opacity: 1 !important;
+  transition: none !important;
 }
 
 /* Mobile */

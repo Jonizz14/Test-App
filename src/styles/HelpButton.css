@@ -6,23 +6,10 @@
   z-index: 2900; 
   display: flex;
   align-items: center;
-  opacity: 0;
-  animation: helpEntrance 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: 0.8s;
+  opacity: 1; /* Entrance animation removed as requested */
 }
 
-@keyframes helpEntrance {
-  0% {
-    transform: translateY(50px) scale(0.8);
-    opacity: 0;
-    filter: blur(10px);
-  }
-  100% {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-    filter: blur(0);
-  }
-}
+
 
 .help-btn {
   display: flex;

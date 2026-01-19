@@ -9,8 +9,6 @@ import SellerOverview from './seller/SellerOverview';
 import ManageStudents from './seller/ManageStudents';
 import ManagePrices from './seller/ManagePrices';
 
-// Import header
-import CustomHeader from '../components/Header';
 
 const { Content } = Layout;
 
@@ -19,7 +17,6 @@ const SellerDashboard = () => {
 
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#f8fafc' }}>
-      <CustomHeader />
       
       <Content
         style={{

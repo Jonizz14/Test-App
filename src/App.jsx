@@ -1,5 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import Header from './components/Header';
 import GlobalLoader from './components/GlobalLoader';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -258,6 +259,117 @@ const TestPage = () => {
 import HelpButton from './components/HelpButton';
 import TextSelectionHandler from './components/TextSelectionHandler';
 
+
+// Animated wrapper for routes to provide smooth page transitions
+const AnimatedRoutes = () => {
+  const location = useLocation();
+  
+  return (
+    <div key={location.pathname} className="page-fade-entrance">
+      <Routes location={location}>
+        {/* Test routes - Health check and testing endpoints */}
+        <Route path="/test" element={<TestPage />} />
+        <Route path="/health" element={
+          <div className="center p-4">
+            ✅ App is healthy! Port: {window.location.port}
+          </div>
+        } />
+
+        {/* Public routes - Accessible without authentication */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/updates" element={<NewsPage />} />
+
+        <Route path="/user/password/questions" element={<Questions />} />
+
+        {/* Protected routes - Require authentication and specific roles */}
+        <Route
+          path="/headadmin/*"
+          element={
+            <HeadAdminRoute>
+              <HeadAdminDashboard />
+            </HeadAdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/*"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/teacher/*"
+          element={
+            <TeacherRoute>
+              <TeacherDashboard />
+            </TeacherRoute>
+          }
+        />
+
+        <Route
+          path="/student/*"
+          element={
+            <StudentRoute>
+              <StudentDashboard />
+            </StudentRoute>
+          }
+        />
+
+        <Route
+          path="/seller/*"
+          element={
+            <SellerRoute>
+              <SellerDashboard />
+            </SellerRoute>
+          }
+        />
+
+        {/* Home page */}
+        <Route path="/" element={<Home />} />
+        
+        {/* Contact page */}
+        <Route path="/contact" element={<Contact />} />
+
+        {/* Onboarding / Welcome page */}
+        <Route path="/welcome" element={<Onboarding />} />
+
+        {/* Dashboard redirect based on user role */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <RoleBasedRedirect />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 404 page - Catch all unmatched routes */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </div>
+  );
+};
+
+// Global header that only shows on chosen public routes
+const GlobalHeader = () => {
+  const location = useLocation();
+  // Include dashboards that use the global CustomHeader
+  const themedRoutes = ['/', '/login', '/contact', '/updates', '/headadmin', '/seller', '/welcome'];
+  
+  const isThemedRoute = themedRoutes.some(route => 
+    route === '/' ? location.pathname === '/' : location.pathname.startsWith(route)
+  );
+
+  if (!isThemedRoute) return null;
+  
+  return <Header />;
+};
+
+import OnboardingExitGhost from './components/OnboardingExitGhost';
+
 // Main App component - Entry point of the application
 // Provides routing, authentication, theming, and error handling
 function App() {
@@ -300,6 +412,8 @@ function App() {
                       <Router>
                         <TextSelectionHandler />
                         <HelpButton />
+                        <GlobalHeader />
+                        <OnboardingExitGhost />
                         {/* Global route loading indicator */}
                         <RouteLoadingIndicator 
                           showFullScreen={false}
@@ -310,93 +424,9 @@ function App() {
                             <CircularProgress size={40} />
                           </Box>
                         }>
-                        <Routes>
-                      {/* Test routes - Health check and testing endpoints */}
-                      <Route path="/test" element={<TestPage />} />
-                      <Route path="/health" element={
-                        <div className="center p-4">
-                          ✅ App is healthy! Port: {window.location.port}
-                        </div>
-                      } />
-
-                      {/* Public routes - Accessible without authentication */}
-                      <Route path="/login" element={<LoginPage />} />
-                      <Route path="/updates" element={<NewsPage />} />
-
-                      <Route path="/user/password/questions" element={<Questions />} />
-
-                      {/* Protected routes - Require authentication and specific roles */}
-                      <Route
-                        path="/headadmin/*"
-                        element={
-                          <HeadAdminRoute>
-                            <HeadAdminDashboard />
-                          </HeadAdminRoute>
-                        }
-                      />
-
-                      <Route
-                        path="/admin/*"
-                        element={
-                          <AdminRoute>
-                            <AdminDashboard />
-                          </AdminRoute>
-                        }
-                      />
-
-                      <Route
-                        path="/teacher/*"
-                        element={
-                          <TeacherRoute>
-                            <TeacherDashboard />
-                          </TeacherRoute>
-                        }
-                      />
-
-                      <Route
-                        path="/student/*"
-                        element={
-                          <StudentRoute>
-                            <StudentDashboard />
-                          </StudentRoute>
-                        }
-                      />
-
-                      <Route
-                        path="/seller/*"
-                        element={
-                          <SellerRoute>
-                            <SellerDashboard />
-                          </SellerRoute>
-                        }
-                      />
-
-                      {/* Home page */}
-                      <Route path="/" element={<Home />} />
-                      
-                      {/* Contact page */}
-                      <Route path="/contact" element={<Contact />} />
-
-                      {/* Onboarding / Welcome page */}
-                      <Route path="/welcome" element={<Onboarding />} />
-
-
-
-                      {/* Dashboard redirect based on user role */}
-                      <Route
-                        path="/dashboard"
-                        element={
-                          <ProtectedRoute>
-                            <RoleBasedRedirect />
-                          </ProtectedRoute>
-                        }
-                      />
-
-                      {/* 404 page - Catch all unmatched routes */}
-                      <Route path="*" element={<NotFoundPage />} />
-                    </Routes>
-                    </React.Suspense>
-                    </Router>
+                        <AnimatedRoutes />
+                        </React.Suspense>
+                      </Router>
                       </ServerTestProvider>
                     </SettingsProvider>
                   </StatisticsProvider>

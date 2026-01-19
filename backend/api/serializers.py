@@ -236,7 +236,8 @@ class ContactMessageSerializer(serializers.ModelSerializer):
 class SiteUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SiteUpdate
-        fields = ['id', 'title', 'description', 'media_type', 'media_file', 'created_at', 'updated_at']
+        fields = ['id', 'title_uz', 'description_uz', 'title_ru', 'description_ru', 'title_en', 'description_en', 
+                  'title', 'description', 'media_type', 'media_file', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def to_representation(self, instance):

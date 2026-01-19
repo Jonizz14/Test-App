@@ -11,10 +11,10 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Blue color palette */
-  --blue-50: #eff6ff;
-  --blue-100: #dbeafe;
-  --blue-200: #bfdbfe;
+  /* Blue color palette - but used only for accents now */
+  --blue-50: #ffffff; /* Changed to white to avoid flashes */
+  --blue-100: #f8fafc;
+  --blue-200: #e2e8f0;
   --blue-300: #93c5fd;
   --blue-400: #60a5fa;
   --blue-500: #3b82f6;
@@ -32,13 +32,13 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: var(--blue-50);
+  background: #ffffff;
   transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 #root {
   min-height: 100vh;
-  background: var(--blue-50);
+  background: #ffffff;
 }
 
 /* Custom scrollbar */
@@ -937,3 +937,49 @@ body.dragging * {
 }
 
 
+
+/* Global Page Entrance Animation - Premium Apple-style */
+.page-fade-entrance {
+  animation: pageFadeEntranceAnim 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+}
+
+@keyframes pageFadeEntranceAnim {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Onboarding Exit Curtain - Matches Onboarding.css logic */
+.onboarding-exit-curtain {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10001; /* Above GlobalLoader and everything */
+  background-color: #ffffff;
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.15) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  transform: translateY(0);
+  transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.onboarding-exit-curtain::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, transparent 0%, rgba(255,255,255,0.8) 100%);
+}
+
+.onboarding-exit-curtain.exiting {
+  transform: translateY(-100%);
+}

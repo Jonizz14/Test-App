@@ -164,15 +164,15 @@ section.in-view .news-card:nth-child(3) { transition-delay: 0.5s; }
 }
 
 .news-title {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 800;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
   line-height: 1.1;
   text-transform: uppercase;
 }
 
 .news-description {
-  font-size: 1.1rem;
+  font-size: 1rem;
   line-height: 1.6;
   opacity: 0.8;
 }

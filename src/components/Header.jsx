@@ -795,7 +795,7 @@ const Header = ({ demoMode = false }) => {
               <button 
                 className={`lang-option ${i18n.language?.startsWith('uz') ? 'active' : ''}`} 
                 onClick={() => {
-                  i18n.changeLanguage('uz').then(() => window.location.reload());
+                  i18n.changeLanguage('uz');
                 }}
               >
                 <span>🇺🇿</span> O'zbekcha
@@ -803,7 +803,7 @@ const Header = ({ demoMode = false }) => {
               <button 
                 className={`lang-option ${i18n.language?.startsWith('ru') ? 'active' : ''}`} 
                 onClick={() => {
-                  i18n.changeLanguage('ru').then(() => window.location.reload());
+                  i18n.changeLanguage('ru');
                 }}
               >
                 <span>🇷🇺</span> Русский
@@ -811,7 +811,7 @@ const Header = ({ demoMode = false }) => {
               <button 
                 className={`lang-option ${i18n.language?.startsWith('en') ? 'active' : ''}`} 
                 onClick={() => {
-                  i18n.changeLanguage('en').then(() => window.location.reload());
+                  i18n.changeLanguage('en');
                 }}
               >
                 <span>🇺🇸</span> English
