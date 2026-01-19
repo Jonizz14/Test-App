@@ -357,7 +357,7 @@ const AnimatedRoutes = () => {
 const GlobalHeader = () => {
   const location = useLocation();
   // Include dashboards that use the global CustomHeader
-  const themedRoutes = ['/', '/login', '/contact', '/updates', '/headadmin', '/seller', '/welcome'];
+  const themedRoutes = ['/', '/login', '/contact', '/updates', '/headadmin', '/seller'];
   
   const isThemedRoute = themedRoutes.some(route => 
     route === '/' ? location.pathname === '/' : location.pathname.startsWith(route)
