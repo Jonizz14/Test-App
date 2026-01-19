@@ -264,8 +264,13 @@ import TextSelectionHandler from './components/TextSelectionHandler';
 const AnimatedRoutes = () => {
   const location = useLocation();
   
+  // Check if current route is a dashboard route (no animation needed)
+  const isDashboardRoute = ['/admin', '/teacher', '/student'].some(route => 
+    location.pathname.startsWith(route)
+  );
+  
   return (
-    <div key={location.pathname} className="page-fade-entrance">
+    <div key={isDashboardRoute ? 'dashboard' : location.pathname} className={isDashboardRoute ? '' : 'page-fade-entrance'}>
       <Routes location={location}>
         {/* Test routes - Health check and testing endpoints */}
         <Route path="/test" element={<TestPage />} />
@@ -356,7 +361,7 @@ const AnimatedRoutes = () => {
 // Global header that only shows on chosen public routes
 const GlobalHeader = () => {
   const location = useLocation();
-  // Include dashboards that use the global CustomHeader
+  // Include only public routes and headadmin/seller dashboards
   const themedRoutes = ['/', '/login', '/contact', '/updates', '/headadmin', '/seller'];
   
   const isThemedRoute = themedRoutes.some(route => 
