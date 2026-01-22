@@ -43,11 +43,11 @@
     border-color 0.4s ease,
     border-radius 1.2s cubic-bezier(0.19, 1, 0.22, 1);
   will-change: height, width, top, left, transform, background;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
 }
 
 .header.lang-uz {
-  min-width: 750px;
+  min-width: 1010px;
 }
 
 
@@ -68,7 +68,7 @@
   height: 64px;
   padding: 0 2rem;
   flex-shrink: 0;
-  overflow: visible; /* Added to prevent clipping */
+  overflow: visible; 
   transition: padding 1.2s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
@@ -87,14 +87,14 @@
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transform: translateY(-20px) scale(0.9);
-  filter: blur(15px);
+  transform: translateY(-20px) scale(0.92);
+  filter: blur(8px);
   width: 0;
   height: 0;
   margin: 0;
   padding: 0;
-  position: absolute; /* Take out of flow to prevent width jumping */
-  transition: all 0.4s ease, visibility 0s 0.4s;
+  position: absolute;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s 0.4s;
 }
 
 /* Logo */
@@ -177,13 +177,24 @@
   font-weight: 700;
   font-size: 0.85rem;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   background: #ffffff;
   color: #000000;
   border: none;
   text-transform: uppercase;
   position: relative;
   z-index: 5;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary:hover {
+  transform: scale(1.05) translateY(-2px);
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
+}
+
+.btn-secondary:active {
+  transform: scale(0.96) translateY(0);
 }
 
 /* Storage Icon Base */
@@ -204,12 +215,12 @@
   overflow: hidden;
   margin-left: 0; /* No margin when hidden */
   transition: 
-    width 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-    margin-left 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.4s ease,
+    width 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    margin-left 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.3s ease,
     transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-    background 0.3s ease,
-    box-shadow 0.3s ease;
+    background 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .storage-icon-container.is-visible,
@@ -262,10 +273,7 @@
   overflow: hidden;
   padding: 0 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1);
   display: flex;
   flex-direction: column;
 }
@@ -276,7 +284,8 @@
   border-top-color: rgba(255, 255, 255, 0.1);
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
+  filter: blur(0);
 }
 
 .storage-content-wrapper {
@@ -328,13 +337,13 @@
   padding-right: 0.5rem;
 }
 
-/* Custom Scrollbar */
+/* Hide Scrollbar */
 .saved-items-grid::-webkit-scrollbar {
-  width: 4px;
+  display: none;
 }
-.saved-items-grid::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+.saved-items-grid {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 .saved-item-row {
@@ -485,8 +494,8 @@
   border-top: 0 solid rgba(255, 255, 255, 0);
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-10px);
-  transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+  transform: translateY(-20px) scale(0.96);
+  transition: all 1s cubic-bezier(0.22, 1, 0.36, 1);
   flex-shrink: 0;
 }
 
@@ -496,7 +505,8 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
+  filter: blur(0);
 }
 
 .header-notification-area.is-error .material-symbols-outlined {
@@ -525,8 +535,17 @@
 }
 
 @keyframes modalPop {
-  from { transform: scale(0.8) translateY(20px); opacity: 0; }
-  to { transform: scale(1) translateY(0); opacity: 1; }
+  0% { transform: scale(0.9) translateY(20px); opacity: 0; filter: blur(10px); }
+  100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0); }
+}
+
+/* Custom Bezier for Apple-style fluidity */
+.header, 
+.header-storage-area,
+.header-notification-area,
+.storage-icon-container,
+.nav-dropdown-menu {
+  transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1) !important;
 }
 
 .material-symbols-outlined {
