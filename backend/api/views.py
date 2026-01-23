@@ -7,8 +7,28 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.db import models
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, ContactMessage, SiteUpdate
-from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, PricingSerializer, StarPackageSerializer, ContactMessageSerializer, SiteUpdateSerializer
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, ContactMessage, SiteUpdate, SiteSettings
+from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, PricingSerializer, StarPackageSerializer, ContactMessageSerializer, SiteUpdateSerializer, SiteSettingsSerializer
+
+class SiteSettingsViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
+
+    def list(self, request):
+        settings = SiteSettings.get_settings()
+        serializer = SiteSettingsSerializer(settings)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['patch'], permission_classes=[IsAuthenticated])
+    def update_settings(self, request):
+        if request.user.role != 'head_admin':
+            return Response({'error': 'Only head admin can update site settings'}, status=status.HTTP_403_FORBIDDEN)
+        
+        settings = SiteSettings.get_settings()
+        serializer = SiteSettingsSerializer(settings, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()

@@ -15,10 +15,6 @@ const Contact = () => {
   const { t } = useTranslation();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [myMessages, setMyMessages] = useState([]);
-  const [showMyMessages, setShowMyMessages] = useState(false);
-  const [editingMessage, setEditingMessage] = useState(null);
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -91,75 +87,6 @@ const Contact = () => {
     } finally {
       setIsSubmitting(false);
     }
-    
-
-  };
-
-  // Fetch user's messages if logged in
-  useEffect(() => {
-    if (currentUser && currentUser.email) {
-      fetchMyMessages();
-    }
-  }, [currentUser]);
-
-  const fetchMyMessages = async () => {
-    try {
-      const response = await apiService.getMyContactMessages();
-      setMyMessages(response);
-    } catch (error) {
-      console.error('Failed to fetch messages:', error);
-    }
-  };
-
-  const handleEditMessage = async (messageId, updatedData) => {
-    try {
-      await apiService.editContactMessage(messageId, updatedData);
-      setEditingMessage(null);
-      fetchMyMessages();
-    } catch (error) {
-      console.error('Failed to edit message:', error);
-    }
-  };
-
-  const handleDeleteMessage = async (messageId) => {
-    try {
-      await apiService.deleteContactMessage(messageId);
-      setDeleteConfirm(null);
-      fetchMyMessages();
-    } catch (error) {
-      console.error('Failed to delete message:', error);
-    }
-  };
-
-  const getSubjectText = (subject) => {
-    switch (subject) {
-      case 'technical': return t('contact.subjects.technical');
-      case 'billing': return t('contact.subjects.billing');
-      case 'feature': return t('contact.subjects.feature');
-      case 'partnership': return t('contact.subjects.partnership');
-      case 'other': return t('contact.subjects.other');
-      default: return subject;
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'new': return 'Yangi';
-      case 'read': return 'O\'qilgan';
-      case 'replied': return 'Javob berilgan';
-      case 'closed': return 'Yopilgan';
-      default: return status;
-    }
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('uz-UZ', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
   };
 
   // Animation Logic - Trigger on scroll
@@ -243,31 +170,6 @@ const Contact = () => {
             </div>
           </div>
         </section>
-
-        {/* My Messages Section (if logged in) - Custom Reveal */}
-        {currentUser && (
-          <section className="contact-modern-messages">
-             <div className="section-container">
-                <h2>{t('contact.myMessages')}</h2>
-                {myMessages.length === 0 ? (
-                  <p>{t('contact.noHistory')}</p>
-                ) : (
-                  <div className="modern-message-list">
-                    {myMessages.slice(0, 3).map(msg => (
-                      <div key={msg.id} className="modern-message-card">
-                        <div className="card-header">
-                           <span className={`status-dot ${msg.status}`}></span>
-                           <h3>{getSubjectText(msg.subject)}</h3>
-                        </div>
-                        <p>{msg.message}</p>
-                        <span className="date">{formatDate(msg.created_at)}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-             </div>
-          </section>
-        )}
       </div>
     </Layout>
   );

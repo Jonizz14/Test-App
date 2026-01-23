@@ -497,6 +497,15 @@ class ApiService {
     return this.delete(`/updates/${id}/`);
   }
 
+  // Site Settings methods
+  async getSiteSettings() {
+    return this.get('/site-settings/');
+  }
+
+  async updateSiteSettings(data) {
+    return this.patch('/site-settings/update_settings/', data);
+  }
+
 }
 
 const apiService = new ApiService();

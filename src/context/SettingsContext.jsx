@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import apiService from '../data/apiService';
+import { useAuth } from './AuthContext';
 
 const SettingsContext = createContext();
 
@@ -11,44 +13,65 @@ export const useSettings = () => {
 };
 
 export const SettingsProvider = ({ children }) => {
-  const [settings, setSettings] = useState(() => {
-    const defaultSettings = {
-      header: {
-        messages: true,
-        storage: true,
-        search: true,
-        language: true
-      },
-      welcome: {
-        steps: [true, true, true, true, true, true]
-      },
-      features: {
-        textSelection: true,
-        homeSaveButton: true,
-        flyerAnimation: true
+  const { isAuthenticated, currentUser } = useAuth();
+  const [settings, setSettings] = useState({
+    header: {
+      messages: true,
+      storage: true,
+      search: true,
+      language: true
+    },
+    welcome: {
+      steps: [true, true, true, true, true, true]
+    },
+    features: {
+      textSelection: true,
+      homeSaveButton: true,
+      flyerAnimation: true
+    }
+  });
+  const [loading, setLoading] = useState(true);
+
+  // Load settings from backend
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const data = await apiService.getSiteSettings();
+        // Map backend model to frontend context structure
+        setSettings({
+          header: {
+            messages: data.header_messages,
+            storage: data.header_storage,
+            search: data.header_search,
+            language: data.header_language
+          },
+          welcome: {
+            steps: data.welcome_steps || [true, true, true, true, true, true]
+          },
+          features: {
+            textSelection: data.feature_text_selection,
+            homeSaveButton: data.feature_home_save_button,
+            flyerAnimation: data.feature_flyer_animation
+          }
+        });
+      } catch (e) {
+        console.error('Failed to fetch settings from backend', e);
+      } finally {
+        setLoading(false);
       }
     };
 
-    const savedSettings = localStorage.getItem('appSettings');
-    if (!savedSettings) return defaultSettings;
+    fetchSettings();
+  }, []);
 
+  const updateBackend = async (data) => {
+    if (!isAuthenticated || currentUser?.role !== 'head_admin') return;
     try {
-      const parsed = JSON.parse(savedSettings);
-      // Deep merge with defaults to ensure new properties exist
-      return {
-        header: { ...defaultSettings.header, ...parsed.header },
-        welcome: { ...defaultSettings.welcome, ...parsed.welcome },
-        features: { ...defaultSettings.features, ...parsed.features }
-      };
+      await apiService.updateSiteSettings(data);
     } catch (e) {
-      console.error('Failed to parse settings', e);
-      return defaultSettings;
+      console.error('Failed to update settings in backend', e);
     }
-  });
-
-  useEffect(() => {
-    localStorage.setItem('appSettings', JSON.stringify(settings));
-  }, [settings]);
+  };
 
   const updateHeaderSetting = (key, value) => {
     setSettings(prev => ({
@@ -58,9 +81,12 @@ export const SettingsProvider = ({ children }) => {
         [key]: value
       }
     }));
+    updateBackend({ [`header_${key}`]: value });
   };
 
   const updateFeatureSetting = (key, value) => {
+    // Frontend key is camelCase, backend field is snake_case with feature_ prefix
+    const backendKey = `feature_${key.replace(/([A-Z])/g, "_$1").toLowerCase()}`;
     setSettings(prev => ({
       ...prev,
       features: {
@@ -68,24 +94,27 @@ export const SettingsProvider = ({ children }) => {
         [key]: value
       }
     }));
+    updateBackend({ [backendKey]: value });
   };
 
   const updateWelcomeStep = (index, value) => {
     setSettings(prev => {
       const newSteps = [...prev.welcome.steps];
       newSteps[index] = value;
-      return {
+      const updated = {
         ...prev,
         welcome: {
           ...prev.welcome,
           steps: newSteps
         }
       };
+      updateBackend({ welcome_steps: newSteps });
+      return updated;
     });
   };
 
   return (
-    <SettingsContext.Provider value={{ settings, updateHeaderSetting, updateWelcomeStep, updateFeatureSetting }}>
+    <SettingsContext.Provider value={{ settings, loading, updateHeaderSetting, updateWelcomeStep, updateFeatureSetting }}>
       {children}
     </SettingsContext.Provider>
   );

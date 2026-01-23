@@ -165,7 +165,7 @@ const StudentDashboard = () => {
   ];
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ height: '100vh', overflow: 'hidden' }}>
       {/* Header */}
       <Header
         style={{
@@ -234,7 +234,7 @@ const StudentDashboard = () => {
         </Space>
       </Header>
 
-      <Layout>
+      <Layout style={{ height: 'calc(100vh - 64px)', marginTop: 64 }}>
         {/* Sidebar */}
         <Sider
           trigger={null}
@@ -277,17 +277,16 @@ const StudentDashboard = () => {
         <Layout
           style={{
             marginLeft: collapsed ? 80 : 280,
-            marginTop: 64,
-            minHeight: 'calc(100vh - 64px)',
             transition: 'margin-left 0.2s',
+            height: '100%',
+            overflow: 'hidden'
           }}
         >
           <Content
             style={{
               background: '#f8fafc',
               padding: 24,
-              minHeight: 'calc(100vh - 64px)',
-              overflow: 'auto',
+              height: '100%',
             }}
           >
             <div
@@ -295,7 +294,8 @@ const StudentDashboard = () => {
                 background: '#ffffff',
                 borderRadius: 8,
                 padding: 24,
-                minHeight: 'calc(100vh - 112px)',
+                height: 'calc(100vh - 112px)',
+                overflowY: 'auto',
                 boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
               }}
             >

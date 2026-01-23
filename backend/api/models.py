@@ -471,3 +471,37 @@ class SiteUpdate(models.Model):
 
     def __str__(self):
         return self.title_uz or self.title
+
+class SiteSettings(models.Model):
+    """Model to store global site configuration"""
+    # Header Settings
+    header_messages = models.BooleanField(default=True)
+    header_storage = models.BooleanField(default=True)
+    header_search = models.BooleanField(default=True)
+    header_language = models.BooleanField(default=True)
+    
+    # Welcome Page Steps (Array of Booleans)
+    welcome_steps = models.JSONField(default=list)
+    
+    # Feature Settings
+    feature_text_selection = models.BooleanField(default=True)
+    feature_home_save_button = models.BooleanField(default=True)
+    feature_flyer_animation = models.BooleanField(default=True)
+    
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Site Setting"
+        verbose_name_plural = "Site Settings"
+
+    def __str__(self):
+        return f"Global Site Settings (Last updated: {self.updated_at.strftime('%Y-%m-%d %H:%M')})"
+
+    @classmethod
+    def get_settings(cls):
+        """Get or create the singleton settings instance"""
+        obj, created = cls.objects.get_or_create(id=1)
+        if created or not obj.welcome_steps:
+            obj.welcome_steps = [True, True, True, True, True, True]
+            obj.save()
+        return obj
