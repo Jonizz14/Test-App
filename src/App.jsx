@@ -14,6 +14,7 @@ import { ServerTestProvider } from './context/ServerTestContext';
 import { ThemeProvider as CustomThemeProvider } from './context/ThemeContext';
 import { LoadingProvider } from './context/LoadingContext';
 import { registerSW } from './utils/serviceWorker';
+import ScrollToTop from './components/ScrollToTop';
 import RouteLoadingIndicator from './components/RouteLoadingIndicator';
 import { SavedItemsProvider } from './context/SavedItemsContext';
 import { SentMessagesProvider } from './context/SentMessagesContext';
@@ -263,12 +264,12 @@ import TextSelectionHandler from './components/TextSelectionHandler';
 // Animated wrapper for routes to provide smooth page transitions
 const AnimatedRoutes = () => {
   const location = useLocation();
-  
+
   // Check if current route is a dashboard route (no animation needed)
-  const isDashboardRoute = ['/admin', '/teacher', '/student'].some(route => 
+  const isDashboardRoute = ['/admin', '/teacher', '/student'].some(route =>
     location.pathname.startsWith(route)
   );
-  
+
   return (
     <div key={isDashboardRoute ? 'dashboard' : location.pathname} className={isDashboardRoute ? '' : 'page-fade-entrance'}>
       <Routes location={location}>
@@ -334,7 +335,7 @@ const AnimatedRoutes = () => {
 
         {/* Home page */}
         <Route path="/" element={<Home />} />
-        
+
         {/* Contact page */}
         <Route path="/contact" element={<Contact />} />
 
@@ -399,9 +400,9 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         {!isLoaderRemoved && (
-          <GlobalLoader 
-            onTransitionStart={() => setIsAppReady(true)} 
-            onFinished={() => setIsLoaderRemoved(true)} 
+          <GlobalLoader
+            onTransitionStart={() => setIsAppReady(true)}
+            onFinished={() => setIsLoaderRemoved(true)}
           />
         )}
         <div className={`app-main-content ${isAppReady ? 'ready' : 'loading'}`}>
@@ -411,30 +412,31 @@ function App() {
                 <SentMessagesProvider>
                   <SavedItemsProvider>
                     <NewsProvider>
-                    <StatisticsProvider>
-                      <SettingsProvider>
-                        <ServerTestProvider>
-                      <Router>
-                        <TextSelectionHandler />
-                        <HelpButton />
-                        <GlobalHeader />
-                        <OnboardingExitGhost />
-                        {/* Global route loading indicator */}
-                        <RouteLoadingIndicator 
-                          showFullScreen={false}
-                          threshold={300}
-                        />
-                        <React.Suspense fallback={
-                          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
-                            <CircularProgress size={40} />
-                          </Box>
-                        }>
-                        <AnimatedRoutes />
-                        </React.Suspense>
-                      </Router>
-                      </ServerTestProvider>
-                    </SettingsProvider>
-                  </StatisticsProvider>
+                      <StatisticsProvider>
+                        <SettingsProvider>
+                          <ServerTestProvider>
+                            <Router>
+                              <ScrollToTop />
+                              <TextSelectionHandler />
+                              <HelpButton />
+                              <GlobalHeader />
+                              <OnboardingExitGhost />
+                              {/* Global route loading indicator */}
+                              <RouteLoadingIndicator
+                                showFullScreen={false}
+                                threshold={300}
+                              />
+                              <React.Suspense fallback={
+                                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+                                  <CircularProgress size={40} />
+                                </Box>
+                              }>
+                                <AnimatedRoutes />
+                              </React.Suspense>
+                            </Router>
+                          </ServerTestProvider>
+                        </SettingsProvider>
+                      </StatisticsProvider>
                     </NewsProvider>
                   </SavedItemsProvider>
                 </SentMessagesProvider>

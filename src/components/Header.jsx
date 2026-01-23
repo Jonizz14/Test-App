@@ -16,7 +16,7 @@ const Header = ({ demoMode = false }) => {
   const { sentMessages, removeMessage, clearMessages } = useSentMessages();
   const { currentUser, isAuthenticated, logout } = useAuth();
   const { settings } = useSettings();
-  
+
   const { t, i18n } = useTranslation();
   const [showSaved, setShowSaved] = React.useState(false);
   const [showMessages, setShowMessages] = React.useState(false);
@@ -32,72 +32,72 @@ const Header = ({ demoMode = false }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  
+
   // Search Data
   // Enhanced Search Data with "Content" simulation
   // Enhanced Search Data with "Content" simulation for all pages
   const getSearchData = (t) => [
     // Pages
-    { 
-      id: 'home', 
-      title: t('nav.search.results.home.title'), 
-      path: '/', 
+    {
+      id: 'home',
+      title: t('nav.search.results.home.title'),
+      path: '/',
       icon: 'home',
       category: t('nav.home') || 'Page',
       description: t('nav.search.results.home.desc'),
       content: t('nav.search.results.home.content')
     },
-    { 
-      id: 'contact', 
-      title: t('nav.search.results.contact.title'), 
-      path: '/contact', 
+    {
+      id: 'contact',
+      title: t('nav.search.results.contact.title'),
+      path: '/contact',
       icon: 'contact_support',
       category: t('nav.contact') || 'Page',
       description: t('nav.search.results.contact.desc'),
       content: t('nav.search.results.contact.content')
     },
-    { 
-      id: 'login', 
-      title: t('nav.search.results.login.title'), 
-      path: '/login', 
+    {
+      id: 'login',
+      title: t('nav.search.results.login.title'),
+      path: '/login',
       icon: 'login',
       category: t('nav.login') || 'Auth',
       description: t('nav.search.results.login.desc'),
       content: t('nav.search.results.login.content')
     },
-    { 
-      id: 'welcome', 
-      title: t('nav.search.results.welcome.title'), 
-      path: '/welcome', 
+    {
+      id: 'welcome',
+      title: t('nav.search.results.welcome.title'),
+      path: '/welcome',
       icon: 'waving_hand',
       category: 'Intro',
       description: t('nav.search.results.welcome.desc'),
       content: t('nav.search.results.welcome.content')
     },
-    
+
     // Admin Pages
-    { 
-      id: 'dashboard-admin', 
-      title: t('nav.search.results.adminDashboard.title'), 
-      path: '/admin', 
+    {
+      id: 'dashboard-admin',
+      title: t('nav.search.results.adminDashboard.title'),
+      path: '/admin',
       icon: 'dashboard',
       category: t('nav.dashboard') || 'Admin',
       description: t('nav.search.results.adminDashboard.desc'),
       content: t('nav.search.results.adminDashboard.content')
     },
-    { 
-      id: 'admin-teachers', 
-      title: t('nav.search.results.adminTeachers.title'), 
-      path: '/admin/teachers', 
+    {
+      id: 'admin-teachers',
+      title: t('nav.search.results.adminTeachers.title'),
+      path: '/admin/teachers',
       icon: 'school',
       category: t('nav.teachers') || 'Admin',
       description: t('nav.search.results.adminTeachers.desc'),
       content: t('nav.search.results.adminTeachers.content')
     },
-    { 
-      id: 'admin-students', 
-      title: t('nav.search.results.adminStudents.title'), 
-      path: '/admin/students', 
+    {
+      id: 'admin-students',
+      title: t('nav.search.results.adminStudents.title'),
+      path: '/admin/students',
       icon: 'face',
       category: t('nav.students') || 'Admin',
       description: t('nav.search.results.adminStudents.desc'),
@@ -105,19 +105,19 @@ const Header = ({ demoMode = false }) => {
     },
 
     // Teacher Pages
-    { 
-      id: 'teacher-classes', 
-      title: t('nav.search.results.teacherClasses.title'), 
-      path: '/teacher/classes', 
+    {
+      id: 'teacher-classes',
+      title: t('nav.search.results.teacherClasses.title'),
+      path: '/teacher/classes',
       icon: 'groups',
       category: t('nav.classes') || 'Teacher',
       description: t('nav.search.results.teacherClasses.desc'),
       content: t('nav.search.results.teacherClasses.content')
     },
-    { 
-      id: 'teacher-tests', 
-      title: t('nav.search.results.teacherTests.title'), 
-      path: '/teacher/tests', 
+    {
+      id: 'teacher-tests',
+      title: t('nav.search.results.teacherTests.title'),
+      path: '/teacher/tests',
       icon: 'quiz',
       category: t('nav.tests') || 'Teacher',
       description: t('nav.search.results.teacherTests.desc'),
@@ -125,19 +125,19 @@ const Header = ({ demoMode = false }) => {
     },
 
     // Student Pages
-    { 
-      id: 'student-tests', 
-      title: t('nav.search.results.studentTests.title'), 
-      path: '/student/tests', 
+    {
+      id: 'student-tests',
+      title: t('nav.search.results.studentTests.title'),
+      path: '/student/tests',
       icon: 'assignment',
       category: t('nav.tests') || 'Student',
       description: t('nav.search.results.studentTests.desc'),
       content: t('nav.search.results.studentTests.content')
     },
-    { 
-      id: 'student-results', 
-      title: t('nav.search.results.studentResults.title'), 
-      path: '/student/results', 
+    {
+      id: 'student-results',
+      title: t('nav.search.results.studentResults.title'),
+      path: '/student/results',
       icon: 'bar_chart',
       category: t('nav.results') || 'Student',
       description: t('nav.search.results.studentResults.desc'),
@@ -145,10 +145,10 @@ const Header = ({ demoMode = false }) => {
     },
 
     // User & System
-    { 
-      id: 'profile', 
-      title: t('nav.search.results.profile.title'), 
-      path: '/profile', 
+    {
+      id: 'profile',
+      title: t('nav.search.results.profile.title'),
+      path: '/profile',
       icon: 'person',
       category: t('nav.profile') || 'User',
       description: t('nav.search.results.profile.desc'),
@@ -156,7 +156,7 @@ const Header = ({ demoMode = false }) => {
     },
     {
       id: 'ai-help',
-      title: t('nav.search.results.aiHelp.title'), 
+      title: t('nav.search.results.aiHelp.title'),
       path: '#',
       icon: 'smart_toy',
       category: 'AI',
@@ -169,9 +169,9 @@ const Header = ({ demoMode = false }) => {
 
   const filteredSearchResults = React.useMemo(() => {
     if (!searchQuery.trim()) return [];
-    
+
     const query = searchQuery.toLowerCase();
-    
+
     return searchData.filter(item => {
       const titleMatch = item.title.toLowerCase().includes(query);
       const descMatch = item.description.toLowerCase().includes(query);
@@ -189,7 +189,7 @@ const Header = ({ demoMode = false }) => {
     const parts = text.split(regex);
     return (
       <span>
-        {parts.map((part, i) => 
+        {parts.map((part, i) =>
           part.toLowerCase() === highlight.toLowerCase() ? (
             <span key={i} className="search-highlight">{part}</span>
           ) : (
@@ -203,20 +203,20 @@ const Header = ({ demoMode = false }) => {
   // Helper to render content snippet with match
   const renderSearchSnippet = (content, query) => {
     if (!content || !query || query.length < 2) return null;
-    
+
     const lowerContent = content.toLowerCase();
     const lowerQuery = query.toLowerCase();
     const index = lowerContent.indexOf(lowerQuery);
-    
+
     if (index === -1) return null;
-    
+
     const start = Math.max(0, index - 35);
     const end = Math.min(content.length, index + query.length + 35);
     let snippet = content.slice(start, end);
-    
+
     if (start > 0) snippet = '...' + snippet;
     if (end < content.length) snippet = snippet + '...';
-    
+
     return (
       <p className="search-content-snippet">
         <HighlightedText text={snippet} highlight={query} />
@@ -224,12 +224,12 @@ const Header = ({ demoMode = false }) => {
     );
   };
 
-  
+
   const [activeNotifications, setActiveNotifications] = React.useState([]);
   const [headerHeight, setHeaderHeight] = React.useState(64);
-  
+
   // Dashboard state
-  const isDashboard = ['/admin', '/headadmin', '/teacher', '/student', '/seller'].some(path => 
+  const isDashboard = ['/admin', '/headadmin', '/teacher', '/student', '/seller'].some(path =>
     location.pathname.startsWith(path)
   );
   const [isDashboardExpanded, setIsDashboardExpanded] = React.useState(false);
@@ -240,11 +240,11 @@ const Header = ({ demoMode = false }) => {
   React.useEffect(() => {
     let newHeight = 64; // Base height
 
-    const isExpanded = 
-      (showSaved && savedItems.length > 0) || 
-      (showMessages && sentMessages.length > 0) || 
-      (showNotifications) || 
-      (showLanguages && (!isDashboard || isSellerOrHeadAdmin)) || 
+    const isExpanded =
+      (showSaved && savedItems.length > 0) ||
+      (showMessages && sentMessages.length > 0) ||
+      (showNotifications) ||
+      (showLanguages && (!isDashboard || isSellerOrHeadAdmin)) ||
       (showSearch && (!isDashboard || isSellerOrHeadAdmin));
 
     if (isExpanded) {
@@ -267,9 +267,9 @@ const Header = ({ demoMode = false }) => {
     const handleNotification = (data) => {
       const id = Date.now() + Math.random();
       const newNotification = { ...data, id, isVisible: false };
-      
+
       setActiveNotifications(prev => [...prev, newNotification]);
-      
+
       // Trigger entrance animation
       setTimeout(() => {
         setActiveNotifications(prev => prev.map(n => n.id === id ? { ...n, isVisible: true } : n));
@@ -299,7 +299,7 @@ const Header = ({ demoMode = false }) => {
   // Enforce onboarding for new users
   React.useEffect(() => {
     const hasSeen = localStorage.getItem('hasSeenOnboarding');
-    const isPublicPath = ['/welcome', '/test', '/health'].some(path => 
+    const isPublicPath = ['/welcome', '/test', '/health'].some(path =>
       location.pathname.startsWith(path)
     );
 
@@ -354,8 +354,8 @@ const Header = ({ demoMode = false }) => {
         { label: t('nav.dashboard'), path: '/admin' },
         { label: t('nav.teachers'), path: '/admin/teachers' },
         { label: t('nav.students'), path: '/admin/students' },
-        { 
-          label: t('nav.statistics'), 
+        {
+          label: t('nav.statistics'),
           children: [
             { label: t('nav.total'), path: '/admin/statistics' },
             { label: t('nav.classes'), path: '/admin/classes' },
@@ -363,8 +363,8 @@ const Header = ({ demoMode = false }) => {
             { label: t('nav.tests'), path: '/admin/tests-page' }
           ]
         },
-        { 
-          label: t('nav.ratings'), 
+        {
+          label: t('nav.ratings'),
           children: [
             { label: t('nav.classes'), path: '/admin/class-stats' },
             { label: t('nav.students'), path: '/admin/student-ratings' },
@@ -419,11 +419,11 @@ const Header = ({ demoMode = false }) => {
     let classes = ['header'];
     if (i18n.language) classes.push(`lang-${i18n.language.split('-')[0]}`);
 
-    const hasExpandedContent = 
-      (showSaved && savedItems.length > 0) || 
-      (showMessages && sentMessages.length > 0) || 
-      (showNotifications) || 
-      (showLanguages && (!isDashboard || isSellerOrHeadAdmin)) || 
+    const hasExpandedContent =
+      (showSaved && savedItems.length > 0) ||
+      (showMessages && sentMessages.length > 0) ||
+      (showNotifications) ||
+      (showLanguages && (!isDashboard || isSellerOrHeadAdmin)) ||
       (showSearch && (!isDashboard || isSellerOrHeadAdmin));
 
     if (activeNotifications.length > 0 && !hasExpandedContent) classes.push('expanding-down');
@@ -435,7 +435,7 @@ const Header = ({ demoMode = false }) => {
 
 
     if (demoMode) classes.push('demo-mode');
-    
+
     return classes.join(' ');
   };
 
@@ -462,7 +462,7 @@ const Header = ({ demoMode = false }) => {
       setShowNotifications(false);
       setShowLanguages(false);
       setShowSearch(false);
-  
+
     }
   };
 
@@ -473,7 +473,7 @@ const Header = ({ demoMode = false }) => {
       setShowNotifications(false);
       setShowLanguages(false);
       setShowSearch(false);
-  
+
     }
   };
 
@@ -503,7 +503,7 @@ const Header = ({ demoMode = false }) => {
     setShowLanguages(false);
     if (!showSearch) {
       setTimeout(() => document.getElementById('global-search-input')?.focus(), 100);
-  
+
     }
   };
 
@@ -524,8 +524,8 @@ const Header = ({ demoMode = false }) => {
 
   return (
     <>
-      <header 
-        className={getHeaderClass()} 
+      <header
+        className={getHeaderClass()}
         ref={headerRef}
         style={{ height: `${headerHeight}px` }}
       >
@@ -539,31 +539,31 @@ const Header = ({ demoMode = false }) => {
               </div>
               <div className="nav-links">
                 {navLinks.map((link, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className={`nav-item ${link.children ? 'has-dropdown' : ''} ${isMobile ? 'hidden-desktop-nav' : ''}`} // Hide in CSS if needed, or filter here
                     style={{ display: isMobile ? 'none' : 'flex' }}
                     onMouseEnter={() => !isMobile && link.children && setActiveDropdown(index)}
                     onMouseLeave={() => !isMobile && link.children && setActiveDropdown(null)}
                   >
-                    <a 
+                    <a
                       className={`nav-link ${link.children ? 'dropdown-trigger' : ''}`}
-                      onClick={(e) => { 
+                      onClick={(e) => {
                         if (link.children) e.preventDefault();
-                        else if (demoMode) e.preventDefault(); 
-                        else handleLinkClick(link); 
+                        else if (demoMode) e.preventDefault();
+                        else handleLinkClick(link);
                       }}
                       style={{ cursor: demoMode ? 'default' : 'pointer' }}
                     >
                       {link.label}
                       {link.children && <span className="material-symbols-outlined dropdown-icon">expand_more</span>}
                     </a>
-                    
+
                     {/* Dropdown Menu */}
                     {link.children && (
                       <div className={`nav-dropdown-menu ${activeDropdown === index ? 'visible' : ''}`}>
                         {link.children.map((child, childIndex) => (
-                          <div 
+                          <div
                             key={childIndex}
                             className="dropdown-item"
                             onClick={() => {
@@ -583,11 +583,11 @@ const Header = ({ demoMode = false }) => {
                 {isDashboard ? (
                   <>
                     <button className="btn-secondary" onClick={logout} style={{ background: '#ff4757', color: 'white' }}>{t('nav.logout')}</button>
-                    
+
                     {/* Seller & HeadAdmin Icons */}
                     {isSellerOrHeadAdmin && !isMobile && (
                       <>
-                        <div 
+                        <div
                           className={`storage-icon-container message-icon ${sentMessages.length > 0 ? 'is-visible' : ''} ${showMessages ? 'active' : ''}`}
                           onClick={toggleMessages}
                           id="header-message-icon"
@@ -596,7 +596,7 @@ const Header = ({ demoMode = false }) => {
                           <span className="material-symbols-outlined">forum</span>
                           <span className="item-count msg-count">{sentMessages.length}</span>
                         </div>
-                        <div 
+                        <div
                           className={`storage-icon-container has-items ${savedItems.length > 0 ? 'is-visible' : ''} ${showSaved ? 'active' : ''}`}
                           onClick={toggleSaved}
                           id="header-storage-bin"
@@ -609,7 +609,7 @@ const Header = ({ demoMode = false }) => {
                     )}
 
                     {/* Dashboard Notification Icon */}
-                    <div 
+                    <div
                       className={`storage-icon-container message-icon is-visible ${showNotifications ? 'active' : ''}`}
                       onClick={toggleNotifications}
                       style={{ width: '44px', opacity: 1, transform: 'scale(1)', overflow: 'visible' }}
@@ -624,7 +624,7 @@ const Header = ({ demoMode = false }) => {
                       !isMobile ? (
                         <button className="btn-secondary" onClick={(e) => { if (demoMode) e.preventDefault(); else handleProfileClick(); }} style={{ cursor: demoMode ? 'default' : 'pointer' }}>{t('nav.profile')}</button>
                       ) : (
-                        <div 
+                        <div
                           className="storage-icon-container is-visible"
                           onClick={(e) => { if (demoMode) e.preventDefault(); else handleProfileClick(); }}
                           title={t('nav.profile')}
@@ -637,8 +637,8 @@ const Header = ({ demoMode = false }) => {
                       !isMobile ? (
                         <button className="btn-secondary" onClick={() => !demoMode && navigate('/login')} style={{ cursor: demoMode ? 'default' : 'pointer' }}>{t('nav.login')}</button>
                       ) : (
-                        <div 
-                          className="storage-icon-container is-visible" 
+                        <div
+                          className="storage-icon-container is-visible"
                           onClick={() => !demoMode && navigate('/login')}
                           title={t('nav.login')}
                           style={{ cursor: demoMode ? 'default' : 'pointer', marginLeft: '0.4rem' }}
@@ -651,8 +651,8 @@ const Header = ({ demoMode = false }) => {
 
 
                     {/* Content Search Icon */}
-                     {settings.header.search && (
-                       <div 
+                    {settings.header.search && (
+                      <div
                         className={`storage-icon-container search-icon ${showSearch ? 'active' : ''}`}
                         onClick={toggleSearch}
                         title="Qidirish"
@@ -660,11 +660,11 @@ const Header = ({ demoMode = false }) => {
                       >
                         <span className="material-symbols-outlined">search</span>
                       </div>
-                     )}
+                    )}
 
                     {/* Language Switcher */}
                     {settings.header.language && (
-                      <div 
+                      <div
                         className={`storage-icon-container lang-icon ${showLanguages ? 'active' : ''}`}
                         onClick={toggleLanguages}
                         title={t('nav.changeLanguage')}
@@ -673,10 +673,10 @@ const Header = ({ demoMode = false }) => {
                         <span className="current-lang-code">{i18n.language ? i18n.language.split('-')[0].toUpperCase() : 'UZ'}</span>
                       </div>
                     )}
-      
+
                     {/* Messages Icon */}
                     {settings.header.messages && !isMobile && (
-                      <div 
+                      <div
                         className={`storage-icon-container message-icon ${sentMessages.length > 0 ? 'is-visible' : ''} ${showMessages ? 'active' : ''}`}
                         onClick={toggleMessages}
                         id="header-message-icon"
@@ -686,10 +686,10 @@ const Header = ({ demoMode = false }) => {
                         <span className="item-count msg-count">{sentMessages.length}</span>
                       </div>
                     )}
-      
+
                     {/* Storage Icon */}
                     {settings.header.storage && !isMobile && (
-                      <div 
+                      <div
                         className={`storage-icon-container has-items ${savedItems.length > 0 ? 'is-visible' : ''} ${showSaved ? 'active' : ''}`}
                         onClick={toggleSaved}
                         id="header-storage-bin"
@@ -701,59 +701,59 @@ const Header = ({ demoMode = false }) => {
                     )}
                   </>
                 )}
-                
+
                 {/* Mobile Menu Button - Shown only on Mobile */}
                 {isMobile && (
-                  <div 
+                  <div
                     className="nav-item has-dropdown mobile-menu-container"
                     onClick={() => setActiveDropdown(activeDropdown === 'mobile-menu' ? null : 'mobile-menu')}
                     style={{ marginLeft: '0.4rem' }}
                   >
                     <div className="storage-icon-container is-visible" style={{ width: '36px', height: '36px', margin: 0 }}>
-                       <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>menu</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>menu</span>
                     </div>
-                    
-                    <div 
-                      className={`nav-dropdown-menu ${activeDropdown === 'mobile-menu' ? 'visible' : ''}`} 
-                      style={{ 
-                        minWidth: '200px', 
-                        right: '0', 
+
+                    <div
+                      className={`nav-dropdown-menu ${activeDropdown === 'mobile-menu' ? 'visible' : ''}`}
+                      style={{
+                        minWidth: '200px',
+                        right: '0',
                         left: 'auto',
                         transform: 'translateY(10px)',
                         padding: '8px'
                       }}
                     >
-                       {navLinks.map((link, index) => (
-                         <div key={index}>
-                            <div 
+                      {navLinks.map((link, index) => (
+                        <div key={index}>
+                          <div
+                            className="dropdown-item"
+                            style={{ padding: '8px 12px', fontSize: '0.8rem' }}
+                            onClick={(e) => {
+                              if (link.children) {
+                                e.stopPropagation();
+                                return;
+                              }
+                              if (!demoMode) handleLinkClick(link);
+                              setActiveDropdown(null);
+                            }}
+                          >
+                            {link.label}
+                          </div>
+                          {link.children && link.children.map((child, cIdx) => (
+                            <div
+                              key={`c-${cIdx}`}
                               className="dropdown-item"
-                              style={{ padding: '8px 12px', fontSize: '0.8rem' }}
-                              onClick={(e) => {
-                                if (link.children) {
-                                  e.stopPropagation(); 
-                                  return;
-                                }
-                                if (!demoMode) handleLinkClick(link);
+                              style={{ padding: '6px 12px 6px 24px', opacity: 0.7, fontSize: '0.75rem' }}
+                              onClick={() => {
+                                if (!demoMode) navigate(child.path);
                                 setActiveDropdown(null);
                               }}
                             >
-                              {link.label}
+                              {child.label}
                             </div>
-                            {link.children && link.children.map((child, cIdx) => (
-                              <div 
-                                key={`c-${cIdx}`} 
-                                className="dropdown-item" 
-                                style={{ padding: '6px 12px 6px 24px', opacity: 0.7, fontSize: '0.75rem' }}
-                                onClick={() => {
-                                  if (!demoMode) navigate(child.path);
-                                  setActiveDropdown(null);
-                                }}
-                              >
-                                {child.label}
-                              </div>
-                            ))}
-                         </div>
-                       ))}
+                          ))}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -775,20 +775,20 @@ const Header = ({ demoMode = false }) => {
               </div>
             </div>
             <div className="saved-items-grid">
-               <div className="saved-item-row">
-                  <div className="item-main">
-                    <span className="material-symbols-outlined">info</span>
-                    <div className="item-text">
-                      <h4>{t('nav.systemMessages')}</h4>
-                      <p>{t('nav.noNewMessages')}</p>
-                    </div>
+              <div className="saved-item-row">
+                <div className="item-main">
+                  <span className="material-symbols-outlined">info</span>
+                  <div className="item-text">
+                    <h4>{t('nav.systemMessages')}</h4>
+                    <p>{t('nav.noNewMessages')}</p>
                   </div>
-               </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-         {/* Integrated Storage Area (Normal Mode) */}
+        {/* Integrated Storage Area (Normal Mode) */}
         <div className={`header-storage-area ${showSaved && savedItems.length > 0 && (!isDashboard || isSellerOrHeadAdmin) ? 'visible' : ''}`}>
           <div className="storage-content-wrapper">
             <div className="storage-header">
@@ -798,11 +798,11 @@ const Header = ({ demoMode = false }) => {
                 <button className="clear-minimal-btn" onClick={() => {
                   clearItems();
                   setShowSaved(false);
-              
+
                 }}>{t('nav.clearAll')}</button>
               </div>
             </div>
-            
+
             <div className="saved-items-grid">
               {savedItems.map(item => (
                 <div key={item.id} className="saved-item-row">
@@ -832,11 +832,11 @@ const Header = ({ demoMode = false }) => {
                 <button className="clear-minimal-btn" onClick={() => {
                   clearMessages();
                   setShowMessages(false);
-              
+
                 }}>{t('nav.clear')}</button>
               </div>
             </div>
-            
+
             <div className="saved-items-grid">
               {sentMessages.map(msg => (
                 <div key={msg.id} className="saved-item-row msg-row">
@@ -861,24 +861,24 @@ const Header = ({ demoMode = false }) => {
         <div className={`header-storage-area header-lang-area ${showLanguages && !isDashboard ? 'visible' : ''}`}>
           <div className="storage-content-wrapper" style={{ justifyContent: 'center' }}>
             <div className="lang-options">
-              <button 
-                className={`lang-option ${i18n.language?.startsWith('uz') ? 'active' : ''}`} 
+              <button
+                className={`lang-option ${i18n.language?.startsWith('uz') ? 'active' : ''}`}
                 onClick={() => {
                   i18n.changeLanguage('uz');
                 }}
               >
                 <span>🇺🇿</span> O'zbekcha
               </button>
-              <button 
-                className={`lang-option ${i18n.language?.startsWith('ru') ? 'active' : ''}`} 
+              <button
+                className={`lang-option ${i18n.language?.startsWith('ru') ? 'active' : ''}`}
                 onClick={() => {
                   i18n.changeLanguage('ru');
                 }}
               >
                 <span>🇷🇺</span> Русский
               </button>
-              <button 
-                className={`lang-option ${i18n.language?.startsWith('en') ? 'active' : ''}`} 
+              <button
+                className={`lang-option ${i18n.language?.startsWith('en') ? 'active' : ''}`}
                 onClick={() => {
                   i18n.changeLanguage('en');
                 }}
@@ -888,36 +888,36 @@ const Header = ({ demoMode = false }) => {
             </div>
           </div>
         </div>
-        
+
         {/* Integrated Search Area */}
         <div className={`header-storage-area header-search-area ${showSearch && !isDashboard ? 'visible' : ''}`}>
           <div className="storage-content-wrapper">
-             <div className="search-input-container">
-                <span className="material-symbols-outlined search-input-icon">search</span>
-                <input 
-                  id="global-search-input"
-                  type="text" 
-                  className="global-search-input" 
-                  placeholder={t('nav.search.placeholder')} 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                {searchQuery && (
-                  <button className="clear-search-btn" onClick={() => setSearchQuery('')}>
-                    <span className="material-symbols-outlined">close</span>
-                  </button>
-                )}
-             </div>
+            <div className="search-input-container">
+              <span className="material-symbols-outlined search-input-icon">search</span>
+              <input
+                id="global-search-input"
+                type="text"
+                className="global-search-input"
+                placeholder={t('nav.search.placeholder')}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button className="clear-search-btn" onClick={() => setSearchQuery('')}>
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              )}
+            </div>
 
-             <div className="saved-items-grid search-results-grid">
-               {searchQuery.trim() === '' ? (
-                 <div className="no-results" style={{ padding: '2rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>manage_search</span>
-                    <p>{t('nav.search.typeToSearch')}</p>
-                 </div>
-               ) : filteredSearchResults.length > 0 ? (
-                 filteredSearchResults.map((result, index) => (
-                   <div 
+            <div className="saved-items-grid search-results-grid">
+              {searchQuery.trim() === '' ? (
+                <div className="no-results" style={{ padding: '2rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>manage_search</span>
+                  <p>{t('nav.search.typeToSearch')}</p>
+                </div>
+              ) : filteredSearchResults.length > 0 ? (
+                filteredSearchResults.map((result, index) => (
+                  <div
                     key={result.id} // Use stable ID for better animation
                     className="saved-item-row search-result-row"
                     style={{ animationDelay: `${index * 0.05}s` }} // Inline delay for dynamic list
@@ -925,30 +925,30 @@ const Header = ({ demoMode = false }) => {
                       navigate(result.path);
                       setShowSearch(false);
                     }}
-                   >
-                      <div className="item-main">
-                        <span className="material-symbols-outlined">{result.icon}</span>
-                        <div className="item-text">
-                          <h4>
-                            <HighlightedText text={result.title} highlight={searchQuery} />
-                            <span className="search-category-tag">{result.category}</span>
-                          </h4>
-                          <p>
-                            <HighlightedText text={result.description} highlight={searchQuery} />
-                          </p>
-                          {/* Show content snippet if query matches content */}
-                          {renderSearchSnippet(result.content, searchQuery)}
-                        </div>
+                  >
+                    <div className="item-main">
+                      <span className="material-symbols-outlined">{result.icon}</span>
+                      <div className="item-text">
+                        <h4>
+                          <HighlightedText text={result.title} highlight={searchQuery} />
+                          <span className="search-category-tag">{result.category}</span>
+                        </h4>
+                        <p>
+                          <HighlightedText text={result.description} highlight={searchQuery} />
+                        </p>
+                        {/* Show content snippet if query matches content */}
+                        {renderSearchSnippet(result.content, searchQuery)}
                       </div>
-                      <span className="material-symbols-outlined arrow-icon">arrow_forward</span>
-                   </div>
-                 ))
-               ) : (
-                 <div className="no-results">
-                    <p>{t('nav.search.noResults')}</p>
-                 </div>
-               )}
-             </div>
+                    </div>
+                    <span className="material-symbols-outlined arrow-icon">arrow_forward</span>
+                  </div>
+                ))
+              ) : (
+                <div className="no-results">
+                  <p>{t('nav.search.noResults')}</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

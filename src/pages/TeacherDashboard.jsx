@@ -88,7 +88,7 @@ const TeacherDashboard = () => {
       <Header
         style={{
           position: 'fixed',
-          top: 0,
+          top: 64,
           left: 0,
           right: 0,
           zIndex: 1000,
@@ -128,7 +128,7 @@ const TeacherDashboard = () => {
         </Space>
       </Header>
 
-      <Layout style={{ height: 'calc(100vh - 64px)', marginTop: 64 }}>
+      <Layout style={{ height: 'calc(100vh - 128px)', marginTop: 128 }}>
         {/* Sidebar */}
         <Sider
           trigger={null}
@@ -138,7 +138,7 @@ const TeacherDashboard = () => {
           style={{
             position: 'fixed',
             left: 0,
-            top: 64,
+            top: 128,
             bottom: 0,
             background: '#ffffff',
             borderRight: '1px solid #f0f0f0',
@@ -181,6 +181,7 @@ const TeacherDashboard = () => {
             }}
           >
             <div
+              id="dashboard-content-container"
               style={{
                 background: '#ffffff',
                 borderRadius: 8,

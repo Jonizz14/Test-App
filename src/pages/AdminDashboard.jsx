@@ -119,7 +119,7 @@ const AdminDashboard = () => {
       icon: <UserOutlined />,
       label: 'O\'quvchilarni boshqarish',
     },
-        {
+    {
       key: 'statistics',
       icon: <RiseOutlined />,
       label: 'Statistika',
@@ -228,7 +228,7 @@ const AdminDashboard = () => {
       <Header
         style={{
           position: 'fixed',
-          top: 0,
+          top: 64,
           left: 0,
           right: 0,
           zIndex: 1000,
@@ -272,7 +272,7 @@ const AdminDashboard = () => {
               <Badge count={bannedStudents.length} />
             </Button>
           )}
-        
+
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
             <Space style={{ cursor: 'pointer' }}>
               <Avatar
@@ -285,7 +285,7 @@ const AdminDashboard = () => {
         </Space>
       </Header>
 
-      <Layout style={{ height: 'calc(100vh - 64px)', marginTop: 64 }}>
+      <Layout style={{ height: 'calc(100vh - 128px)', marginTop: 128 }}>
         {/* Sidebar */}
         <Sider
           trigger={null}
@@ -295,7 +295,7 @@ const AdminDashboard = () => {
           style={{
             position: 'fixed',
             left: 0,
-            top: 64,
+            top: 128,
             bottom: 0,
             background: '#ffffff',
             borderRight: '1px solid #f0f0f0',
@@ -338,6 +338,7 @@ const AdminDashboard = () => {
             }}
           >
             <div
+              id="dashboard-content-container"
               style={{
                 background: '#ffffff',
                 borderRadius: 8,

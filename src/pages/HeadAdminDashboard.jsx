@@ -49,10 +49,10 @@ const HeadAdminDashboard = () => {
 
   return (
     <Layout style={{ height: '100vh', backgroundColor: '#f8fafc', overflow: 'hidden' }}>
-      
+
       <Content
         style={{
-          padding: '100px 24px 32px',
+          padding: '64px 24px 32px',
           maxWidth: '1900px',
           margin: '0 auto',
           width: '100%',
@@ -62,12 +62,13 @@ const HeadAdminDashboard = () => {
         }}
       >
         <div
+          id="dashboard-content-container"
           className="animate__animated animate__fadeIn"
           style={{
             background: '#ffffff',
             padding: '32px',
             flex: 1,
-            height: 'calc(100vh - 132px)',
+            height: 'calc(100vh - 96px)',
             border: '4px solid #000',
             boxShadow: '12px 12px 0px #000',
             borderRadius: 0,

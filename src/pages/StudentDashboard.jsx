@@ -170,7 +170,7 @@ const StudentDashboard = () => {
       <Header
         style={{
           position: 'fixed',
-          top: 0,
+          top: 64,
           left: 0,
           right: 0,
           zIndex: 1000,
@@ -234,7 +234,7 @@ const StudentDashboard = () => {
         </Space>
       </Header>
 
-      <Layout style={{ height: 'calc(100vh - 64px)', marginTop: 64 }}>
+      <Layout style={{ height: 'calc(100vh - 128px)', marginTop: 128 }}>
         {/* Sidebar */}
         <Sider
           trigger={null}
@@ -244,7 +244,7 @@ const StudentDashboard = () => {
           style={{
             position: 'fixed',
             left: 0,
-            top: 64,
+            top: 128,
             bottom: 0,
             background: '#ffffff',
             borderRight: '1px solid #f0f0f0',
@@ -290,6 +290,7 @@ const StudentDashboard = () => {
             }}
           >
             <div
+              id="dashboard-content-container"
               style={{
                 background: '#ffffff',
                 borderRadius: 8,
@@ -340,7 +341,7 @@ const StudentDashboard = () => {
       {/* Unban Modal for Banned Students */}
       <UnbanModal
         open={isBanned}
-        onClose={() => {}} // Modal cannot be closed manually
+        onClose={() => { }} // Modal cannot be closed manually
       />
     </Layout>
   );
