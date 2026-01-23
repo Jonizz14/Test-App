@@ -14,6 +14,16 @@ const Home = () => {
   const { t } = useTranslation();
 
   const videoRef = React.useRef(null);
+  const [skipAnimation, setSkipAnimation] = useState(false);
+
+  // Check if coming from onboarding to skip animation
+  useEffect(() => {
+    const shouldSkip = sessionStorage.getItem('skipHomeAnimation') === 'true';
+    if (shouldSkip) {
+      setSkipAnimation(true);
+      sessionStorage.removeItem('skipHomeAnimation');
+    }
+  }, []);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -24,7 +34,7 @@ const Home = () => {
   // SEO Optimization & Structured Data
   useEffect(() => {
     document.title = "Examify Prep - Zamonaviy Ta'lim Platformasi";
-    
+
     // Helper to set meta tag
     const setMeta = (name, content) => {
       let element = document.querySelector(`meta[name="${name}"]`);
@@ -69,8 +79,15 @@ const Home = () => {
 
   // Animation Logic - Trigger on scroll, but only once per section
   useEffect(() => {
+    // Skip all animations if coming from onboarding
+    if (skipAnimation) {
+      const sections = document.querySelectorAll('section');
+      sections.forEach(section => section.classList.add('in-view'));
+      return;
+    }
+
     const observerOptions = {
-      threshold: 0.15 
+      threshold: 0.15
     };
 
     const observer = new IntersectionObserver((entries) => {
@@ -87,7 +104,7 @@ const Home = () => {
     sections.forEach(section => observer.observe(section));
 
     return () => observer.disconnect();
-  }, []);
+  }, [skipAnimation]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -115,8 +132,8 @@ const Home = () => {
 
     // Check if duplicate before running any animation or logic
     if (savedItems.find(i => i.id === role.id)) {
-      window.dispatchEvent(new CustomEvent('saveError', { 
-        detail: { message: t('home.alreadySaved'), icon: 'warning' } 
+      window.dispatchEvent(new CustomEvent('saveError', {
+        detail: { message: t('home.alreadySaved'), icon: 'warning' }
       }));
       return;
     }
@@ -124,7 +141,7 @@ const Home = () => {
     if (settings?.features?.flyerAnimation) {
       // Get start position
       const rect = e.currentTarget.getBoundingClientRect();
-      
+
       // Create flying element immediately
       const flyer = document.createElement('div');
       flyer.className = 'flyer-icon';
@@ -157,7 +174,7 @@ const Home = () => {
         if (document.body.contains(flyer)) {
           document.body.removeChild(flyer);
         }
-        
+
         // Dispatch custom event for Header notification
         window.dispatchEvent(new CustomEvent('itemSaved', { detail: role }));
       }, 1300);
@@ -208,12 +225,12 @@ const Home = () => {
       <section className="hero-section">
         <div className="video-background">
           {isDesktop && (
-            <video 
-              ref={videoRef} 
-              autoPlay 
-              loop 
-              muted 
-              playsInline 
+            <video
+              ref={videoRef}
+              autoPlay
+              loop
+              muted
+              playsInline
               preload="auto"
               poster="/banner/inf1.png"
               aria-hidden="true"
@@ -225,7 +242,7 @@ const Home = () => {
           {!isDesktop && <div className="mobile-hero-bg"></div>}
           <div className="overlay"></div>
         </div>
-        
+
         <div className="hero-content">
           <h1>{t('home.heroTitle')}</h1>
           <p>{t('home.heroSubtitle')}</p>
@@ -247,7 +264,7 @@ const Home = () => {
             <h2>{t('home.forWhom')}</h2>
             <p>{t('home.forWhomDesc')}</p>
           </div>
-          
+
           <div className="roles-showcase">
             {rolesData.map(role => (
               <div key={role.id} className="role-item">
@@ -283,7 +300,7 @@ const Home = () => {
             <h2>{t('home.tech')}</h2>
             <p>{t('home.techDesc')}</p>
           </div>
-          
+
           <div className="features-grid">
             <div className="feature-card">
               <div className="feature-content">
@@ -295,12 +312,12 @@ const Home = () => {
                 <div className="feature-visual">
                   <picture>
                     <source srcSet="/banner/inf1.webp" type="image/webp" />
-                    <img 
-                      src="/banner/inf1.png" 
-                      alt="Analysis" 
-                      className="feature-img" 
-                      width="750" 
-                      height="500" 
+                    <img
+                      src="/banner/inf1.png"
+                      alt="Analysis"
+                      className="feature-img"
+                      width="750"
+                      height="500"
                       loading="lazy"
                     />
                   </picture>
@@ -318,12 +335,12 @@ const Home = () => {
                 <div className="feature-visual">
                   <picture>
                     <source srcSet="/banner/inf2.webp" type="image/webp" />
-                    <img 
-                      src="/banner/inf2.png" 
-                      alt="Security" 
+                    <img
+                      src="/banner/inf2.png"
+                      alt="Security"
                       className="feature-img"
-                      width="750" 
-                      height="500" 
+                      width="750"
+                      height="500"
                       loading="lazy"
                     />
                   </picture>
@@ -341,12 +358,12 @@ const Home = () => {
                 <div className="feature-visual">
                   <picture>
                     <source srcSet="/banner/inf3.webp" type="image/webp" />
-                    <img 
-                      src="/banner/inf3.png" 
-                      alt="Flexibility" 
+                    <img
+                      src="/banner/inf3.png"
+                      alt="Flexibility"
                       className="feature-img"
-                      width="750" 
-                      height="500" 
+                      width="750"
+                      height="500"
                       loading="lazy"
                     />
                   </picture>
@@ -361,9 +378,9 @@ const Home = () => {
       <section className="stats-section">
         <div className="section-container">
           <div className="stats-header">
-             <h2>{t('home.stats')}</h2>
+            <h2>{t('home.stats')}</h2>
           </div>
-          
+
           <div className="stats-grid-large">
             <div className="stat-box">
               <span className="stat-number">{stats?.tests_count || 1500}+</span>

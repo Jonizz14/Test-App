@@ -5,13 +5,19 @@ import '../styles/Onboarding.css';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../context/SettingsContext';
 
-const Onboarding = () => {
+const Onboarding = ({ isOverlay = false, onClose }) => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
   const [isEntering, setIsEntering] = useState(true);
   const { t } = useTranslation();
   const { settings } = useSettings();
+
+  // Preload Home page in background
+  useEffect(() => {
+    // Import Home component to start loading it in background
+    import('../pages/Home').catch(err => console.error('Failed to preload Home:', err));
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsEntering(false), 100);
@@ -90,7 +96,18 @@ const Onboarding = () => {
   const finishOnboarding = () => {
     setIsExiting(true);
     localStorage.setItem('hasSeenOnboarding', 'true');
-    
+
+    if (isOverlay) {
+      // Wait for exit animation (0.7s) then close
+      setTimeout(() => {
+        if (onClose) onClose();
+      }, 700);
+      return;
+    }
+
+    // Set flag to skip home page animation
+    sessionStorage.setItem('skipHomeAnimation', 'true');
+
     // Dispatch global event with comprehensive data to make the ghost perfectly match
     window.dispatchEvent(new CustomEvent('onboardingExiting', {
       detail: {
@@ -107,7 +124,7 @@ const Onboarding = () => {
         }
       }
     }));
-    
+
     // Navigate slightly after the curtain covers the skip to Home
     setTimeout(() => {
       navigate('/');
@@ -120,7 +137,8 @@ const Onboarding = () => {
   // Trigger demo actions when entering specific steps
   useEffect(() => {
     const currentStepData = steps[currentStep];
-    
+    if (!currentStepData) return;
+
     if (currentStepData.demoAction === 'save') {
       // Simulate saving an item
       setTimeout(() => {
@@ -146,17 +164,17 @@ const Onboarding = () => {
       }, 800);
 
     }
-  }, [currentStep]);
+  }, [currentStep, steps]);
 
   return (
-    <div className={`onboarding-brutalist ${isEntering ? 'entering' : ''} ${isExiting ? 'exiting' : ''}`}>
+    <div className={`onboarding-brutalist ${isOverlay ? 'overlay-mode' : ''} ${isEntering ? 'entering' : ''} ${isExiting ? 'exiting' : ''}`}>
       <div className="onboarding-bg-brutal"></div>
-      
+
       {/* Conditionally reveal the header with a transition class */}
       <div className={`onboarding-header-reveal ${showHeader ? 'visible' : ''}`}>
         <Header demoMode={true} />
       </div>
-      
+
       <div className="onboarding-card-brutal">
         <div className="onboarding-header-brutal">
           <div className="step-count-brutal">0{currentStep + 1} / 0{steps.length}</div>
@@ -172,14 +190,14 @@ const Onboarding = () => {
 
         <div className="onboarding-footer-brutal">
           <div className="brutal-nav-group">
-            <button 
-              className={`brutal-nav-btn ${currentStep === 0 ? 'inactive' : ''}`} 
+            <button
+              className={`brutal-nav-btn ${currentStep === 0 ? 'inactive' : ''}`}
               onClick={handleBack}
               disabled={currentStep === 0}
             >
               {t('onboarding.back')}
             </button>
-            
+
             {currentStep === steps.length - 1 ? (
               <button className="brutal-action-btn" onClick={finishOnboarding}>
                 {t('onboarding.ready')}
@@ -190,7 +208,7 @@ const Onboarding = () => {
               </button>
             )}
           </div>
-          
+
           <button className="brutal-skip-link" onClick={finishOnboarding}>{t('onboarding.skip')}</button>
         </div>
       </div>

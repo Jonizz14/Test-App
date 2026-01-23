@@ -364,13 +364,13 @@ const GlobalHeader = () => {
   const location = useLocation();
   // Include only public routes and headadmin/seller dashboards
   const themedRoutes = ['/', '/login', '/contact', '/updates', '/headadmin', '/seller'];
-  
-  const isThemedRoute = themedRoutes.some(route => 
+
+  const isThemedRoute = themedRoutes.some(route =>
     route === '/' ? location.pathname === '/' : location.pathname.startsWith(route)
   );
 
   if (!isThemedRoute) return null;
-  
+
   return <Header />;
 };
 
@@ -381,6 +381,7 @@ import OnboardingExitGhost from './components/OnboardingExitGhost';
 function App() {
   const [isAppReady, setIsAppReady] = React.useState(false);
   const [isLoaderRemoved, setIsLoaderRemoved] = React.useState(false);
+  const [showHelpOverlay, setShowHelpOverlay] = React.useState(false);
 
   // Register service worker
   React.useEffect(() => {
@@ -418,9 +419,14 @@ function App() {
                             <Router>
                               <ScrollToTop />
                               <TextSelectionHandler />
-                              <HelpButton />
+                              <HelpButton onClick={() => setShowHelpOverlay(true)} />
                               <GlobalHeader />
                               <OnboardingExitGhost />
+                              {showHelpOverlay && (
+                                <React.Suspense fallback={null}>
+                                  <Onboarding isOverlay={true} onClose={() => setShowHelpOverlay(false)} />
+                                </React.Suspense>
+                              )}
                               {/* Global route loading indicator */}
                               <RouteLoadingIndicator
                                 showFullScreen={false}
