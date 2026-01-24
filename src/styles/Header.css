@@ -214,17 +214,19 @@
   cursor: pointer;
   z-index: 1100;
   opacity: 0;
-  transform: scale(0.5);
-  overflow: hidden;
+  transform: scale(0.2) translateY(10px) rotate(-10deg);
+  filter: blur(12px) brightness(1.5);
   margin-left: 0;
-  /* No margin when hidden */
+  pointer-events: none;
+  overflow: visible;
+
   transition:
-    width 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-    margin-left 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.3s ease,
-    transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-    background 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    width 0.6s cubic-bezier(0.19, 1, 0.22, 1) 0.2s,
+    margin-left 0.6s cubic-bezier(0.19, 1, 0.22, 1) 0.2s,
+    opacity 0.3s ease-out 0.1s,
+    transform 0.5s cubic-bezier(0.19, 1, 0.22, 1),
+    filter 0.5s ease-out,
+    background 0.3s ease;
 }
 
 .storage-icon-container.is-visible,
@@ -232,11 +234,20 @@
 .storage-icon-container.lang-icon {
   width: 44px;
   opacity: 1;
-  transform: scale(1);
+  transform: scale(1) translateY(0) rotate(0deg);
+  filter: blur(0) brightness(1);
   margin-left: 0.7rem;
-  /* Add margin only when visible */
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-  overflow: visible;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  pointer-events: auto;
+
+  transition:
+    width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+    margin-left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.4s ease-out,
+    transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 0.4s ease-out,
+    background 0.3s ease,
+    box-shadow 0.4s ease;
 }
 
 .storage-icon-container.has-items {
@@ -259,6 +270,24 @@
   align-items: center;
   justify-content: center;
   border: 2px solid #000;
+  box-shadow: 0 4px 8px rgba(255, 71, 87, 0.3);
+  animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes badgePop {
+  0% {
+    transform: scale(0) rotate(-45deg);
+    opacity: 0;
+  }
+
+  70% {
+    transform: scale(1.2) rotate(10deg);
+  }
+
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
 }
 
 /* Header States */
@@ -277,8 +306,14 @@
   height: 0;
   overflow: hidden;
   padding: 0 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0);
-  transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  border-top: 1px solid transparent;
+  transition:
+    height 0.8s cubic-bezier(0.19, 1, 0.22, 1),
+    padding 0.8s cubic-bezier(0.19, 1, 0.22, 1),
+    border-top-color 0.2s ease,
+    /* Faster border fade */
+    opacity 0.4s ease,
+    transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
   display: flex;
   flex-direction: column;
 }
@@ -410,7 +445,7 @@
 .message-icon {
   background: #ffffff !important;
   color: #000000 !important;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2) !important;
 }
 
 .message-icon.active {
@@ -773,7 +808,7 @@
 .search-icon {
   background: #ffffff !important;
   color: #000000 !important;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2) !important;
 }
 
 .search-icon.active {
