@@ -19,6 +19,8 @@ import RouteLoadingIndicator from './components/RouteLoadingIndicator';
 import { SavedItemsProvider } from './context/SavedItemsContext';
 import { SentMessagesProvider } from './context/SentMessagesContext';
 import { NewsProvider } from './context/NewsContext';
+import SmoothScroll from './components/SmoothScroll';
+import 'lenis/dist/lenis.css';
 // Lazy Load Pages for Performance Optimization
 const NewsPage = React.lazy(() => import('./pages/NewsPage'));
 const Home = React.lazy(() => import('./pages/Home'));
@@ -407,48 +409,50 @@ function App() {
           />
         )}
         <div className={`app-main-content ${isAppReady ? 'ready' : 'loading'}`}>
-          <CustomThemeProvider>
-            <LoadingProvider>
-              <AuthProvider>
-                <SentMessagesProvider>
-                  <SavedItemsProvider>
-                    <NewsProvider>
-                      <StatisticsProvider>
-                        <SettingsProvider>
-                          <ServerTestProvider>
-                            <Router>
-                              <ScrollToTop />
-                              <TextSelectionHandler />
-                              <HelpButton onClick={() => setShowHelpOverlay(true)} />
-                              <GlobalHeader />
-                              <OnboardingExitGhost />
-                              {showHelpOverlay && (
-                                <React.Suspense fallback={null}>
-                                  <Onboarding isOverlay={true} onClose={() => setShowHelpOverlay(false)} />
+          <SmoothScroll>
+            <CustomThemeProvider>
+              <LoadingProvider>
+                <AuthProvider>
+                  <SentMessagesProvider>
+                    <SavedItemsProvider>
+                      <NewsProvider>
+                        <StatisticsProvider>
+                          <SettingsProvider>
+                            <ServerTestProvider>
+                              <Router>
+                                <ScrollToTop />
+                                <TextSelectionHandler />
+                                <HelpButton onClick={() => setShowHelpOverlay(true)} />
+                                <GlobalHeader />
+                                <OnboardingExitGhost />
+                                {showHelpOverlay && (
+                                  <React.Suspense fallback={null}>
+                                    <Onboarding isOverlay={true} onClose={() => setShowHelpOverlay(false)} />
+                                  </React.Suspense>
+                                )}
+                                {/* Global route loading indicator */}
+                                <RouteLoadingIndicator
+                                  showFullScreen={false}
+                                  threshold={300}
+                                />
+                                <React.Suspense fallback={
+                                  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+                                    <CircularProgress size={40} />
+                                  </Box>
+                                }>
+                                  <AnimatedRoutes />
                                 </React.Suspense>
-                              )}
-                              {/* Global route loading indicator */}
-                              <RouteLoadingIndicator
-                                showFullScreen={false}
-                                threshold={300}
-                              />
-                              <React.Suspense fallback={
-                                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
-                                  <CircularProgress size={40} />
-                                </Box>
-                              }>
-                                <AnimatedRoutes />
-                              </React.Suspense>
-                            </Router>
-                          </ServerTestProvider>
-                        </SettingsProvider>
-                      </StatisticsProvider>
-                    </NewsProvider>
-                  </SavedItemsProvider>
-                </SentMessagesProvider>
-              </AuthProvider>
-            </LoadingProvider>
-          </CustomThemeProvider>
+                              </Router>
+                            </ServerTestProvider>
+                          </SettingsProvider>
+                        </StatisticsProvider>
+                      </NewsProvider>
+                    </SavedItemsProvider>
+                  </SentMessagesProvider>
+                </AuthProvider>
+              </LoadingProvider>
+            </CustomThemeProvider>
+          </SmoothScroll>
         </div>
       </ThemeProvider>
     </ErrorBoundary>

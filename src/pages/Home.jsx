@@ -87,15 +87,16 @@ const Home = () => {
     }
 
     const observerOptions = {
-      threshold: 0.15
+      threshold: 0.3,
+      rootMargin: '0px 0px -100px 0px'
     };
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('in-view');
-          // Stop observing once visible to ensure animation does not repeat (runs only once per page load)
-          observer.unobserve(entry.target);
+        } else {
+          entry.target.classList.remove('in-view');
         }
       });
     }, observerOptions);

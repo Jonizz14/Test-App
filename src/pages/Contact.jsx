@@ -18,7 +18,7 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const formData = new FormData(e.target);
     const messageData = {
       name: formData.get('name'),
@@ -27,14 +27,14 @@ const Contact = () => {
       subject: formData.get('subject'),
       message: formData.get('message')
     };
-    
+
     try {
       setIsSubmitting(true);
       const response = await apiService.submitContactMessage(messageData);
-      
+
       // Get button rect for animation start
       const rect = e.target.querySelector('button').getBoundingClientRect();
-      
+
       // Create flying element
       const flyer = document.createElement('div');
       flyer.className = 'flyer-icon';
@@ -72,16 +72,16 @@ const Contact = () => {
         if (document.body.contains(flyer)) {
           document.body.removeChild(flyer);
         }
-        
+
         // Trigger header notification
-        window.dispatchEvent(new CustomEvent('itemSaved', { 
-          detail: { title: t('contact.successSent'), icon: 'send', isFullMessage: true } 
+        window.dispatchEvent(new CustomEvent('itemSaved', {
+          detail: { title: t('contact.successSent'), icon: 'send', isFullMessage: true }
         }));
       }, 1300);
-      
+
       // Reset form
       e.target.reset();
-      
+
     } catch (error) {
       console.error('Failed to send message:', error);
     } finally {
@@ -92,14 +92,16 @@ const Contact = () => {
   // Animation Logic - Trigger on scroll
   useEffect(() => {
     const observerOptions = {
-      threshold: 0.15
+      threshold: 0.3,
+      rootMargin: '0px 0px -100px 0px'
     };
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('in-view');
-          observer.unobserve(entry.target);
+        } else {
+          entry.target.classList.remove('in-view');
         }
       });
     }, observerOptions);

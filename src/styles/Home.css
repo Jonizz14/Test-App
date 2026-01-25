@@ -14,11 +14,7 @@
   --accent-color: #ffffff;
 }
 
-html {
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
-
-}
+/* Removed scroll-snap and scroll-behavior for Lenis compatibility */
 
 body {
   background-color: var(--bg-color);
@@ -36,14 +32,12 @@ section {
   justify-content: center;
   overflow: hidden;
   padding: 4rem 2rem;
-  scroll-snap-align: start;
-  scroll-snap-stop: normal; /* Allows smoother scrolling past sections */
 }
 
 /* Animations for maximal smoothness */
-section h1, 
-section h2, 
-section p, 
+section h1,
+section h2,
+section p,
 section .hero-actions,
 section .role-item,
 section .feature-item,
@@ -51,9 +45,13 @@ section .stat-box,
 section .split-image,
 section .feature-card {
   opacity: 0;
-  transform: translateY(60px);
-  filter: blur(10px);
-  transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(120px) rotateX(15deg) scale(0.9);
+  filter: blur(30px);
+  transition:
+    opacity 1.5s cubic-bezier(0.19, 1, 0.22, 1),
+    transform 1.8s cubic-bezier(0.19, 1, 0.22, 1),
+    filter 1.5s cubic-bezier(0.19, 1, 0.22, 1);
+  will-change: transform, opacity, filter;
 }
 
 section.in-view h1,
@@ -66,24 +64,27 @@ section.in-view .stat-box,
 section.in-view .split-image,
 section.in-view .feature-card {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) rotateX(0) scale(1);
   filter: blur(0);
 }
 
 /* Staggered delays for extra polish */
-section.in-view h1 { transition-delay: 0.1s; }
-section.in-view h2 { 
-  transition-delay: 0.1s; 
+section.in-view h1 {
+  transition-delay: 0.1s;
+}
+
+section.in-view h2 {
+  transition-delay: 0.1s;
   letter-spacing: -0.03em !important;
   transform: translateY(0) scale(1) !important;
 }
 
 section h2 {
   letter-spacing: 0.2em;
-  transform: translateY(60px) scale(0.95);
 }
-section.in-view p { 
-  transition-delay: 0.25s; 
+
+section.in-view p {
+  transition-delay: 0.25s;
   opacity: 1;
   transform: translateY(0) scale(1);
   letter-spacing: 0;
@@ -91,29 +92,55 @@ section.in-view p {
 }
 
 section p {
-  opacity: 0;
-  transform: translateY(30px) scale(1.1);
   letter-spacing: 0.1em;
-  filter: blur(5px);
-  transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
 }
-section.in-view .hero-actions { transition-delay: 0.4s; }
+
+section.in-view .hero-actions {
+  transition-delay: 0.4s;
+}
 
 /* Role Items Stagger */
-section.in-view .role-item:nth-child(1) { transition-delay: 0.2s; }
-section.in-view .role-item:nth-child(2) { transition-delay: 0.35s; }
-section.in-view .role-item:nth-child(3) { transition-delay: 0.5s; }
+section.in-view .role-item:nth-child(1) {
+  transition-delay: 0.2s;
+}
+
+section.in-view .role-item:nth-child(2) {
+  transition-delay: 0.35s;
+}
+
+section.in-view .role-item:nth-child(3) {
+  transition-delay: 0.5s;
+}
 
 /* Stat Boxes Stagger */
-section.in-view .stat-box:nth-child(1) { transition-delay: 0.1s; }
-section.in-view .stat-box:nth-child(2) { transition-delay: 0.2s; }
-section.in-view .stat-box:nth-child(3) { transition-delay: 0.3s; }
-section.in-view .stat-box:nth-child(4) { transition-delay: 0.4s; }
+section.in-view .stat-box:nth-child(1) {
+  transition-delay: 0.1s;
+}
+
+section.in-view .stat-box:nth-child(2) {
+  transition-delay: 0.2s;
+}
+
+section.in-view .stat-box:nth-child(3) {
+  transition-delay: 0.3s;
+}
+
+section.in-view .stat-box:nth-child(4) {
+  transition-delay: 0.4s;
+}
 
 /* Feature Cards Stagger */
-section.in-view .feature-card:nth-child(1) { transition-delay: 0.2s; }
-section.in-view .feature-card:nth-child(2) { transition-delay: 0.35s; }
-section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
+section.in-view .feature-card:nth-child(1) {
+  transition-delay: 0.2s;
+}
+
+section.in-view .feature-card:nth-child(2) {
+  transition-delay: 0.35s;
+}
+
+section.in-view .feature-card:nth-child(3) {
+  transition-delay: 0.5s;
+}
 
 .section-container {
   max-width: 1400px;
@@ -136,7 +163,8 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
   width: 100%;
   height: 100%;
   z-index: 1;
-  transform: scale(1.1); /* Subtle zoom out on load */
+  transform: scale(1.1);
+  /* Subtle zoom out on load */
   animation: heroZoomOut 20s infinite alternate linear;
 }
 
@@ -148,8 +176,13 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
 }
 
 @keyframes heroZoomOut {
-  from { transform: scale(1.1); }
-  to { transform: scale(1); }
+  from {
+    transform: scale(1.1);
+  }
+
+  to {
+    transform: scale(1);
+  }
 }
 
 .video-background video {
@@ -164,7 +197,7 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%);
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
 }
 
 .hero-content {
@@ -359,11 +392,13 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
 .role-item:hover p {
   opacity: 0;
   transform: translateY(-20px);
-  transition: opacity 0.1s ease; /* Daroov yoqolsin */
+  transition: opacity 0.1s ease;
+  /* Daroov yoqolsin */
 }
 
 .role-details {
-  transform: translateY(130%); /* Start hidden below the card boundary */
+  transform: translateY(130%);
+  /* Start hidden below the card boundary */
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   margin-top: 2rem;
   text-align: left;
@@ -397,11 +432,13 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
   left: 20px;
   width: 44px;
   height: 44px;
-  transform: translateY(-20px); /* Slide from top */
+  transform: translateY(-20px);
+  /* Slide from top */
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  border-radius: 50%; /* Circular */
+  border-radius: 50%;
+  /* Circular */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -422,7 +459,8 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
 .save-info-btn:hover {
   background: white;
   color: black;
-  transform: scale(1.1); /* Subtle scale up instead of translate */
+  transform: scale(1.1);
+  /* Subtle scale up instead of translate */
   box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
 }
 
@@ -436,11 +474,11 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
     grid-template-columns: 1fr;
     height: auto;
   }
-  
+
   .role-item {
     height: 400px;
   }
-  
+
   .role-item:hover {
     height: 550px;
   }
@@ -528,7 +566,8 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
 
 @media (max-width: 1024px) {
   .roles-showcase {
-    grid-template-columns: repeat(2, 1fr); /* 2 columns for tablets */
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 columns for tablets */
     gap: 2rem;
   }
 }
@@ -537,10 +576,11 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
 
 @media (max-width: 1024px) {
   .features-grid {
-    grid-template-columns: repeat(2, 1fr); /* 2 columns for tablets */
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 columns for tablets */
     gap: 2rem;
   }
-  
+
   .feature-card {
     height: 450px;
   }
@@ -607,109 +647,115 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
   section {
     padding: 3rem 1rem !important;
     min-height: auto;
-    scroll-snap-align: none !important; /* Disable section snapping */
-    scroll-snap-stop: normal !important;
   }
 
   /* Hero Section Mobile */
   .hero-content {
-    padding: 8rem 1rem 2rem 1rem; /* Much more top padding to clear header */
+    padding: 8rem 1rem 2rem 1rem;
+    /* Much more top padding to clear header */
   }
 
   .hero-content h1 {
-    font-size: 3.5rem; /* Force a reasonable mobile size */
+    font-size: 3.5rem;
+    /* Force a reasonable mobile size */
     line-height: 1;
     margin-bottom: 1.5rem;
   }
 
   /* Disable Hovers on Mobile for Roles */
   .role-item {
-    height: auto !important; /* Auto height to show content */
+    height: auto !important;
+    /* Auto height to show content */
     min-height: 480px;
     background: #000 !important;
-    border-color: rgba(255,255,255,0.2) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
   }
-  
+
   .role-item:hover,
   .role-item:active {
     transform: none !important;
     height: auto !important;
   }
-  
+
   .role-item .role-content {
-      transform: none !important;
+    transform: none !important;
   }
-  
+
   .role-item .role-icon {
-      transform: none !important;
-      opacity: 1 !important;
-      scale: 1 !important;
+    transform: none !important;
+    opacity: 1 !important;
+    scale: 1 !important;
   }
-  
+
   .role-item p {
-      opacity: 0.8 !important;
-      transform: none !important;
-      display: block !important;
+    opacity: 0.8 !important;
+    transform: none !important;
+    display: block !important;
   }
-  
+
   /* Hide details on mobile again */
   .role-details {
-      display: none !important;
+    display: none !important;
   }
-  
+
   .save-info-btn {
-      display: none !important; 
+    display: none !important;
   }
 
   /* Disable Hovers on Mobile for Features */
   .feature-card {
     height: auto !important;
-    min-height: 450px; /* Ensure enough height for text + image */
+    min-height: 450px;
+    /* Ensure enough height for text + image */
     background: #000 !important;
-    overflow: hidden; /* Cut off image overflow */
+    overflow: hidden;
+    /* Cut off image overflow */
   }
-  
+
   .feature-card:hover,
   .feature-card:active {
-      transform: none !important;
-      background: #000 !important;
+    transform: none !important;
+    background: #000 !important;
   }
-  
+
   .feature-card .feature-content {
-      transform: none !important;
-      padding-bottom: 200px !important; /* Make room for image */
-      justify-content: flex-start;
+    transform: none !important;
+    padding-bottom: 200px !important;
+    /* Make room for image */
+    justify-content: flex-start;
   }
-  
+
   .feature-card p {
-      opacity: 0.8 !important;
-      transform: none !important;
+    opacity: 0.8 !important;
+    transform: none !important;
   }
-  
+
   .feature-card .feature-icon {
-      transform: none !important;
-      opacity: 1 !important;
-      scale: 1 !important;
+    transform: none !important;
+    opacity: 1 !important;
+    scale: 1 !important;
   }
 
   /* Make image visible and filling the bottom */
   .feature-visual {
-      display: flex !important;
-      position: absolute !important;
-      bottom: 0 !important;
-      left: 0 !important;
-      width: 100% !important;
-      height: 200px !important; /* Fixed height for image area */
-      opacity: 1 !important;
-      padding: 0 !important;
+    display: flex !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 200px !important;
+    /* Fixed height for image area */
+    opacity: 1 !important;
+    padding: 0 !important;
   }
-  
+
   .feature-img {
-      filter: grayscale(0%) !important;
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: cover !important;
-      border-radius: 0 !important; /* Flush with card edges */
+    filter: grayscale(0%) !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 0 !important;
+    /* Flush with card edges */
   }
 
   .hero-content p {
@@ -775,7 +821,7 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
   .feature-content {
     padding: 2rem 1.5rem;
   }
-  
+
   .feature-icon .material-symbols-outlined {
     font-size: 3rem;
   }
@@ -792,7 +838,7 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
   .stats-header {
     margin-bottom: 3rem;
   }
-  
+
   .stats-header h2 {
     font-size: 2.5rem;
   }
@@ -808,10 +854,11 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
   .stat-label {
     font-size: 1rem;
   }
+
   /* Disable Entrance Animations on Mobile */
-  section h1, 
-  section h2, 
-  section p, 
+  section h1,
+  section h2,
+  section p,
   section .hero-actions,
   section .role-item,
   section .feature-item,
@@ -824,5 +871,3 @@ section.in-view .feature-card:nth-child(3) { transition-delay: 0.5s; }
     transition: none !important;
   }
 }
-
-

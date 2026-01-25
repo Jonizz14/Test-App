@@ -3,7 +3,7 @@ import { useNews } from '../context/NewsContext';
 import { useTranslation } from 'react-i18next';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
-import '../styles/NewsPage.css'; 
+import '../styles/NewsPage.css';
 
 const NewsPage = () => {
   const { news } = useNews();
@@ -18,14 +18,16 @@ const NewsPage = () => {
   // Animation Logic - Trigger on scroll
   useEffect(() => {
     const observerOptions = {
-      threshold: 0.15
+      threshold: 0.3,
+      rootMargin: '0px 0px -100px 0px'
     };
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('in-view');
-          observer.unobserve(entry.target);
+        } else {
+          entry.target.classList.remove('in-view');
         }
       });
     }, observerOptions);
@@ -50,45 +52,45 @@ const NewsPage = () => {
         {/* News Grid Section */}
         <section className="news-list-section">
           <div className="news-section-container">
-            
+
             <div className="news-grid">
               {news.length === 0 ? (
-                 <div className="news-empty-state">
-                    <span className="material-symbols-outlined icon">newspaper</span>
-                    <h3>Hozircha yangiliklar yo'q</h3>
-                    <p>Tez orada yangi ma'lumotlar qo'shiladi.</p>
-                 </div>
+                <div className="news-empty-state">
+                  <span className="material-symbols-outlined icon">newspaper</span>
+                  <h3>Hozircha yangiliklar yo'q</h3>
+                  <p>Tez orada yangi ma'lumotlar qo'shiladi.</p>
+                </div>
               ) : (
                 news.map((item) => (
                   <article key={item.id} className="news-card">
-                      {/* Media Container */}
-                      {item.media_file && (
-                        <div className="news-media-container">
-                          {item.media_type === 'video' ? (
-                            <video src={item.media_file} controls />
-                          ) : (
-                            <img src={item.media_file} alt={item.title} />
-                          )}
-                        </div>
-                      )}
-
-                      <div className="news-content-body">
-                        <div className="news-date">
-                          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>calendar_today</span>
-                          {formatDate(item.created_at)}
-                        </div>
-
-                        <h3 className="news-title">
-                          {(i18n.language === 'uz' ? item.title_uz : 
-                             i18n.language === 'ru' ? item.title_ru : 
-                             item.title_en) || item.title}
-                        </h3>
-                        <p className="news-description">
-                          {(i18n.language === 'uz' ? item.description_uz : 
-                             i18n.language === 'ru' ? item.description_ru : 
-                             item.description_en) || item.description}
-                        </p>
+                    {/* Media Container */}
+                    {item.media_file && (
+                      <div className="news-media-container">
+                        {item.media_type === 'video' ? (
+                          <video src={item.media_file} controls />
+                        ) : (
+                          <img src={item.media_file} alt={item.title} />
+                        )}
                       </div>
+                    )}
+
+                    <div className="news-content-body">
+                      <div className="news-date">
+                        <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>calendar_today</span>
+                        {formatDate(item.created_at)}
+                      </div>
+
+                      <h3 className="news-title">
+                        {(i18n.language === 'uz' ? item.title_uz :
+                          i18n.language === 'ru' ? item.title_ru :
+                            item.title_en) || item.title}
+                      </h3>
+                      <p className="news-description">
+                        {(i18n.language === 'uz' ? item.description_uz :
+                          i18n.language === 'ru' ? item.description_ru :
+                            item.description_en) || item.description}
+                      </p>
+                    </div>
                   </article>
                 ))
               )}
