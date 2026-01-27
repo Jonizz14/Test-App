@@ -1,11 +1,11 @@
-/* NewsPage.css - Mirroring Contact.css EXACTLY */
+/* NewsPage.css - Updated for Todo-style list with Image on Right */
 
 .news-page-container {
   background: #000;
   color: #fff;
 }
 
-/* Base Section Logic - Same as Contact/Home */
+/* Base Section Logic */
 section {
   min-height: 100vh;
   width: 100%;
@@ -16,55 +16,49 @@ section {
   padding: 4rem 2rem;
 }
 
-/* Animations */
-section h1,
-section h2,
-section p,
-section .news-card {
-  opacity: 0;
-  transform: translateY(120px) rotateX(15deg) scale(0.9);
-  filter: blur(30px);
+/* Animations Base - Matching Contact.css exactly for speed/style */
+.news-hero-section h1,
+.news-hero-section p,
+.todo-item {
+  opacity: 0 !important;
+  transform: translateY(120px) rotateX(15deg) scale(0.9) !important;
+  filter: blur(30px) !important;
   transition:
     opacity 1.5s cubic-bezier(0.19, 1, 0.22, 1),
     transform 1.8s cubic-bezier(0.19, 1, 0.22, 1),
-    filter 1.5s cubic-bezier(0.19, 1, 0.22, 1);
+    filter 1.5s cubic-bezier(0.19, 1, 0.22, 1) !important;
   will-change: transform, opacity, filter;
 }
 
-section.in-view h1,
-section.in-view h2,
-section.in-view p,
-section.in-view .news-card {
-  opacity: 1;
-  transform: translateY(0) rotateX(0) scale(1);
-  filter: blur(0);
+/* In-View State - Global Toggle */
+.news-hero-section.in-view h1,
+.news-hero-section.in-view p,
+.todo-item.in-view {
+  opacity: 1 !important;
+  transform: translateY(0) rotateX(0) scale(1) !important;
+  filter: blur(0) !important;
 }
 
-section.in-view h1 {
-  transition-delay: 0.1s;
+/* Staggered delays */
+.news-hero-section.in-view h1 {
+  transition-delay: 0.1s !important;
 }
 
-section.in-view h2 {
-  transition-delay: 0.15s;
+.news-hero-section.in-view p {
+  transition-delay: 0.2s !important;
 }
 
-section.in-view p {
-  transition-delay: 0.2s;
+.todo-item.in-view:nth-child(1) {
+  transition-delay: 0.15s !important;
 }
 
-section.in-view .news-card {
-  transition-delay: 0.3s;
+.todo-item.in-view:nth-child(2) {
+  transition-delay: 0.35s !important;
 }
 
-section.in-view .news-card:nth-child(2) {
-  transition-delay: 0.4s;
+.todo-item.in-view:nth-child(3) {
+  transition-delay: 0.55s !important;
 }
-
-section.in-view .news-card:nth-child(3) {
-  transition-delay: 0.5s;
-}
-
-
 
 /* Hero Section */
 .news-hero-section {
@@ -79,12 +73,9 @@ section.in-view .news-card:nth-child(3) {
   width: 100%;
   max-width: 1000px;
   margin: 0 auto;
-  text-align: center;
-  /* Ensure explicitly centered */
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Flex center */
 }
 
 .news-hero-content h1 {
@@ -103,130 +94,283 @@ section.in-view .news-card:nth-child(3) {
   opacity: 0.8;
 }
 
-/* News List Section - White Background like Contact Form Section */
+/* News List Section - White Background */
 .news-list-section {
   background: #fff;
   color: #000;
   display: block;
-  /* Allow normal flow inside */
-  height: auto;
   min-height: 100vh;
+  padding: 6rem 2rem;
 }
 
 .news-section-container {
-  max-width: 1200px;
+  max-width: 1000px;
   width: 100%;
   margin: 0 auto;
-  height: 100%;
+}
+
+/* Todo List Layout */
+.news-todo-list {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-}
-
-/* Grid Layout */
-.news-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 3rem;
+  gap: 2rem;
   width: 100%;
-  margin-top: 2rem;
 }
 
-.news-card {
+.todo-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  /* Allow children to fill vertical space */
   background: #fff;
-  /* Restored white background */
-  width: 100%;
-  height: auto;
-  display: flex;
-  flex-direction: column;
   border: 4px solid #000;
-  /* Restored Brutalist Border */
   box-shadow: 10px 10px 0px #000;
-  /* Restored Brutalist Shadow */
-  padding-bottom: 0;
-  margin-bottom: 0;
-  border-bottom: 4px solid #000;
-  /* Ensure bottom border exists */
-}
-
-.news-card:last-child {
-  border-bottom: 4px solid #000;
-}
-
-/* Media styling similar to Home feature cards but static */
-.news-media-container {
-  width: 100%;
-  height: 300px;
-  background: #f5f5f5;
-  margin-bottom: 0;
+  padding: 1.5rem;
+  gap: 2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 250px;
+  /* FIXED HEIGHT */
   overflow: hidden;
-  border-bottom: 4px solid #000;
 }
 
-.news-media-container img,
-.news-media-container video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.news-card-left {
+  display: flex;
+  gap: 1.5rem;
+  flex: 1;
+  min-width: 0;
+  /* Important for ellipsis in flex child */
+}
+
+.todo-check {
+  color: #000;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 0.2rem;
+  flex-shrink: 0;
+}
+
+.todo-check .material-symbols-outlined {
+  font-size: 2rem;
+  font-variation-settings: 'FILL' 1;
 }
 
 .news-content-body {
   display: flex;
   flex-direction: column;
-  padding: 2rem;
+  min-width: 0;
+  /* Important for ellipsis */
+  flex: 1;
 }
 
 .news-date {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
-  opacity: 0.5;
-  color: #3b82f6;
-  /* Blue accent like Contact stats */
+  color: #666;
   margin-bottom: 0.5rem;
-  text-transform: uppercase;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  text-transform: uppercase;
+  flex-shrink: 0;
 }
 
 .news-title {
   font-size: 1.5rem;
-  font-weight: 800;
-  margin-bottom: 0.8rem;
-  line-height: 1.1;
+  /* Adjusted for fixed container */
+  font-weight: 900;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
   text-transform: uppercase;
+  color: #000;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  /* Limit title to 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .news-description {
   font-size: 1rem;
-  line-height: 1.6;
-  opacity: 0.8;
+  line-height: 1.5;
+  color: #333;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  /* Limit description to 4 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Empty State */
-.news-empty-state {
+/* Media on the Right */
+.news-media-container {
+  width: 250px;
+  min-width: 250px;
+  height: 180px;
+  background: #eee;
+  border: 3px solid #000;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.news-media-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.news-media-container:hover img {
+  transform: scale(1.1);
+}
+
+.zoom-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem;
-  text-align: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  color: #fff;
+}
+
+.news-media-container:hover .zoom-overlay {
+  opacity: 1;
+}
+
+.zoom-overlay .material-symbols-outlined {
+  font-size: 3rem;
+}
+
+/* Pagination */
+.news-pagination {
+  margin-top: 4rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.pagination-btn {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #000;
+  background: #fff;
+  color: #000;
+  font-weight: 900;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 0px #000;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #000;
+}
+
+.pagination-btn.active {
+  background: #000;
+  color: #fff;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Lightbox */
+.image-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.lightbox-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90vh;
+}
+
+.lightbox-content img {
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  border: 4px solid #fff;
+}
+
+.close-lightbox {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.close-lightbox .material-symbols-outlined {
+  font-size: 3rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Video Placeholder */
+.video-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  color: #fff;
+  position: relative;
+}
+
+.video-placeholder video {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   opacity: 0.5;
 }
 
-.news-empty-state .icon {
+.video-placeholder .material-symbols-outlined {
   font-size: 4rem;
-  margin-bottom: 1rem;
+  z-index: 1;
 }
 
 @media (max-width: 768px) {
-  .news-grid {
-    grid-template-columns: 1fr;
-    gap: 4rem;
+  .todo-item {
+    flex-direction: column;
+    padding: 1.5rem;
   }
 
   .news-media-container {
-    height: 250px;
+    width: 100%;
+    height: 200px;
+  }
+
+  .news-title {
+    font-size: 1.4rem;
   }
 }

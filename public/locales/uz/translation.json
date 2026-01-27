@@ -260,5 +260,13 @@
         "loadingData": "Ma'lumotlar yuklanmoqda...",
         "welcome": "Xush kelibsiz!",
         "error": "Login xatosi yuz berdi"
+    },
+    "news": {
+        "updates": "YANGILANISHLAR",
+        "heroSubtitle": "Platformamizdagi so'nggi o'zgarishlar va yangilanishlar tizimi",
+        "totalUpdates": "Yangilanishlar topildi",
+        "sortNewest": "Eng yangilari",
+        "sortOldest": "Eng eskilaridan",
+        "noNews": "Hozircha yangiliklar yo'q"
     }
 }
