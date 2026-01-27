@@ -23,6 +23,7 @@ const SellerDashboard = () => {
           padding: '64px 24px 32px',
           maxWidth: '1900px',
           margin: '0 auto',
+          marginTop: '40px',
           width: '100%',
           height: '100%',
           display: 'flex',
