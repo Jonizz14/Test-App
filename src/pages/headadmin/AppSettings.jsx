@@ -15,6 +15,9 @@ const AppSettings = () => {
     t('onboarding.steps.nav.title'),
     t('onboarding.steps.save.title'),
     t('onboarding.steps.messages.title'),
+    t('onboarding.steps.search.title'),
+    t('onboarding.steps.language.title'),
+    t('onboarding.steps.ai.title'),
     t('onboarding.steps.profile.title'),
     t('onboarding.steps.ready.title')
   ];

@@ -172,52 +172,64 @@
     "onboarding": {
         "steps": {
             "welcome": {
-                "title": "WELCOME",
-                "subtitle": "STEP INTO THE WORLD OF EXAMIFY PREP",
-                "desc": "Through our platform, you can control your knowledge and conquer new heights.",
-                "label": "START"
+                "title": "WELCOME ABOARD!",
+                "subtitle": "ELEVATE YOUR LEARNING EXPERIENCE",
+                "desc": "Welcome to Examify Prep. Our platform is designed to help you organize your studies efficiently and track your progress in real-time.",
+                "label": "GET STARTED"
             },
             "nav": {
-                "title": "DYNAMIC ISLAND",
-                "subtitle": "MAIN PANEL LOCATED AT TOP",
-                "desc": "The main navigation panel is located at the top of the site. Through it, you can quickly go to any section of the site.",
-                "label": "DYNAMIC ISLAND"
+                "title": "NAVIGATION PANEL",
+                "subtitle": "EVERYTHING WITHIN REACH",
+                "desc": "The header navigation bar allows you to switch between all platform sections like Tests, Statistics, and Results instantly.",
+                "label": "NAVIGATION"
             },
             "save": {
-                "title": "SAVING SYSTEM (STORAGE)",
-                "subtitle": "DON'T MISS ANYTHING",
-                "desc": "Save necessary tests or information via the 'Inventory' icon on the top panel. This section helps you always keep important things at hand.",
-                "label": "STORAGE"
+                "title": "STORAGE & ARCHIVE",
+                "subtitle": "KEEP IMPORTANT DATA AT HAND",
+                "desc": "Save important tests and resources to your Storage. You can revisit and review your saved items whenever you need them.",
+                "label": "INVENTORY"
             },
             "messages": {
-                "title": "MESSAGES CENTER (MESSAGES)",
-                "subtitle": "STAY IN TOUCH",
-                "desc": "You can track your sent messages and system notifications in this section. With centralized message management, no information will go unnoticed.",
+                "title": "COMMUNICATION CENTER",
+                "subtitle": "STAY INFORMED",
+                "desc": "Access your messages and system notifications through the centralized menu. Stay up to date with the latest platform updates.",
                 "label": "MESSAGES"
             },
+            "search": {
+                "title": "SMART SEARCH",
+                "subtitle": "FIND ANYTHING IN SECONDS",
+                "desc": "Use our global search engine to find specific topics, tests, or pages using relevant keywords instantly.",
+                "label": "SEARCH"
+            },
+            "language": {
+                "title": "MULTI-LANGUAGE SUPPORT",
+                "subtitle": "CHOOSE YOUR PREFERRED LANGUAGE",
+                "desc": "Our platform supports English, Uzbek, and Russian. You can adjust your language settings at any time.",
+                "label": "LANGUAGE"
+            },
             "ai": {
-                "title": "AI ASSISTANT (EXAMIFY AI)",
-                "subtitle": "APPLE INTELLIGENCE STYLE",
-                "desc": "The AI assistant on the platform will help you in explaining tests, answering questions, and facilitate the learning process. You can launch it at any time.",
-                "label": "AI CHAT"
+                "title": "EXAMIFY AI ASSISTANT",
+                "subtitle": "STUDY SMARTER WITH AI",
+                "desc": "Have questions? Our AI assistant provides real-time help with solving tests and explaining complex academic topics.",
+                "label": "AI HELP"
             },
             "profile": {
-                "title": "PERSONAL PROFILE",
+                "title": "PERSONAL CABINET",
                 "subtitle": "TRACK YOUR ACHIEVEMENTS",
-                "desc": "Enter your profile and use extended features suitable for your role (Admin, Teacher, Student).",
+                "desc": "Manage your personal statistics, track your global ranking, and customize your account settings in your profile.",
                 "label": "PROFILE"
             },
             "ready": {
-                "title": "ARE YOU READY?",
-                "subtitle": "LET'S START!",
-                "desc": "Everything is ready. Now you are ready to use the full capabilities of the platform.",
+                "title": "YOU ARE ALL SET!",
+                "subtitle": "LET'S BEGIN THE JOURNEY",
+                "desc": "The setup is complete. You are now ready to fully utilize the platform's features. Best of luck on your path to success!",
                 "label": "READY"
             }
         },
         "back": "BACK",
         "next": "NEXT",
-        "ready": "I'M READY",
-        "skip": "SKIP SETUP"
+        "ready": "GET STARTED",
+        "skip": "SKIP INTRODUCTION"
     },
     "contact": {
         "heroTitle": "CONTACT US",

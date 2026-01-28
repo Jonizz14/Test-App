@@ -23,6 +23,7 @@ const Header = ({ demoMode = false }) => {
   const [showNotifications, setShowNotifications] = React.useState(false);
   const [showLanguages, setShowLanguages] = React.useState(false);
   const [showSearch, setShowSearch] = React.useState(false);
+  const [activeDropdown, setActiveDropdown] = React.useState(null);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
 
@@ -262,6 +263,27 @@ const Header = ({ demoMode = false }) => {
     setHeaderHeight(newHeight);
   }, [activeNotifications, showSaved, showMessages, showNotifications, showLanguages, showSearch, isDashboard, isSellerOrHeadAdmin, savedItems.length, sentMessages.length]);
 
+  // Handle Body Scroll Lock when header is expanded or mobile menu is open
+  React.useEffect(() => {
+    const isExpanded =
+      (showSaved && savedItems.length > 0) ||
+      (showMessages && sentMessages.length > 0) ||
+      (showNotifications) ||
+      (showLanguages && (!isDashboard || isSellerOrHeadAdmin)) ||
+      (showSearch && (!isDashboard || isSellerOrHeadAdmin)) ||
+      (activeDropdown === 'mobile-menu');
+
+    if (isExpanded) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showSaved, showMessages, showNotifications, showLanguages, showSearch, isDashboard, isSellerOrHeadAdmin, savedItems.length, sentMessages.length, activeDropdown]);
+
   // Listen for custom 'itemSaved' event
   React.useEffect(() => {
     const handleNotification = (data) => {
@@ -413,7 +435,6 @@ const Header = ({ demoMode = false }) => {
     }
   };
 
-  const [activeDropdown, setActiveDropdown] = React.useState(null);
 
   const getHeaderClass = () => {
     let classes = ['header'];
@@ -627,6 +648,7 @@ const Header = ({ demoMode = false }) => {
                         <div
                           className="storage-icon-container is-visible"
                           onClick={(e) => { if (demoMode) e.preventDefault(); else handleProfileClick(); }}
+                          id="header-profile-icon"
                           title={t('nav.profile')}
                           style={{ cursor: demoMode ? 'default' : 'pointer', marginLeft: '0.4rem' }}
                         >
@@ -655,6 +677,7 @@ const Header = ({ demoMode = false }) => {
                       <div
                         className={`storage-icon-container search-icon ${showSearch ? 'active' : ''}`}
                         onClick={toggleSearch}
+                        id="header-search-icon"
                         title="Qidirish"
                         style={{ width: '44px', opacity: 1, transform: 'scale(1)', overflow: 'visible', marginRight: 0 }}
                       >
@@ -667,6 +690,7 @@ const Header = ({ demoMode = false }) => {
                       <div
                         className={`storage-icon-container lang-icon ${showLanguages ? 'active' : ''}`}
                         onClick={toggleLanguages}
+                        id="header-lang-icon"
                         title={t('nav.changeLanguage')}
                       >
                         <span className="material-symbols-outlined">language</span>
@@ -774,7 +798,7 @@ const Header = ({ demoMode = false }) => {
                 <button className="clear-minimal-btn" onClick={() => setShowNotifications(false)}>{t('nav.close')}</button>
               </div>
             </div>
-            <div className="saved-items-grid">
+            <div className="saved-items-grid" data-lenis-prevent>
               <div className="saved-item-row">
                 <div className="item-main">
                   <span className="material-symbols-outlined">info</span>
@@ -803,7 +827,7 @@ const Header = ({ demoMode = false }) => {
               </div>
             </div>
 
-            <div className="saved-items-grid">
+            <div className="saved-items-grid" data-lenis-prevent>
               {savedItems.map(item => (
                 <div key={item.id} className="saved-item-row">
                   <div className="item-main">
@@ -837,7 +861,7 @@ const Header = ({ demoMode = false }) => {
               </div>
             </div>
 
-            <div className="saved-items-grid">
+            <div className="saved-items-grid" data-lenis-prevent>
               {sentMessages.map(msg => (
                 <div key={msg.id} className="saved-item-row msg-row">
                   <div className="item-main">
@@ -909,7 +933,7 @@ const Header = ({ demoMode = false }) => {
               )}
             </div>
 
-            <div className="saved-items-grid search-results-grid">
+            <div className="saved-items-grid search-results-grid" data-lenis-prevent>
               {searchQuery.trim() === '' ? (
                 <div className="no-results" style={{ padding: '2rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>manage_search</span>

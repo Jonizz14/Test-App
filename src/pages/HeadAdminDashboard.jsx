@@ -64,6 +64,7 @@ const HeadAdminDashboard = () => {
       >
         <div
           id="dashboard-content-container"
+          data-lenis-prevent
           className="animate__animated animate__fadeIn"
           style={{
             background: '#ffffff',

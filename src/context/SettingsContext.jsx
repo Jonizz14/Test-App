@@ -22,7 +22,7 @@ export const SettingsProvider = ({ children }) => {
       language: true
     },
     welcome: {
-      steps: [true, true, true, true, true, true]
+      steps: [true, true, true, true, true, true, true, true, true]
     },
     features: {
       textSelection: true,
@@ -46,7 +46,7 @@ export const SettingsProvider = ({ children }) => {
             language: data.header_language
           },
           welcome: {
-            steps: data.welcome_steps || [true, true, true, true, true, true]
+            steps: data.welcome_steps || [true, true, true, true, true, true, true, true, true]
           },
           features: {
             textSelection: data.feature_text_selection,

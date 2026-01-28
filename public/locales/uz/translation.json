@@ -172,52 +172,64 @@
     "onboarding": {
         "steps": {
             "welcome": {
-                "title": "XUSH KELIBSIZ",
-                "subtitle": "EXAMIFY PREP DUNYOSIGA QADAM QO'YING",
-                "desc": "Bizning platforma orqali siz o'z bilimlaringizni nazorat qilishingiz va yangi cho'qqilarni zabt etishingiz mumkin.",
-                "label": "BOSHLASH"
+                "title": "XUSH KELIBSIZ!",
+                "subtitle": "BILINGIZNI YANGI DARAJAGA OLIB CHIQING",
+                "desc": "Examify Prep platformasiga xush kelibsiz. Bu yerda siz o'quv jarayonini samarali tashkil etishingiz va natijalaringizni real vaqtda kuzatishingiz mumkin.",
+                "label": "G'ALABA SARI"
             },
             "nav": {
-                "title": "DYNAMIC ISLAND",
-                "subtitle": "TEPA QISMDA JOYLASHTIRILGAN ASOSIY PANEL",
-                "desc": "Saytning yuqori qismida asosiy navigatsiya paneli joylashgan. U orqali siz saytning istalgan bo'limiga tezda o'tishingiz mumkin.",
-                "label": "DYNAMIC ISLAND"
+                "title": "NAVIGATSIYA PANELİ",
+                "subtitle": "HAMMASI BIR JOYDA VA QULAY",
+                "desc": "Yuqori qismdagi navigatsiya paneli orqali platformaning barcha bo'limlariga (Testlar, Statistika, Natijalar) bir zumda o'tishingiz mumkin.",
+                "label": "NAVIGATSIYA"
             },
             "save": {
-                "title": "SAQLASH TIZIMI (STORAGE)",
-                "subtitle": "HECH NARSANI BOY BERMANG",
-                "desc": "Kerakli testlar yoki ma'lumotlarni tepa paneldagi 'Inventory' iconkasi orqali saqlab qo'ying. Bu bo'lim sizga muhim narsalarni doim qo'l ostingizda saqlashga yordam beradi.",
-                "label": "STORAGE"
+                "title": "SAQLASH VA ARXIV",
+                "subtitle": "MUHIM MA'LUMOTLAR DOIM YONINGIZDA",
+                "desc": "Sizga kerakli bo'lgan testlar va resurslarni 'Storage' bo'limiga saqlab qo'ying. Ularni istalgan vaqtda qayta ko'rib chiqish imkoniga egasiz.",
+                "label": "INVENTAR"
             },
             "messages": {
-                "title": "XABARLAR MARKAZI (MESSAGES)",
-                "subtitle": "DOIMIY ALOQADA BO'LING",
-                "desc": "Yuborilgan xabarlaringiz va tizim bildirishnomalarini shu bo'limda kuzatishingiz mumkin. Markazlashtirilgan xabarlar boshqaruvi bilan hech bir ma'lumot e'tiborsiz qolmaydi.",
-                "label": "MESSAGES"
+                "title": "ALOQA MARKAZI",
+                "subtitle": "DOIMO XABARDOR BO'LING",
+                "desc": "Yuborilgan xabarlar va tizim bildirishnomalarini markazlashgan menyu orqali kuzatib boring. Muhim yangiliklar endi e'tibordan chetda qolmaydi.",
+                "label": "ALOQA"
+            },
+            "search": {
+                "title": "AQLLI QIDIRUV",
+                "subtitle": "KERAKLI NARSANI SONIYALARDA TOPING",
+                "desc": "Global qidiruv tizimi orqali istalgan mavzu, test yoki sahifani maxsus kalit so'zlar yordamida qidirib toping.",
+                "label": "QIDIRUV"
+            },
+            "language": {
+                "title": "KO'P TILLI MUHIT",
+                "subtitle": "O'ZINGIZGA QULAY TILNI TANLANG",
+                "desc": "Platformani o'zbek, rus yoki ingliz tillarida ishlatishingiz mumkin. Til sozlamalari istalgan vaqtda o'zgartirilishi mumkin.",
+                "label": "TILNI TANLASH"
             },
             "ai": {
-                "title": "AI YORDAMCHI (EXAMIFY AI)",
-                "subtitle": "APPLE INTELLIGENCE USLUBIDA",
-                "desc": "Platformadagi AI yordamchi sizga testlarni tushuntirishda, savollarga javob berishda va o'qish jarayonini osonlashtirishda yordam beradi. Uni xohlagan vaqtingizda ishga tushirishingiz mumkin.",
-                "label": "AI CHAT"
+                "title": "EXAMIFY AI YORDAMCHI",
+                "subtitle": "SUN'IY INTELLEKT BILAN TAYYORLANING",
+                "desc": "Savollaringiz bormi? Bizning AI yordamchi sizga testlarni yechishda va mavzularni tushunishda real vaqt rejimida yordam beradi.",
+                "label": "AI YORDAM"
             },
             "profile": {
-                "title": "SHAXSIY PROFIL",
-                "subtitle": "O'Z YUTUQLARINGIZNI KUZATING",
-                "desc": "Profilingizga kiring va o'z rolingizga mos (Admin, Ustoz, O'quvchi) kengaytirilgan imkoniyatlardan foydalaning.",
+                "title": "SHAXSIY KABINET",
+                "subtitle": "MUVAFFARIYATLARINGIZNI KUZATING",
+                "desc": "Profilingiz orqali shaxsiy statistika, reytingdagi o'rningiz va hisob sozlamalarini boshqarishingiz mumkin.",
                 "label": "PROFIL"
             },
             "ready": {
-                "title": "TAYYORMISIZ?",
-                "subtitle": "KELING, BOSHLAYMIZ!",
-                "desc": "Hamma narsa tayyor. Endi siz platformaning to'liq imkoniyatlaridan foydalanishga tayyorsiz.",
+                "title": "SIZ TAYYORSIZ!",
+                "subtitle": "KELING, BOSHLADIK",
+                "desc": "Tayyorgarlik jarayoni yakunlandi. Endi siz platformaning barcha imkoniyatlaridan to'liq foydalanishingiz mumkin. Omad yor bo'lsin!",
                 "label": "TAYYOR"
             }
         },
         "back": "ORQAGA",
         "next": "KEYINGI",
-        "ready": "TAYYORMAN",
-        "skip": "SOZLAMANI O'TKAZIB YUBORISH"
+        "ready": "BOSHLASH",
+        "skip": "QO'LLANMANI O'TKAZIB YUBORISH"
     },
     "contact": {
         "heroTitle": "BOG'LANING",

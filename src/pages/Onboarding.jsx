@@ -61,6 +61,30 @@ const Onboarding = ({ isOverlay = false, onClose }) => {
     },
     {
       id: 4,
+      title: t('onboarding.steps.search.title'),
+      subtitle: t('onboarding.steps.search.subtitle'),
+      description: t('onboarding.steps.search.desc'),
+      label: t('onboarding.steps.search.label'),
+      highlightElement: "search"
+    },
+    {
+      id: 5,
+      title: t('onboarding.steps.language.title'),
+      subtitle: t('onboarding.steps.language.subtitle'),
+      description: t('onboarding.steps.language.desc'),
+      label: t('onboarding.steps.language.label'),
+      highlightElement: "language"
+    },
+    {
+      id: 6,
+      title: t('onboarding.steps.ai.title'),
+      subtitle: t('onboarding.steps.ai.subtitle'),
+      description: t('onboarding.steps.ai.desc'),
+      label: t('onboarding.steps.ai.label'),
+      highlightElement: "ai"
+    },
+    {
+      id: 7,
       title: t('onboarding.steps.profile.title'),
       subtitle: t('onboarding.steps.profile.subtitle'),
       description: t('onboarding.steps.profile.desc'),
@@ -68,7 +92,7 @@ const Onboarding = ({ isOverlay = false, onClose }) => {
       highlightElement: "profile"
     },
     {
-      id: 5,
+      id: 8,
       title: t('onboarding.steps.ready.title'),
       subtitle: t('onboarding.steps.ready.subtitle'),
       description: t('onboarding.steps.ready.desc'),

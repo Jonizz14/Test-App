@@ -32,6 +32,7 @@ const SellerDashboard = () => {
       >
         <div
           id="dashboard-content-container"
+          data-lenis-prevent
           style={{
             background: '#ffffff',
             padding: '32px',
