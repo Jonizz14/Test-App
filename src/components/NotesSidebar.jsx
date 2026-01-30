@@ -9,7 +9,7 @@ const NotesSidebar = () => {
     const [selectedId, setSelectedId] = useState(null);
     const textareaRef = useRef(null);
 
-    const notes = savedItems.filter(item => item.isNote || !item.type); // Broadly notes
+    const notes = savedItems; // Show all saved items including text selections
 
     useEffect(() => {
         if (selectedId && textareaRef.current) {
@@ -54,11 +54,20 @@ const NotesSidebar = () => {
                                     className={`note-item ${selectedId === note.id ? 'active' : ''}`}
                                     onClick={() => setSelectedId(note.id)}
                                 >
+                                    <div className="note-item-icon">
+                                        <span className="material-symbols-outlined">{note.icon || 'description'}</span>
+                                    </div>
                                     <div className="note-item-content">
-                                        <h3>{note.title || 'Mavzusiz'}</h3>
-                                        <p>{note.description || 'Matn yo\'q'}</p>
+                                        <h3>{note.title || t('home.noTitle')}</h3>
+                                        <p>{(note.content || note.description || '').substring(0, 60)}...</p>
                                         <span className="note-date">
-                                            {new Date(note.date).toLocaleDateString('uz-UZ', { hour: '2-digit', minute: '2-digit' })}
+                                            {new Date(note.date).toLocaleString('uz-UZ', {
+                                                day: '2-digit',
+                                                month: '2-digit',
+                                                year: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
                                         </span>
                                     </div>
                                     <button className="delete-note-mini" onClick={(e) => {
@@ -88,9 +97,15 @@ const NotesSidebar = () => {
                                 <textarea
                                     ref={textareaRef}
                                     className="note-description-textarea"
-                                    placeholder="Eslatma yozing..."
-                                    value={selectedNote.description || ''}
-                                    onChange={(e) => updateNote(selectedId, { description: e.target.value })}
+                                    placeholder={t('home.writeNote')}
+                                    value={selectedNote.content || selectedNote.description || ''}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        const updates = selectedNote.type === 'text'
+                                            ? { content: val, description: val.substring(0, 100) + (val.length > 100 ? '...' : '') }
+                                            : { description: val };
+                                        updateNote(selectedId, updates);
+                                    }}
                                 />
                             </>
                         ) : (

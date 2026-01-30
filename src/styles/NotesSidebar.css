@@ -161,6 +161,28 @@
     box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.2);
 }
 
+.note-item-icon {
+    width: 44px;
+    height: 44px;
+    background: #f0f0f0;
+    border: 2px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.note-item.active .note-item-icon {
+    background: #ffffff;
+    border-color: #ffffff;
+    color: #000000;
+}
+
+.note-item-icon span {
+    font-size: 20px;
+}
+
 .note-item-content {
     flex: 1;
     overflow: hidden;
