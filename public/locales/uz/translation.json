@@ -279,6 +279,8 @@
         "totalUpdates": "Yangilanishlar topildi",
         "sortNewest": "Eng yangilari",
         "sortOldest": "Eng eskilaridan",
-        "noNews": "Hozircha yangiliklar yo'q"
+        "noNews": "Hozircha yangiliklar yo'q",
+        "readMore": "Batafsil",
+        "close": "Yopish"
     }
 }

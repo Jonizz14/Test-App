@@ -11,6 +11,8 @@ const NewsPage = () => {
   // Local state for pagination and lightbox
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedNews, setSelectedNews] = useState(null);
+  const [isClosing, setIsClosing] = useState(false);
   const itemsPerPage = 3;
 
   // Combine news from context (mock data removed)
@@ -26,6 +28,14 @@ const NewsPage = () => {
     if (isNaN(date.getTime())) return dateString;
     const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     return date.toLocaleDateString('uz-UZ', options);
+  };
+
+  const handleCloseModal = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setSelectedNews(null);
+      setIsClosing(false);
+    }, 300);
   };
 
   // Animation Logic
@@ -67,8 +77,8 @@ const NewsPage = () => {
         {/* Hero Section */}
         <section className="news-hero-section">
           <div className="news-hero-content">
-            <h1>YANGILANISHLAR</h1>
-            <p className="description">Platformamizdagi so'nggi o'zgarishlar va yangiliklar</p>
+            <h1>{t('news.updates')}</h1>
+            <p className="description">{t('news.heroSubtitle')}</p>
           </div>
         </section>
 
@@ -79,7 +89,7 @@ const NewsPage = () => {
               {allNews.length === 0 ? (
                 <div className="news-empty-state">
                   <span className="material-symbols-outlined icon">newspaper</span>
-                  <h3>Hozircha yangiliklar yo'q</h3>
+                  <h3>{t('news.noNews')}</h3>
                 </div>
               ) : (
                 currentNews.map((item, index) => (
@@ -103,6 +113,10 @@ const NewsPage = () => {
                             i18n.language === 'ru' ? item.description_ru :
                               item.description_en) || item.description}
                         </p>
+                        <button className="read-more-btn" onClick={() => setSelectedNews(item)}>
+                          {t('news.readMore')}
+                          <span className="material-symbols-outlined">arrow_forward</span>
+                        </button>
                       </div>
                     </div>
 
@@ -159,6 +173,44 @@ const NewsPage = () => {
             )}
           </div>
         </section>
+
+        {/* News Detail Modal */}
+        {selectedNews && (
+          <div className={`news-modal-overlay ${isClosing ? 'closing' : ''}`} onClick={handleCloseModal}>
+            <div className="news-modal-content" onClick={e => e.stopPropagation()}>
+              <button className="news-modal-close" onClick={handleCloseModal}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+              <div className="news-modal-body">
+                {selectedNews.media_file && (
+                  <div className="news-modal-media">
+                    {selectedNews.media_type === 'video' ? (
+                      <video src={selectedNews.media_file} controls autoPlay />
+                    ) : (
+                      <img src={selectedNews.media_file} alt={selectedNews.title} />
+                    )}
+                  </div>
+                )}
+                <div className="news-modal-info">
+                  <div className="news-modal-date">
+                    <span className="material-symbols-outlined">calendar_today</span>
+                    {formatDate(selectedNews.created_at)}
+                  </div>
+                  <h2 className="news-modal-title">
+                    {(i18n.language === 'uz' ? selectedNews.title_uz :
+                      i18n.language === 'ru' ? selectedNews.title_ru :
+                        selectedNews.title_en) || selectedNews.title}
+                  </h2>
+                  <div className="news-modal-description">
+                    {(i18n.language === 'uz' ? selectedNews.description_uz :
+                      i18n.language === 'ru' ? selectedNews.description_ru :
+                        selectedNews.description_en) || selectedNews.description}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Image Modal (Lightbox) */}
         {selectedImage && (

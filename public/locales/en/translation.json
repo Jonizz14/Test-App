@@ -272,5 +272,15 @@
         "loadingData": "Loading data...",
         "welcome": "Welcome!",
         "error": "Login error occurred"
+    },
+    "news": {
+        "updates": "UPDATES",
+        "heroSubtitle": "System of recent changes and updates on our platform",
+        "totalUpdates": "Updates found",
+        "sortNewest": "Newest first",
+        "sortOldest": "Oldest first",
+        "noNews": "No updates yet",
+        "readMore": "Read More",
+        "close": "Close"
     }
 }
