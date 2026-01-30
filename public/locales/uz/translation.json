@@ -21,7 +21,7 @@
         "profile": "Profil",
         "systemMessages": "Tizim xabarlari",
         "noNewMessages": "Hozircha yangi xabarlar yo'q",
-        "savedData": "Saqlangan Ma'lumotlar",
+        "savedData": "Notes",
         "clearAll": "Barchasini o'chirish",
         "sentMessages": "Yuborilgan Xabarlar",
         "clear": "Tozalash",
@@ -184,10 +184,10 @@
                 "label": "NAVIGATSIYA"
             },
             "save": {
-                "title": "SAQLASH VA ARXIV",
+                "title": "NOTES",
                 "subtitle": "MUHIM MA'LUMOTLAR DOIM YONINGIZDA",
-                "desc": "Sizga kerakli bo'lgan testlar va resurslarni 'Storage' bo'limiga saqlab qo'ying. Ularni istalgan vaqtda qayta ko'rib chiqish imkoniga egasiz.",
-                "label": "INVENTAR"
+                "desc": "Sizga kerakli bo'lgan resurslarni 'Notes' bo'limiga saqlab qo'ying. Ularni istalgan vaqtda qayta ko'rib chiqish imkoniga egasiz.",
+                "label": "NOTES"
             },
             "messages": {
                 "title": "ALOQA MARKAZI",

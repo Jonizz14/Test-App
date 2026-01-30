@@ -20,6 +20,7 @@ import { SavedItemsProvider } from './context/SavedItemsContext';
 import { SentMessagesProvider } from './context/SentMessagesContext';
 import { NewsProvider } from './context/NewsContext';
 import SmoothScroll from './components/SmoothScroll';
+import NotesSidebar from './components/NotesSidebar';
 import 'lenis/dist/lenis.css';
 // Lazy Load Pages for Performance Optimization
 const NewsPage = React.lazy(() => import('./pages/NewsPage'));
@@ -424,6 +425,7 @@ function App() {
                                 <TextSelectionHandler />
                                 <HelpButton onClick={() => setShowHelpOverlay(true)} />
                                 <GlobalHeader />
+                                <NotesSidebar />
                                 <OnboardingExitGhost />
                                 {showHelpOverlay && (
                                   <React.Suspense fallback={null}>

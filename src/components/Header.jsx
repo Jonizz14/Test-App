@@ -12,7 +12,7 @@ const Header = ({ demoMode = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const headerRef = React.useRef(null);
-  const { savedItems, removeItem, clearItems } = useSavedItems();
+  const { savedItems, removeItem, clearItems, toggleSidebar } = useSavedItems();
   const { sentMessages, removeMessage, clearMessages } = useSentMessages();
   const { currentUser, isAuthenticated, logout } = useAuth();
   const { settings } = useSettings();
@@ -623,7 +623,7 @@ const Header = ({ demoMode = false }) => {
                           id="header-storage-bin"
                           title={t('nav.savedData')}
                         >
-                          <span className="material-symbols-outlined">inventory_2</span>
+                          <span className="material-symbols-outlined">notes</span>
                           <span className="item-count">{savedItems.length}</span>
                         </div>
                       </>
@@ -719,7 +719,7 @@ const Header = ({ demoMode = false }) => {
                         id="header-storage-bin"
                         title={t('nav.savedData')}
                       >
-                        <span className="material-symbols-outlined">inventory_2</span>
+                        <span className="material-symbols-outlined">notes</span>
                         <span className="item-count">{savedItems.length}</span>
                       </div>
                     )}
@@ -817,7 +817,15 @@ const Header = ({ demoMode = false }) => {
           <div className="storage-content-wrapper">
             <div className="storage-header">
               <h3>{t('nav.savedData')}</h3>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span
+                  className="material-symbols-outlined"
+                  style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1.5rem', cursor: 'pointer' }}
+                  onClick={() => {
+                    toggleSidebar(true);
+                    handleCollapse(new Event('click'));
+                  }}
+                >view_sidebar</span>
 
                 <button className="clear-minimal-btn" onClick={() => {
                   clearItems();
