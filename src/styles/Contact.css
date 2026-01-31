@@ -205,40 +205,7 @@
 /* Base sections from Home.css logic */
 /* Removed scroll-snap for Lenis compatibility */
 
-section h1,
-section h2,
-section p,
-section .stat-box,
-section .minimal-form,
-section .minimal-form input,
-section .minimal-form select,
-section .minimal-form textarea,
-section .btn-modern-submit,
-section .modern-message-card {
-  opacity: 0;
-  transform: translateY(120px) rotateX(15deg) scale(0.9);
-  filter: blur(30px);
-  transition:
-    opacity 1.5s cubic-bezier(0.19, 1, 0.22, 1),
-    transform 1.8s cubic-bezier(0.19, 1, 0.22, 1),
-    filter 1.5s cubic-bezier(0.19, 1, 0.22, 1);
-  will-change: transform, opacity, filter;
-}
-
-section.in-view h1,
-section.in-view h2,
-section.in-view p,
-section.in-view .stat-box,
-section.in-view .minimal-form,
-section.in-view .minimal-form input,
-section.in-view .minimal-form select,
-section.in-view .minimal-form textarea,
-section.in-view .btn-modern-submit,
-section.in-view .modern-message-card {
-  opacity: 1;
-  transform: translateY(0) rotateX(0) scale(1);
-  filter: blur(0);
-}
+/* Animations (Base moved to index.css) */
 
 section.in-view h1 {
   transition-delay: 0.1s;

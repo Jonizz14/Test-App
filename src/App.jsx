@@ -410,17 +410,17 @@ function App() {
           />
         )}
         <div className={`app-main-content ${isAppReady ? 'ready' : 'loading'}`}>
-          <SmoothScroll>
-            <CustomThemeProvider>
-              <LoadingProvider>
-                <AuthProvider>
-                  <SentMessagesProvider>
-                    <SavedItemsProvider>
-                      <NewsProvider>
-                        <StatisticsProvider>
-                          <SettingsProvider>
-                            <ServerTestProvider>
-                              <Router>
+          <Router>
+            <SmoothScroll>
+              <CustomThemeProvider>
+                <LoadingProvider>
+                  <AuthProvider>
+                    <SentMessagesProvider>
+                      <SavedItemsProvider>
+                        <NewsProvider>
+                          <StatisticsProvider>
+                            <SettingsProvider>
+                              <ServerTestProvider>
                                 <ScrollToTop />
                                 <TextSelectionHandler />
                                 <HelpButton onClick={() => setShowHelpOverlay(true)} />
@@ -444,17 +444,17 @@ function App() {
                                 }>
                                   <AnimatedRoutes />
                                 </React.Suspense>
-                              </Router>
-                            </ServerTestProvider>
-                          </SettingsProvider>
-                        </StatisticsProvider>
-                      </NewsProvider>
-                    </SavedItemsProvider>
-                  </SentMessagesProvider>
-                </AuthProvider>
-              </LoadingProvider>
-            </CustomThemeProvider>
-          </SmoothScroll>
+                              </ServerTestProvider>
+                            </SettingsProvider>
+                          </StatisticsProvider>
+                        </NewsProvider>
+                      </SavedItemsProvider>
+                    </SentMessagesProvider>
+                  </AuthProvider>
+                </LoadingProvider>
+              </CustomThemeProvider>
+            </SmoothScroll>
+          </Router>
         </div>
       </ThemeProvider>
     </ErrorBoundary>

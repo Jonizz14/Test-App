@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import Lenis from 'lenis';
 
 const SmoothScroll = ({ children }) => {
     const lenisRef = useRef(null);
+    const location = useLocation();
 
     useEffect(() => {
         // Initialize Lenis
@@ -40,6 +42,15 @@ const SmoothScroll = ({ children }) => {
             lenis.destroy();
         };
     }, []);
+
+    // Scroll to top on route change
+    useEffect(() => {
+        if (lenisRef.current) {
+            // instant: true makes it jump to top without animation
+            // which is usually expected when changing pages
+            lenisRef.current.scrollTo(0, { immediate: true });
+        }
+    }, [location.pathname]);
 
     return (
         <>
