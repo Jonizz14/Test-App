@@ -22,6 +22,8 @@ import { NewsProvider } from './context/NewsContext';
 import SmoothScroll from './components/SmoothScroll';
 import NotesSidebar from './components/NotesSidebar';
 import 'lenis/dist/lenis.css';
+import MobileRestrictor from './components/MobileRestrictor';
+
 // Lazy Load Pages for Performance Optimization
 const NewsPage = React.lazy(() => import('./pages/NewsPage'));
 const Home = React.lazy(() => import('./pages/Home'));
@@ -366,7 +368,7 @@ const AnimatedRoutes = () => {
 const GlobalHeader = () => {
   const location = useLocation();
   // Include only public routes and headadmin/seller dashboards
-  const themedRoutes = ['/', '/login', '/contact', '/updates', '/headadmin', '/seller'];
+  const themedRoutes = ['/', '/login', '/contact', '/updates', '/headadmin', '/seller', '/student'];
 
   const isThemedRoute = themedRoutes.some(route =>
     route === '/' ? location.pathname === '/' : location.pathname.startsWith(route)
@@ -411,49 +413,51 @@ function App() {
         )}
         <div className={`app-main-content ${isAppReady ? 'ready' : 'loading'}`}>
           <Router>
-            <SmoothScroll>
-              <CustomThemeProvider>
-                <LoadingProvider>
-                  <AuthProvider>
-                    <SentMessagesProvider>
-                      <SavedItemsProvider>
-                        <NewsProvider>
-                          <StatisticsProvider>
-                            <SettingsProvider>
-                              <ServerTestProvider>
-                                <ScrollToTop />
-                                <TextSelectionHandler />
-                                <HelpButton onClick={() => setShowHelpOverlay(true)} />
-                                <GlobalHeader />
-                                <NotesSidebar />
-                                <OnboardingExitGhost />
-                                {showHelpOverlay && (
-                                  <React.Suspense fallback={null}>
-                                    <Onboarding isOverlay={true} onClose={() => setShowHelpOverlay(false)} />
+            <MobileRestrictor>
+              <SmoothScroll>
+                <CustomThemeProvider>
+                  <LoadingProvider>
+                    <AuthProvider>
+                      <SentMessagesProvider>
+                        <SavedItemsProvider>
+                          <NewsProvider>
+                            <StatisticsProvider>
+                              <SettingsProvider>
+                                <ServerTestProvider>
+                                  <ScrollToTop />
+                                  <TextSelectionHandler />
+                                  <HelpButton onClick={() => setShowHelpOverlay(true)} />
+                                  <GlobalHeader />
+                                  <NotesSidebar />
+                                  <OnboardingExitGhost />
+                                  {showHelpOverlay && (
+                                    <React.Suspense fallback={null}>
+                                      <Onboarding isOverlay={true} onClose={() => setShowHelpOverlay(false)} />
+                                    </React.Suspense>
+                                  )}
+                                  {/* Global route loading indicator */}
+                                  <RouteLoadingIndicator
+                                    showFullScreen={false}
+                                    threshold={300}
+                                  />
+                                  <React.Suspense fallback={
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+                                      <CircularProgress size={40} />
+                                    </Box>
+                                  }>
+                                    <AnimatedRoutes />
                                   </React.Suspense>
-                                )}
-                                {/* Global route loading indicator */}
-                                <RouteLoadingIndicator
-                                  showFullScreen={false}
-                                  threshold={300}
-                                />
-                                <React.Suspense fallback={
-                                  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
-                                    <CircularProgress size={40} />
-                                  </Box>
-                                }>
-                                  <AnimatedRoutes />
-                                </React.Suspense>
-                              </ServerTestProvider>
-                            </SettingsProvider>
-                          </StatisticsProvider>
-                        </NewsProvider>
-                      </SavedItemsProvider>
-                    </SentMessagesProvider>
-                  </AuthProvider>
-                </LoadingProvider>
-              </CustomThemeProvider>
-            </SmoothScroll>
+                                </ServerTestProvider>
+                              </SettingsProvider>
+                            </StatisticsProvider>
+                          </NewsProvider>
+                        </SavedItemsProvider>
+                      </SentMessagesProvider>
+                    </AuthProvider>
+                  </LoadingProvider>
+                </CustomThemeProvider>
+              </SmoothScroll>
+            </MobileRestrictor>
           </Router>
         </div>
       </ThemeProvider>

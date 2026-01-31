@@ -1,0 +1,56 @@
+.mobile-restrictor-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    color: #fff;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+}
+
+.restrictor-content {
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.restrictor-icon .material-symbols-outlined {
+    font-size: 5rem;
+    color: #fff;
+    opacity: 0.5;
+    margin-bottom: 1rem;
+}
+
+.restrictor-content h1 {
+    font-size: 1.8rem;
+    font-weight: 900;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+}
+
+.restrictor-content p {
+    font-size: 1rem;
+    line-height: 1.6;
+    opacity: 0.6;
+}
+
+.restrictor-footer {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+}
+
+.restrictor-footer span {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.2rem;
+    opacity: 0.3;
+}

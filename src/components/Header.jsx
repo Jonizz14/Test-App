@@ -6,6 +6,8 @@ import { useSentMessages } from '../context/SentMessagesContext';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../context/SettingsContext';
+import { useServerTest } from '../context/ServerTestContext';
+import { showWarning } from '../utils/antdNotification';
 
 
 const Header = ({ demoMode = false }) => {
@@ -16,6 +18,7 @@ const Header = ({ demoMode = false }) => {
   const { sentMessages, removeMessage, clearMessages } = useSentMessages();
   const { currentUser, isAuthenticated, logout } = useAuth();
   const { settings } = useSettings();
+  const { sessionStarted } = useServerTest();
 
   const { t, i18n } = useTranslation();
   const [showSaved, setShowSaved] = React.useState(false);
@@ -411,9 +414,26 @@ const Header = ({ demoMode = false }) => {
     }
     if (location.pathname.startsWith('/student')) {
       return [
-        { label: t('nav.cabinet'), path: '/student' },
-        { label: t('nav.tests'), path: '/student/tests' },
-        { label: t('nav.results'), path: '/student/results' }
+        { label: 'Asosiy', path: '/student' },
+        { label: 'O\'qituvchilar', path: '/student/search' },
+        { label: 'Sinfdoshlar', path: '/student/classmates' },
+        { label: 'Test topshirish', path: '/student/take-test' },
+        { label: 'Natijalarim', path: '/student/results' },
+        { label: 'Darslar', path: '/student/lessons' },
+        {
+          label: 'Statistika',
+          children: [
+            { label: 'Mening statistikam', path: '/student/statistics' },
+            { label: 'Sinf statistikasi', path: '/student/my-class-statistics' }
+          ]
+        },
+        {
+          label: 'Reytinglar',
+          children: [
+            { label: 'O\'quvchilar reytingi', path: '/student/students-rating' },
+            { label: 'Sinflar reytingi', path: '/student/classes-rating' }
+          ]
+        }
       ];
     }
     // Default Home Links
@@ -428,6 +448,11 @@ const Header = ({ demoMode = false }) => {
   const navLinks = getNavLinks();
 
   const handleLinkClick = (link) => {
+    if (currentUser?.role === 'student' && sessionStarted && link.path !== '/student/take-test') {
+      showWarning('Test topshirayotganingizda boshqa sahifalarga o\'ta olmaysiz. Avval testni yakunlang!');
+      return;
+    }
+
     if (link.isExternal) {
       if (!demoMode) window.open(link.href, '_blank', 'noopener,noreferrer');
     } else if (link.path) {
@@ -588,7 +613,7 @@ const Header = ({ demoMode = false }) => {
                             key={childIndex}
                             className="dropdown-item"
                             onClick={() => {
-                              if (!demoMode) navigate(child.path);
+                              handleLinkClick(child);
                               setActiveDropdown(null);
                             }}
                           >
@@ -603,6 +628,24 @@ const Header = ({ demoMode = false }) => {
               <div className="nav-buttons">
                 {isDashboard ? (
                   <>
+                    {currentUser?.role === 'student' && sessionStarted && (
+                      <div className="test-active-indicator" style={{
+                        color: '#dc2626',
+                        fontWeight: 600,
+                        backgroundColor: '#fef2f2',
+                        padding: '4px 12px',
+                        borderRadius: '12px',
+                        border: '1px solid #dc2626',
+                        marginRight: '12px',
+                        fontSize: '0.85rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>warning</span>
+                        {isMobile ? '' : 'Test faol'}
+                      </div>
+                    )}
                     <button className="btn-secondary" onClick={logout} style={{ background: '#ff4757', color: 'white' }}>{t('nav.logout')}</button>
 
                     {/* Seller & HeadAdmin Icons */}
@@ -769,7 +812,7 @@ const Header = ({ demoMode = false }) => {
                               className="dropdown-item"
                               style={{ padding: '6px 12px 6px 24px', opacity: 0.7, fontSize: '0.75rem' }}
                               onClick={() => {
-                                if (!demoMode) navigate(child.path);
+                                handleLinkClick(child);
                                 setActiveDropdown(null);
                               }}
                             >

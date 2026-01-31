@@ -241,6 +241,27 @@ section.in-view .feature-card:nth-child(3) {
 .users-section {
   background: var(--bg-color);
   color: var(--text-color);
+  position: relative;
+}
+
+/* Grid Background for Kimlar uchun */
+.users-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.15) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(circle at center, black 10%, transparent 95%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dark .users-section::before {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
 }
 
 .section-header {
@@ -442,11 +463,58 @@ section.in-view .feature-card:nth-child(3) {
 .features-section {
   background: #fff;
   color: #000;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Modern Gradient/Mesh background for Features */
+.features-section::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  right: -5%;
+  width: 80%;
+  height: 90%;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.12) 0%, transparent 70%);
+  filter: blur(120px);
+  z-index: 0;
+  animation: meshFloat 15s infinite alternate ease-in-out;
+}
+
+.features-section::after {
+  content: '';
+  position: absolute;
+  bottom: -5%;
+  left: -5%;
+  width: 70%;
+  height: 80%;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.08) 0%, transparent 60%);
+  filter: blur(100px);
+  z-index: 0;
+  animation: meshFloat 20s infinite alternate-reverse ease-in-out;
+}
+
+@keyframes meshFloat {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  100% {
+    transform: translate(50px, 30px) scale(1.1);
+  }
 }
 
 .dark .features-section {
   background: #000;
   color: #fff;
+}
+
+.dark .features-section::before {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+}
+
+.dark .features-section::after {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
 }
 
 .features-grid {
@@ -545,11 +613,43 @@ section.in-view .feature-card:nth-child(3) {
 .stats-section {
   background: #000;
   color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Dots Pattern and Glow for Stats */
+.stats-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 30px 30px;
+  mask-image: radial-gradient(circle at center, black, transparent 90%);
+  opacity: 0.5;
+  z-index: 0;
+}
+
+.stats-section::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .dark .stats-section {
-  background: #fff;
-  color: #000;
+  background: #000;
+  /* Force black for stats to look premium */
+  color: #fff;
+}
+
+.dark .stats-section::before {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
 }
 
 .stats-header {

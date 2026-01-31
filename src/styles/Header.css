@@ -584,7 +584,7 @@
 }
 
 .header-notification-area.is-error {
-  background: rgba(255, 71, 87, 0.05);
+  background: transparent;
 }
 
 .notification-content {
