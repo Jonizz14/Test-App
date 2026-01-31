@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import 'animate.css';
+import { useSearchParams } from 'react-router-dom';
 import {
   Table,
   Card,
@@ -12,17 +12,26 @@ import {
   Spin,
   Input,
   Select,
+  Row,
+  Col,
+  ConfigProvider,
+  Divider,
 } from 'antd';
 import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   SearchOutlined,
   SortAscendingOutlined,
+  EyeOutlined,
+  CalendarOutlined,
+  BookOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
+import LaTeXPreview from '../../components/LaTeXPreview';
+import 'animate.css';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
 const { Option } = Select;
 
@@ -38,29 +47,36 @@ const TestResults = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date');
   const [pageSize, setPageSize] = useState(10);
+  const [searchParams] = useSearchParams();
+  const [highlightId, setHighlightId] = useState(null);
 
   useEffect(() => {
-    loadResults();
-  }, [currentUser.id]);
+    const highlight = searchParams.get('highlight');
+    if (highlight) {
+      setHighlightId(highlight);
+      const timer = setTimeout(() => {
+        setHighlightId(null);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (currentUser?.id) {
+      loadResults();
+    }
+  }, [currentUser?.id]);
 
   const loadResults = async () => {
     try {
       setLoading(true);
-
-      // Load student's attempts from API
       const attemptsResponse = await apiService.getAttempts({ student: currentUser.id });
       const studentAttempts = attemptsResponse.results || attemptsResponse;
       setResults(studentAttempts);
 
-      // Load tests to get titles and subjects
       const testsResponse = await apiService.getTests();
       const allTests = testsResponse.results || testsResponse;
       setTests(allTests);
-
-      console.log('Test results loaded:', {
-        attempts: studentAttempts.length,
-        tests: allTests.length
-      });
     } catch (error) {
       console.error('Failed to load test results:', error);
     } finally {
@@ -98,10 +114,10 @@ const TestResults = () => {
   };
 
   const getScoreColor = (score) => {
-    if (score >= 90) return '#52c41a';
-    if (score >= 70) return '#1890ff';
-    if (score >= 50) return '#faad14';
-    return '#f5222d';
+    if (score >= 90) return '#059669'; // Green
+    if (score >= 70) return '#2563eb'; // Blue
+    if (score >= 50) return '#d97706'; // Orange
+    return '#dc2626'; // Red
   };
 
   const getScoreLabel = (score) => {
@@ -111,60 +127,51 @@ const TestResults = () => {
     return 'Qoniqarsiz';
   };
 
-  // Filter results based on search term
   const getFilteredResults = () => {
     if (!searchTerm) return results;
-
     const searchLower = searchTerm.toLowerCase();
     return results.filter(result => {
       const test = getTestById(result.test);
       const testTitle = test?.title || '';
       const testSubject = test?.subject || '';
-      const score = result.score?.toString() || '';
-
       return testTitle.toLowerCase().includes(searchLower) ||
-             testSubject.toLowerCase().includes(searchLower) ||
-             score.includes(searchLower);
+        testSubject.toLowerCase().includes(searchLower);
     });
   };
 
-  // Sort results
   const getSortedResults = () => {
     const filteredResults = getFilteredResults();
-    
-    if (sortBy === 'score_high') {
-      return filteredResults.sort((a, b) => b.score - a.score);
-    } else if (sortBy === 'score_low') {
-      return filteredResults.sort((a, b) => a.score - b.score);
-    } else if (sortBy === 'subject') {
+    if (sortBy === 'score_high') return filteredResults.sort((a, b) => b.score - a.score);
+    if (sortBy === 'score_low') return filteredResults.sort((a, b) => a.score - b.score);
+    if (sortBy === 'subject') {
       return filteredResults.sort((a, b) => {
         const testA = getTestById(a.test);
         const testB = getTestById(b.test);
         return (testA?.subject || '').localeCompare(testB?.subject || '');
       });
-    } else if (sortBy === 'name') {
+    }
+    if (sortBy === 'name') {
       return filteredResults.sort((a, b) => {
         const testA = getTestById(a.test);
         const testB = getTestById(b.test);
         return (testA?.title || '').localeCompare(testB?.title || '');
       });
-    } else {
-      // Default: sort by date (newest first)
-      return filteredResults.sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
     }
+    return filteredResults.sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
   };
 
   const columns = [
     {
-      title: 'Test nomi',
+      title: 'Test',
       dataIndex: 'test',
       key: 'test',
       render: (testId) => {
         const test = getTestById(testId);
         return (
-          <Text style={{ fontWeight: 600, color: '#1e293b' }}>
-            {test?.title || 'Noma\'lum test'}
-          </Text>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ backgroundColor: '#000', color: '#fff', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>R</div>
+            <Text style={{ fontWeight: 700, fontSize: '0.9rem' }}>{test?.title || 'Noma\'lum test'}</Text>
+          </div>
         );
       },
     },
@@ -175,16 +182,7 @@ const TestResults = () => {
       render: (testId) => {
         const test = getTestById(testId);
         return (
-          <Tag
-            style={{
-              backgroundColor: test?.subject === 'Ingliz tili' ? '#3b82f6' : '#eff6ff',
-              color: test?.subject === 'Ingliz tili' ? '#ffffff' : '#2563eb',
-              fontWeight: 600,
-              borderRadius: '6px',
-              fontSize: '0.75rem',
-              border: test?.subject === 'Ingliz tili' ? '#3b82f6' : 'none'
-            }}
-          >
+          <Tag style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 700, backgroundColor: '#fff', color: '#000', textTransform: 'uppercase', fontSize: '10px' }}>
             {test?.subject || 'Noma\'lum'}
           </Tag>
         );
@@ -194,72 +192,72 @@ const TestResults = () => {
       title: 'Sana',
       dataIndex: 'submitted_at',
       key: 'date',
-      render: (submitted_at, record) => {
-        const test = getTestById(record.test);
-        return (
-          <div>
-            <Text style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500, display: 'block' }}>
-              Test ishlangan: {new Date(submitted_at).toLocaleDateString('uz-UZ')}
-            </Text>
-            <Text style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500 }}>
-              Test chiqgan: {test?.created_at ? new Date(test.created_at).toLocaleDateString('uz-UZ') : 'Noma\'lum'}
-            </Text>
+      render: (date) => (
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          border: '2px solid #000',
+          padding: '6px 12px',
+          backgroundColor: '#fff',
+          boxShadow: '4px 4px 0px #000',
+          fontWeight: 700,
+          fontSize: '12px'
+        }}>
+          <CalendarOutlined />
+          {new Date(date).toLocaleDateString('uz-UZ')}
+        </div>
+      ),
+    },
+    {
+      title: 'Ball / Baho',
+      key: 'score_grade',
+      render: (_, record) => (
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          border: '2px solid #000',
+          padding: '4px 8px',
+          backgroundColor: '#fff',
+          boxShadow: '4px 4px 0px #000'
+        }}>
+          <Text style={{ fontWeight: 900, fontSize: '1rem', color: getScoreColor(record.score) }}>{record.score}%</Text>
+          <div style={{
+            border: '2px solid #000',
+            padding: '1px 6px',
+            fontWeight: 900,
+            fontSize: '9px',
+            textTransform: 'uppercase',
+            backgroundColor: '#000',
+            color: '#fff'
+          }}>
+            {getScoreLabel(record.score)}
           </div>
-        );
-      },
-    },
-    {
-      title: 'Ball',
-      dataIndex: 'score',
-      key: 'score',
-      render: (score) => (
-        <Text
-          style={{
-            fontWeight: 700,
-            fontSize: '1.125rem',
-            color: getScoreColor(score)
-          }}
-        >
-          {score}%
-        </Text>
+        </div>
       ),
     },
     {
-      title: 'Baho',
-      dataIndex: 'score',
-      key: 'grade',
-      render: (score) => (
-        <Tag
-          style={{
-            fontWeight: 600,
-            fontSize: '0.75rem',
-            backgroundColor: score >= 70 ? '#ecfdf5' : '#fef3c7',
-            color: score >= 70 ? '#059669' : '#d97706',
-            borderRadius: '6px',
-            border: 'none'
-          }}
-        >
-          {getScoreLabel(score)}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Harakatlar',
+      title: 'Harakat',
       key: 'actions',
       render: (_, record) => (
         <Button
           size="small"
-          type="outlined"
           onClick={() => handleViewDetails(record)}
           style={{
-            borderColor: '#e2e8f0',
-            color: '#374151',
-            borderRadius: '6px',
-            fontSize: '0.75rem',
-            fontWeight: 600
+            borderRadius: 0,
+            border: '2px solid #000',
+            boxShadow: '4px 4px 0px #000',
+            backgroundColor: '#fff',
+            color: '#000',
+            fontWeight: 900,
+            textTransform: 'uppercase',
+            fontSize: '11px',
+            height: '32px'
           }}
+          icon={<EyeOutlined />}
         >
-          Tafsilotlar
+          Ko'rish
         </Button>
       ),
     },
@@ -267,369 +265,184 @@ const TestResults = () => {
 
   if (loading) {
     return (
-      <div style={{ paddingTop: '16px', paddingBottom: '16px', backgroundColor: '#ffffff' }}>
-        <div style={{
-          marginBottom: '24px',
-          paddingBottom: '16px',
-          borderBottom: '1px solid #e2e8f0'
-        }}>
-          <Title level={2} style={{
-            fontSize: '2.5rem',
-            fontWeight: 700,
-            color: '#1e293b',
-            marginBottom: '12px'
-          }}>
-            Mening test natijalarim
-          </Title>
-          <Text style={{
-            fontSize: '1.125rem',
-            color: '#64748b',
-            fontWeight: 400
-          }}>
-            Sizning barcha test natijalaringiz va statistikalaringiz
-          </Text>
-        </div>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px', flexDirection: 'column' }}>
         <Spin size="large" />
-        <Text style={{ color: '#64748b', marginTop: '16px', display: 'block' }}>Yuklanmoqda...</Text>
+        <Text style={{ marginTop: 16, fontWeight: 700, textTransform: 'uppercase' }}>Natijalar yuklanmoqda...</Text>
       </div>
     );
   }
 
   return (
-    <div className="animate__animated animate__fadeIn" style={{ paddingTop: '16px', paddingBottom: '16px', backgroundColor: '#ffffff' }}>
-      {/* Header */}
-      <div className="animate__animated animate__slideInDown" style={{
-        marginBottom: '24px',
-        paddingBottom: '16px',
-        borderBottom: '1px solid #e2e8f0'
-      }}>
-        {/* Title */}
-        <div style={{
-          marginBottom: '16px'
-        }}>
-          <Title level={2} style={{
-            fontSize: '2.5rem',
-            fontWeight: 700,
-            color: '#1e293b',
-            marginBottom: '4px'
-          }}>
-            Mening test natijalarim
-          </Title>
-        </div>
-        
-        {/* Description */}
-        <Text style={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400
-        }}>
-          Sizning barcha test natijalaringiz va statistikalaringiz
-        </Text>
-      </div>
-
-      {/* Search section */}
-      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms', marginBottom: '24px' }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '16px'
-        }}>
-          <Title level={4} style={{
-            fontSize: '1.5rem',
-            fontWeight: 700,
-            color: '#1e293b',
-            marginBottom: 0
-          }}>
-            📊 Mening natijalarim
-          </Title>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <SortAscendingOutlined style={{ color: '#64748b' }} />
-            <Select
-              value={sortBy}
-              onChange={setSortBy}
-              style={{
-                minWidth: 120,
-              }}
-            >
-              <Option value="date">Sana bo'yicha</Option>
-              <Option value="name">Nomi bo'yicha</Option>
-              <Option value="subject">Fan bo'yicha</Option>
-              <Option value="score_high">Bal yuqori</Option>
-              <Option value="score_low">Bal past</Option>
-            </Select>
+    <ConfigProvider theme={{ token: { borderRadius: 0, colorPrimary: '#000' } }}>
+      <div style={{ padding: '40px 0' }}>
+        <div className="animate__animated animate__fadeIn" style={{ marginBottom: '60px' }}>
+          <div style={{ backgroundColor: '#000', color: '#fff', padding: '8px 16px', fontWeight: 700, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px', display: 'inline-block' }}>
+            Natijalar
           </div>
+          <Title level={1} style={{ fontWeight: 900, fontSize: '2.5rem', lineHeight: 0.9, textTransform: 'uppercase', letterSpacing: '-0.05em', color: '#000' }}>
+            Mening natijalarim
+          </Title>
+          <div style={{ width: '80px', height: '10px', backgroundColor: '#000', margin: '24px 0' }}></div>
+          <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, color: '#333', maxWidth: '600px' }}>
+            Barcha topshirilgan testlar natijalarini kuzatib boring va xatolaringiz ustida ishlang.
+          </Paragraph>
         </div>
 
-        <Search
-          placeholder="Test nomi, fan yoki ball bo'yicha qidirish..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          prefix={<SearchOutlined style={{ color: '#64748b' }} />}
-          style={{
-            borderRadius: '8px',
-            backgroundColor: '#ffffff',
-            borderColor: '#e2e8f0'
-          }}
-          onFocus={(e) => {
-            e.target.style.borderColor = '#2563eb';
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = '#e2e8f0';
-          }}
-        />
-      </div>
-
-      {results.length === 0 || getSortedResults().length === 0 ? (
-        <div className="animate__animated animate__fadeInUpBig" style={{ animationDelay: '300ms' }}>
-          <Card
-            style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-              textAlign: 'center',
-              padding: '32px'
-            }}
-          >
-            <Title level={4} style={{ color: '#64748b', marginBottom: '16px' }}>
-              {results.length === 0 ? 'Hozircha test natijalari yo\'q' : 'Qidiruv natijasi bo\'yicha natija topilmadi'}
-            </Title>
-            <Text style={{ color: '#64748b' }}>
-              {results.length === 0 
-                ? 'Test topshirgandan keyin natijalaringiz shu yerda ko\'rinadi'
-                : 'Qidiruv so\'zini o\'zgartirib ko\'ring'
-              }
-            </Text>
+        <div className="animate__animated animate__fadeIn" style={{ marginBottom: '40px' }}>
+          <Card style={{ borderRadius: 0, border: '4px solid #000', boxShadow: '10px 10px 0px #000' }}>
+            <Row gutter={[24, 16]} align="middle">
+              <Col xs={24} md={18}>
+                <Search
+                  placeholder="Test nomi yoki fanini qidirish..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{ borderRadius: 0, width: '100%' }}
+                  size="large"
+                />
+              </Col>
+              <Col xs={24} md={6}>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
+                  <SortAscendingOutlined style={{ fontSize: '20px' }} />
+                  <Select value={sortBy} onChange={setSortBy} style={{ width: '100%' }} size="large">
+                    <Option value="date">Sana</Option>
+                    <Option value="name">Nomi</Option>
+                    <Option value="subject">Fan</Option>
+                    <Option value="score_high">Eng baland ball</Option>
+                    <Option value="score_low">Eng past ball</Option>
+                  </Select>
+                </div>
+              </Col>
+            </Row>
           </Card>
         </div>
-      ) : (
-        <div className="animate__animated animate__fadeInUpBig" style={{ animationDelay: '300ms' }}>
 
+        <div className="animate__animated animate__fadeIn" style={{ animationDelay: '0.3s' }}>
+          {results.length === 0 ? (
+            <Card style={{ borderRadius: 0, border: '4px solid #000', boxShadow: '10px 10px 0px #000', textAlign: 'center', padding: '40px' }}>
+              <BookOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
+              <Title level={4} style={{ fontWeight: 800 }}>Siz hali test topshirmagansiz</Title>
+              <Button type="primary" size="large" onClick={() => navigate('/student/take-test')} style={{ borderRadius: 0, border: '4px solid #000', boxShadow: '5px 5px 0px #000', fontWeight: 900, marginTop: '20px', height: '56px' }}>Hozir topshirish</Button>
+            </Card>
+          ) : (
             <Table
               columns={columns}
-              dataSource={getSortedResults()
-                .map(result => ({ ...result, key: result.id }))
-              }
-              rowKey="id"
+              dataSource={getSortedResults().map(r => ({ ...r, key: r.id }))}
               pagination={{
                 pageSize: pageSize,
                 showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total) => `Jami ${total} ta natija`,
-                pageSizeOptions: ['10', '20', '50', '100'],
-                onShowSizeChange: (current, size) => setPageSize(size),
+                pageSizeOptions: ['10', '20', '50'],
+                onShowSizeChange: (_, size) => setPageSize(size),
               }}
-              locale={{
-                emptyText: 'Natijalar mavjud emas'
-              }}
-              onRow={(record, index) => ({
-                className: 'animate__animated animate__fadeInLeft',
-                style: { 
-                  animationDelay: `${index * 100}ms`,
-                  transition: 'all 0.3s ease'
-                },
-                onMouseEnter: (e) => {
-                  e.currentTarget.style.transform = 'scale(1.02)';
-                },
-                onMouseLeave: (e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                }
-              })}
+              rowHoverable={false}
+              style={{ border: '4px solid #000', boxShadow: '10px 10px 0px #000' }}
               scroll={{ x: 800 }}
+              onRow={(record) => ({
+                style: record.test === highlightId ? {
+                  animation: 'brutalist-flash 0.5s infinite alternate',
+                  backgroundColor: '#fef9c3' // Light yellow
+                } : {}
+              })}
             />
+          )}
         </div>
-      )}
 
-      {/* Results Details Modal */}
-      <Modal
-        title={
-          <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '1.25rem' }}>
-            Test natijalari tafsilotlari
-          </div>
-        }
-        open={dialogOpen}
-        onCancel={handleCloseDialog}
-        width={800}
-        footer={[
-          <Button key="close" onClick={handleCloseDialog}>
-            Yopish
-          </Button>
-        ]}
-      >
-        {selectedResult && (
-          <div>
-            {(() => {
-              const test = getTestById(selectedResult.test);
-              return (
-                <div>
-                  <Title level={4} style={{ color: '#1e293b', fontWeight: 600, marginBottom: '8px' }}>
-                    {test?.title || 'Noma\'lum test'}
-                  </Title>
-                  <Text style={{ color: '#64748b', marginBottom: '24px', display: 'block' }}>
-                    Fan: {test?.subject || 'Noma\'lum'}
-                  </Text>
-
-                  <Card
-                    style={{
-                      backgroundColor: '#f8fafc',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                      marginBottom: '24px'
-                    }}
-                    bodyStyle={{ padding: '16px' }}
-                  >
-                    <Title level={5} style={{ color: '#1e293b', fontWeight: 600, marginBottom: '8px' }}>
-                      Sizning balingiz: <span style={{ color: getScoreColor(selectedResult.score) }}>{selectedResult.score}%</span> ({getScoreLabel(selectedResult.score)})
-                    </Title>
-                  </Card>
-
-                  <Title level={5} style={{ color: '#1e293b', fontWeight: 600, marginBottom: '16px' }}>
-                    Test ma'lumotlari:
-                  </Title>
-
-                  <Card
-                    style={{
-                      backgroundColor: '#ffffff',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                      marginBottom: '24px'
-                    }}
-                    bodyStyle={{ padding: '16px' }}
-                  >
-                    <div style={{ marginBottom: '8px' }}>
-                      <Text style={{ color: '#334155' }}><strong>Fan:</strong> {test?.subject || 'Noma\'lum'}</Text>
+        {/* Details Modal */}
+        <Modal
+          title={<Title level={4} style={{ margin: 0, fontWeight: 900, textTransform: 'uppercase' }}>Natija tafsilotlari</Title>}
+          open={dialogOpen}
+          onCancel={handleCloseDialog}
+          width={900}
+          centered
+          styles={{ mask: { backdropFilter: 'blur(4px)' } }}
+          footer={[<Button key="close" onClick={handleCloseDialog} style={{ borderRadius: 0, border: '3px solid #000', fontWeight: 900, height: '44px' }}>YOPISh</Button>]}
+        >
+          {selectedResult && (
+            <div style={{ padding: '20px 0' }}>
+              {(() => {
+                const test = getTestById(selectedResult.test);
+                return (
+                  <>
+                    <div style={{ backgroundColor: '#000', color: '#fff', padding: '24px', marginBottom: '24px', border: '4px solid #000' }}>
+                      <Row gutter={24} align="middle">
+                        <Col span={16}>
+                          <Title level={3} style={{ color: '#fff', margin: 0, fontWeight: 900, textTransform: 'uppercase' }}>{test?.title || 'Noma\'lum test'}</Title>
+                          <Text style={{ color: '#ccc', fontWeight: 700, fontSize: '14px' }}>FAN: {test?.subject || 'Noma\'lum'}</Text>
+                        </Col>
+                        <Col span={8} style={{ textAlign: 'right' }}>
+                          <div style={{ fontSize: '3rem', fontWeight: 900, lineHeight: 1 }}>{selectedResult.score}%</div>
+                          <div style={{ fontWeight: 900, textTransform: 'uppercase', fontSize: '12px' }}>{getScoreLabel(selectedResult.score)}</div>
+                        </Col>
+                      </Row>
                     </div>
-                    <div style={{ marginBottom: '8px' }}>
-                      <Text style={{ color: '#334155' }}><strong>Savollar soni:</strong> {test?.total_questions || 'Noma\'lum'}</Text>
-                    </div>
-                    <div>
-                      <Text style={{ color: '#334155' }}><strong>Vaqt limiti:</strong> {test?.time_limit || 'Noma\'lum'} daqiqa</Text>
-                    </div>
-                  </Card>
 
-                  <Title level={5} style={{ color: '#1e293b', fontWeight: 600, marginBottom: '16px' }}>
-                    Savollar va javoblar:
-                  </Title>
+                    <Title level={4} style={{ fontWeight: 900, textTransform: 'uppercase', marginBottom: '24px', fontSize: '16px' }}>Savollar tahlili</Title>
 
-                  {questionsLoading ? (
-                    <Text style={{ color: '#64748b', fontStyle: 'italic' }}>
-                      Savollar yuklanmoqda...
-                    </Text>
-                  ) : questions.length > 0 ? (
-                    <div>
-                      {questions.map((question, index) => {
-                        const studentAnswer = selectedResult.answers?.[question.id];
-                        const isCorrect = studentAnswer && question.correct_answer && 
-                          studentAnswer.toString().trim().toLowerCase() === question.correct_answer.toString().trim().toLowerCase();
+                    {questionsLoading ? (
+                      <div style={{ textAlign: 'center', padding: '40px' }}><Spin size="large" /></div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {questions.map((question, index) => {
+                          const studentAnswer = selectedResult.answers?.[question.id];
+                          const isCorrect = studentAnswer && question.correct_answer &&
+                            studentAnswer.toString().trim().toLowerCase() === question.correct_answer.toString().trim().toLowerCase();
 
-                        return (
-                          <Card
-                            key={question.id}
-                            style={{
-                              marginBottom: '16px',
-                              border: '1px solid #e2e8f0',
-                              borderLeft: `4px solid ${isCorrect ? '#10b981' : '#ef4444'}`
-                            }}
-                            bodyStyle={{ padding: '16px' }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
-                              <Tag
-                                style={{
-                                  marginRight: '8px',
-                                  backgroundColor: '#f1f5f9',
-                                  color: '#475569',
-                                  fontWeight: 600,
-                                  border: 'none'
-                                }}
-                              >
-                                {index + 1}-savol
-                              </Tag>
-                              <div style={{ display: 'flex', alignItems: 'center' }}>
-                                {isCorrect ? (
-                                  <CheckCircleOutlined style={{ color: '#10b981', marginRight: '4px' }} />
-                                ) : (
-                                  <CloseCircleOutlined style={{ color: '#ef4444', marginRight: '4px' }} />
-                                )}
-                                <Text style={{
-                                  color: isCorrect ? '#10b981' : '#ef4444',
-                                  fontWeight: 600
-                                }}>
-                                  {isCorrect ? 'To\'g\'ri' : 'Noto\'g\'ri'}
-                                </Text>
+                          return (
+                            <Card
+                              key={question.id}
+                              style={{
+                                borderRadius: 0,
+                                border: '3px solid #000',
+                                borderLeft: `12px solid ${isCorrect ? '#059669' : '#dc2626'}`,
+                                backgroundColor: isCorrect ? '#f0fdf4' : '#fef2f2'
+                              }}
+                            >
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                                <Tag style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 900, backgroundColor: '#000', color: '#fff' }}>SAVOL {index + 1}</Tag>
+                                <Tag color={isCorrect ? 'green' : 'red'} style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 900, textTransform: 'uppercase' }}>
+                                  {isCorrect ? 'TO\'G\'RI' : 'NOTO\'G\'RI'}
+                                </Tag>
                               </div>
-                            </div>
 
-                            <Title level={5} style={{
-                              color: '#1e293b',
-                              fontWeight: 600,
-                              marginBottom: '16px',
-                              fontSize: '1rem'
-                            }}>
-                              {question.question_text}
-                            </Title>
-
-                            {/* Question Image */}
-                            {question.image && (
-                              <div style={{ marginBottom: '16px', textAlign: 'center' }}>
-                                <img
-                                  src={question.image}
-                                  alt="Question"
-                                  style={{
-                                    maxWidth: '100%',
-                                    maxHeight: '300px',
-                                    width: 'auto',
-                                    border: '1px solid #e0e0e0',
-                                    borderRadius: '8px',
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                                    objectFit: 'contain'
-                                  }}
-                                  onError={(e) => {
-                                    console.error('Image failed to load:', question.image);
-                                    e.target.style.display = 'none';
-                                  }}
-                                />
+                              <div style={{ marginBottom: '16px' }}>
+                                <LaTeXPreview text={question.question_text} style={{ fontSize: '1.1rem', fontWeight: 700, color: '#000' }} />
                               </div>
-                            )}
 
-                            {question.explanation && (
-                              <div style={{ marginTop: '16px' }}>
-                                <Text style={{
-                                  color: '#64748b',
-                                  fontWeight: 600,
-                                  marginBottom: '8px',
-                                  display: 'block'
-                                }}>
-                                  Tushuntirish:
-                                </Text>
-                                <div style={{
-                                  color: '#334155',
-                                  backgroundColor: '#f8fafc',
-                                  padding: '16px',
-                                  borderRadius: '4px',
-                                  border: '1px solid #e2e8f0'
-                                }}>
-                                  {question.explanation}
+                              {question.image && (
+                                <div style={{ marginBottom: '16px', border: '2px solid #000', padding: '8px', display: 'inline-block', backgroundColor: '#fff' }}>
+                                  <img src={question.image} alt="Savol rasmi" style={{ maxWidth: '100%', maxHeight: '300px' }} />
                                 </div>
+                              )}
+
+                              <div style={{ padding: '12px', border: '2px solid #000', backgroundColor: '#fff' }}>
+                                <Text style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: '#666' }}>Sizning javobingiz:</Text>
+                                <Text style={{ fontWeight: 700, color: isCorrect ? '#059669' : '#dc2626' }}>{studentAnswer || 'Javob berilmagan'}</Text>
                               </div>
-                            )}
-                          </Card>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <Text style={{ color: '#64748b', fontStyle: 'italic' }}>
-                      Bu test uchun savollar topilmadi.
-                    </Text>
-                  )}
-                </div>
-              );
-            })()}
-          </div>
-        )}
-      </Modal>
-    </div>
+
+                              {question.explanation && (
+                                <div style={{ marginTop: '16px', padding: '12px', border: '2px dashed #000', backgroundColor: '#fff' }}>
+                                  <Text style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: '#666', marginBottom: '4px' }}>Tushuntirish:</Text>
+                                  <Text style={{ fontWeight: 600 }}>{question.explanation}</Text>
+                                </div>
+                              )}
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+          )}
+        </Modal>
+        <style>{`
+          @keyframes brutalist-flash {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0.7; transform: scale(1.02); }
+          }
+        `}</style>
+      </div>
+    </ConfigProvider>
   );
 };
 
