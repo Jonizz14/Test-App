@@ -415,8 +415,13 @@ const Header = ({ demoMode = false }) => {
     if (location.pathname.startsWith('/student')) {
       return [
         { label: 'Asosiy', path: '/student' },
-        { label: 'O\'qituvchilar', path: '/student/search' },
-        { label: 'Sinfdoshlar', path: '/student/classmates' },
+        {
+          label: 'Hamjamiyat',
+          children: [
+            { label: 'O\'qituvchilar', path: '/student/search' },
+            { label: 'Sinfdoshlar', path: '/student/classmates' }
+          ]
+        },
         { label: 'Test topshirish', path: '/student/take-test' },
         { label: 'Natijalarim', path: '/student/results' },
         { label: 'Darslar', path: '/student/lessons' },

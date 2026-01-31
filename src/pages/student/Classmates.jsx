@@ -1,18 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Typography, Input, Button, Alert, Row, Col, Avatar, Table, Tag, Space, Select } from 'antd';
+import {
+  Card,
+  Typography,
+  Input,
+  Button,
+  Alert,
+  Row,
+  Col,
+  Table,
+  Tag,
+  Space,
+  Select,
+  ConfigProvider,
+  Spin,
+  Divider,
+} from 'antd';
 import {
   TeamOutlined,
   UserOutlined,
-  CheckCircleOutlined,
   SearchOutlined,
-  TrophyOutlined,
   SortAscendingOutlined,
+  CrownOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
+import 'animate.css';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
 const { Option } = Select;
 
@@ -30,17 +45,12 @@ const Classmates = () => {
     const loadClassmates = async () => {
       try {
         setLoading(true);
-
-        // Get all users and filter by same class_group
         const allUsers = await apiService.getUsers();
         const allStudents = allUsers.filter(user => user.role === 'student');
-
-        // Filter students in the same class, excluding current user
         const sameClassStudents = allStudents.filter(student =>
           student.class_group === currentUser?.class_group &&
           student.id !== currentUser?.id
         );
-
         setClassmates(sameClassStudents);
       } catch (error) {
         console.error('Failed to load classmates:', error);
@@ -57,101 +67,34 @@ const Classmates = () => {
     }
   }, [currentUser]);
 
-  const handleViewProfile = (studentId) => {
-    navigate(`/student/student-profile/${studentId}`);
-  };
-
-  // Filter classmates based on search term
   const filteredClassmates = classmates.filter(classmate => {
     const classmateName = classmate.name || '';
     return classmateName.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  // Gradient presets for background
-  const GRADIENT_PRESETS = {
-    default: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
-    sunset: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ff4757 100%)',
-    ocean: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    forest: 'linear-gradient(135deg, #134e5e 0%, #71b280 100%)',
-    cherry: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%)',
-    royal: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    fire: 'linear-gradient(135deg, #ff6b35 0%, #ff4757 50%, #ff3838 100%)',
-    ice: 'linear-gradient(135deg, #74b9ff 0%, #0984e3 50%, #6c5ce7 100%)',
-    sunrise: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
-    galaxy: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
-    mint: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-    purple: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+  const getSortedClassmates = () => {
+    const data = [...filteredClassmates];
+    if (sortBy === 'name') {
+      return data.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    }
+    return data;
   };
-
-  if (loading) {
-    return (
-      <div style={{
-        paddingTop: '32px',
-        paddingBottom: '32px',
-        backgroundColor: '#ffffff',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '400px',
-        gap: '16px'
-      }}>
-        <Text>Yuklanmoqda...</Text>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={{
-        paddingTop: '32px',
-        paddingBottom: '32px',
-        backgroundColor: '#ffffff',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '400px'
-      }}>
-        <Text type="danger">{error}</Text>
-      </div>
-    );
-  }
-
-  if (!currentUser?.class_group) {
-    return (
-      <div style={{
-        paddingTop: '32px',
-        paddingBottom: '32px',
-        backgroundColor: '#ffffff',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '400px'
-      }}>
-        <Text>Sizning sinfingiz aniqlanmagan</Text>
-      </div>
-    );
-  }
 
   const columns = [
     {
-      title: 'Sinfdosh ismi',
+      title: 'Sinfdosh',
       dataIndex: 'name',
       key: 'name',
       render: (name, classmate) => (
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          {classmate.is_premium && classmate.profile_photo_url ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {classmate.profile_photo_url ? (
             <img
               src={classmate.profile_photo_url}
               style={{
                 width: 40,
                 height: 40,
-                borderRadius: '50%',
-                border: '2px solid #2563eb',
-                objectFit: 'cover',
-                marginRight: 12
+                border: '2px solid #000',
+                objectFit: 'cover'
               }}
               alt={name}
             />
@@ -159,53 +102,24 @@ const Classmates = () => {
             <div style={{
               width: 40,
               height: 40,
-              borderRadius: '50%',
-              backgroundColor: classmate.is_premium ? '#ffffff' : '#2563eb',
-              color: classmate.is_premium ? '#2563eb' : '#ffffff',
-              border: classmate.is_premium ? '2px solid #2563eb' : 'none',
+              backgroundColor: classmate.is_premium ? '#fef3c7' : '#000',
+              color: classmate.is_premium ? '#000' : '#fff',
+              border: '2px solid #000',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '1.2rem',
-              fontWeight: 700,
-              marginRight: 12
+              fontWeight: 900,
             }}>
-              {name.charAt(0).toUpperCase()}
+              {name ? name.charAt(0).toUpperCase() : '?'}
             </div>
           )}
           <div>
-            <div style={{
-              fontWeight: 600,
-              color: '#1e293b',
-              fontSize: '0.875rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4
-            }}>
+            <div style={{ fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: 6 }}>
               {name}
-              {classmate.display_gift && classmate.display_gift.gift && classmate.display_gift.gift.image && (
-                <img
-                  src={classmate.display_gift.gift.image}
-                  style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: '4px',
-                    objectFit: 'cover'
-                  }}
-                  alt={classmate.display_gift.gift.name || 'Gift'}
-                  title={classmate.display_gift.gift.name || 'Gift'}
-                />
-              )}
+              {classmate.is_premium && <CrownOutlined style={{ color: '#d97706' }} />}
             </div>
-            {classmate.is_premium && (
-              <Text style={{
-                fontSize: '0.75rem',
-                color: '#d97706',
-                fontWeight: 500
-              }}>
-                Premium o'quvchi
-              </Text>
-            )}
+            {classmate.is_premium && <Text style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', color: '#d97706' }}>Premium</Text>}
           </div>
         </div>
       ),
@@ -215,87 +129,31 @@ const Classmates = () => {
       dataIndex: 'direction',
       key: 'direction',
       render: (direction) => (
-        <Text style={{
-          color: '#64748b',
-          fontSize: '0.875rem'
-        }}>
-          {direction === 'natural' ? 'Tabiiy fanlar' : 'Aniq fanlar'}
-        </Text>
+        <Tag style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 700, backgroundColor: '#fff', color: '#000', textTransform: 'uppercase' }}>
+          {direction === 'natural' ? 'Tabiiy' : 'Aniq'}
+        </Tag>
       ),
     },
     {
-      title: 'Status',
-      key: 'status',
-      render: (_, classmate) => (
-        <Space direction="vertical" size={4}>
-          <Tag
-            style={{
-              backgroundColor: '#ecfdf5',
-              color: '#059669',
-              fontWeight: 600,
-              borderRadius: '6px',
-              fontSize: '0.75rem',
-              margin: 0
-            }}
-          >
-            O'quvchi
-          </Tag>
-
-          {classmate.is_premium && (
-            <Tag
-              icon={<CheckCircleOutlined />}
-              style={{
-                backgroundColor: '#fef3c7',
-                color: '#d97706',
-                fontWeight: 600,
-                borderRadius: '6px',
-                fontSize: '0.75rem',
-                margin: 0
-              }}
-            >
-              Premium
-            </Tag>
-          )}
-
-          {classmate.is_banned && (
-            <Tag
-              style={{
-                backgroundColor: '#fef2f2',
-                color: '#dc2626',
-                fontWeight: 600,
-                borderRadius: '6px',
-                fontSize: '0.75rem',
-                margin: 0
-              }}
-            >
-              Bloklangan
-            </Tag>
-          )}
-        </Space>
-      ),
-    },
-    {
-      title: 'Harakatlar',
+      title: 'Harakat',
       key: 'actions',
+      width: 120,
       render: (_, classmate) => (
         <Button
           size="small"
-          type="primary"
-          onClick={() => handleViewProfile(classmate.id)}
+          onClick={() => navigate(`/student/student-profile/${classmate.id}`)}
           style={{
-            fontSize: '0.75rem',
-            padding: '4px 8px',
-            minWidth: 'auto',
-            backgroundColor: '#2563eb',
-            borderColor: '#2563eb'
+            borderRadius: 0,
+            border: '2px solid #000',
+            boxShadow: '4px 4px 0px #000',
+            backgroundColor: '#fff',
+            color: '#000',
+            fontWeight: 800,
+            textTransform: 'uppercase',
+            fontSize: '11px',
+            height: '32px'
           }}
           icon={<UserOutlined />}
-          onMouseEnter={(e) => {
-            e.target.style.backgroundColor = '#1d4ed8';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.backgroundColor = '#2563eb';
-          }}
         >
           Ko'rish
         </Button>
@@ -303,202 +161,117 @@ const Classmates = () => {
     },
   ];
 
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px', flexDirection: 'column' }}>
+        <Spin size="large" />
+        <Text style={{ marginTop: 16, fontWeight: 700, textTransform: 'uppercase' }}>Sinfdoshlar yuklanmoqda...</Text>
+      </div>
+    );
+  }
+
   return (
-    <div className='animate__animated animate__fadeIn' style={{
-      paddingTop: '16px',
-      paddingBottom: '16px',
-      backgroundColor: '#ffffff',
-      minHeight: '100vh'
-    }}>
-      {/* Header */}
-      <div className='animate__animated animate__slideInDown' style={{
-        marginBottom: '24px',
-        paddingBottom: '16px',
-        borderBottom: '1px solid #e2e8f0'
-      }}>
-        {/* Title, Description, and Button */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-        }}>
-          <div style={{ flex: 1 }}>
-            <Title level={2} style={{
-              fontSize: '2.5rem',
-              fontWeight: 700,
-              color: '#1e293b',
-
-            }}>
-              Sinfdoshlarim
-            </Title>
-            <Text style={{
-              fontSize: '1.125rem',
-              color: '#64748b',
-              fontWeight: 400,
-            }}>
-              {currentUser?.class_group} sinfidagi sinfdoshlaringizni toping va ularning profilini ko'ring
-            </Text>
-          </div>
-        </div>
-      </div>
-
-      {/* Search section */}
-      <div className='animate__animated animate__fadeInUp' style={{ marginBottom: '24px' }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '16px'
-        }}>
-          <Title level={4} style={{
-            fontSize: '1.5rem',
+    <ConfigProvider
+      theme={{
+        token: {
+          borderRadius: 0,
+          colorPrimary: '#000',
+        },
+      }}
+    >
+      <div style={{ padding: '40px 0' }}>
+        <div className="animate__animated animate__fadeIn" style={{ marginBottom: '60px' }}>
+          <div style={{
+            display: 'inline-block',
+            backgroundColor: '#000',
+            color: '#fff',
+            padding: '8px 16px',
             fontWeight: 700,
-            color: '#1e293b',
-            marginBottom: 0
+            fontSize: '14px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.2em',
+            marginBottom: '16px'
           }}>
-            👥 Sinfdoshlarni qidirish
-          </Title>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <SortAscendingOutlined style={{ color: '#64748b' }} />
-            <Select
-              value={sortBy}
-              onChange={setSortBy}
-              style={{
-                minWidth: 120,
-              }}
-            >
-              <Option value="date">Sana bo'yicha</Option>
-              <Option value="name">Nomi bo'yicha</Option>
-              <Option value="difficulty">Qiyinchilik bo'yicha</Option>
-              <Option value="easy">Oson</Option>
-              <Option value="medium">O'rtacha</Option>
-              <Option value="hard">Qiyin</Option>
-            </Select>
+            Sinf {currentUser?.class_group || 'Noma\'lum'}
           </div>
+          <Title level={1} style={{
+            margin: 0,
+            fontWeight: 900,
+            fontSize: '2.5rem',
+            lineHeight: 0.9,
+            textTransform: 'uppercase',
+            letterSpacing: '-0.05em',
+            color: '#000'
+          }}>
+            Sinfdoshlarim
+          </Title>
+          <div style={{
+            width: '80px',
+            height: '10px',
+            backgroundColor: '#000',
+            margin: '24px 0'
+          }}></div>
+          <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, color: '#333', maxWidth: '600px' }}>
+            Siz bilan birga bilim olayotgan do'stlaringizni toping va ularning yutuqlarini kuzating.
+          </Paragraph>
         </div>
 
-        <Search
-          placeholder="Sinfdosh nomini kiriting..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          prefix={<SearchOutlined style={{ color: '#64748b' }} />}
-          style={{
-            borderRadius: '8px',
-            backgroundColor: '#ffffff',
-            borderColor: '#e2e8f0'
-          }}
-          onFocus={(e) => {
-            e.target.style.borderColor = '#2563eb';
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = '#e2e8f0';
-          }}
-        />
+        {error && (
+          <Alert
+            message={error}
+            type="error"
+            showIcon
+            style={{ borderRadius: 0, border: '3px solid #000', boxShadow: '6px 6px 0px #000', fontWeight: 600, marginBottom: '40px' }}
+          />
+        )}
+
+        {!currentUser?.class_group ? (
+          <Alert message="Sizning sinfingiz aniqlanmagan" type="warning" showIcon style={{ borderRadius: 0, border: '3px solid #000', boxShadow: '6px 6px 0px #000', fontWeight: 700 }} />
+        ) : (
+          <>
+            <div className="animate__animated animate__fadeIn" style={{ marginBottom: '40px' }}>
+              <Card style={{ borderRadius: 0, border: '4px solid #000', boxShadow: '10px 10px 0px #000' }}>
+                <Row gutter={[24, 16]} align="middle">
+                  <Col xs={24} md={18}>
+                    <Search
+                      placeholder="Sinfdosh ismini qidirish..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      style={{ borderRadius: 0, width: '100%' }}
+                      size="large"
+                    />
+                  </Col>
+                  <Col xs={24} md={6}>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
+                      <SortAscendingOutlined style={{ fontSize: '20px' }} />
+                      <Select value={sortBy} onChange={setSortBy} style={{ width: 160 }} size="large">
+                        <Option value="name">Nomi bo'yicha</Option>
+                      </Select>
+                    </div>
+                  </Col>
+                </Row>
+              </Card>
+            </div>
+
+            <div className="animate__animated animate__fadeIn" style={{ animationDelay: '0.3s' }}>
+              <Table
+                columns={columns}
+                dataSource={getSortedClassmates().map(c => ({ ...c, key: c.id }))}
+                pagination={{
+                  pageSize: pageSize,
+                  showSizeChanger: true,
+                  pageSizeOptions: ['10', '20', '50'],
+                  onShowSizeChange: (_, size) => setPageSize(size),
+                }}
+                rowHoverable={false}
+                style={{ border: '4px solid #000', boxShadow: '10px 10px 0px #000' }}
+                scroll={{ x: 600 }}
+              />
+            </div>
+          </>
+        )}
       </div>
-
-      {/* Classmates section */}
-      <div className="animate__animated animate__fadeInUpBig" style={{ animationDelay: '300ms', marginBottom: '24px' }}>
-        <Table
-          columns={columns}
-          dataSource={filteredClassmates.map(classmate => ({ ...classmate, key: classmate.id }))}
-          loading={loading}
-          rowKey="id"
-          pagination={{
-            pageSize: pageSize,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total) => `Jami ${total} ta sinfdosh`,
-            pageSizeOptions: ['10', '20', '50', '100'],
-            onShowSizeChange: (current, size) => setPageSize(size),
-          }}
-          locale={{
-            emptyText: 'Sinfdoshlilar mavjud emas'
-          }}
-          onRow={(record, index) => ({
-            className: 'animate__animated animate__fadeInLeft',
-            style: { 
-              animationDelay: `${index * 100}ms`,
-              transition: 'all 0.3s ease'
-            },
-            onMouseEnter: (e) => {
-              e.currentTarget.style.transform = 'scale(1.02)';
-            },
-            onMouseLeave: (e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-            }
-          })}
-          size="middle"
-          bordered={false}
-          style={{
-            '& .ant-table-thead > tr > th': {
-              backgroundColor: '#f8fafc',
-              fontWeight: 700,
-              fontSize: '0.875rem',
-              color: '#1e293b',
-              borderBottom: '1px solid #e2e8f0',
-              padding: '16px'
-            },
-            '& .ant-table-tbody > tr > td': {
-              borderBottom: '1px solid #f1f5f9',
-              padding: '16px',
-              fontSize: '0.875rem',
-              color: '#334155'
-            },
-            '& .ant-table-tbody > tr:hover > td': {
-              backgroundColor: '#f8fafc'
-            }
-          }}
-        />
-      </div>
-
-      {/* No results message */}
-      {filteredClassmates.length === 0 && classmates.length > 0 && (
-        <Card style={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          padding: '24px',
-          textAlign: 'center'
-        }}>
-          <Title level={5} style={{
-            color: '#64748b',
-            fontWeight: 600,
-            marginBottom: '8px'
-          }}>
-            Sizning qidiruvingizga mos sinfdosh topilmadi
-          </Title>
-          <Text style={{ color: '#94a3b8' }}>
-            Qidiruv so'zini o'zgartirib ko'ring
-          </Text>
-        </Card>
-      )}
-
-      {/* No classmates message */}
-      {classmates.length === 0 && (
-        <Card style={{
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          padding: '24px',
-          textAlign: 'center'
-        }}>
-          <TeamOutlined style={{ fontSize: '4rem', color: '#cbd5e1', marginBottom: '8px' }} />
-          <Title level={5} style={{
-            color: '#64748b',
-            fontWeight: 600,
-            marginBottom: '8px'
-          }}>
-            Sinfdoshlar topilmadi
-          </Title>
-          <Text style={{ color: '#94a3b8' }}>
-            Sizning sinfingizda boshqa o'quvchilar yo'q
-          </Text>
-        </Card>
-      )}
-    </div>
+    </ConfigProvider>
   );
 };
 

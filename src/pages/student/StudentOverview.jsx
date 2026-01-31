@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import 'animate.css';
 import {
   Row,
   Col,
@@ -8,29 +7,33 @@ import {
   Alert,
   Spin,
   Statistic,
+  ConfigProvider,
+  Divider,
 } from 'antd';
-import { ConfigProvider, theme } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import {
-  UserOutlined,
-  TeamOutlined,
-  SafetyCertificateOutlined,
   BookOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
   RiseOutlined,
+  BarChartOutlined,
   TrophyOutlined,
   ReadOutlined,
-  SmileOutlined,
-  ClockCircleOutlined,
   StarOutlined,
-  BarChartOutlined,
-  CheckCircleOutlined,
+  CrownOutlined,
+  SafetyCertificateOutlined,
+  SearchOutlined,
+  TeamOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
+import 'animate.css';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 
 const StudentOverview = () => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalTests: 0,
     completedTests: 0,
@@ -47,13 +50,10 @@ const StudentOverview = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch student statistics from the database
   useEffect(() => {
     const fetchStudentStatistics = async () => {
       try {
         setLoading(true);
-        
-        // Fetch student's attempts and user data in parallel
         const [attemptsData, userData] = await Promise.all([
           apiService.getAttempts({ student: currentUser.id }),
           apiService.getUser(currentUser.id)
@@ -62,12 +62,10 @@ const StudentOverview = () => {
         const attempts = attemptsData.results || attemptsData;
         const user = userData;
 
-        // Calculate statistics
         const totalAttempts = attempts.length;
         const completedTests = attempts.filter(attempt => attempt.submitted_at).length;
         const activeTests = attempts.filter(attempt => !attempt.submitted_at).length;
 
-        // Calculate score statistics
         const scores = attempts
           .filter(attempt => attempt.score !== null && attempt.score !== undefined)
           .map(attempt => attempt.score || 0);
@@ -76,18 +74,10 @@ const StudentOverview = () => {
           ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
           : 0;
 
-        const highestScore = scores.length > 0
-          ? Math.round(Math.max(...scores))
-          : 0;
+        const highestScore = scores.length > 0 ? Math.round(Math.max(...scores)) : 0;
+        const lowestScore = scores.length > 0 ? Math.round(Math.min(...scores)) : 0;
 
-        const lowestScore = scores.length > 0
-          ? Math.round(Math.min(...scores))
-          : 0;
-
-        // Calculate total points (assuming points are calculated from scores)
-        const totalPoints = attempts.reduce((sum, attempt) => {
-          return sum + (attempt.score || 0);
-        }, 0);
+        const totalPoints = attempts.reduce((sum, attempt) => sum + (attempt.score || 0), 0);
 
         setStats({
           totalTests: completedTests + activeTests,
@@ -116,277 +106,293 @@ const StudentOverview = () => {
     }
   }, [currentUser]);
 
-  const StatCard = ({ title, value, icon, color, suffix }) => (
-    <Card
-      style={{
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-      }}
-      styles={{ body: { padding: '24px' } }}
-      hoverable
-    >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ flex: 1 }}>
-          <Text
-            style={{
-              fontSize: '12px',
-              fontWeight: 600,
+  const StatBox = ({ title, value, icon, delay, suffix }) => (
+    <div className="animate__animated animate__fadeIn" style={{ animationDelay: delay }}>
+      <Card
+        style={{
+          borderRadius: 0,
+          border: '4px solid #000',
+          boxShadow: '10px 10px 0px #000',
+          backgroundColor: '#fff',
+        }}
+        styles={{ body: { padding: '24px' } }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px' }}>
+          <div>
+            <Text style={{
+              fontSize: '11px',
+              fontWeight: 900,
               textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-              color: '#64748b',
+              letterSpacing: '0.1em',
+              color: '#000',
               display: 'block',
-              marginBottom: '8px'
-            }}
-          >
-            {title}
-          </Text>
-          <Statistic
-            value={value}
-            suffix={suffix}
-            styles={{
-              content: {
-                fontSize: '40px',
-                fontWeight: 700,
-                color: '#1e293b',
-                lineHeight: 1.2
-              }
-            }}
-          />
-        </div>
-        <div
-          style={{
-            backgroundColor: color,
-            borderRadius: '12px',
-            padding: '16px',
-            display: 'flex',
+              marginBottom: '4px'
+            }}>
+              {title}
+            </Text>
+            <Statistic
+              value={value}
+              suffix={suffix}
+              valueStyle={{
+                fontSize: '32px',
+                fontWeight: 900,
+                color: '#000',
+                letterSpacing: '-1px',
+                lineHeight: 1
+              }}
+            />
+          </div>
+          <div style={{
+            display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            marginLeft: '16px'
-          }}
-        >
-          {React.cloneElement(icon, {
-            style: {
-              fontSize: '32px',
-              color: '#ffffff'
-            }
-          })}
+            width: '44px',
+            height: '44px',
+            backgroundColor: '#000',
+            color: '#fff',
+            border: '2px solid #000',
+            flexShrink: 0
+          }}>
+            {React.cloneElement(icon, { style: { fontSize: '20px' } })}
+          </div>
         </div>
-      </div>
-    </Card>
+      </Card>
+    </div>
   );
 
   if (loading) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '400px',
-        flexDirection: 'column'
-      }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px', flexDirection: 'column' }}>
         <Spin size="large" />
-        <Text style={{ marginTop: 16 }}>Ma'lumotlar yuklanmoqda...</Text>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={{ padding: '24px' }}>
-        <Alert
-          message={error}
-          type="error"
-          showIcon
-          style={{ marginBottom: '16px' }}
-        />
+        <Text style={{ marginTop: 16, fontWeight: 800, textTransform: 'uppercase' }}>Yuklanmoqda...</Text>
       </div>
     );
   }
 
   return (
-    <div className="animate__animated animate__fadeIn" style={{ padding: '24px 0' }}>
-      {/* Header */}
-      <div className="animate__animated animate__fadeInDown" style={{
-        marginBottom: '24px',
-        paddingBottom: '16px',
-        borderBottom: '1px solid #e2e8f0'
-      }}>
-        <Title level={1} style={{ margin: 0, color: '#1e293b', marginBottom: '8px' }}>
-          Talaba Umumiy ko'rinishi
-        </Title>
-        <Text style={{ fontSize: '18px', color: '#64748b' }}>
-          O'quv faoliyatingiz haqida umumiy statistika
-        </Text>
-      </div>
+    <ConfigProvider
+      theme={{
+        token: {
+          borderRadius: 0,
+          colorPrimary: '#000',
+        },
+      }}
+    >
+      <div style={{ padding: '40px 0' }}>
+        {/* Brutalist Header */}
+        <div className="animate__animated animate__fadeIn" style={{ marginBottom: '60px' }}>
+          <div style={{
+            display: 'inline-block',
+            backgroundColor: '#000',
+            color: '#fff',
+            padding: '8px 16px',
+            fontWeight: 900,
+            fontSize: '14px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.2em',
+            marginBottom: '16px'
+          }}>
+            Talaba Umumiy
+          </div>
+          <Title level={1} style={{
+            margin: 0,
+            fontWeight: 900,
+            fontSize: '2.5rem',
+            lineHeight: 0.9,
+            textTransform: 'uppercase',
+            letterSpacing: '-0.05em',
+            color: '#000'
+          }}>
+            Mening O'quv Faoliyatim
+          </Title>
+          <div style={{
+            width: '80px',
+            height: '10px',
+            backgroundColor: '#000',
+            margin: '24px 0'
+          }}></div>
+          <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, color: '#333', maxWidth: '600px' }}>
+            Sizning barcha topshirgan testlaringiz, urinishlaringiz va natijalaringiz haqidagi to'liq tahlil va ko'rsatkichlar.
+          </Paragraph>
+        </div>
 
-      {/* All Statistics Cards with Entrance Animations */}
-      <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
-        <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '100ms' }}>
-            <StatCard
+        {error && (
+          <Alert
+            message={error}
+            type="error"
+            showIcon
+            style={{
+              borderRadius: 0,
+              border: '3px solid #000',
+              boxShadow: '6px 6px 0px #000',
+              fontWeight: 800,
+              marginBottom: '40px'
+            }}
+          />
+        )}
+
+        {/* Statistics Grid */}
+        <Row gutter={[32, 32]}>
+          <Col xs={24} sm={12} lg={6}>
+            <StatBox
               title="Jami testlar"
               value={stats.totalTests}
               icon={<BookOutlined />}
-              color="#2563eb"
+              delay="0.1s"
             />
-          </div>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '200ms' }}>
-            <StatCard
-              title="Topshirilgan testlar"
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <StatBox
+              title="Topshirilganlar"
               value={stats.completedTests}
               icon={<CheckCircleOutlined />}
-              color="#16a34a"
+              delay="0.2s"
             />
-          </div>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '300ms' }}>
-            <StatCard
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <StatBox
               title="Jami urinishlar"
               value={stats.totalAttempts}
               icon={<ClockCircleOutlined />}
-              color="#059669"
+              delay="0.3s"
             />
-          </div>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '400ms' }}>
-            <StatCard
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <StatBox
               title="Faol testlar"
               value={stats.activeTests}
               icon={<RiseOutlined />}
-              color="#7c3aed"
+              delay="0.4s"
             />
-          </div>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '500ms' }}>
-            <StatCard
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <StatBox
               title="O'rtacha ball"
               value={stats.averageScore}
               suffix="%"
               icon={<BarChartOutlined />}
-              color="#2563eb"
+              delay="0.5s"
             />
-          </div>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '600ms' }}>
-            <StatCard
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <StatBox
               title="Eng yuqori ball"
               value={stats.highestScore}
               suffix="%"
               icon={<TrophyOutlined />}
-              color="#16a34a"
+              delay="0.6s"
             />
-          </div>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '700ms' }}>
-            <StatCard
-              title="Eng past ball"
-              value={stats.lowestScore}
-              suffix="%"
-              icon={<ReadOutlined />}
-              color="#dc2626"
-            />
-          </div>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '800ms' }}>
-            <StatCard
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <StatBox
               title="Jami ballar"
               value={stats.totalPoints}
               icon={<StarOutlined />}
-              color="#f59e0b"
+              delay="0.7s"
             />
-          </div>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '900ms' }}>
-            <StatCard
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <StatBox
               title="Yulduzlar"
               value={stats.stars}
               icon={<StarOutlined />}
-              color="#f59e0b"
+              delay="0.8s"
             />
-          </div>
-        </Col>
-      </Row>
+          </Col>
+        </Row>
 
-      {/* Premium Status Section with Entrance Animation */}
-      {stats.isPremium && (
-        <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '1000ms' }}>
-          <Card
-            style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-              marginTop: '24px'
-            }}
-          >
-            <Title level={3} style={{
-              fontSize: '1.25rem',
-              fontWeight: 700,
-              color: '#1e293b',
-              marginBottom: '24px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              ⭐ Premium a'zolik
-            </Title>
-            <Row gutter={[24, 24]}>
-              <Col xs={24} sm={12}>
-                <Card style={{
-                  backgroundColor: '#fef3c7',
-                  border: '1px solid #fcd34d',
-                  borderRadius: '8px',
-                  transition: 'all 0.2s ease',
+        {stats.isPremium && (
+          <div className="animate__animated animate__fadeIn" style={{ marginTop: '40px', animationDelay: '0.85s' }}>
+            <Card
+              style={{
+                borderRadius: 0,
+                border: '4px solid #000',
+                boxShadow: '10px 10px 0px #000',
+                backgroundColor: '#fef3c7',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <CrownOutlined style={{ fontSize: '32px', color: '#000' }} />
+                <div>
+                  <Title level={4} style={{ margin: 0, fontWeight: 900, textTransform: 'uppercase' }}>Premium A'zolik Faol</Title>
+                  <Text style={{ fontWeight: 600 }}>Barcha imkoniyatlardan cheksiz foydalanishingiz mumkin.</Text>
+                  {stats.premiumExpiry && (
+                    <Text style={{ display: 'block', fontWeight: 800, marginTop: '4px' }}>Muddati: {new Date(stats.premiumExpiry).toLocaleDateString()}</Text>
+                  )}
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        <Divider style={{ margin: '48px 0', borderTop: '4px solid #000' }} />
+
+        <div className="animate__animated animate__fadeIn" style={{ animationDelay: '0.9s' }}>
+          <Title level={2} style={{ fontWeight: 900, textTransform: 'uppercase', marginBottom: '32px' }}>
+            Tezkor Havolalar
+          </Title>
+          <Row gutter={[32, 32]}>
+            <Col xs={24} sm={12} lg={8}>
+              <Card
+                hoverable
+                onClick={() => navigate('/student/take-test')}
+                style={{
+                  borderRadius: 0,
+                  border: '4px solid #000',
+                  boxShadow: '10px 10px 0px #000',
+                  cursor: 'pointer',
+                  height: '100%'
                 }}
-                >
-                  <div style={{ padding: '16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                      <SafetyCertificateOutlined style={{ fontSize: '24px', color: '#d97706' }} />
-                      <Text style={{
-                        fontSize: '18px',
-                        fontWeight: 600,
-                        color: '#92400e'
-                      }}>
-                        Faol Premium
-                      </Text>
-                    </div>
-                    <Text style={{
-                      fontSize: '14px',
-                      color: '#78350f',
-                      display: 'block'
-                    }}>
-                      Barcha premium imtiyozlardan foydalanishingiz mumkin
-                    </Text>
-                    {stats.premiumExpiry && (
-                      <Text style={{
-                        fontSize: '14px',
-                        color: '#78350f',
-                        marginTop: '8px',
-                        display: 'block'
-                      }}>
-                        <strong>Muddati:</strong> {new Date(stats.premiumExpiry).toLocaleDateString('uz-UZ')}
-                      </Text>
-                    )}
-                  </div>
-                </Card>
-              </Col>
-            </Row>
-          </Card>
+              >
+                <div style={{ textAlign: 'center', padding: '12px' }}>
+                  <RiseOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
+                  <Title level={4} style={{ fontWeight: 800, textTransform: 'uppercase', margin: 0 }}>Test Topshirish</Title>
+                  <Text style={{ fontWeight: 600 }}>Yangi testlarni boshlang va bilimingizni sinang</Text>
+                </div>
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} lg={8}>
+              <Card
+                hoverable
+                onClick={() => navigate('/student/results')}
+                style={{
+                  borderRadius: 0,
+                  border: '4px solid #000',
+                  boxShadow: '10px 10px 0px #000',
+                  cursor: 'pointer',
+                  height: '100%'
+                }}
+              >
+                <div style={{ textAlign: 'center', padding: '12px' }}>
+                  <TrophyOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
+                  <Title level={4} style={{ fontWeight: 800, textTransform: 'uppercase', margin: 0 }}>Natijalarim</Title>
+                  <Text style={{ fontWeight: 600 }}>Barcha topshirilgan testlar tahlili</Text>
+                </div>
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} lg={8}>
+              <Card
+                hoverable
+                onClick={() => navigate('/student/search')}
+                style={{
+                  borderRadius: 0,
+                  border: '4px solid #000',
+                  boxShadow: '10px 10px 0px #000',
+                  cursor: 'pointer',
+                  height: '100%'
+                }}
+              >
+                <div style={{ textAlign: 'center', padding: '12px' }}>
+                  <SearchOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
+                  <Title level={4} style={{ fontWeight: 800, textTransform: 'uppercase', margin: 0 }}>Ustozlarni Izlash</Title>
+                  <Text style={{ fontWeight: 600 }}>Tajribali o'qituvchilarni toping va dars oling</Text>
+                </div>
+              </Card>
+            </Col>
+          </Row>
         </div>
-      )}
-    </div>
+      </div>
+    </ConfigProvider>
   );
 };
 
