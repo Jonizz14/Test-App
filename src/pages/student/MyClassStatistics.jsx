@@ -208,20 +208,20 @@ const MyClassStatistics = () => {
     }
   }, [currentUser]);
 
-  const StatCard = ({ title, value, icon, description }) => (
+  const StatCard = ({ title, value, icon, description, color = '#2563eb' }) => (
     <Card
       style={{
         backgroundColor: '#ffffff',
-        border: '4px solid #000',
+        border: `4px solid ${color}`,
         borderRadius: 0,
-        boxShadow: '8px 8px 0px #000',
+        boxShadow: `8px 8px 0px ${color}20`,
         height: '100%',
       }}
       bodyStyle={{ padding: '20px' }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
         <div style={{
-          backgroundColor: '#000',
+          backgroundColor: color,
           width: '40px',
           height: '40px',
           display: 'flex',
@@ -232,14 +232,14 @@ const MyClassStatistics = () => {
           {React.cloneElement(icon, { style: { fontSize: '20px' } })}
         </div>
       </div>
-      <Text style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#666', display: 'block' }}>
+      <Text style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748b', display: 'block' }}>
         {title}
       </Text>
-      <Title level={2} style={{ margin: '4px 0', fontWeight: 900, fontSize: '2.5rem', lineHeight: 1 }}>
+      <Title level={2} style={{ margin: '4px 0', fontWeight: 900, fontSize: '2.5rem', lineHeight: 1, color: '#1e293b' }}>
         {value}
       </Title>
       {description && (
-        <Text style={{ fontSize: '10px', fontWeight: 700, color: '#999', textTransform: 'uppercase' }}>
+        <Text style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase' }}>
           {description}
         </Text>
       )}
@@ -260,14 +260,14 @@ const MyClassStatistics = () => {
       <div className="animate__animated animate__fadeIn" style={{ padding: '40px 0' }}>
         {/* Header */}
         <div style={{ marginBottom: '60px' }}>
-          <div style={{ backgroundColor: '#000', color: '#fff', padding: '8px 16px', fontWeight: 700, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px', display: 'inline-block' }}>
-            Sinf Statistikasi
+          <div style={{ backgroundColor: '#2563eb', color: '#fff', padding: '8px 16px', fontWeight: 700, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px', display: 'inline-block' }}>
+            Statistika
           </div>
-          <Title level={1} style={{ fontWeight: 900, fontSize: '3rem', lineHeight: 0.9, textTransform: 'uppercase', letterSpacing: '-0.05em', color: '#000' }}>
-            Sinfdoshlar ko'rsatkichlari
+          <Title level={1} style={{ fontWeight: 900, fontSize: '3rem', lineHeight: 0.9, textTransform: 'uppercase', letterSpacing: '-0.05em', color: '#1e293b' }}>
+            Sinf <span style={{ color: '#2563eb' }}>statistikasi</span>
           </Title>
-          <div style={{ width: '80px', height: '10px', backgroundColor: '#000', margin: '24px 0' }}></div>
-          <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, color: '#333', maxWidth: '600px' }}>
+          <div style={{ width: '80px', height: '10px', backgroundColor: '#2563eb', margin: '24px 0' }}></div>
+          <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, color: '#334155', maxWidth: '600px' }}>
             Sinfingizning umumiy natijalari, fanlar bo'yicha o'rtacha ballar va faol o'quvchilar reytingi.
           </Paragraph>
         </div>
@@ -276,11 +276,11 @@ const MyClassStatistics = () => {
         <Row gutter={[24, 24]} style={{ marginBottom: '40px' }}>
           <Col span={24}>
             <div className="animate__animated animate__fadeInUp" style={{
-              backgroundColor: '#000',
+              background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
               color: '#fff',
               padding: '24px',
-              border: '4px solid #000',
-              boxShadow: '10px 10px 0px rgba(0,0,0,0.2)',
+              border: '4px solid #1e293b',
+              boxShadow: '10px 10px 0px rgba(30, 41, 59, 0.2)',
               position: 'relative',
               overflow: 'hidden'
             }}>
@@ -288,7 +288,7 @@ const MyClassStatistics = () => {
                 <Title level={3} style={{ color: '#fff', margin: 0, fontWeight: 900, textTransform: 'uppercase' }}>
                   Sinf guruhingiz: {currentUser?.class_group || 'Noma\'lum'}
                 </Title>
-                <Text style={{ color: '#aaa', fontWeight: 700 }}>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 700 }}>
                   Jami {stats.totalStudents} o'quvchi, shundan {stats.activeStudents} nafari faol.
                 </Text>
               </div>
@@ -298,13 +298,18 @@ const MyClassStatistics = () => {
         </Row>
 
         {/* Chart Controls */}
-        <Card style={{ border: '4px solid #000', boxShadow: '8px 8px 0px #000', marginBottom: '40px' }} title={<Text style={{ fontWeight: 900, textTransform: 'uppercase' }}><SettingOutlined /> KO'RSATKICHLARNI BOSHQARISH</Text>}>
+        <Card style={{ border: '4px solid #1e293b', boxShadow: '8px 8px 0px rgba(30, 41, 59, 0.1)', marginBottom: '40px' }} title={<Text style={{ fontWeight: 900, textTransform: 'uppercase', color: '#1e293b' }}><SettingOutlined /> KO'RSATKICHLARNI BOSHQARISH</Text>}>
           <Row gutter={[24, 16]}>
-            {Object.keys(visibleCharts).map(key => (
-              <Col xs={12} sm={8} key={key}>
+            {[
+              { key: 'studentRanking', label: 'O\'quvchilar reytingi' },
+              { key: 'subjectAverage', label: 'Fanlar o\'rtachasi' },
+              { key: 'classNotifications', label: 'Sinf xabarnomalari' },
+              { key: 'classPerformance', label: 'Sinf o\'zlashtirishi' }
+            ].map(item => (
+              <Col xs={12} sm={8} key={item.key}>
                 <Space>
-                  <Switch size="small" checked={visibleCharts[key]} onChange={() => toggleChart(key)} />
-                  <Text style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase' }}>{key.replace(/([A-Z])/g, ' $1')}</Text>
+                  <Switch size="small" checked={visibleCharts[item.key]} onChange={() => toggleChart(item.key)} />
+                  <Text style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: '#1e293b' }}>{item.label}</Text>
                 </Space>
               </Col>
             ))}
@@ -319,6 +324,7 @@ const MyClassStatistics = () => {
               value={`${stats.classAverageScore}%`}
               icon={<RiseOutlined />}
               description="Barcha o'quvchilar bo'yicha"
+              color="#2563eb"
             />
           </Col>
           <Col xs={24} sm={12} lg={6}>
@@ -327,6 +333,7 @@ const MyClassStatistics = () => {
               value={`${stats.highestScore}%`}
               icon={<TrophyOutlined />}
               description="Sinfning rekord natijasi"
+              color="#f59e0b"
             />
           </Col>
           <Col xs={24} sm={12} lg={6}>
@@ -335,6 +342,7 @@ const MyClassStatistics = () => {
               value={stats.totalAttempts}
               icon={<ThunderboltOutlined />}
               description="Sinf bo'yicha jami test"
+              color="#059669"
             />
           </Col>
           <Col xs={24} sm={12} lg={6}>
@@ -343,6 +351,7 @@ const MyClassStatistics = () => {
               value={`${Math.round((stats.activeStudents / stats.totalStudents) * 100)}%`}
               icon={<TeamOutlined />}
               description="O'quvchilar ishtiroki"
+              color="#7c3aed"
             />
           </Col>
         </Row>
@@ -351,13 +360,13 @@ const MyClassStatistics = () => {
           {/* Top Students Table */}
           {visibleCharts.studentRanking && (
             <Col xs={24} lg={14}>
-              <Card title={<Text style={{ fontWeight: 900, textTransform: 'uppercase' }}>O'quvchi reytingi</Text>} style={{ border: '4px solid #000', boxShadow: '12px 12px 0px #000', height: '100%' }}>
+              <Card title={<Text style={{ fontWeight: 900, textTransform: 'uppercase', color: '#2563eb' }}>O'quvchi reytingi</Text>} style={{ border: '4px solid #2563eb', boxShadow: '12px 12px 0px rgba(37, 99, 235, 0.1)', height: '100%' }}>
                 <Table
                   columns={[
                     {
                       title: '№',
                       key: 'index',
-                      render: (_, __, index) => <Text style={{ fontWeight: 900 }}>{index + 1}</Text>,
+                      render: (_, __, index) => <Text style={{ fontWeight: 900, color: '#1e293b' }}>{index + 1}</Text>,
                       width: 50
                     },
                     {
@@ -366,10 +375,10 @@ const MyClassStatistics = () => {
                       key: 'name',
                       render: (name, record) => (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <div style={{ backgroundColor: '#000', width: '24px', height: '24px', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 900 }}>
+                          <div style={{ backgroundColor: record.id === currentUser.id ? '#2563eb' : '#1e293b', width: '24px', height: '24px', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 900 }}>
                             {name.charAt(0)}
                           </div>
-                          <Text style={{ fontWeight: 700 }}>{name} {record.id === currentUser.id && <Tag color="black" style={{ fontSize: '9px', marginLeft: '4px' }}>SIZ</Tag>}</Text>
+                          <Text style={{ fontWeight: 700, color: '#1e293b' }}>{name} {record.id === currentUser.id && <Tag color="blue" style={{ fontSize: '9px', marginLeft: '4px', borderRadius: 0 }}>SIZ</Tag>}</Text>
                         </div>
                       )
                     },
@@ -377,15 +386,15 @@ const MyClassStatistics = () => {
                       title: 'Testlar',
                       dataIndex: 'testCount',
                       key: 'testCount',
-                      render: (count) => <Text style={{ fontWeight: 700 }}>{count}</Text>
+                      render: (count) => <Text style={{ fontWeight: 700, color: '#1e293b' }}>{count}</Text>
                     },
                     {
                       title: 'O\'rtacha Ball',
                       dataIndex: 'averageScore',
                       key: 'averageScore',
                       render: (score) => (
-                        <div style={{ border: '2px solid #000', padding: '2px 8px', display: 'inline-block', backgroundColor: score >= 80 ? '#ecfdf5' : score >= 60 ? '#eff6ff' : '#fff' }}>
-                          <Text style={{ fontWeight: 900 }}>{score}%</Text>
+                        <div style={{ border: '2px solid #2563eb', padding: '2px 8px', display: 'inline-block', backgroundColor: score >= 80 ? '#ecfdf5' : score >= 60 ? '#eff6ff' : '#fff' }}>
+                          <Text style={{ fontWeight: 900, color: score >= 80 ? '#059669' : score >= 60 ? '#2563eb' : '#dc2626' }}>{score}%</Text>
                         </div>
                       )
                     }
@@ -402,7 +411,7 @@ const MyClassStatistics = () => {
           {/* Subject Performance Bar Chart */}
           {visibleCharts.subjectAverage && (
             <Col xs={24} lg={10}>
-              <Card title={<Text style={{ fontWeight: 900, textTransform: 'uppercase' }}>Fanlar o'rtachasi</Text>} style={{ border: '4px solid #000', boxShadow: '12px 12px 0px #000', height: '100%' }}>
+              <Card title={<Text style={{ fontWeight: 900, textTransform: 'uppercase', color: '#f59e0b' }}>Fanlar o'rtachasi</Text>} style={{ border: '4px solid #f59e0b', boxShadow: '12px 12px 0px rgba(245, 158, 11, 0.1)', height: '100%' }}>
                 <div style={{ height: '400px' }}>
                   <Bar
                     data={{
@@ -410,7 +419,7 @@ const MyClassStatistics = () => {
                       datasets: [{
                         label: 'O\'rtacha Ball',
                         data: stats.subjectPerformance.map(s => s.averageScore),
-                        backgroundColor: '#000',
+                        backgroundColor: '#f59e0b',
                         borderWidth: 0,
                         barThickness: 25
                       }]
@@ -420,8 +429,8 @@ const MyClassStatistics = () => {
                       maintainAspectRatio: false,
                       plugins: { legend: { display: false } },
                       scales: {
-                        x: { grid: { display: false }, ticks: { font: { weight: 800 }, color: '#000' } },
-                        y: { beginAtZero: true, max: 100, grid: { borderDash: [5, 5] }, ticks: { font: { weight: 800 }, color: '#000' } }
+                        x: { grid: { display: false }, ticks: { font: { weight: 800 }, color: '#1e293b' } },
+                        y: { beginAtZero: true, max: 100, grid: { borderDash: [5, 5], color: '#f1f5f9' }, ticks: { font: { weight: 800 }, color: '#1e293b' } }
                       }
                     }}
                   />
@@ -435,23 +444,23 @@ const MyClassStatistics = () => {
         <Row gutter={[32, 32]}>
           {visibleCharts.classNotifications && (
             <Col xs={24} lg={12}>
-              <Card title={<Text style={{ fontWeight: 900, textTransform: 'uppercase' }}>Sinf xabarnomalari</Text>} style={{ border: '4px solid #000', boxShadow: '12px 12px 0px #000' }}>
+              <Card title={<Text style={{ fontWeight: 900, textTransform: 'uppercase', color: '#059669' }}>Sinf xabarnomalari</Text>} style={{ border: '4px solid #059669', boxShadow: '12px 12px 0px rgba(5, 150, 105, 0.1)' }}>
                 {stats.recentActivity.length === 0 ? (
                   <div style={{ padding: '40px', textAlign: 'center' }}>
-                    <Text style={{ fontWeight: 800, color: '#999' }}>Hozircha harakatlar yo'q</Text>
+                    <Text style={{ fontWeight: 800, color: '#94a3b8' }}>Hozircha harakatlar yo'q</Text>
                   </div>
                 ) : (
                   <Timeline
                     items={stats.recentActivity.slice(0, 6).map((activity, index) => ({
                       children: (
-                        <div style={{ backgroundColor: '#fff', border: '2px solid #000', padding: '10px 15px', boxShadow: '4px 4px 0px #000', marginBottom: '10px' }}>
-                          <Text style={{ fontWeight: 900 }}>{activity.studentName}</Text>
-                          <Text style={{ margin: '0 8px', color: '#666' }}>test topshirdi:</Text>
-                          <Tag style={{ borderRadius: 0, border: '1.5px solid #000', fontWeight: 800, backgroundColor: activity.score >= 80 ? '#ecfdf5' : '#fff' }}>{activity.score}%</Tag>
-                          <div style={{ fontSize: '10px', fontWeight: 700, color: '#999', marginTop: '4px' }}>{activity.date}</div>
+                        <div style={{ backgroundColor: '#fff', border: '2px solid #1e293b', padding: '10px 15px', boxShadow: '4px 4px 0px rgba(30, 41, 59, 0.1)', marginBottom: '10px' }}>
+                          <Text style={{ fontWeight: 900, color: '#1e293b' }}>{activity.studentName}</Text>
+                          <Text style={{ margin: '0 8px', color: '#64748b' }}>test topshirdi:</Text>
+                          <Tag style={{ borderRadius: 0, border: '1.5px solid #2563eb', fontWeight: 800, color: '#2563eb', backgroundColor: activity.score >= 80 ? '#ecfdf5' : '#fff' }}>{activity.score}%</Tag>
+                          <div style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', marginTop: '4px' }}>{activity.date}</div>
                         </div>
                       ),
-                      dot: <ThunderboltOutlined style={{ fontSize: '16px', color: '#000' }} />
+                      dot: <ThunderboltOutlined style={{ fontSize: '16px', color: '#2563eb' }} />
                     }))}
                   />
                 )}
@@ -461,7 +470,7 @@ const MyClassStatistics = () => {
 
           {visibleCharts.classPerformance && (
             <Col xs={24} lg={12}>
-              <Card title={<Text style={{ fontWeight: 900, textTransform: 'uppercase' }}>Sinf o'zlashtirishi</Text>} style={{ border: '4px solid #000', boxShadow: '12px 12px 0px #000' }}>
+              <Card title={<Text style={{ fontWeight: 900, textTransform: 'uppercase', color: '#7c3aed' }}>Sinf o'zlashtirishi</Text>} style={{ border: '4px solid #7c3aed', boxShadow: '12px 12px 0px rgba(124, 58, 237, 0.1)' }}>
                 <div style={{ height: '350px' }}>
                   <Doughnut
                     data={{
@@ -472,9 +481,9 @@ const MyClassStatistics = () => {
                           stats.classmates.filter(c => c.averageScore >= 60 && c.averageScore < 80).length,
                           stats.classmates.filter(c => c.averageScore < 60).length
                         ],
-                        backgroundColor: ['#000', '#666', '#ccc'],
-                        borderColor: '#000',
-                        borderWidth: 2
+                        backgroundColor: ['#2563eb', '#64748b', '#cbd5e1'],
+                        borderColor: '#fff',
+                        borderWidth: 4
                       }]
                     }}
                     options={{
