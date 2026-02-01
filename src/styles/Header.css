@@ -1,5 +1,5 @@
 /* Header.css - Modern Minimalist Header */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+/* Font is now loaded in index.html for better performance */
 
 :root {
   --header-height: 80px;
@@ -34,21 +34,18 @@
   border-radius: 40px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition:
-    height 1.2s cubic-bezier(0.19, 1, 0.22, 1),
-    min-height 1.2s cubic-bezier(0.19, 1, 0.22, 1),
-    width 1.2s cubic-bezier(0.19, 1, 0.22, 1),
-    min-width 1.2s cubic-bezier(0.19, 1, 0.22, 1),
-    top 1.2s cubic-bezier(0.19, 1, 0.22, 1),
-    left 1.2s cubic-bezier(0.19, 1, 0.22, 1),
-    transform 1.2s cubic-bezier(0.19, 1, 0.22, 1),
+    height 0.8s cubic-bezier(0.19, 1, 0.22, 1),
+    width 0.8s cubic-bezier(0.19, 1, 0.22, 1),
+    top 0.8s cubic-bezier(0.19, 1, 0.22, 1),
+    transform 0.8s cubic-bezier(0.19, 1, 0.22, 1),
     background 0.4s ease,
-    border-color 0.4s ease,
-    border-radius 1.2s cubic-bezier(0.19, 1, 0.22, 1);
-  will-change: height, width, top, left, transform, background, backdrop-filter;
+    border-color 0.4s ease;
+  will-change: transform, opacity, height, width;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  /* Use transform for centering to avoid top/left layout shifts */
   transform: translateX(-50%) translateZ(0);
-  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .header,

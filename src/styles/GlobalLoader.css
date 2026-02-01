@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+/* Font is now loaded in index.html for better performance */
 
 .global-loader-container {
   position: fixed;
@@ -12,7 +12,8 @@
   align-items: center;
   justify-content: center;
   z-index: 10000;
-  transition: all 0.8s cubic-bezier(0.85, 0, 0.15, 1);
+  transition: opacity 0.8s cubic-bezier(0.85, 0, 0.15, 1), transform 0.8s cubic-bezier(0.85, 0, 0.15, 1);
+  will-change: opacity, transform;
   font-family: 'Inter', sans-serif;
   color: #ffffff;
   perspective: 1000px;
@@ -82,10 +83,15 @@
   width: 800px;
   height: 800px;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
-  transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 1;
   mix-blend-mode: screen;
+  /* Use will-change to optimize for transform animations */
+  will-change: transform;
+  /* Initial transform including both translation and centering */
+  transform: translate(-50%, -50%);
+  /* Ensure it doesn't trigger layout shifts */
+  contain: strict;
 }
 
 .loader-mesh {
