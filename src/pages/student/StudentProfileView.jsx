@@ -218,9 +218,9 @@ const StudentProfileView = () => {
       : { background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' };
 
   return (
-    <div className="animate__animated animate__fadeIn" style={{ paddingTop: '16px', paddingBottom: '16px', backgroundColor: '#ffffff' }}>
+    <div className="animate__animated animate__fadeIn" style={{ paddingTop: '0', paddingBottom: '16px', backgroundColor: '#ffffff' }}>
       {/* Header */}
-      <div style={{ marginBottom: '60px' }}>
+      <div style={{ marginBottom: '20px' }}>
         <div style={{ backgroundColor: '#2563eb', color: '#fff', padding: '8px 16px', fontWeight: 700, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px', display: 'inline-block' }}>
           O'quvchi profili
         </div>
@@ -525,7 +525,7 @@ const StudentProfileView = () => {
         <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
           <Col xs={24} sm={12} md={6}>
             <StatCard
-              title="Topshirilgan testlar"
+              title="Jami testlar"
               value={totalTests}
               icon={<BarChartOutlined />}
               color="#2563eb"

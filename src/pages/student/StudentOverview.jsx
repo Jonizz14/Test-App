@@ -178,9 +178,9 @@ const StudentOverview = () => {
         },
       }}
     >
-      <div style={{ padding: '40px 0' }}>
+      <div style={{ padding: '20px 0' }}>
         {/* Brutalist Header */}
-        <div className="animate__animated animate__fadeIn" style={{ marginBottom: '60px' }}>
+        <div className="animate__animated animate__fadeIn" style={{ marginBottom: '20px' }}>
           <div style={{
             display: 'inline-block',
             backgroundColor: '#000',

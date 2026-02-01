@@ -31,7 +31,7 @@ const StudentDashboard = () => {
 
   const breadcrumbNameMap = {
     '/student': 'Bosh sahifa',
-    '/student/search': 'Filtrlash',
+    '/student/search': 'O\'qituvchilar',
     '/student/classmates': 'Sinfdoshlar',
     '/student/take-test': 'Test topshirish',
     '/student/submit-test': 'Test yuborish',
@@ -45,34 +45,49 @@ const StudentDashboard = () => {
     '/student/classes-rating': 'Sinflar reytingi',
   };
 
-  const pathSnippets = location.pathname.split('/').filter((i) => i);
+  const getBreadcrumbItems = () => {
+    const items = [
+      {
+        title: <Link to="/student" style={{ color: '#2563eb', fontWeight: 900, textTransform: 'uppercase', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}><HomeOutlined /> ASOSIY SAHIFA</Link>,
+        key: 'home',
+      }
+    ];
 
-  const extraBreadcrumbItems = pathSnippets.map((_, index) => {
-    const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
-
-    let title = breadcrumbNameMap[url];
-
-    // Handle dynamic routes
-    if (!title) {
-      if (url.includes('/student-profile/')) title = 'Sinfdosh profili';
-      if (url.includes('/teacher-details/')) title = 'Ustoz ma\'lumotlari';
+    if (location.pathname.includes('/student-profile/')) {
+      items.push({
+        key: 'classmates',
+        title: <Link to="/student/classmates" style={{ color: '#000', fontWeight: 800, textTransform: 'uppercase', fontSize: '12px' }}>Sinfdoshlar</Link>
+      });
+      items.push({
+        key: 'profile',
+        title: <span style={{ color: '#000', fontWeight: 800, textTransform: 'uppercase', fontSize: '12px' }}>Sinfdosh profili</span>
+      });
+    } else if (location.pathname.includes('/teacher-details/')) {
+      items.push({
+        key: 'search',
+        title: <Link to="/student/search" style={{ color: '#000', fontWeight: 800, textTransform: 'uppercase', fontSize: '12px' }}>O'qituvchilar</Link>
+      });
+      items.push({
+        key: 'teacher',
+        title: <span style={{ color: '#000', fontWeight: 800, textTransform: 'uppercase', fontSize: '12px' }}>Ustoz ma'lumotlari</span>
+      });
+    } else {
+      const pathSnippets = location.pathname.split('/').filter((i) => i);
+      pathSnippets.forEach((_, index) => {
+        const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
+        const title = breadcrumbNameMap[url];
+        if (title && url !== '/student') {
+          items.push({
+            key: url,
+            title: <Link to={url} style={{ color: '#000', fontWeight: 800, textTransform: 'uppercase', fontSize: '12px' }}>{title}</Link>
+          });
+        }
+      });
     }
+    return items;
+  };
 
-    if (!title) return null;
-
-    return {
-      key: url,
-      title: <Link to={url} style={{ color: '#000', fontWeight: 800, textTransform: 'uppercase', fontSize: '12px' }}>{title}</Link>,
-    };
-  }).filter(item => item !== null && item.key !== '/student');
-
-  const breadcrumbItems = [
-    {
-      title: <Link to="/student" style={{ color: '#2563eb', fontWeight: 900, textTransform: 'uppercase', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}><HomeOutlined /> ASOSIY SAHIFA</Link>,
-      key: 'home',
-    },
-    ...extraBreadcrumbItems,
-  ];
+  const breadcrumbItems = getBreadcrumbItems();
 
   return (
     <Layout style={{ height: '100vh', backgroundColor: '#f8fafc', overflow: 'hidden' }}>
@@ -82,28 +97,13 @@ const StudentDashboard = () => {
           padding: '24px',
           maxWidth: '1900px',
           margin: '0 auto',
-          marginTop: '64px',
+          marginTop: '120px',
           width: '100%',
           height: '100%',
           display: 'flex',
           flexDirection: 'column'
         }}
       >
-        <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center' }}>
-          <div style={{
-            backgroundColor: '#fff',
-            padding: '8px 20px',
-            border: '2px solid #000',
-            boxShadow: '4px 4px 0px rgba(0,0,0,0.1)',
-            display: 'inline-block'
-          }}>
-            <Breadcrumb
-              items={breadcrumbItems}
-              separator={<span style={{ color: '#000', fontWeight: 900 }}>/</span>}
-              style={{ color: '#000' }}
-            />
-          </div>
-        </div>
         <div
           id="dashboard-content-container"
           data-lenis-prevent
@@ -122,6 +122,33 @@ const StudentDashboard = () => {
             overflowY: 'auto'
           }}
         >
+          <div style={{
+            position: 'sticky',
+            top: '-32px',
+            zIndex: 100,
+            backgroundColor: '#ffffff',
+            paddingBottom: '16px',
+            paddingTop: '32px',
+            marginTop: '-32px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            borderBottom: '4px solid #000'
+          }}>
+            <div style={{
+              backgroundColor: '#fff',
+              padding: '6px 16px',
+              border: '2px solid #000',
+              boxShadow: '4px 4px 0px rgba(0,0,0,0.1)',
+              display: 'inline-block'
+            }}>
+              <Breadcrumb
+                items={breadcrumbItems}
+                separator={<span style={{ color: '#000', fontWeight: 900 }}>/</span>}
+                style={{ color: '#000' }}
+              />
+            </div>
+          </div>
           <Routes>
             <Route path="/" element={<StudentOverview />} />
             <Route path="/search" element={<SearchTeachers />} />
