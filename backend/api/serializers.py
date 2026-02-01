@@ -93,7 +93,7 @@ class TestSerializer(serializers.ModelSerializer):
     attempt_count = serializers.SerializerMethodField()
     average_score = serializers.SerializerMethodField()
     average_time = serializers.SerializerMethodField()
-    target_grades = serializers.CharField(required=False, default='')
+    target_grades = serializers.CharField(required=False, default='', allow_blank=True)
 
     class Meta:
         model = Test

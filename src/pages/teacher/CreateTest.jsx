@@ -78,7 +78,7 @@ const CreateTest = () => {
       loadTestForEditing();
     }
   }, [testId]);
-  
+
   // Log form data changes
   useEffect(() => {
     // Form data updated
@@ -89,7 +89,7 @@ const CreateTest = () => {
       console.log('Loading test for editing:', testId);
       const test = await apiService.getTest(testId);
       console.log('Test data loaded:', test);
-      
+
       if (test && test.teacher === currentUser.id) {
         setIsEditing(true);
 
@@ -117,10 +117,10 @@ const CreateTest = () => {
           target_grades: parsedGrades,
           difficulty: test.difficulty || 'medium',
         };
-        
+
         console.log('Setting form data:', newFormData);
         setFormData(newFormData);
-        
+
         // Load questions
         const questionsData = await apiService.getQuestions({ test: testId });
         const questionsList = questionsData.results || questionsData;
@@ -409,13 +409,13 @@ const CreateTest = () => {
               correctAnswerFormatted = 'D)';
             } else {
               // If it's the actual answer text, find matching option
-              const matchingOption = options.find(opt => 
+              const matchingOption = options.find(opt =>
                 opt.text.toLowerCase().trim() === correctAnswer.toLowerCase().trim()
               );
               if (matchingOption) {
                 correctAnswerFormatted = options.indexOf(matchingOption) === 0 ? 'A)' :
-                                        options.indexOf(matchingOption) === 1 ? 'B)' :
-                                        options.indexOf(matchingOption) === 2 ? 'C)' : 'D)';
+                  options.indexOf(matchingOption) === 1 ? 'B)' :
+                    options.indexOf(matchingOption) === 2 ? 'C)' : 'D)';
               }
             }
 
@@ -456,7 +456,7 @@ const CreateTest = () => {
       if (importedQuestions.length > 0) {
         // Set imported questions
         setQuestions(importedQuestions);
-        
+
         // Auto-fill form data if not already filled
         if (!formData.title) {
           setFormData(prev => ({
@@ -498,20 +498,20 @@ const CreateTest = () => {
     await handleSubmit(mockEvent);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
+  const handleSubmit = async (values) => {
+    // e.preventDefault(); // Not needed for Ant Design onFinish
+
     // Check authentication
     if (!currentUser) {
       setError('Siz tizimga kirmagansiz');
       return;
     }
-    
+
     if (currentUser.role !== 'teacher' && currentUser.role !== 'admin') {
       setError('Faqat o\'qituvchilar test yarata oladi');
       return;
     }
-    
+
     setError('');
     setSuccess('');
 
@@ -572,20 +572,20 @@ const CreateTest = () => {
           subject: formData.subject,
           description: formData.description,
           time_limit: parseInt(formData.time_limit),
-          target_grades: formData.target_grades,
+          target_grades: Array.isArray(formData.target_grades) ? formData.target_grades.join(',') : formData.target_grades,
           total_questions: questions.length,
           difficulty: formData.difficulty,
         });
-        
+
         // Update questions (delete old ones and create new ones)
         const questionsData = await apiService.getQuestions({ test: testId });
         const existingQuestions = questionsData.results || questionsData;
-        
+
         // Delete existing questions
         for (const question of existingQuestions) {
           await apiService.deleteQuestion(question.id);
         }
-        
+
         // Create new questions
         for (const question of questions) {
           const questionData = new FormData();
@@ -615,12 +615,12 @@ const CreateTest = () => {
 
           await apiService.createQuestion(questionData);
         }
-        
+
         setSuccess('Test muvaffaqiyatli yangilandi!');
         setTimeout(() => {
           navigate('/teacher/my-tests');
         }, 2000);
-        
+
       } else {
         // Create new test
         console.log('Creating test with data:', {
@@ -639,7 +639,7 @@ const CreateTest = () => {
           title: formData.title,
           description: formData.description,
           time_limit: parseInt(formData.time_limit),
-          target_grades: formData.target_grades,
+          target_grades: Array.isArray(formData.target_grades) ? formData.target_grades.join(',') : formData.target_grades,
           total_questions: questions.length,
           difficulty: formData.difficulty,
         });
@@ -691,17 +691,20 @@ const CreateTest = () => {
         response: err.response,
         status: err.status
       });
-      
+
       let errorMessage = 'Noma\'lum xatolik';
-      
-      if (err.message) {
+
+      if (err.response && err.response.data) {
+        // Prioritize server validation errors
+        errorMessage = typeof err.response.data === 'object'
+          ? JSON.stringify(err.response.data, null, 2)
+          : String(err.response.data);
+      } else if (err.message) {
         errorMessage = err.message;
-      } else if (err.response && err.response.data) {
-        errorMessage = JSON.stringify(err.response.data);
       } else if (typeof err === 'string') {
         errorMessage = err;
       }
-      
+
       setError(isEditing ? `Testni yangilashda xatolik: ${errorMessage}` : `Test yaratishda xatolik: ${errorMessage}`);
     } finally {
       setLoading(false);
@@ -831,7 +834,7 @@ const CreateTest = () => {
                 >
                   <Input
                     value={formData.title}
-                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="Test nomini kiriting"
                   />
                 </Form.Item>
@@ -845,7 +848,7 @@ const CreateTest = () => {
                 >
                   <Select
                     value={formData.subject}
-                    onChange={(value) => setFormData({...formData, subject: value})}
+                    onChange={(value) => setFormData({ ...formData, subject: value })}
                   >
                     <Select.Option value="Matematika">Matematika</Select.Option>
                     <Select.Option value="O'zbek tili">O'zbek tili</Select.Option>
@@ -870,7 +873,7 @@ const CreateTest = () => {
                 <Form.Item label="Tavsif" name="description">
                   <Input.TextArea
                     value={formData.description}
-                    onChange={(e) => setFormData({...formData, description: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="Test mazmuni haqida qisqa ma'lumot"
                     rows={3}
                   />
@@ -886,7 +889,7 @@ const CreateTest = () => {
                   <Input
                     type="number"
                     value={formData.time_limit}
-                    onChange={(e) => setFormData({...formData, time_limit: parseInt(e.target.value) || 30})}
+                    onChange={(e) => setFormData({ ...formData, time_limit: parseInt(e.target.value) || 30 })}
                     min={5}
                     max={180}
                     placeholder="30"
@@ -898,7 +901,7 @@ const CreateTest = () => {
                 <Form.Item label="Test qiyinligi" name="difficulty">
                   <Select
                     value={formData.difficulty}
-                    onChange={(value) => setFormData({...formData, difficulty: value})}
+                    onChange={(value) => setFormData({ ...formData, difficulty: value })}
                   >
                     <Select.Option value="easy">Oson</Select.Option>
                     <Select.Option value="medium">O'rtacha</Select.Option>
@@ -934,259 +937,253 @@ const CreateTest = () => {
               </div>
             </div>
 
-          <Divider style={{ margin: '24px 0' }} />
+            <Divider style={{ margin: '24px 0' }} />
 
-          <Typography.Title level={4} style={{ marginBottom: '16px' }}>
-            Savollar ({questions.length})
-          </Typography.Title>
+            <Typography.Title level={4} style={{ marginBottom: '16px' }}>
+              Savollar ({questions.length})
+            </Typography.Title>
 
-          {questions.map((question, index) => (
-            <Card key={index} style={{ marginBottom: '24px' }}>
-              <div style={{ padding: '24px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                  <Typography.Title level={5} style={{ margin: 0 }}>Savol {index + 1}</Typography.Title>
-                  <Button
-                    type="text"
-                    danger
-                    icon={<DeleteIcon />}
-                    onClick={() => removeQuestion(index)}
-                    disabled={questions.length === 1}
-                  />
-                </div>
-
-                <div style={{ marginBottom: '16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                    <Typography.Text style={{ flex: 1 }}>
-                      Savol matni
-                    </Typography.Text>
-                    <Space>
-                      <Button
-                        size="small"
-                        onClick={() => handleOpenMathSymbols(index, 'question_text')}
-                        style={{
-                          minWidth: 'auto',
-                          padding: '4px 8px',
-                          fontSize: '12px'
-                        }}
-                      >
-                        🧮 Belgilar
-                      </Button>
-                      <Upload
-                        accept="image/*"
-                        showUploadList={false}
-                        beforeUpload={(file) => {
-                          handleQuestionImageUpload(index, file);
-                          return false; // Prevent automatic upload
-                        }}
-                      >
-                        <Button
-                          size="small"
-                          icon={<PhotoCameraIcon />}
-                          style={{ padding: '4px' }}
-                        />
-                      </Upload>
-                      {question.question_image && (
-                        <Button
-                          size="small"
-                          danger
-                          icon={<ClearIcon />}
-                          onClick={() => removeQuestionImage(index)}
-                          style={{ padding: '4px' }}
-                        />
-                      )}
-                    </Space>
+            {questions.map((question, index) => (
+              <Card key={index} style={{ marginBottom: '24px' }}>
+                <div style={{ padding: '24px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <Typography.Title level={5} style={{ margin: 0 }}>Savol {index + 1}</Typography.Title>
+                    <Button
+                      type="text"
+                      danger
+                      icon={<DeleteIcon />}
+                      onClick={() => removeQuestion(index)}
+                      disabled={questions.length === 1}
+                    />
                   </div>
 
-                  {/* Question Image Preview */}
-                  {question.question_image && (
-                    <div style={{ marginBottom: '16px' }}>
-                      <img
-                        src={URL.createObjectURL(question.question_image)}
-                        alt={`Question ${index + 1}`}
-                        style={{
-                          maxWidth: '100%',
-                          maxHeight: '200px',
-                          borderRadius: '8px',
-                          border: '1px solid #e2e8f0',
-                          objectFit: 'contain'
-                        }}
-                      />
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                      <Typography.Text style={{ flex: 1 }}>
+                        Savol matni
+                      </Typography.Text>
+                      <Space>
+                        <Button
+                          size="small"
+                          onClick={() => handleOpenMathSymbols(index, 'question_text')}
+                          style={{
+                            minWidth: 'auto',
+                            padding: '4px 8px',
+                            fontSize: '12px'
+                          }}
+                        >
+                          🧮 Belgilar
+                        </Button>
+                        <Upload
+                          accept="image/*"
+                          showUploadList={false}
+                          beforeUpload={(file) => {
+                            handleQuestionImageUpload(index, file);
+                            return false; // Prevent automatic upload
+                          }}
+                        >
+                          <Button
+                            size="small"
+                            icon={<PhotoCameraIcon />}
+                            style={{ padding: '4px' }}
+                          />
+                        </Upload>
+                        {question.question_image && (
+                          <Button
+                            size="small"
+                            danger
+                            icon={<ClearIcon />}
+                            onClick={() => removeQuestionImage(index)}
+                            style={{ padding: '4px' }}
+                          />
+                        )}
+                      </Space>
                     </div>
+
+                    {/* Question Image Preview */}
+                    {question.question_image && (
+                      <div style={{ marginBottom: '16px' }}>
+                        <img
+                          src={URL.createObjectURL(question.question_image)}
+                          alt={`Question ${index + 1}`}
+                          style={{
+                            maxWidth: '100%',
+                            maxHeight: '200px',
+                            borderRadius: '8px',
+                            border: '1px solid #e2e8f0',
+                            objectFit: 'contain'
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    <Input.TextArea
+                      rows={2}
+                      value={question.question_text}
+                      onChange={(e) => updateQuestion(index, 'question_text', e.target.value)}
+                      placeholder="Savol matnini kiriting... (LaTeX uchun $...$ yoki $$...$$ dan foydalaning)"
+                    />
+                    {question.question_text && (
+                      <Card size="small" style={{
+                        marginTop: '8px',
+                        backgroundColor: '#f8fafc',
+                        border: '1px solid #e2e8f0'
+                      }}>
+                        <Typography.Text style={{ color: '#64748b', fontWeight: 500, marginBottom: '8px', display: 'block' }}>
+                          LaTeX ko'rinishi:
+                        </Typography.Text>
+                        <LaTeXPreview text={question.question_text} />
+                      </Card>
+                    )}
+                  </div>
+
+                  <div style={{ marginBottom: '16px' }}>
+                    <Select
+                      style={{ width: '100%' }}
+                      value={question.question_type}
+                      onChange={(value) => updateQuestion(index, 'question_type', value)}
+                      placeholder="Savol turini tanlang"
+                    >
+                      <Select.Option value="multiple_choice">Ko'p variantli</Select.Option>
+                    </Select>
+                  </div>
+
+                  {question.question_type === 'multiple_choice' && (
+                    <>
+                      <Typography.Text strong style={{ display: 'block', marginBottom: '16px' }}>
+                        Variantlar (A, B, C, D):
+                      </Typography.Text>
+
+                      {question.options.map((option, optionIndex) => (
+                        <div key={optionIndex} style={{ marginBottom: '16px', padding: '16px', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                            <Button
+                              type={question.correct_answer === option.text ? "primary" : "text"}
+                              size="small"
+                              icon={<CorrectIcon />}
+                              onClick={() => toggleCorrectAnswer(index, optionIndex)}
+                              style={{ marginRight: '8px' }}
+                            />
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+                              <Input
+                                size="small"
+                                value={option.text}
+                                onChange={(e) => updateQuestionOption(index, optionIndex, e.target.value)}
+                                placeholder={`Variant ${String.fromCharCode(65 + optionIndex)} (LaTeX uchun $...$)`}
+                                style={{ flex: 1 }}
+                              />
+                              <Button
+                                size="small"
+                                onClick={() => handleOpenMathSymbols(index, `option_${optionIndex}`)}
+                                style={{ padding: '4px' }}
+                              >
+                                🧮
+                              </Button>
+                              <Button
+                                size="small"
+                                icon={<PhotoCameraIcon />}
+                                style={{ padding: '4px' }}
+                              >
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  style={{ display: 'none' }}
+                                  onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                      handleOptionImageUpload(index, optionIndex, file);
+                                    }
+                                  }}
+                                />
+                              </Button>
+                              {option.image && (
+                                <Button
+                                  size="small"
+                                  danger
+                                  icon={<ClearIcon />}
+                                  onClick={() => removeOptionImage(index, optionIndex)}
+                                  style={{ padding: '4px' }}
+                                />
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Image Preview */}
+                          {option.image && (
+                            <div style={{ marginBottom: '8px' }}>
+                              <img
+                                src={URL.createObjectURL(option.image)}
+                                alt={`Option ${String.fromCharCode(65 + optionIndex)}`}
+                                style={{
+                                  maxWidth: '100px',
+                                  maxHeight: '60px',
+                                  borderRadius: '4px',
+                                  border: '1px solid #e2e8f0',
+                                  objectFit: 'contain'
+                                }}
+                              />
+                            </div>
+                          )}
+
+                          {/* LaTeX Preview */}
+                          {option.text && option.text.trim() && (
+                            <Card size="small" style={{
+                              backgroundColor: '#f8fafc',
+                              border: '1px solid #e2e8f0'
+                            }}>
+                              <Typography.Text style={{ color: '#64748b', fontWeight: 500, marginBottom: '4px', display: 'block' }}>
+                                Ko'rinishi:
+                              </Typography.Text>
+                              <LaTeXPreview text={option.text} />
+                            </Card>
+                          )}
+                        </div>
+                      ))}
+
+                      <Typography.Text style={{ fontSize: '12px', color: '#64748b', marginTop: '8px', display: 'block' }}>
+                        To'g'ri javobni belgilash uchun checkbox belgisini bosing
+                      </Typography.Text>
+                    </>
                   )}
+
+
 
                   <Input.TextArea
                     rows={2}
-                    value={question.question_text}
-                    onChange={(e) => updateQuestion(index, 'question_text', e.target.value)}
-                    placeholder="Savol matnini kiriting... (LaTeX uchun $...$ yoki $$...$$ dan foydalaning)"
+                    value={question.explanation}
+                    onChange={(e) => updateQuestion(index, 'explanation', e.target.value)}
+                    placeholder="Tushuntirish (ixtiyoriy)"
+                    style={{ marginTop: '16px' }}
                   />
-                  {question.question_text && (
-                    <Card size="small" style={{
-                      marginTop: '8px',
-                      backgroundColor: '#f8fafc',
-                      border: '1px solid #e2e8f0'
-                    }}>
-                      <Typography.Text style={{ color: '#64748b', fontWeight: 500, marginBottom: '8px', display: 'block' }}>
-                        LaTeX ko'rinishi:
-                      </Typography.Text>
-                      <LaTeXPreview text={question.question_text} />
-                    </Card>
-                  )}
                 </div>
+              </Card>
+            ))}
 
-                <div style={{ marginBottom: '16px' }}>
-                  <Select
-                    style={{ width: '100%' }}
-                    value={question.question_type}
-                    onChange={(value) => updateQuestion(index, 'question_type', value)}
-                    placeholder="Savol turini tanlang"
-                  >
-                    <Select.Option value="multiple_choice">Ko'p variantli</Select.Option>
-                  </Select>
-                </div>
-
-                {question.question_type === 'multiple_choice' && (
-                  <>
-                    <Typography.Text strong style={{ display: 'block', marginBottom: '16px' }}>
-                      Variantlar (A, B, C, D):
-                    </Typography.Text>
-
-                    {question.options.map((option, optionIndex) => (
-                      <div key={optionIndex} style={{ marginBottom: '16px', padding: '16px', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                          <Button
-                            type={question.correct_answer === option.text ? "primary" : "text"}
-                            size="small"
-                            icon={<CorrectIcon />}
-                            onClick={() => toggleCorrectAnswer(index, optionIndex)}
-                            style={{ marginRight: '8px' }}
-                          />
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
-                            <Input
-                              size="small"
-                              value={option.text}
-                              onChange={(e) => updateQuestionOption(index, optionIndex, e.target.value)}
-                              placeholder={`Variant ${String.fromCharCode(65 + optionIndex)} (LaTeX uchun $...$)`}
-                              style={{ flex: 1 }}
-                            />
-                            <Button
-                              size="small"
-                              onClick={() => handleOpenMathSymbols(index, `option_${optionIndex}`)}
-                              style={{ padding: '4px' }}
-                            >
-                              🧮
-                            </Button>
-                            <Button
-                              size="small"
-                              icon={<PhotoCameraIcon />}
-                              style={{ padding: '4px' }}
-                            >
-                              <input
-                                type="file"
-                                accept="image/*"
-                                style={{ display: 'none' }}
-                                onChange={(e) => {
-                                  const file = e.target.files[0];
-                                  if (file) {
-                                    handleOptionImageUpload(index, optionIndex, file);
-                                  }
-                                }}
-                              />
-                            </Button>
-                            {option.image && (
-                              <Button
-                                size="small"
-                                danger
-                                icon={<ClearIcon />}
-                                onClick={() => removeOptionImage(index, optionIndex)}
-                                style={{ padding: '4px' }}
-                              />
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Image Preview */}
-                        {option.image && (
-                          <div style={{ marginBottom: '8px' }}>
-                            <img
-                              src={URL.createObjectURL(option.image)}
-                              alt={`Option ${String.fromCharCode(65 + optionIndex)}`}
-                              style={{
-                                maxWidth: '100px',
-                                maxHeight: '60px',
-                                borderRadius: '4px',
-                                border: '1px solid #e2e8f0',
-                                objectFit: 'contain'
-                              }}
-                            />
-                          </div>
-                        )}
-
-                        {/* LaTeX Preview */}
-                        {option.text && option.text.trim() && (
-                          <Card size="small" style={{
-                            backgroundColor: '#f8fafc',
-                            border: '1px solid #e2e8f0'
-                          }}>
-                            <Typography.Text style={{ color: '#64748b', fontWeight: 500, marginBottom: '4px', display: 'block' }}>
-                              Ko'rinishi:
-                            </Typography.Text>
-                            <LaTeXPreview text={option.text} />
-                          </Card>
-                        )}
-                      </div>
-                    ))}
-
-                    <Typography.Text style={{ fontSize: '12px', color: '#64748b', marginTop: '8px', display: 'block' }}>
-                      To'g'ri javobni belgilash uchun checkbox belgisini bosing
-                    </Typography.Text>
-                  </>
-                )}
-
-
-
-                <Input.TextArea
-                  rows={2}
-                  value={question.explanation}
-                  onChange={(e) => updateQuestion(index, 'explanation', e.target.value)}
-                  placeholder="Tushuntirish (ixtiyoriy)"
-                  style={{ marginTop: '16px' }}
-                />
-              </div>
-            </Card>
-          ))}
-
-          <Button
-            type="dashed"
-            icon={<AddIcon />}
-            onClick={addQuestion}
-            style={{ marginBottom: '24px', width: '100%' }}
-          >
-            Savol qo'shish
-          </Button>
-
-          <div style={{ display: 'flex', gap: '16px' }}>
             <Button
-              type="primary"
-              htmlType="submit"
-              loading={loading}
-              style={{ flex: 1 }}
-              onClick={(e) => {
-                // Submit form
-                if (e && e.target && e.target.form) {
-                  e.target.form.requestSubmit();
-                }
-              }}
+              type="dashed"
+              icon={<AddIcon />}
+              onClick={addQuestion}
+              style={{ marginBottom: '24px', width: '100%' }}
             >
-              {loading ? (isEditing ? 'Yangilanmoqda...' : 'Yaratilmoqda...') : (isEditing ? 'Testni yangilash' : 'Test yaratish')}
+              Savol qo'shish
             </Button>
-            <Button
-              onClick={() => navigate('/teacher/my-tests')}
-              style={{ flex: 1 }}
-            >
-              Bekor qilish
-            </Button>
-          </div>
+
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={loading}
+                style={{ flex: 1 }}
+              >
+                {loading ? (isEditing ? 'Yangilanmoqda...' : 'Yaratilmoqda...') : (isEditing ? 'Testni yangilash' : 'Test yaratish')}
+              </Button>
+              <Button
+                onClick={() => navigate('/teacher/my-tests')}
+                style={{ flex: 1 }}
+              >
+                Bekor qilish
+              </Button>
+            </div>
           </Form>
         </div>
       </Card>
@@ -1213,7 +1210,7 @@ const CreateTest = () => {
             type="info"
             style={{ marginBottom: '16px' }}
           />
-          
+
           <div style={{ textAlign: 'center', padding: '20px 0' }}>
             <input
               type="file"
@@ -1241,7 +1238,7 @@ const CreateTest = () => {
               Namuna fayl yuklab olish
             </Button>
           </div>
-          
+
           {error && (
             <Alert
               message={error}

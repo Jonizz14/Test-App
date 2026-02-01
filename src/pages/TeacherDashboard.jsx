@@ -178,15 +178,18 @@ const TeacherDashboard = () => {
               background: '#f8fafc',
               padding: 24,
               height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
             }}
           >
             <div
               id="dashboard-content-container"
+              data-lenis-prevent
               style={{
                 background: '#ffffff',
                 borderRadius: 8,
                 padding: 24,
-                height: 'calc(100vh - 112px)',
+                flex: 1,
                 overflowY: 'auto',
                 boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
               }}

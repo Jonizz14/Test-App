@@ -35,7 +35,7 @@ class ApiService {
     };
 
     try {
-      const response = await fetch(url, config);
+      let response = await fetch(url, config);
 
       if (response.status === 401) {
         // Token expired, try to refresh
@@ -54,23 +54,40 @@ class ApiService {
               // Update config headers for retry
               config.headers['Authorization'] = `Bearer ${data.access}`;
               // Retry the original request
-              const retryResponse = await fetch(url, config);
-              if (retryResponse.ok) {
-                return retryResponse;
-              }
+              response = await fetch(url, config);
+            } else {
+              // Refresh failed
+              this.logout();
+              throw new Error('Authentication failed - please login again');
             }
           } catch (error) {
             console.error('Token refresh failed:', error);
+            this.logout();
+            throw new Error('Authentication failed - please login again');
           }
+        } else {
+          this.logout();
+          throw new Error('Authentication failed - please login again');
         }
-        // If refresh fails, logout
-        this.logout();
-        throw new Error('Authentication failed - please login again');
       }
 
       if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`HTTP ${response.status}: ${error}`);
+        const errorText = await response.text();
+        const error = new Error(`HTTP ${response.status}: ${errorText}`);
+
+        // Attach response details for frontend handling
+        try {
+          error.response = {
+            data: JSON.parse(errorText),
+            status: response.status
+          };
+        } catch (e) {
+          error.response = {
+            data: errorText,
+            status: response.status
+          };
+        }
+        throw error;
       }
 
       return response;

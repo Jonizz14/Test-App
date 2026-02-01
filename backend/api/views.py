@@ -944,14 +944,16 @@ class TestSessionViewSet(viewsets.ModelViewSet):
             from django.utils import timezone
             time_taken = int((session.completed_at - session.started_at).total_seconds() / 60)
             
-            # Create attempt
-            attempt = TestAttempt.objects.create(
+            # Create or update attempt
+            attempt, created = TestAttempt.objects.update_or_create(
                 student=request.user,
                 test=test,
-                answers=student_answers,
-                score=score_percentage,
-                submitted_at=timezone.now(),
-                time_taken=time_taken
+                defaults={
+                    'answers': student_answers,
+                    'score': score_percentage,
+                    'submitted_at': timezone.now(),
+                    'time_taken': time_taken
+                }
             )
             
             return Response({

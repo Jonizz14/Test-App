@@ -440,8 +440,8 @@ const TakeTest = () => {
           </div>
 
           <Card style={{ borderRadius: 0, border: '4px solid #000', boxShadow: '10px 10px 0px #000', backgroundColor: score >= 70 ? '#ecfdf5' : '#fef2f2', padding: '40px', textAlign: 'center' }}>
-            <TrophyOutlined style={{ fontSize: '64px', color: '#000', marginBottom: '24px' }} />
-            <Title level={1} style={{ fontSize: '4rem', fontWeight: 900, margin: '0 0 16px 0', color: '#000' }}>{score}%</Title>
+            <TrophyOutlined style={{ fontSize: '64px', color: score >= 70 ? '#16a34a' : '#ef4444', marginBottom: '24px' }} />
+            <Title level={1} style={{ fontSize: '4rem', fontWeight: 900, margin: '0 0 16px 0', color: score >= 70 ? '#16a34a' : '#ef4444' }}>{score}%</Title>
             <Title level={3} style={{ fontWeight: 800, textTransform: 'uppercase', margin: '0 0 24px 0' }}>{selectedTest?.title}</Title>
 
             <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, maxWidth: '600px', margin: '0 auto 40px auto' }}>
@@ -481,26 +481,27 @@ const TakeTest = () => {
           {error && <Alert message={error} type="error" style={{ border: '3px solid #000', boxShadow: '4px 4px 0px #000', fontWeight: 700, marginBottom: '24px' }} showIcon />}
 
           {/* Test Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', padding: '16px', backgroundColor: '#000', color: '#fff' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', padding: '16px', backgroundColor: '#4f46e5', color: '#fff', border: '4px solid #000', boxShadow: '8px 8px 0px #000' }}>
             <div>
-              <Text style={{ color: '#fff', fontSize: '11px', fontWeight: 900, textTransform: 'uppercase', display: 'block' }}>Hozirgi test</Text>
-              <Title level={4} style={{ color: '#fff', margin: 0, textTransform: 'uppercase', fontWeight: 900, fontSize: '1.2rem' }}>{selectedTest.title}</Title>
+              <Text style={{ color: '#e0e7ff', fontSize: '11px', fontWeight: 900, textTransform: 'uppercase', display: 'block', letterSpacing: '1px' }}>Hozirgi test</Text>
+              <Title level={4} style={{ color: '#fff', margin: 0, textTransform: 'uppercase', fontWeight: 900, fontSize: '1.4rem', textShadow: '2px 2px 0px #000' }}>{selectedTest.title}</Title>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <ClockCircleOutlined />
-                <Text style={{ color: '#fff', fontSize: '24px', fontWeight: 900, letterSpacing: '1px' }}>{formatTime(timeRemaining)}</Text>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'flex-end' }}>
+                <ClockCircleOutlined style={{ fontSize: '20px' }} />
+                <Text style={{ color: '#fff', fontSize: '24px', fontWeight: 900, letterSpacing: '1px', textShadow: '2px 2px 0px #000' }}>{formatTime(timeRemaining)}</Text>
               </div>
-              <Text style={{ color: '#fff', fontSize: '12px', fontWeight: 700 }}>{currentQuestionIndex + 1} / {selectedTest.total_questions} SAVOL</Text>
+              <Tag color="volcano" style={{ margin: 0, border: '2px solid #000', fontWeight: 800 }}>{selectedTest.subject}</Tag>
+              <Text style={{ color: '#fff', fontSize: '12px', fontWeight: 700, display: 'block', marginTop: '4px' }}>{currentQuestionIndex + 1} / {selectedTest.total_questions} SAVOL</Text>
             </div>
           </div>
 
           <Progress
             percent={((currentQuestionIndex + 1) / selectedTest.total_questions) * 100}
-            strokeColor="#000"
+            strokeColor="#fbbf24"
             trailColor="#e2e8f0"
-            strokeWidth={12}
-            style={{ borderRadius: 0, marginBottom: '32px' }}
+            strokeWidth={16}
+            style={{ borderRadius: 0, marginBottom: '32px', filter: 'drop-shadow(4px 4px 0px #000)' }}
             showInfo={false}
           />
 
@@ -518,7 +519,7 @@ const TakeTest = () => {
             )}
 
             <div style={{ marginBottom: '32px' }}>
-              <div style={{ backgroundColor: '#000', color: '#fff', display: 'inline-block', padding: '4px 12px', fontWeight: 900, textTransform: 'uppercase', fontSize: '12px', marginBottom: '12px' }}>Savol</div>
+              <div style={{ backgroundColor: '#4f46e5', color: '#fff', display: 'inline-block', padding: '4px 12px', fontWeight: 900, textTransform: 'uppercase', fontSize: '12px', marginBottom: '12px', border: '2px solid #000', boxShadow: '4px 4px 0px #000' }}>Savol</div>
               <LaTeXPreview text={currentQuestion.question_text} style={{ fontSize: '1.3rem', lineHeight: 1.5, color: '#000', fontWeight: 600 }} />
             </div>
 
@@ -538,14 +539,29 @@ const TakeTest = () => {
                             alignItems: 'center',
                             gap: '16px',
                             padding: '16px',
-                            backgroundColor: isSelected ? '#000' : '#fff',
+                            backgroundColor: isSelected ? '#4f46e5' : '#fff',
                             color: isSelected ? '#fff' : '#000',
                             border: '4px solid #000',
-                            transition: 'all 0.1s ease'
+                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            transform: isSelected ? 'translate(-4px, -4px)' : 'none',
+                            boxShadow: isSelected ? '8px 8px 0px #000' : '4px 4px 0px #000'
                           }}>
-                            <div style={{ fontWeight: 900, fontSize: '1.1rem' }}>{String.fromCharCode(65 + index)}.</div>
-                            <LaTeXPreview text={option.text} />
-                            {optionImage && <img src={optionImage} alt={`Option ${String.fromCharCode(65 + index)}`} style={{ maxWidth: '80px', maxHeight: '50px', border: '1px solid currentColor', objectFit: 'contain' }} />}
+                            <div style={{
+                              fontWeight: 900,
+                              fontSize: '1.1rem',
+                              backgroundColor: isSelected ? '#fff' : '#e2e8f0',
+                              color: isSelected ? '#4f46e5' : '#000',
+                              width: '32px',
+                              height: '32px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              border: '2px solid #000'
+                            }}>{String.fromCharCode(65 + index)}</div>
+                            <div style={{ flex: 1 }}>
+                              <LaTeXPreview text={option.text} />
+                            </div>
+                            {optionImage && <img src={optionImage} alt={`Option ${String.fromCharCode(65 + index)}`} style={{ maxWidth: '80px', maxHeight: '50px', border: '2px solid #000', objectFit: 'contain', backgroundColor: '#fff' }} />}
                           </div>
                         </Radio>
                       </Col>
@@ -559,18 +575,18 @@ const TakeTest = () => {
               <div style={{ marginTop: '24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                   <Text style={{ fontWeight: 900, textTransform: 'uppercase', fontSize: '12px' }}>Sizning javobingiz:</Text>
-                  <Button size="small" onClick={() => setMathSymbolsOpen(true)} style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 800 }}>🧮 Belgilar</Button>
+                  <Button size="small" onClick={() => setMathSymbolsOpen(true)} style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 800, backgroundColor: '#fbbf24', color: '#000' }}>🧮 Belgilar</Button>
                 </div>
                 <Input.TextArea
                   placeholder="Javobingizni kiriting..."
                   value={answers[currentQuestion.id] || ''}
                   onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
                   rows={4}
-                  style={{ borderRadius: 0, border: '4px solid #000', fontWeight: 600, fontSize: '1.2rem', padding: '16px' }}
+                  style={{ borderRadius: 0, border: '4px solid #000', fontWeight: 600, fontSize: '1.2rem', padding: '16px', backgroundColor: '#f8fafc' }}
                 />
                 {(answers[currentQuestion.id] || '').trim() && (
-                  <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#f8fafc', border: '2px dashed #000' }}>
-                    <Text style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: '#666', marginBottom: '8px' }}>Preview:</Text>
+                  <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#e0e7ff', border: '2px dashed #4f46e5' }}>
+                    <Text style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: '#4f46e5', marginBottom: '8px' }}>Preview:</Text>
                     <LaTeXPreview text={answers[currentQuestion.id]} />
                   </div>
                 )}
@@ -580,15 +596,15 @@ const TakeTest = () => {
             <Divider style={{ borderTop: '4px solid #000', margin: '40px 0' }} />
 
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
-              <Button size="large" onClick={handlePrevious} disabled={currentQuestionIndex === 0} style={{ borderRadius: 0, border: '4px solid #000', boxShadow: currentQuestionIndex === 0 ? 'none' : '6px 6px 0px #000', fontWeight: 900, textTransform: 'uppercase', height: '56px', flex: 1 }}>Oldingi</Button>
+              <Button size="large" onClick={handlePrevious} disabled={currentQuestionIndex === 0} style={{ borderRadius: 0, border: '4px solid #000', boxShadow: currentQuestionIndex === 0 ? 'none' : '6px 6px 0px #000', fontWeight: 900, textTransform: 'uppercase', height: '56px', flex: 1, backgroundColor: '#fff' }}>Oldingi</Button>
 
               {currentQuestionIndex === selectedTest.total_questions - 1 ? (
                 <div style={{ display: 'flex', gap: '12px', flex: 1 }}>
-                  <Button size="large" type="primary" onClick={handleSubmitTest} style={{ borderRadius: 0, border: '4px solid #000', boxShadow: '6px 6px 0px #000', fontWeight: 900, textTransform: 'uppercase', height: '56px', flex: 1, backgroundColor: '#000' }}>Tugatish</Button>
-                  <Button size="large" onClick={() => setUrgentSubmitDialogOpen(true)} style={{ borderRadius: 0, border: '4px solid #000', boxShadow: '6px 6px 0px #000', fontWeight: 900, textTransform: 'uppercase', height: '56px', color: '#d97706' }}>Tezkor</Button>
+                  <Button size="large" type="primary" onClick={handleSubmitTest} style={{ borderRadius: 0, border: '4px solid #000', boxShadow: '6px 6px 0px #000', fontWeight: 900, textTransform: 'uppercase', height: '56px', flex: 1, backgroundColor: '#16a34a' }}>Tugatish (Finish)</Button>
+                  <Button size="large" onClick={() => setUrgentSubmitDialogOpen(true)} style={{ borderRadius: 0, border: '4px solid #000', boxShadow: '6px 6px 0px #000', fontWeight: 900, textTransform: 'uppercase', height: '56px', backgroundColor: '#fff', color: '#d97706', borderColor: '#000' }}>Tezkor</Button>
                 </div>
               ) : (
-                <Button size="large" type="primary" onClick={handleNext} style={{ borderRadius: 0, border: '4px solid #000', boxShadow: '6px 6px 0px #000', fontWeight: 900, textTransform: 'uppercase', height: '56px', flex: 1, backgroundColor: '#000' }}>Keyingi</Button>
+                <Button size="large" type="primary" onClick={handleNext} style={{ borderRadius: 0, border: '4px solid #000', boxShadow: '6px 6px 0px #000', fontWeight: 900, textTransform: 'uppercase', height: '56px', flex: 1, backgroundColor: '#4f46e5' }}>Keyingi</Button>
               )}
             </div>
           </Card>
@@ -613,7 +629,7 @@ const TakeTest = () => {
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontWeight: 900,
-                      backgroundColor: isCurrent ? '#000' : (hasAnswer ? '#e2e8f0' : '#fff'),
+                      backgroundColor: isCurrent ? '#4f46e5' : (hasAnswer ? '#bbf7d0' : '#fff'),
                       color: isCurrent ? '#fff' : '#000',
                       boxShadow: isCurrent ? 'none' : '3px 3px 0px #000',
                       transform: isCurrent ? 'translate(2px, 2px)' : 'none'
@@ -756,8 +772,8 @@ const TakeTest = () => {
               borderRadius: 0,
               border: '3px solid #000',
               boxShadow: '4px 4px 0px #000',
-              backgroundColor: hasActive ? '#000' : '#fff',
-              color: hasActive ? '#fff' : '#000',
+              backgroundColor: hasActive ? '#f59e0b' : '#4f46e5',
+              color: '#fff',
               fontWeight: 900,
               textTransform: 'uppercase',
               fontSize: '11px',

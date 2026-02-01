@@ -1,6 +1,8 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Tooltip } from 'antd';
 import '../styles/Header.css';
+import 'animate.css';
 import { useSavedItems } from '../context/SavedItemsContext';
 import { useSentMessages } from '../context/SentMessagesContext';
 import { useAuth } from '../context/AuthContext';
@@ -18,7 +20,7 @@ const Header = ({ demoMode = false }) => {
   const { sentMessages, removeMessage, clearMessages } = useSentMessages();
   const { currentUser, isAuthenticated, logout } = useAuth();
   const { settings } = useSettings();
-  const { sessionStarted } = useServerTest();
+  const { sessionStarted, timeRemaining, formatTime } = useServerTest();
 
   const { t, i18n } = useTranslation();
   const [showSaved, setShowSaved] = React.useState(false);
@@ -238,7 +240,7 @@ const Header = ({ demoMode = false }) => {
   );
   const [isDashboardExpanded, setIsDashboardExpanded] = React.useState(false);
 
-  const isSellerOrHeadAdmin = location.pathname.startsWith('/seller') || location.pathname.startsWith('/headadmin');
+  const isSellerOrHeadAdmin = location.pathname.startsWith('/seller') || location.pathname.startsWith('/headadmin') || (location.pathname.startsWith('/student') && currentUser?.role === 'student');
 
   // Calculate Dynamic Header Height for Smooth Transitions
   React.useEffect(() => {
@@ -288,28 +290,25 @@ const Header = ({ demoMode = false }) => {
   }, [showSaved, showMessages, showNotifications, showLanguages, showSearch, isDashboard, isSellerOrHeadAdmin, savedItems.length, sentMessages.length, activeDropdown]);
 
   // Listen for custom 'itemSaved' event
+  const handleNotification = React.useCallback((data) => {
+    const id = Date.now() + Math.random();
+    const newNotification = { ...data, id, isVisible: false };
+
+    setActiveNotifications(prev => [...prev, newNotification]);
+
+    setTimeout(() => {
+      setActiveNotifications(prev => prev.map(n => n.id === id ? { ...n, isVisible: true } : n));
+    }, 10);
+
+    setTimeout(() => {
+      setActiveNotifications(prev => prev.map(n => n.id === id ? { ...n, isVisible: false } : n));
+      setTimeout(() => {
+        setActiveNotifications(prev => prev.filter(n => n.id !== id));
+      }, 700);
+    }, 3000);
+  }, []);
+
   React.useEffect(() => {
-    const handleNotification = (data) => {
-      const id = Date.now() + Math.random();
-      const newNotification = { ...data, id, isVisible: false };
-
-      setActiveNotifications(prev => [...prev, newNotification]);
-
-      // Trigger entrance animation
-      setTimeout(() => {
-        setActiveNotifications(prev => prev.map(n => n.id === id ? { ...n, isVisible: true } : n));
-      }, 10);
-
-      // Remove after 3 seconds
-      setTimeout(() => {
-        setActiveNotifications(prev => prev.map(n => n.id === id ? { ...n, isVisible: false } : n));
-        // Cleanup from state after exit animation
-        setTimeout(() => {
-          setActiveNotifications(prev => prev.filter(n => n.id !== id));
-        }, 700);
-      }, 3000);
-    };
-
     const handleItemSaved = (e) => handleNotification(e.detail);
     const handleSaveError = (e) => handleNotification({ ...e.detail, isError: true });
 
@@ -319,7 +318,7 @@ const Header = ({ demoMode = false }) => {
       window.removeEventListener('itemSaved', handleItemSaved);
       window.removeEventListener('saveError', handleSaveError);
     };
-  }, []);
+  }, [handleNotification]);
 
   // Enforce onboarding for new users
   React.useEffect(() => {
@@ -459,7 +458,12 @@ const Header = ({ demoMode = false }) => {
 
   const handleLinkClick = (link) => {
     if (currentUser?.role === 'student' && sessionStarted && link.path !== '/student/take-test') {
-      showWarning('Test topshirayotganingizda boshqa sahifalarga o\'ta olmaysiz. Avval testni yakunlang!');
+      handleNotification({
+        title: "Test topshirish jarayonida boshqa sahifaga o'ta olmaysiz!",
+        isError: true,
+        icon: 'warning',
+        isFullMessage: true
+      });
       return;
     }
 
@@ -639,26 +643,30 @@ const Header = ({ demoMode = false }) => {
                 {isDashboard ? (
                   <>
                     {currentUser?.role === 'student' && sessionStarted && (
-                      <div className="test-active-indicator" style={{
-                        color: '#dc2626',
-                        fontWeight: 600,
-                        backgroundColor: '#fef2f2',
-                        padding: '4px 12px',
-                        borderRadius: '12px',
-                        border: '1px solid #dc2626',
-                        marginRight: '12px',
-                        fontSize: '0.85rem',
+                      <div className="test-timer-header animate__animated animate__fadeInRight" style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '4px'
+                        gap: '8px',
+                        backgroundColor: '#4f46e5',
+                        color: '#fff',
+                        padding: '6px 16px',
+                        borderRadius: '12px',
+                        marginRight: '16px',
+                        fontWeight: '900',
+                        fontSize: '1rem',
+                        border: '2px solid #000',
+                        boxShadow: '4px 4px 0px #000',
+                        cursor: 'default'
                       }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>warning</span>
-                        {isMobile ? '' : 'Test faol'}
+                        <span className="material-symbols-outlined" style={{ animation: 'pulse 1s infinite' }}>timer</span>
+                        <span style={{ fontFamily: 'monospace', fontSize: '1.2rem', letterSpacing: '1px' }}>
+                          {formatTime ? formatTime(timeRemaining) : '00:00'}
+                        </span>
                       </div>
                     )}
                     <button className="btn-secondary" onClick={logout} style={{ background: '#ff4757', color: 'white' }}>{t('nav.logout')}</button>
 
-                    {/* Seller & HeadAdmin Icons */}
+                    {/* Seller, HeadAdmin & Student Icons */}
                     {isSellerOrHeadAdmin && !isMobile && (
                       <>
                         <div
@@ -678,6 +686,15 @@ const Header = ({ demoMode = false }) => {
                         >
                           <span className="material-symbols-outlined">notes</span>
                           <span className="item-count">{savedItems.length}</span>
+                        </div>
+                        <div
+                          className={`storage-icon-container search-icon ${showSearch ? 'active' : ''}`}
+                          onClick={toggleSearch}
+                          id="header-search-icon"
+                          title="Qidirish"
+                          style={{ width: '44px', opacity: 1, transform: 'scale(1)', overflow: 'visible' }}
+                        >
+                          <span className="material-symbols-outlined">search</span>
                         </div>
                       </>
                     )}
@@ -986,7 +1003,7 @@ const Header = ({ demoMode = false }) => {
         </div>
 
         {/* Integrated Search Area */}
-        <div className={`header-storage-area header-search-area ${showSearch && !isDashboard ? 'visible' : ''}`}>
+        <div className={`header-storage-area header-search-area ${showSearch && (!isDashboard || isSellerOrHeadAdmin) ? 'visible' : ''}`}>
           <div className="storage-content-wrapper">
             <div className="search-input-container">
               <span className="material-symbols-outlined search-input-icon">search</span>
@@ -1066,6 +1083,7 @@ const Header = ({ demoMode = false }) => {
             </div>
           ))}
         </div>
+
 
 
       </header>

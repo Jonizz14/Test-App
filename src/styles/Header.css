@@ -1003,8 +1003,8 @@
 
 
 
-/* Tablet Responsiveness (769px - 1024px) */
-@media (min-width: 769px) and (max-width: 1024px) {
+/* Tablet/Laptop Responsiveness (769px - 1440px) */
+@media (min-width: 769px) and (max-width: 1440px) {
   .header {
     width: 90% !important;
     /* Slightly wider than mobile */
@@ -1033,6 +1033,14 @@
   .logo-text {
     font-size: 1rem;
   }
+
+  /* Hide icons on tablet to prevent cramped layout */
+  /* Re-enabled for laptop/tablet but keeping compact layout */
+  /* #header-message-icon,
+  #header-storage-bin,
+  #header-search-icon {
+    display: none !important;
+  } */
 }
 
 @media (max-width: 768px) {
@@ -1148,9 +1156,10 @@
     margin-left: 0.3rem !important;
   }
 
-  /* Hide Storage and Message icons on mobile */
+  /* Hide Storage, Message and Search icons on mobile */
   #header-message-icon,
-  #header-storage-bin {
+  #header-storage-bin,
+  #header-search-icon {
     display: none !important;
   }
 
