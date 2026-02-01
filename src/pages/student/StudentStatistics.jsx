@@ -166,22 +166,65 @@ const StudentStatistics = () => {
         })).sort((a, b) => b.averageScore - a.averageScore);
 
         // Monthly progress
-        const monthlyProgress = [
-          { month: 'Sep', average: 72 },
-          { month: 'Oct', average: 75 },
-          { month: 'Nov', average: 78 },
-          { month: 'Dec', average: 76 },
-          { month: 'Jan', average: 82 },
-          { month: 'Feb', average: averageScore }
-        ];
+        const monthlyGroups = {};
+        const monthNames = ["Yan", "Fev", "Mar", "Apr", "May", "Iyun", "Iyul", "Avg", "Sen", "Okt", "Noy", "Dek"];
+
+        // Sort chronologically first to ensure correct accumulation order
+        const sortedAttempts = [...completedAttempts].sort((a, b) => new Date(a.submitted_at) - new Date(b.submitted_at));
+
+        sortedAttempts.forEach(attempt => {
+          if (!attempt.submitted_at) return;
+          const date = new Date(attempt.submitted_at);
+          const monthIdx = date.getMonth();
+          const year = date.getFullYear();
+          const key = `${year}-${monthIdx}`; // Unique key per month-year
+
+          if (!monthlyGroups[key]) {
+            monthlyGroups[key] = {
+              total: 0,
+              count: 0,
+              monthName: monthNames[monthIdx],
+              date: date // For sorting if needed
+            };
+          }
+          monthlyGroups[key].total += (attempt.score || 0);
+          monthlyGroups[key].count += 1;
+        });
+
+        const monthlyProgress = Object.values(monthlyGroups)
+          .sort((a, b) => a.date - b.date)
+          .slice(-6) // Take last 6 months
+          .map(item => ({
+            month: item.monthName,
+            average: Math.round(item.total / item.count)
+          }));
+
+        // Fill with current month if empty
+        if (monthlyProgress.length === 0) {
+          const currentMonth = new Date().getMonth();
+          monthlyProgress.push({ month: monthNames[currentMonth], average: 0 });
+        }
 
         // Difficulty analysis
         const difficultyGroups = { 'Oson': [], 'O\'rta': [], 'Qiyin': [] };
+
+        const difficultyMap = {
+          'easy': 'Oson',
+          'medium': "O'rta",
+          'hard': 'Qiyin',
+          'oson': 'Oson',
+          'o\'rta': "O'rta",
+          'orta': "O'rta",
+          'qiyin': 'Qiyin'
+        };
+
         completedAttempts.forEach(attempt => {
           const test = tests.find(t => t.id === attempt.test);
-          const difficulty = test?.difficulty || 'O\'rta';
-          if (difficultyGroups[difficulty]) {
-            difficultyGroups[difficulty].push(attempt.score || 0);
+          const rawDifficulty = (test?.difficulty || 'medium').toLowerCase();
+          const difficultyKey = difficultyMap[rawDifficulty] || "O'rta";
+
+          if (difficultyGroups[difficultyKey]) {
+            difficultyGroups[difficultyKey].push(attempt.score || 0);
           }
         });
 

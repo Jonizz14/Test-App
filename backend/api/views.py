@@ -957,6 +957,7 @@ class TestSessionViewSet(viewsets.ModelViewSet):
             )
             
             return Response({
+                'success': True,
                 'message': 'Test completed successfully',
                 'attempt_id': attempt.id,
                 'score': score_percentage

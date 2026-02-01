@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Typography, Button, Progress, Alert, Modal } from 'antd';
+import { Card, Typography, Button, Spin, ConfigProvider, Result } from 'antd';
 import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   ArrowLeftOutlined,
+  ReloadOutlined,
+  TrophyOutlined,
+  FrownOutlined
 } from '@ant-design/icons';
 import { useServerTest } from '../../context/ServerTestContext';
 import { useAuth } from '../../context/AuthContext';
@@ -13,20 +16,17 @@ import apiService from '../../data/apiService';
 const { Title, Text } = Typography;
 
 const SubmitTest = () => {
-   const navigate = useNavigate();
-   const { currentUser } = useAuth();
-   const {
-     currentSession,
-     submitTest,
-     clearSession,
-     selectedTest,
-     isLoading,
-     error,
-   } = useServerTest();
+  const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const {
+    currentSession,
+    submitTest,
+    clearSession,
+    selectedTest,
+  } = useServerTest();
 
   const [submissionResult, setSubmissionResult] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
   useEffect(() => {
     // Auto-submit when component mounts
@@ -35,8 +35,7 @@ const SubmitTest = () => {
 
   const handleSubmit = async () => {
     if (!currentSession) {
-      alert('Test sessiyasi topilmadi. Iltimos, testni qaytadan boshlang.');
-      navigate('/student/take-test');
+      setSubmissionResult({ success: false, error: 'Sessiya topilmadi. Qaytadan boshlang.' });
       return;
     }
 
@@ -46,14 +45,11 @@ const SubmitTest = () => {
       if (result && result.success) {
         setSubmissionResult(result);
       } else {
-        setSubmissionResult({ success: false, error: 'Test topshirishda muammo yuz berdi.' });
+        setSubmissionResult({ success: false, error: result?.error || 'Test topshirishda muammo yuz berdi.' });
       }
     } catch (error) {
       console.error('Failed to submit test:', error);
-
-      // Handle "Test already completed" case
-      if (error.message && error.message.includes('Test already completed')) {
-        // Try to fetch the existing attempt result
+      if (error.message && (error.message.includes('Test already completed') || error.message.includes('DUPLICATE_ATTEMPT'))) {
         try {
           const attempts = await apiService.getAttempts({
             student: currentUser.id,
@@ -69,7 +65,6 @@ const SubmitTest = () => {
             setSubmissionResult({ success: false, error: 'Test allaqachon tugagan, lekin natija topilmadi.' });
           }
         } catch (fetchError) {
-          console.error('Failed to fetch existing attempt:', fetchError);
           setSubmissionResult({ success: false, error: 'Test allaqachon tugagan.' });
         }
       } else {
@@ -78,11 +73,6 @@ const SubmitTest = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleConfirmSubmit = () => {
-    setConfirmDialogOpen(false);
-    handleSubmit();
   };
 
   const handleBackToTests = () => {
@@ -94,327 +84,181 @@ const SubmitTest = () => {
     navigate('/student/results');
   };
 
+  const commonButtonStyle = {
+    borderRadius: 0,
+    border: '3px solid #000',
+    fontWeight: 900,
+    textTransform: 'uppercase',
+    height: '48px',
+    padding: '0 32px',
+    boxShadow: '4px 4px 0px #000',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  };
+
   if (isSubmitting) {
     return (
       <div style={{
-        paddingTop: '16px',
-        paddingBottom: '16px',
-        backgroundColor: '#ffffff',
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        backgroundColor: '#fff'
       }}>
-        <Card style={{
-          padding: '24px',
-          textAlign: 'center',
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          maxWidth: '500px',
-          width: '100%'
-        }}>
-          <Title level={2} style={{
-            fontSize: '2rem',
-            fontWeight: 700,
-            color: '#1e293b',
-            marginBottom: '16px'
-          }}>
-            Test natijasi
-          </Title>
-          <Progress 
-            percent={100} 
-            status="active"
-            style={{ marginBottom: '16px' }}
-            strokeColor="#3b82f6"
-          />
-          <Text style={{ color: '#64748b', marginBottom: '16px', display: 'block' }}>
-            Iltimos kuting, sizning test natijangiz saqlanmoqda...
-          </Text>
-        </Card>
+        <div style={{ textAlign: 'center', border: '4px solid #000', padding: '40px', boxShadow: '8px 8px 0px #000' }}>
+          <Spin size="large" />
+          <Title level={4} style={{ marginTop: '24px', fontWeight: 900, textTransform: 'uppercase' }}>Natijalar hisoblanmoqda...</Title>
+        </div>
       </div>
     );
   }
 
   if (submissionResult) {
     const { success, score, error: submitError } = submissionResult;
-    const isHighScore = success && score >= 70;
+    // Score thresholds
+    const isHighScore = success && score >= 80;
+    const isPass = success && score >= 60;
+
+    // Colors based on score
+    const scoreColor = isHighScore ? '#16a34a' : (isPass ? '#2563eb' : '#dc2626');
+    const accentColor = isHighScore ? '#bbf7d0' : (isPass ? '#bfdbfe' : '#fecaca');
 
     return (
-      <div style={{
-        paddingTop: '16px',
-        paddingBottom: '16px',
-        backgroundColor: '#ffffff',
-        minHeight: '100vh'
-      }}>
-        {/* Header */}
+      <ConfigProvider theme={{ token: { borderRadius: 0, colorPrimary: '#000', fontFamily: 'Inter, sans-serif' } }}>
         <div style={{
-          marginBottom: '24px',
-          paddingBottom: '16px',
-          borderBottom: '1px solid #e2e8f0'
-        }}>          {/* Title, Description, and Button */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            marginBottom: '16px'
-          }}>
-            <div style={{ flex: 1 }}>
-              <Title level={2} style={{
-                fontSize: '2.5rem',
-                fontWeight: 700,
-                color: '#1e293b',
-                marginBottom: '4px'
-              }}>
-                Test natijasi
-              </Title>
-              <Text style={{
-                fontSize: '1.125rem',
-                color: '#64748b',
-                fontWeight: 400
-              }}>
-                Testni topshirish natijasi va ballaringiz
-              </Text>
-            </div>
-            <Button
-              icon={<ArrowLeftOutlined />}
-              onClick={handleBackToTests}
-              style={{
-                borderColor: '#d1d5db',
-                color: '#374151',
-                marginLeft: '16px'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#f9fafb';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'transparent';
-              }}
-            >
-              Testlarga qaytish
-            </Button>
-          </div>
-        </div>
-
-        <div>
-          <Card style={{
-            padding: '24px',
-            textAlign: 'center',
-            background: success && score >= 70
-              ? 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)'
-              : success && score < 70
-              ? 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)'
-              : 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-            border: success && score >= 70 ? '1px solid #22c55e' :
-                   success && score < 70 ? '1px solid #dc2626' :
-                   '1px solid #d97706',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            maxWidth: '600px',
-            margin: '0 auto'
-          }}>
+          minHeight: '100vh',
+          backgroundColor: '#fff',
+          padding: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <Card
+            bordered={false}
+            style={{
+              maxWidth: '600px',
+              width: '100%',
+              border: '4px solid #000',
+              boxShadow: '12px 12px 0px #000',
+              borderRadius: 0,
+              backgroundColor: success ? '#fff' : '#fff5f5'
+            }}
+            bodyStyle={{ padding: '48px 24px', textAlign: 'center' }}
+          >
             {success ? (
               <>
-                <div style={{ marginBottom: '16px' }}>
-                  {score >= 70 ? (
-                    <CheckCircleOutlined style={{
-                      fontSize: '4rem',
-                      color: '#22c55e'
-                    }} />
-                  ) : (
-                    <CloseCircleOutlined style={{
-                      fontSize: '4rem',
-                      color: '#dc2626'
-                    }} />
-                  )}
+                <div style={{
+                  width: '100px',
+                  height: '100px',
+                  margin: '0 auto 24px auto',
+                  backgroundColor: accentColor,
+                  border: '3px solid #000',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '4px 4px 0px #000'
+                }}>
+                  {isHighScore ?
+                    <TrophyOutlined style={{ fontSize: '48px', color: '#000' }} /> :
+                    (isPass ? <CheckCircleOutlined style={{ fontSize: '48px', color: '#000' }} /> : <CloseCircleOutlined style={{ fontSize: '48px', color: '#000' }} />)
+                  }
                 </div>
+
+                <Text style={{ fontSize: '14px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#666' }}>Test Natijasi</Text>
+
                 <Title level={1} style={{
-                  fontWeight: 700,
-                  color: score >= 70 ? '#22c55e' : '#dc2626',
-                  marginBottom: '16px',
-                  marginTop: 0
+                  fontSize: '5rem',
+                  fontWeight: 900,
+                  lineHeight: 1,
+                  margin: '16px 0 8px 0',
+                  color: '#000' // Black score for brutalism, or use scoreColor if preferred
                 }}>
                   {score}%
                 </Title>
-                <Title level={4} style={{ marginBottom: '16px' }}>
-                  {selectedTest?.title}
+
+                <Title level={3} style={{ fontWeight: 900, margin: '0 0 32px 0', textTransform: 'uppercase' }}>
+                  {isHighScore ? "Qoyilmaqom!" : (isPass ? "Yaxshi natija!" : "Afsuski, o'tmadingiz")}
                 </Title>
-                <Text style={{ marginBottom: '16px', display: 'block' }}>
-                  {score >= 70 ? 'Tabriklaymiz! Testni muvaffaqiyatli topshirdingiz.' : 'Testni qayta topshirib ko\'ring.'}
-                </Text>
+
+                <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <Button
+                    onClick={handleViewResults}
+                    style={{
+                      ...commonButtonStyle,
+                      backgroundColor: '#000',
+                      color: '#fff'
+                    }}
+                  >
+                    Natijalar
+                  </Button>
+                  <Button
+                    onClick={handleBackToTests}
+                    style={{
+                      ...commonButtonStyle,
+                      backgroundColor: '#fff',
+                      color: '#000'
+                    }}
+                  >
+                    Testlarga qaytish
+                  </Button>
+                </div>
               </>
             ) : (
               <>
-                <CloseCircleOutlined style={{
-                  fontSize: '4rem',
-                  color: '#d97706',
-                  marginBottom: '16px'
-                }} />
-                <Title level={4} style={{
-                  fontWeight: 700,
-                  color: '#d97706',
-                  marginBottom: '16px'
+                <div style={{
+                  width: '80px',
+                  height: '80px',
+                  margin: '0 auto 24px auto',
+                  backgroundColor: '#fee2e2',
+                  border: '3px solid #000',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '4px 4px 0px #000'
                 }}>
-                  Test topshirishda muammo yuz berdi
-                </Title>
-                <Text style={{ marginBottom: '16px', color: '#64748b', display: 'block' }}>
-                  {submitError || 'Noma\'lum xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.'}
+                  <FrownOutlined style={{ fontSize: '40px', color: '#000' }} />
+                </div>
+                <Title level={2} style={{ fontWeight: 900, textTransform: 'uppercase', color: '#dc2626' }}>Xatolik</Title>
+                <Text style={{ fontSize: '1.1rem', fontWeight: 700, display: 'block', marginBottom: '32px' }}>
+                  {submitError || "Tizimda xatolik yuz berdi."}
                 </Text>
+
+                <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '24px' }}>
+                  <Button
+                    icon={<ReloadOutlined />}
+                    onClick={handleSubmit}
+                    style={{
+                      ...commonButtonStyle,
+                      backgroundColor: '#fff',
+                      color: '#000'
+                    }}
+                  >
+                    Qayta urinib ko'rish
+                  </Button>
+                  <Button
+                    onClick={handleBackToTests}
+                    style={{
+                      ...commonButtonStyle,
+                      backgroundColor: '#000',
+                      color: '#fff',
+                      border: '3px solid #000'
+                    }}
+                  >
+                    Chiqish
+                  </Button>
+                </div>
               </>
             )}
-
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Button
-                type="primary"
-                onClick={handleBackToTests}
-                style={{
-                  cursor: 'pointer',
-                  backgroundColor: '#6b7280',
-                  borderColor: '#6b7280'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#4b5563';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = '#6b7280';
-                }}
-              >
-                Boshqa test topshirish
-              </Button>
-              {success && (
-                <Button
-                  onClick={handleViewResults}
-                  style={{
-                    cursor: 'pointer',
-                    borderColor: '#2563eb',
-                    color: '#2563eb',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = '#eff6ff';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = 'transparent';
-                  }}
-                >
-                  Natijalarimni ko'rish
-                </Button>
-              )}
-            </div>
           </Card>
         </div>
-      </div>
+      </ConfigProvider>
     );
   }
 
-  // Initial confirmation dialog
   return (
-    <div style={{
-      paddingTop: '16px',
-      paddingBottom: '16px',
-      backgroundColor: '#ffffff',
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}>
-      <Card style={{
-        padding: '24px',
-        textAlign: 'center',
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-        maxWidth: '500px',
-        width: '100%'
-      }}>
-        <Title level={2} style={{
-          fontSize: '2rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          marginBottom: '16px'
-        }}>
-          Test natijasi
-        </Title>
-        <Text style={{
-          fontSize: '1.125rem',
-          color: '#64748b',
-          fontWeight: 400,
-          marginBottom: '16px',
-          display: 'block'
-        }}>
-          Testni topshirish natijasi va ballaringiz
-        </Text>
-        <Text style={{ marginBottom: '16px', color: '#64748b', display: 'block' }}>
-          Siz testni topshirishni xohlaysizmi? Bu amal qaytarib bo'lmaydi.
-        </Text>
-
-        {error && (
-          <Alert message={error} type="error" style={{ marginBottom: '16px' }} />
-        )}
-
-        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-          <Button
-            onClick={() => navigate('/student/take-test')}
-            style={{
-              borderColor: '#d1d5db',
-              color: '#374151',
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#f9fafb';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'transparent';
-            }}
-          >
-            Bekor qilish
-          </Button>
-          <Button
-            type="primary"
-            onClick={() => setConfirmDialogOpen(true)}
-            disabled={isLoading}
-            style={{
-              backgroundColor: '#10b981',
-              borderColor: '#10b981'
-            }}
-            onMouseEnter={(e) => {
-              if (!isLoading) {
-                e.target.style.backgroundColor = '#059669';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isLoading) {
-                e.target.style.backgroundColor = '#10b981';
-              }
-            }}
-          >
-            Testni topshirish
-          </Button>
-        </div>
-      </Card>
-
-      {/* Confirmation Dialog */}
-      <Modal
-        title={
-          <span style={{ color: '#dc2626', fontWeight: 600 }}>
-            Testni topshirishni tasdiqlang
-          </span>
-        }
-        open={confirmDialogOpen}
-        onCancel={() => setConfirmDialogOpen(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setConfirmDialogOpen(false)} style={{ color: '#64748b' }}>
-            Bekor qilish
-          </Button>,
-          <Button key="submit" type="primary" onClick={handleConfirmSubmit} style={{ marginLeft: '8px', backgroundColor: '#10b981', borderColor: '#10b981' }}>
-            Ha, topshirish
-          </Button>
-        ]}
-      >
-        <Text style={{ color: '#374151' }}>
-          Rostdan ham testni topshirishni xohlaysizmi? Test tugagandan keyin javoblarni o'zgartirib bo'lmaydi.
-        </Text>
-      </Modal>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Spin />
     </div>
   );
 };

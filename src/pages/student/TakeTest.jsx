@@ -83,21 +83,7 @@ const TakeTest = () => {
   const [mathSymbolsOpen, setMathSymbolsOpen] = useState(false);
   const [pageSize, setPageSize] = useState(10);
 
-  const handleTestComplete = async () => {
-    try {
-      const result = await submitTest();
-      if (result && result.success) {
-        setScore(result.score);
-        setTestCompleted(true);
-        setTakenTests(prev => new Set([...prev, selectedTest.id]));
-      } else {
-        alert('Test yakunini saqlashda muammo yuz berdi.');
-      }
-    } catch (error) {
-      alert('Test yakunida xatolik. Internet yoki serverda muammo bo‘lishi mumkin.');
-      console.error('Failed to complete test:', error);
-    }
-  };
+
 
   const difficultyLabels = {
     easy: 'Oson',
@@ -426,41 +412,7 @@ const TakeTest = () => {
     );
   }
 
-  if (testCompleted) {
-    return (
-      <ConfigProvider theme={{ token: { borderRadius: 0, colorPrimary: '#000' } }}>
-        <div style={{ padding: '40px 0' }}>
-          <div className="animate__animated animate__fadeIn" style={{ marginBottom: '60px' }}>
-            <div style={{ backgroundColor: '#000', color: '#fff', padding: '8px 16px', fontWeight: 700, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px', display: 'inline-block' }}>
-              Natija
-            </div>
-            <Title level={1} style={{ fontWeight: 900, fontSize: '2.5rem', textTransform: 'uppercase', letterSpacing: '-0.05em', color: '#000' }}>
-              Test yakunlandi
-            </Title>
-          </div>
 
-          <Card style={{ borderRadius: 0, border: '4px solid #000', boxShadow: '10px 10px 0px #000', backgroundColor: score >= 70 ? '#ecfdf5' : '#fef2f2', padding: '40px', textAlign: 'center' }}>
-            <TrophyOutlined style={{ fontSize: '64px', color: score >= 70 ? '#16a34a' : '#ef4444', marginBottom: '24px' }} />
-            <Title level={1} style={{ fontSize: '4rem', fontWeight: 900, margin: '0 0 16px 0', color: score >= 70 ? '#16a34a' : '#ef4444' }}>{score}%</Title>
-            <Title level={3} style={{ fontWeight: 800, textTransform: 'uppercase', margin: '0 0 24px 0' }}>{selectedTest?.title}</Title>
-
-            <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, maxWidth: '600px', margin: '0 auto 40px auto' }}>
-              {score >= 70 ? 'Tabriklaymiz! Siz ushbu testni muvaffaqiyatli topshirdingiz. Bilimingizni yanada oshirishda davom eting!' : 'Xafa bo\'lmang! Natijangiz qoniqarli emas. Yana bir bor urinib ko\'ring yoki darslarni qayta takrorlang.'}
-            </Paragraph>
-
-            <Space size="large" wrap>
-              <Button size="large" onClick={resetTest} style={{ borderRadius: 0, border: '4px solid #000', boxShadow: '6px 6px 0px #000', fontWeight: 900, textTransform: 'uppercase', height: '56px', padding: '0 32px' }}>
-                Boshqa test topshirish
-              </Button>
-              <Button size="large" type="primary" onClick={() => navigate('/student/results')} style={{ borderRadius: 0, border: '4px solid #000', boxShadow: '6px 6px 0px #000', fontWeight: 900, textTransform: 'uppercase', height: '56px', padding: '0 32px' }}>
-                Natijalarimni ko'rish
-              </Button>
-            </Space>
-          </Card>
-        </div>
-      </ConfigProvider>
-    );
-  }
 
   if (sessionStarted && selectedTest) {
     const testQuestions = selectedTest.questions || [];
