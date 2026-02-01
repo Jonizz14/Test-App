@@ -19,6 +19,7 @@ import {
   CheckCircleOutlined,
   PlayCircleOutlined,
   ReloadOutlined,
+  BookOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import { useServerTest } from '../../context/ServerTestContext';
@@ -52,7 +53,7 @@ const TeacherDetails = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch all required data
       const [usersData, testsData, attemptsData] = await Promise.all([
         apiService.getUsers(),
@@ -66,7 +67,7 @@ const TeacherDetails = () => {
       const attempts = attemptsData.results || attemptsData;
 
       // Find the specific teacher
-      const foundTeacher = users.find(user => 
+      const foundTeacher = users.find(user =>
         user.id === parseInt(teacherId) && user.role === 'teacher'
       );
 
@@ -86,10 +87,10 @@ const TeacherDetails = () => {
       setTeacher(foundTeacher);
       setTests(tests);
       setStudentAttempts(attempts);
-      
+
       // Check for active sessions for all tests
       await checkActiveSessions(tests);
-      
+
     } catch (error) {
       console.error('Error loading teacher details:', error);
       setError('Ma\'lumotlarni yuklashda xatolik yuz berdi');
@@ -103,7 +104,7 @@ const TeacherDetails = () => {
     if (allTests.length === 0) return;
 
     const sessionsMap = {};
-    
+
     for (const test of allTests) {
       try {
         const activeSession = await checkActiveSession(test.id);
@@ -115,7 +116,7 @@ const TeacherDetails = () => {
         console.debug(`No active session for test ${test.id}`);
       }
     }
-    
+
     setActiveTestSessions(sessionsMap);
   };
 
@@ -143,7 +144,7 @@ const TeacherDetails = () => {
   // Loading state display
   if (loading) {
     return (
-      <div style={{ 
+      <div style={{
         paddingTop: '24px',
         paddingBottom: '24px',
         backgroundColor: '#ffffff'
@@ -170,7 +171,7 @@ const TeacherDetails = () => {
   // Error state display
   if (error || !teacher) {
     return (
-      <div style={{ 
+      <div style={{
         paddingTop: '24px',
         paddingBottom: '24px',
         backgroundColor: '#ffffff'
@@ -184,7 +185,7 @@ const TeacherDetails = () => {
             Orqaga qaytish
           </Button>
         </div>
-        <Alert 
+        <Alert
           message={error || 'O\'qituvchi topilmadi'}
           type="error"
         />
@@ -227,18 +228,19 @@ const TeacherDetails = () => {
       dataIndex: 'subject',
       key: 'subject',
       render: (subject) => (
-        <Tag
+        <div
           style={{
             backgroundColor: '#eff6ff',
             color: '#2563eb',
-            fontWeight: 500,
-            borderRadius: '6px',
+            fontWeight: 800,
             fontSize: '0.75rem',
-            margin: 0
+            padding: '4px 12px',
+            border: '2px solid #2563eb',
+            display: 'inline-block'
           }}
         >
           {subject || 'Noma\'lum'}
-        </Tag>
+        </div>
       ),
     },
     {
@@ -247,33 +249,34 @@ const TeacherDetails = () => {
       key: 'difficulty',
       render: (difficulty) => {
         if (!difficulty) return null;
-        
+
         const getDifficultyStyle = (level) => {
           switch (level) {
             case 'Oson':
-              return { bg: '#dcfce7', color: '#166534' };
+              return { bg: '#dcfce7', color: '#166534', border: '#166534' };
             case 'O\'rta':
-              return { bg: '#fef3c7', color: '#92400e' };
+              return { bg: '#fef3c7', color: '#92400e', border: '#92400e' };
             default:
-              return { bg: '#fee2e2', color: '#991b1b' };
+              return { bg: '#fee2e2', color: '#991b1b', border: '#991b1b' };
           }
         };
-        
+
         const style = getDifficultyStyle(difficulty);
-        
+
         return (
-          <Tag
+          <div
             style={{
               backgroundColor: style.bg,
               color: style.color,
-              fontWeight: 500,
-              borderRadius: '6px',
+              fontWeight: 800,
               fontSize: '0.75rem',
-              margin: 0
+              padding: '4px 12px',
+              border: `2px solid ${style.border}`,
+              display: 'inline-block'
             }}
           >
             {difficulty}
-          </Tag>
+          </div>
         );
       },
     },
@@ -287,61 +290,63 @@ const TeacherDetails = () => {
 
         if (hasActiveSession) {
           return (
-            <div>
-              <Tag
-                style={{
-                  backgroundColor: '#ecfdf5',
-                  color: '#059669',
-                  fontWeight: 600,
-                  borderRadius: '6px',
-                  fontSize: '0.75rem',
-                  margin: 0
-                }}
-              >
-                Faol seans
-              </Tag>
+            <div
+              style={{
+                backgroundColor: '#ecfdf5',
+                color: '#059669',
+                fontWeight: 900,
+                fontSize: '0.75rem',
+                padding: '4px 12px',
+                border: '2px solid #059669',
+                display: 'inline-block'
+              }}
+            >
+              FAOL SEANS
             </div>
           );
         } else if (isCompleted) {
           return (
             <div>
-              <Tag
+              <div
                 style={{
                   backgroundColor: '#10b981',
                   color: '#ffffff',
-                  fontWeight: 600,
-                  borderRadius: '6px',
+                  fontWeight: 900,
                   fontSize: '0.75rem',
-                  margin: 0,
+                  padding: '4px 12px',
+                  border: '2px solid #064e3b',
+                  display: 'inline-block',
                   marginBottom: '4px'
                 }}
               >
-                Ishlangan
-              </Tag>
+                ISHLANGAN
+              </div>
               <div>
                 <Text style={{
-                  fontSize: '0.625rem',
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
                   color: '#64748b'
                 }}>
-                  Ball: {completionStatus.lastScore}
+                  Ball: {completionStatus.lastScore}%
                 </Text>
               </div>
             </div>
           );
         } else {
           return (
-            <Tag
+            <div
               style={{
                 backgroundColor: '#f3f4f6',
                 color: '#6b7280',
-                fontWeight: 600,
-                borderRadius: '6px',
+                fontWeight: 900,
                 fontSize: '0.75rem',
-                margin: 0
+                padding: '4px 12px',
+                border: '2px solid #6b7280',
+                display: 'inline-block'
               }}
             >
-              Ishlanmagan
-            </Tag>
+              ISHLANMAGAN
+            </div>
           );
         }
       },
@@ -356,11 +361,11 @@ const TeacherDetails = () => {
 
         const getButtonStyle = () => {
           if (hasActiveSession) {
-            return { bg: '#059669', hoverBg: '#047857' };
+            return { bg: '#059669', border: '#064e3b' };
           } else if (isCompleted) {
-            return { bg: '#94a3b8', hoverBg: '#94a3b8' };
+            return { bg: '#94a3b8', border: '#475569' };
           } else {
-            return { bg: '#2563eb', hoverBg: '#1d4ed8' };
+            return { bg: '#2563eb', border: '#1e3a8a' };
           }
         };
 
@@ -379,11 +384,15 @@ const TeacherDetails = () => {
             }}
             disabled={!hasActiveSession && isCompleted}
             style={{
-              fontSize: '0.75rem',
-              padding: '4px 8px',
-              minWidth: 'auto',
+              fontSize: '0.875rem',
+              fontWeight: 900,
+              padding: '8px 16px',
+              height: 'auto',
+              borderRadius: 0,
               backgroundColor: buttonStyle.bg,
-              border: 'none'
+              border: `2px solid ${buttonStyle.border}`,
+              boxShadow: '4px 4px 0px rgba(0,0,0,0.1)',
+              textTransform: 'uppercase'
             }}
             icon={hasActiveSession ? <PlayCircleOutlined /> : (isCompleted ? <CheckCircleOutlined /> : <PlayCircleOutlined />)}
           >
@@ -401,198 +410,175 @@ const TeacherDetails = () => {
       backgroundColor: '#ffffff'
     }}>
       {/* Header */}
-      <div className="animate__animated animate__slideInDown" style={{
-        marginBottom: '24px',
-        paddingBottom: '16px',
-        marginTop: '-6px',
-        borderBottom: '1px solid #e2e8f0'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Button
-            onClick={handleBack}
+      <div style={{ marginBottom: '60px' }}>
+        <div style={{ backgroundColor: '#2563eb', color: '#fff', padding: '8px 16px', fontWeight: 700, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px', display: 'inline-block' }}>
+          O'qituvchi
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '24px' }}>
+          <Title level={1} style={{ fontWeight: 900, fontSize: '3rem', lineHeight: 0.9, textTransform: 'uppercase', letterSpacing: '-0.05em', color: '#1e293b', margin: 0 }}>
+            O'qituvchi <span style={{ color: '#2563eb' }}>Ma'lumotlari</span>
+          </Title>
+          <Button
             icon={<ArrowLeftOutlined />}
+            onClick={handleBack}
             style={{
               borderColor: '#e2e8f0',
-              color: '#64748b'
+              borderWidth: '2px',
+              color: '#64748b',
+              fontWeight: 900,
+              borderRadius: 0,
+              boxShadow: '4px 4px 0px rgba(0,0,0,0.05)',
+              height: 'auto',
+              padding: '12px 24px',
+              textTransform: 'uppercase'
             }}
           >
-            Orqaga qaytish
+            ORQAGA QAYTISH
           </Button>
-                      <Title level={2} style={{
-              fontSize: '2.5rem',
-              fontWeight: 700,
-              color: '#1e293b',
-              marginBottom: '-1px',
-              marginLeft: '16px'
-            }}>
-              O'qituvchi ma'lumotlari
-            </Title>
-          </div>
-          <div>
-          </div>
         </div>
+        <div style={{ width: '80px', height: '10px', backgroundColor: '#2563eb', margin: '24px 0' }}></div>
+        <Text style={{ fontSize: '1.2rem', fontWeight: 600, color: '#333', maxWidth: '600px', display: 'block' }}>
+          O'qituvchi bilan tanishing, ularning fanlari va o'quvchilarga taqdim etgan testlari haqida to'liq ma'lumot oling.
+        </Text>
       </div>
 
       {/* Teacher information section */}
-      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms' }}>
+      <div className="animate__animated animate__fadeIn" style={{ animationDelay: '200ms' }}>
         <Card style={{
           backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '16px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          marginBottom: '32px'
+          border: '4px solid #2563eb',
+          borderRadius: 0,
+          boxShadow: '12px 12px 0px rgba(37, 99, 235, 0.1)',
+          marginBottom: '32px',
+          overflow: 'hidden'
         }}>
           <Row gutter={[24, 24]} align="middle">
-            {/* Teacher avatar and basic info */}
             <Col xs={24} md={8} style={{ textAlign: { xs: 'center', md: 'left' } }}>
-              <Avatar size={120} style={{
-                fontSize: '3rem',
-                backgroundColor: '#2563eb',
-                margin: { xs: '0 auto 16px', md: '0 0 16px 0' }
-              }}>
-                👨‍🏫
-              </Avatar>
-              <Title level={3} style={{ 
-                fontWeight: 700,
+              <div style={{ position: 'relative', display: 'inline-block', marginBottom: '20px' }}>
+                <Avatar size={140} style={{
+                  fontSize: '4rem',
+                  backgroundColor: '#2563eb',
+                  borderRadius: 0,
+                  border: '6px solid #2563eb',
+                  boxShadow: '8px 8px 0px rgba(0,0,0,0.1)'
+                }}>
+                  👨‍🏫
+                </Avatar>
+              </div>
+              <Title level={2} style={{
+                fontWeight: 900,
                 color: '#1e293b',
-                marginBottom: '16px'
+                marginBottom: '16px',
+                textTransform: 'uppercase',
+                letterSpacing: '-0.02em'
               }}>
                 {teacher.name || 'Ismi ko\'rsatilmagan'}
               </Title>
-              <Tag
-                icon={<UserOutlined />}
+              <div
                 style={{
                   backgroundColor: '#eff6ff',
                   color: '#2563eb',
-                  fontWeight: 600,
-                  fontSize: '0.875rem'
+                  fontWeight: 900,
+                  fontSize: '1rem',
+                  padding: '8px 16px',
+                  border: '3px solid #2563eb',
+                  display: 'inline-block',
+                  textTransform: 'uppercase'
                 }}
               >
                 O'qituvchi
-              </Tag>
+              </div>
             </Col>
 
-            {/* Teacher details */}
             <Col xs={24} md={16}>
-              {/* Bio */}
               {teacher.bio && (
                 <div style={{ marginBottom: '24px' }}>
-                  <Text style={{ 
-                    fontWeight: 600, 
-                    color: '#374151',
-                    fontSize: '1rem',
-                    marginBottom: '8px',
-                    display: 'block'
-                  }}>
-                    📝 Biografiya:
-                  </Text>
-                  <Text style={{ 
-                    color: '#64748b',
-                    fontSize: '1rem',
-                    lineHeight: 1.6
-                  }}>
-                    {teacher.bio}
-                  </Text>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                    <EditOutlined style={{ color: '#2563eb', fontSize: '20px' }} />
+                    <Text style={{ fontWeight: 900, color: '#1e293b', fontSize: '1.1rem', textTransform: 'uppercase' }}>
+                      Biografiya
+                    </Text>
+                  </div>
+                  <div style={{ borderLeft: '6px solid #2563eb', paddingLeft: '16px', backgroundColor: '#f8fafc', padding: '16px' }}>
+                    <Text style={{ color: '#334155', fontSize: '1.1rem', lineHeight: 1.6, fontWeight: 500 }}>
+                      {teacher.bio}
+                    </Text>
+                  </div>
                 </div>
               )}
 
-              {/* Subjects */}
               <div style={{ marginBottom: '24px' }}>
-                <Text style={{ 
-                  fontWeight: 600, 
-                  color: '#374151',
-                  fontSize: '1rem',
-                  marginBottom: '8px',
-                  display: 'block'
-                }}>
-                  📚 O'qitiladigan fanlar:
-                </Text>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <BookOutlined style={{ color: '#2563eb', fontSize: '20px' }} />
+                  <Text style={{ fontWeight: 900, color: '#1e293b', fontSize: '1.1rem', textTransform: 'uppercase' }}>
+                    O'qitiladigan fanlar
+                  </Text>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                   {teacher.subjects?.map((subject) => (
-                    <Tag
+                    <div
                       key={subject}
                       style={{
-                        backgroundColor: '#eff6ff',
+                        backgroundColor: '#fff',
                         color: '#2563eb',
-                        fontWeight: 500,
-                        borderRadius: '8px',
+                        fontWeight: 900,
                         fontSize: '0.875rem',
-                        margin: 0
+                        padding: '8px 16px',
+                        border: '3px solid #2563eb',
+                        boxShadow: '4px 4px 0px rgba(37, 99, 235, 0.1)'
                       }}
                     >
                       {subject}
-                    </Tag>
+                    </div>
                   )) || (
-                    <Text style={{ 
-                      color: '#94a3b8',
-                      fontSize: '0.875rem'
-                    }}>
-                      Fanlar ko'rsatilmagan
-                    </Text>
-                  )}
+                      <Text style={{ color: '#94a3b8', fontSize: '1rem', fontWeight: 600 }}>
+                        Fanlar ko'rsatilmagan
+                      </Text>
+                    )}
                 </div>
               </div>
 
-              {/* Statistics */}
               <div>
-                <Text style={{ 
-                  fontWeight: 600, 
-                  color: '#374151',
-                  fontSize: '1rem',
-                  marginBottom: '16px',
-                  display: 'block'
-                }}>
-                  📊 Statistika:
-                </Text>
-                <Row gutter={[16, 16]}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                  <BarChartOutlined style={{ color: '#2563eb', fontSize: '20px' }} />
+                  <Text style={{ fontWeight: 900, color: '#1e293b', fontSize: '1.1rem', textTransform: 'uppercase' }}>
+                    Statistika
+                  </Text>
+                </div>
+                <Row gutter={[24, 24]}>
                   <Col xs={12} md={8}>
-                    <Card style={{
-                      backgroundColor: '#f8fafc',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
+                    <div style={{
+                      backgroundColor: '#fff',
+                      border: '4px solid #2563eb',
+                      borderRadius: 0,
                       textAlign: 'center',
-                      padding: '16px'
+                      padding: '20px',
+                      boxShadow: '8px 8px 0px rgba(37, 99, 235, 0.1)'
                     }}>
-                      <Title level={3} style={{ 
-                        fontSize: '1.5rem',
-                        fontWeight: 700,
-                        color: '#2563eb',
-                        marginBottom: '4px'
-                      }}>
+                      <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 900, color: '#2563eb', marginBottom: '4px', lineHeight: 1 }}>
                         {teacherTests.length}
                       </Title>
-                      <Text style={{ 
-                        color: '#64748b',
-                        fontSize: '0.75rem'
-                      }}>
+                      <Text style={{ color: '#64748b', fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase' }}>
                         Jami testlar
                       </Text>
-                    </Card>
+                    </div>
                   </Col>
                   <Col xs={12} md={8}>
-                    <Card style={{
-                      backgroundColor: '#f8fafc',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
+                    <div style={{
+                      backgroundColor: '#fff',
+                      border: '4px solid #10b981',
+                      borderRadius: 0,
                       textAlign: 'center',
-                      padding: '16px'
+                      padding: '20px',
+                      boxShadow: '8px 8px 0px rgba(16, 185, 129, 0.1)'
                     }}>
-                      <Title level={3} style={{ 
-                        fontSize: '1.5rem',
-                        fontWeight: 700,
-                        color: '#059669',
-                        marginBottom: '4px'
-                      }}>
+                      <Title level={2} style={{ fontSize: '2.5rem', fontWeight: 900, color: '#10b981', marginBottom: '4px', lineHeight: 1 }}>
                         {teacher.subjects?.length || 0}
                       </Title>
-                      <Text style={{ 
-                        color: '#64748b',
-                        fontSize: '0.75rem'
-                      }}>
+                      <Text style={{ color: '#64748b', fontWeight: 900, fontSize: '0.75rem', textTransform: 'uppercase' }}>
                         Fanlar soni
                       </Text>
-                    </Card>
+                    </div>
                   </Col>
                 </Row>
               </div>
@@ -602,72 +588,57 @@ const TeacherDetails = () => {
       </div>
 
       {/* Tests section */}
-      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '400ms', marginBottom: '24px' }}>
-        <Title level={2} style={{
-          fontSize: '1.5rem',
-          fontWeight: 700,
-          color: '#1e293b',
-          marginBottom: '24px'
-        }}>
-          📝 {teacher.name}ning testlari
-        </Title>
-
-        {/* Tests table */}
-        {teacherTests.length > 0 ? (
-          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '600ms' }}>
-            <Card style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            overflow: 'hidden'
+      <div className="animate__animated animate__fadeIn" style={{ animationDelay: '400ms', marginBottom: '40px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
+          <BookOutlined style={{ color: '#2563eb', fontSize: '24px' }} />
+          <Title level={2} style={{
+            fontSize: '1.8rem',
+            fontWeight: 900,
+            color: '#1e293b',
+            margin: 0,
+            textTransform: 'uppercase'
           }}>
-            <Table
-              columns={testColumns}
-              dataSource={teacherTests.map(test => ({ ...test, key: test.id }))}
-              pagination={false}
-              style={{
-                '& .ant-table-thead > tr > th': {
-                  backgroundColor: '#f8fafc',
-                  fontWeight: 700,
-                  fontSize: '0.875rem',
-                  color: '#1e293b',
-                  borderBottom: '1px solid #e2e8f0',
-                  padding: '16px'
-                },
-                '& .ant-table-tbody > tr > td': {
-                  borderBottom: '1px solid #f1f5f9',
-                  padding: '16px',
-                  fontSize: '0.875rem',
-                  color: '#334155'
-                },
-                '& .ant-table-tbody > tr:hover > td': {
-                  backgroundColor: '#f8fafc'
-                }
-              }}
-            />
+            {teacher.name}ning <span style={{ color: '#2563eb' }}>testlari</span>
+          </Title>
+        </div>
+
+        {teacherTests.length > 0 ? (
+          <div className="animate__animated animate__fadeIn" style={{ animationDelay: '600ms' }}>
+            <Card style={{
+              backgroundColor: '#ffffff',
+              border: '4px solid #000',
+              borderRadius: 0,
+              boxShadow: '12px 12px 0px rgba(0,0,0,0.05)',
+              overflow: 'hidden',
+              padding: 0
+            }}>
+              <Table
+                columns={testColumns}
+                dataSource={teacherTests.map(test => ({ ...test, key: test.id }))}
+                pagination={false}
+              />
             </Card>
           </div>
         ) : (
-          // No tests message
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '800ms' }}>
-              <Card style={{
+          <div className="animate__animated animate__fadeIn" style={{ animationDelay: '800ms' }}>
+            <Card style={{
               backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              border: '4px solid #e2e8f0',
+              borderRadius: 0,
+              boxShadow: '8px 8px 0px rgba(0,0,0,0.02)',
               textAlign: 'center',
               padding: '48px 24px'
             }}>
               <Text style={{ fontSize: '3rem', marginBottom: '16px', display: 'block' }}>📝</Text>
               <Title level={4} style={{
                 color: '#64748b',
-                fontWeight: 600,
-                marginBottom: '16px'
+                fontWeight: 900,
+                marginBottom: '16px',
+                textTransform: 'uppercase'
               }}>
                 Bu o'qituvchining hali testlari yo'q
               </Title>
-              <Text style={{ color: '#94a3b8' }}>
+              <Text style={{ color: '#94a3b8', fontWeight: 600 }}>
                 Tez orada yangi testlar qo'shilishi mumkin
               </Text>
             </Card>
