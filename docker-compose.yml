@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=testplatform
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=adminpass
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  backend:
+    build: ./backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+      - redis
+
+  analytics:
+    build: ./services/analytics
+    command: uvicorn main:app --host 0.0.0.0 --port 8001
+    volumes:
+      - ./services/analytics:/app
+
+  calculator:
+    build: ./services/calculator
+    command: go run main.go
+    volumes:
+      - ./services/calculator:/app
+
+volumes:
+  postgres_data:
