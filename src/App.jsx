@@ -11,7 +11,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { StatisticsProvider } from './context/StatisticsContext';
 import { SettingsProvider } from './context/SettingsContext';
 import { ServerTestProvider } from './context/ServerTestContext';
-import { ThemeProvider as CustomThemeProvider } from './context/ThemeContext';
+import { ThemeProvider as CustomThemeProvider } from './context/ThemeContext.jsx';
 import { LoadingProvider } from './context/LoadingContext';
 import { registerSW } from './utils/serviceWorker';
 import ScrollToTop from './components/ScrollToTop';
