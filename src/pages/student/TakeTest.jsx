@@ -199,7 +199,7 @@ const TakeTest = () => {
 
   useEffect(() => {
     if (currentSession && hasTimeRemaining === false && sessionStarted) {
-      handleTestComplete();
+      handleSubmitTest();
     }
   }, [hasTimeRemaining, sessionStarted]);
 

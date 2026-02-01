@@ -157,7 +157,7 @@ const TestDetails = () => {
 
   if (loading) {
     return (
-      <div style={{ 
+      <div style={{
         padding: '32px',
         backgroundColor: '#ffffff',
         minHeight: '100vh'
@@ -172,7 +172,7 @@ const TestDetails = () => {
 
   if (error || !test) {
     return (
-      <div style={{ 
+      <div style={{
         padding: '32px',
         backgroundColor: '#ffffff',
         minHeight: '100vh'
@@ -220,11 +220,11 @@ const TestDetails = () => {
         return (
           <Space>
             {student?.is_premium && student?.profile_photo ? (
-              <Avatar 
-                src={student.profile_photo.startsWith('http') ? student.profile_photo : `http://localhost:8000${student.profile_photo}`}
-                style={{ 
+              <Avatar
+                src={student.profile_photo.startsWith('http') ? student.profile_photo : `${apiService.baseURL.replace('/api', '')}${student.profile_photo}`}
+                style={{
                   border: '2px solid #f59e0b'
-                }} 
+                }}
               />
             ) : (
               <Avatar icon={<PersonIcon />} style={{ backgroundColor: '#1890ff' }} />
@@ -320,7 +320,7 @@ const TestDetails = () => {
       render: (attempt) => {
         const student = allStudents.find(s => s.id === attempt.student);
         const lessonInvitation = notifications.find(n => n.studentId === attempt.student);
-        
+
         if (lessonInvitation) {
           return (
             <div style={{ minWidth: '200px' }}>
@@ -417,7 +417,7 @@ const TestDetails = () => {
           <Title level={2} style={{ color: '#1e293b', marginBottom: '16px' }}>
             {test.title}
           </Title>
-          <Text style={{ 
+          <Text style={{
             color: '#64748b',
             fontSize: '16px',
             lineHeight: 1.5,
@@ -437,7 +437,7 @@ const TestDetails = () => {
             <Tag color="orange">
               {test.time_limit} daqiqa
             </Tag>
-            
+
             {/* Target Grades Display */}
             {test.target_grades && test.target_grades.length > 0 ? (
               <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -463,7 +463,7 @@ const TestDetails = () => {
                 Barcha sinflar uchun
               </Tag>
             )}
-            
+
             <Tag color={test.is_active ? 'success' : 'default'}>
               {test.is_active ? 'Faol' : 'Nofaol'}
             </Tag>

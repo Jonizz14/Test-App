@@ -20,7 +20,7 @@ import apiService from '../../data/apiService';
 import { useCountdown } from '../../hooks/useCountdown';
 import { shouldShowPremiumFeatures } from '../../utils/premiumVisibility';
 import GradientPicker from '../../components/GradientPicker';
-import EmojiPicker from '../../components/EmojiPicker';
+
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -834,14 +834,7 @@ const StudentProfile = () => {
         }}
       />
 
-      {/* Emoji Picker Modal */}
-      <EmojiPicker
-        open={emojiPickerOpen}
-        onClose={() => setEmojiPickerOpen(false)}
-        selectedEmojis={selectedEmojis}
-        onEmojiSelect={setSelectedEmojis}
-        maxEmojis={10}
-      />
+
     </div>
   );
 };

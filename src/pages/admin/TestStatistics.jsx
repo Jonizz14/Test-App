@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+dayjs.extend(isSameOrAfter);
 import 'animate.css';
 import {
   Table,
@@ -48,9 +51,9 @@ const TestStatistics = () => {
   // Filter tests based on all filter criteria
   const displayTests = useMemo(() => {
     const testsArray = Array.isArray(tests) ? tests : [];
-    
+
     let filteredTests = testsArray;
-    
+
     // Apply search filter
     if (searchTerm.trim()) {
       const searchLower = searchTerm.toLowerCase().trim();
@@ -58,21 +61,21 @@ const TestStatistics = () => {
         const teacherName = `${test.teacher_name || ''} ${test.teacher_surname || ''}`.toLowerCase();
         const title = test.title ? test.title.toLowerCase() : '';
         const subject = test.subject ? test.subject.toLowerCase() : '';
-        
-        return title.includes(searchLower) || 
-               teacherName.includes(searchLower) || 
-               subject.includes(searchLower);
+
+        return title.includes(searchLower) ||
+          teacherName.includes(searchLower) ||
+          subject.includes(searchLower);
       });
     }
-    
+
     // Apply subject filter
     if (subjectFilter && subjectFilter.trim()) {
       const subjectFilterLower = subjectFilter.toLowerCase().trim();
-      filteredTests = filteredTests.filter(test => 
+      filteredTests = filteredTests.filter(test =>
         test.subject && test.subject.toLowerCase().includes(subjectFilterLower)
       );
     }
-    
+
     // Apply teacher filter
     if (teacherFilter && teacherFilter.trim()) {
       const teacherFilterLower = teacherFilter.toLowerCase().trim();
@@ -81,23 +84,23 @@ const TestStatistics = () => {
         return teacherName.includes(teacherFilterLower);
       });
     }
-    
+
     // Apply status filter
     if (statusFilter !== '') {
       const isActiveFilter = statusFilter === 'active';
       filteredTests = filteredTests.filter(test => test.is_active === isActiveFilter);
     }
-    
+
     // Apply date filter
     if (dateFilter) {
-      const filterDate = dateFilter.startOf('day');
+      const filterDate = dayjs(dateFilter).startOf('day');
       filteredTests = filteredTests.filter(test => {
         if (!test.created_at) return false;
-        const testDate = moment(test.created_at);
+        const testDate = dayjs(test.created_at);
         return testDate.isSameOrAfter(filterDate);
       });
     }
-    
+
     return filteredTests;
   }, [tests, searchTerm, subjectFilter, teacherFilter, statusFilter, dateFilter]);
 
@@ -239,7 +242,7 @@ const TestStatistics = () => {
       </div>
 
       {/* Search and Filters Row */}
-      <div className="animate__animated animate__fadeInUp" style={{ 
+      <div className="animate__animated animate__fadeInUp" style={{
         marginBottom: '24px',
         display: 'flex',
         gap: '12px',
@@ -258,7 +261,7 @@ const TestStatistics = () => {
             flex: '1'
           }}
         />
-        
+
         {/* Subject Filter */}
         <Select
           placeholder="Fan bo'yicha"
@@ -281,7 +284,7 @@ const TestStatistics = () => {
           <Select.Option value="Ona tili">Ona tili</Select.Option>
           <Select.Option value="Adabiyot">Adabiyot</Select.Option>
         </Select>
-        
+
         {/* Teacher Filter */}
         <Select
           placeholder="O'qituvchi bo'yicha"
@@ -298,7 +301,7 @@ const TestStatistics = () => {
             option.children.toLowerCase().includes(input.toLowerCase())
           }
         >
-          {Array.from(new Set(tests.map(test => 
+          {Array.from(new Set(tests.map(test =>
             `${test.teacher_name || ''} ${test.teacher_surname || ''}`.trim()
           ).filter(name => name))).map(teacherName => (
             <Select.Option key={teacherName} value={teacherName}>
@@ -306,7 +309,7 @@ const TestStatistics = () => {
             </Select.Option>
           ))}
         </Select>
-        
+
         {/* Status Filter */}
         <Select
           placeholder="Status bo'yicha"
@@ -322,7 +325,7 @@ const TestStatistics = () => {
           <Select.Option value="active">Faol</Select.Option>
           <Select.Option value="inactive">Nofaol</Select.Option>
         </Select>
-        
+
         {/* Date Filter */}
         <DatePicker
           placeholder="Sana bo'yicha"
@@ -354,7 +357,7 @@ const TestStatistics = () => {
           rowClassName={(record, index) => `animate__animated animate__fadeInLeft`}
           onRow={(record, index) => ({
             className: 'animate__animated animate__fadeInLeft',
-            style: { 
+            style: {
               animationDelay: `${index * 100}ms`,
               transition: 'all 0.3s ease'
             },

@@ -94,13 +94,13 @@ const StatisticsPage = () => {
     totalTests: 0,
     totalAttempts: 0,
     averageScore: 0,
-    
+
     // Growth metrics
     studentGrowth: 0,
     testGrowth: 0,
     attemptGrowth: 0,
     scoreGrowth: 0,
-    
+
     // Detailed analytics
     classPerformance: [],
     topStudents: [],
@@ -108,7 +108,7 @@ const StatisticsPage = () => {
     subjectAnalytics: [],
     weeklyActivity: [],
     monthlyTrends: [],
-    
+
     // Recent insights
     recentActivities: [],
     insights: [],
@@ -116,7 +116,7 @@ const StatisticsPage = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Card toggle states
   const [visibleCards, setVisibleCards] = useState({
     totalUsers: true,
@@ -134,7 +134,7 @@ const StatisticsPage = () => {
   });
 
 
-  
+
   // Toggle functions for cards
   const toggleCard = (cardKey) => {
     setVisibleCards(prev => ({
@@ -143,30 +143,18 @@ const StatisticsPage = () => {
     }));
   };
 
-
-  
-  // GA4 tracking function
-  const trackEvent = (action, label) => {
-    if (typeof gtag !== 'undefined') {
-      gtag('event', action, {
-        event_category: 'Statistics Page',
-        event_label: label
-      });
-    }
-  };
-
   // Fetch comprehensive statistics
   useEffect(() => {
     const fetchComprehensiveStatistics = async () => {
       try {
         setLoading(true);
-        
+
         // Track page view
         trackEvent('page_view', {
           page_title: 'Statistics Page',
           page_location: window.location.href
         });
-        
+
         const [usersData, testsData, attemptsData] = await Promise.all([
           apiService.getUsers(),
           apiService.getTests(),
@@ -183,7 +171,7 @@ const StatisticsPage = () => {
         const totalTeachers = users.filter(user => user.role === 'teacher').length;
         const totalTests = tests.length;
         const totalAttempts = attempts.length;
-        
+
         const scores = attempts.map(attempt => attempt.score || 0);
         const averageScore = scores.length > 0
           ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
@@ -192,9 +180,9 @@ const StatisticsPage = () => {
         // Class performance analysis
         const students = users.filter(user => user.role === 'student');
         const classGroups = {};
-        
+
         students.forEach(student => {
-          const classGroup = student.class_group || 'Noma\'lum';
+          const classGroup = student.class_group || "Noma'lum";
           if (!classGroups[classGroup]) {
             classGroups[classGroup] = {
               name: classGroup,
@@ -208,11 +196,11 @@ const StatisticsPage = () => {
           if (!student.is_banned) {
             classGroups[classGroup].activeStudents++;
           }
-          
+
           // Calculate class test statistics
           const studentAttempts = attempts.filter(attempt => attempt.student === student.id);
           classGroups[classGroup].totalTests += studentAttempts.length;
-          
+
           if (studentAttempts.length > 0) {
             const avgScore = studentAttempts.reduce((sum, attempt) => sum + (attempt.score || 0), 0) / studentAttempts.length;
             classGroups[classGroup].totalScore += avgScore;
@@ -221,9 +209,9 @@ const StatisticsPage = () => {
 
         const classPerformance = Object.values(classGroups).map(cls => ({
           ...cls,
-          averageScore: cls.students.length > 0 
-            ? Math.round(cls.totalScore / cls.students.filter(s => 
-                attempts.some(a => a.student === s.id)).length) || 0
+          averageScore: cls.students.length > 0
+            ? Math.round(cls.totalScore / cls.students.filter(s =>
+              attempts.some(a => a.student === s.id)).length) || 0
             : 0
         })).sort((a, b) => b.averageScore - a.averageScore);
 
@@ -231,14 +219,14 @@ const StatisticsPage = () => {
         const studentAnalytics = students.map(student => {
           const studentAttempts = attempts.filter(attempt => attempt.student === student.id);
           const testCount = studentAttempts.length;
-          const avgScore = testCount > 0 
+          const avgScore = testCount > 0
             ? Math.round(studentAttempts.reduce((sum, attempt) => sum + (attempt.score || 0), 0) / testCount)
             : 0;
-            
+
           return {
             id: student.id,
             name: student.name || student.username,
-            classGroup: student.class_group || 'Noma\'lum',
+            classGroup: student.class_group || "Noma'lum",
             testCount,
             averageScore: avgScore,
             isBanned: student.is_banned,
@@ -255,17 +243,17 @@ const StatisticsPage = () => {
         const testAnalytics = tests.map(test => {
           const testAttempts = attempts.filter(attempt => attempt.test === test.id);
           const attemptCount = testAttempts.length;
-          const avgScore = attemptCount > 0 
+          const avgScore = attemptCount > 0
             ? Math.round(testAttempts.reduce((sum, attempt) => sum + (attempt.score || 0), 0) / attemptCount)
             : 0;
-            
+
           const teacher = users.find(user => user.id === test.teacher);
-          
+
           return {
             id: test.id,
             title: test.title,
             subject: test.subject,
-            teacherName: teacher ? teacher.name || teacher.username : 'Noma\'lum',
+            teacherName: teacher ? teacher.name || teacher.username : "Noma'lum",
             attemptCount,
             averageScore: avgScore,
             isActive: test.is_active !== false
@@ -279,7 +267,7 @@ const StatisticsPage = () => {
         // Subject analytics
         const subjectGroups = {};
         testAnalytics.forEach(test => {
-          const subject = test.subject || 'Noma\'lum';
+          const subject = test.subject || "Noma'lum";
           if (!subjectGroups[subject]) {
             subjectGroups[subject] = {
               subject,
@@ -298,17 +286,17 @@ const StatisticsPage = () => {
 
         const subjectAnalytics = Object.values(subjectGroups).map(subject => ({
           ...subject,
-          averageScore: subject.totalAttempts > 0 
+          averageScore: subject.totalAttempts > 0
             ? Math.round(testAnalytics
-                .filter(t => t.subject === subject.subject)
-                .reduce((sum, t) => sum + t.averageScore, 0) / 
-                testAnalytics.filter(t => t.subject === subject.subject).length)
+              .filter(t => t.subject === subject.subject)
+              .reduce((sum, t) => sum + t.averageScore, 0) /
+              testAnalytics.filter(t => t.subject === subject.subject).length)
             : 0
         })).sort((a, b) => b.totalAttempts - a.totalAttempts);
 
         // Weekly activity data (last 7 days)
         const weeklyActivity = [];
-        
+
         // Monthly trends (last 6 months)
         const monthlyTrends = [];
 
@@ -316,20 +304,20 @@ const StatisticsPage = () => {
         const insights = [
           {
             type: 'positive',
-            title: 'A\'lo natijalar',
-            description: `${topStudents.length} ta o\'quvchi 80% dan yuqori ball oldi`,
+            title: "A'lo natijalar",
+            description: `${topStudents.length} ta o'quvchi 80% dan yuqori ball oldi`,
             impact: 'high'
           },
           {
             type: 'info',
             title: 'Faol sinflar',
-            description: `${classPerformance.filter(c => c.averageScore > 70).length} ta sinf o\'rtacha 70% dan yuqori ko\'rsatkichga ega`,
+            description: `${classPerformance.filter(c => c.averageScore > 70).length} ta sinf o'rtacha 70% dan yuqori ko'rsatkichga ega`,
             impact: 'medium'
           },
           {
             type: 'warning',
-            title: 'E\'tibor kerak',
-            description: `${students.filter(s => s.is_banned).length} ta o\'quvchi bloklangan holatda`,
+            title: "E'tibor kerak",
+            description: `${students.filter(s => s.is_banned).length} ta o'quvchi bloklangan holatda`,
             impact: 'low'
           }
         ];
@@ -347,7 +335,7 @@ const StatisticsPage = () => {
           },
           {
             type: 'warning',
-            message: `5 ta o\'quvchi bir hafta davomida test ishlashmagan`,
+            message: `5 ta o'quvchi bir hafta davomida test ishlashmagan`,
             time: '1 kun oldin'
           }
         ];
@@ -696,29 +684,29 @@ const StatisticsPage = () => {
   const testDifficultyDoughnutChart = {
     labels: ['Oson', 'O\'rta', 'Qiyin', 'Juda qiyin'],
     datasets: [
-      {
-        data: [
-          stats.popularTests.filter(test => test.averageScore >= 80).length,
-          stats.popularTests.filter(test => test.averageScore >= 60 && test.averageScore < 80).length,
-          stats.popularTests.filter(test => test.averageScore >= 40 && test.averageScore < 60).length,
-          stats.popularTests.filter(test => test.averageScore < 40).length
-        ],
-        backgroundColor: [
-          '#10b981',
-          '#f59e0b', 
-          '#ef4444',
-          '#7c2d12'
-        ],
-        borderColor: [
-          '#ffffff',
-          '#ffffff',
-          '#ffffff',
-          '#ffffff'
-        ],
-        borderWidth: 3,
-        hoverOffset: 15,
-      },
-    ],
+        {
+          data: [
+            stats.popularTests.filter(test => test.averageScore >= 80).length,
+            stats.popularTests.filter(test => test.averageScore >= 60 && test.averageScore < 80).length,
+            stats.popularTests.filter(test => test.averageScore >= 40 && test.averageScore < 60).length,
+            stats.popularTests.filter(test => test.averageScore < 40).length
+          ],
+          backgroundColor: [
+            '#10b981',
+            '#f59e0b',
+            '#ef4444',
+            '#7c2d12'
+          ],
+          borderColor: [
+            '#ffffff',
+            '#ffffff',
+            '#ffffff',
+            '#ffffff'
+          ],
+          borderWidth: 3,
+          hoverOffset: 15,
+        },
+      ],
   };
 
   const chartOptions = {
@@ -1024,8 +1012,8 @@ const StatisticsPage = () => {
             ) : (
               <ArrowDownOutlined style={{ color: '#dc2626', fontSize: '14px', marginRight: '6px' }} />
             )}
-            <Text style={{ 
-              fontSize: '13px', 
+            <Text style={{
+              fontSize: '13px',
               fontWeight: 600,
               color: trend.direction === 'up' ? '#16a34a' : '#dc2626'
             }}>
@@ -1045,14 +1033,14 @@ const StatisticsPage = () => {
   // Resizable Chart Component with entrance animations
   const ResizableChart = ({ chartKey, title, icon, children, width, index = 0 }) => {
     const isVisible = visibleCards[chartKey];
-    
+
     if (!isVisible) return null;
-    
+
     return (
-      <div 
+      <div
         className="animate__animated animate__fadeInUp"
-        style={{ 
-          width: `${width || 50}%`, 
+        style={{
+          width: `${width || 50}%`,
           padding: '0 8px',
           animationDelay: `${getAnimationDelay(index)}ms`,
           animationDuration: '0.8s',
@@ -1076,11 +1064,11 @@ const StatisticsPage = () => {
             marginBottom: '16px'
           }}>
             {icon}
-            <Title level={3} style={{ 
-              fontSize: '1.25rem', 
-              fontWeight: 700, 
-              color: '#1e293b', 
-              margin: '0 0 0 8px' 
+            <Title level={3} style={{
+              fontSize: '1.25rem',
+              fontWeight: 700,
+              color: '#1e293b',
+              margin: '0 0 0 8px'
             }}>
               {title}
             </Title>
@@ -1317,7 +1305,7 @@ const StatisticsPage = () => {
             <BarChartOutlined style={{ color: '#2563eb' }} />
             Statistik ma'lumotlar va tahlillar
           </Title>
-          
+
           {/* Chart Management Controls */}
           <div style={{
             backgroundColor: '#ffffff',
@@ -1372,227 +1360,227 @@ const StatisticsPage = () => {
       {/* Charts Section */}
       <div>
         <div style={{ marginBottom: '24px' }}>
-        <Row gutter={[0, 24]}>
-          <ResizableChart
-            chartKey="monthlyTrends"
-            title="Oylik tendensiyalar"
-            icon={<LineChartOutlined style={{ color: '#2563eb' }} />}
-            width={50}
-            index={0}
-          >
-            <Line 
-              data={monthlyTrendsChart} 
-              options={chartOptions}
-              onClick={() => handleChartClick('monthly_trends')}
-            />
-          </ResizableChart>
+          <Row gutter={[0, 24]}>
+            <ResizableChart
+              chartKey="monthlyTrends"
+              title="Oylik tendensiyalar"
+              icon={<LineChartOutlined style={{ color: '#2563eb' }} />}
+              width={50}
+              index={0}
+            >
+              <Line
+                data={monthlyTrendsChart}
+                options={chartOptions}
+                onClick={() => handleChartClick('monthly_trends')}
+              />
+            </ResizableChart>
 
-          <ResizableChart
-            chartKey="weeklyActivity"
-            title="Haftalik faoliyat"
-            icon={<CalendarOutlined style={{ color: '#f59e0b' }} />}
-            width={50}
-            index={1}
-          >
-            <Line 
-              data={weeklyActivityChart} 
-              options={chartOptions}
-              onClick={() => handleChartClick('weekly_activity')}
-            />
-          </ResizableChart>
-        </Row>
-      </div>
+            <ResizableChart
+              chartKey="weeklyActivity"
+              title="Haftalik faoliyat"
+              icon={<CalendarOutlined style={{ color: '#f59e0b' }} />}
+              width={50}
+              index={1}
+            >
+              <Line
+                data={weeklyActivityChart}
+                options={chartOptions}
+                onClick={() => handleChartClick('weekly_activity')}
+              />
+            </ResizableChart>
+          </Row>
+        </div>
 
-      <div style={{ marginBottom: '24px' }}>
-        <Row gutter={[0, 24]}>
-          <ResizableChart
-            chartKey="subjectPerformance"
-            title="Fanlar bo'yicha natijalar"
-            icon={<BarChartOutlined style={{ color: '#8b5cf6' }} />}
-            width={100}
-            index={2}
-          >
-            <Line 
-              data={subjectPerformanceChart} 
-              options={{
-                ...chartOptions,
-                plugins: {
-                  ...chartOptions.plugins,
-                  legend: {
-                    ...chartOptions.plugins.legend,
-                    display: false
+        <div style={{ marginBottom: '24px' }}>
+          <Row gutter={[0, 24]}>
+            <ResizableChart
+              chartKey="subjectPerformance"
+              title="Fanlar bo'yicha natijalar"
+              icon={<BarChartOutlined style={{ color: '#8b5cf6' }} />}
+              width={100}
+              index={2}
+            >
+              <Line
+                data={subjectPerformanceChart}
+                options={{
+                  ...chartOptions,
+                  plugins: {
+                    ...chartOptions.plugins,
+                    legend: {
+                      ...chartOptions.plugins.legend,
+                      display: false
+                    }
                   }
-                }
+                }}
+                onClick={() => handleChartClick('subject_performance')}
+              />
+            </ResizableChart>
+          </Row>
+        </div>
+
+        {/* Additional Charts Section */}
+        <div style={{ marginBottom: '24px' }}>
+          <Row gutter={[0, 24]}>
+            <ResizableChart
+              chartKey="classPerformance"
+              title="Sinf natijalari"
+              icon={<BarChartOutlined style={{ color: '#059669' }} />}
+              width={50}
+              index={3}
+            >
+              <Bar
+                data={classPerformanceBarChart}
+                options={barChartOptions}
+                onClick={() => handleChartClick('class_performance_bar')}
+              />
+            </ResizableChart>
+
+            <ResizableChart
+              chartKey="userRole"
+              title="Foydalanuvchilar tarkibi"
+              icon={<PieChartOutlined style={{ color: '#f59e0b' }} />}
+              width={50}
+              index={4}
+            >
+              <Pie
+                data={userRolePieChart}
+                options={pieChartOptions}
+                onClick={() => handleChartClick('user_role_pie')}
+              />
+            </ResizableChart>
+          </Row>
+        </div>
+
+        <div style={{ marginBottom: '24px' }}>
+          <Row gutter={[0, 24]}>
+            <ResizableChart
+              chartKey="subjectRadar"
+              title="Fanlar radar"
+              icon={<RiseOutlined style={{ color: '#8b5cf6' }} />}
+              width={50}
+              index={5}
+            >
+              <Radar
+                data={subjectPerformanceRadarChart}
+                options={radarChartOptions}
+                onClick={() => handleChartClick('subject_radar')}
+              />
+            </ResizableChart>
+
+            <ResizableChart
+              chartKey="testTypes"
+              title="Test turlari"
+              icon={<BookOutlined style={{ color: '#7c3aed' }} />}
+              width={50}
+              index={6}
+            >
+              <Pie
+                data={testDifficultyDoughnutChart}
+                options={pieChartOptions}
+                onClick={() => handleChartClick('test_types_pie')}
+              />
+            </ResizableChart>
+          </Row>
+        </div>
+
+        {/* Top Classes and Students Analytics */}
+        <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
+          <Col xs={24} lg={12}>
+            <Card
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
               }}
-              onClick={() => handleChartClick('subject_performance')}
-            />
-          </ResizableChart>
+            >
+              <Title level={3} style={{
+                fontSize: '1.25rem',
+                fontWeight: 700,
+                color: '#1e293b',
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <TeamOutlined style={{ color: '#16a34a' }} />
+                Top 5 sinflar
+              </Title>
+              <Table
+                dataSource={stats.classPerformance.slice(0, 5)}
+                columns={columns.classes}
+                pagination={false}
+                size="small"
+                rowKey="name"
+              />
+            </Card>
+          </Col>
+
+          <Col xs={24} lg={12}>
+            <Card
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              <Title level={3} style={{
+                fontSize: '1.25rem',
+                fontWeight: 700,
+                color: '#1e293b',
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <StarOutlined style={{ color: '#f59e0b' }} />
+                Top 5 o'quvchilar
+              </Title>
+              <Table
+                dataSource={stats.topStudents.slice(0, 5)}
+                columns={columns.students}
+                pagination={false}
+                size="small"
+                rowKey="id"
+              />
+            </Card>
+          </Col>
         </Row>
-      </div>
 
-      {/* Additional Charts Section */}
-      <div style={{ marginBottom: '24px' }}>
-        <Row gutter={[0, 24]}>
-          <ResizableChart
-            chartKey="classPerformance"
-            title="Sinf natijalari"
-            icon={<BarChartOutlined style={{ color: '#059669' }} />}
-            width={50}
-            index={3}
-          >
-            <Bar 
-              data={classPerformanceBarChart} 
-              options={barChartOptions}
-              onClick={() => handleChartClick('class_performance_bar')}
-            />
-          </ResizableChart>
-
-          <ResizableChart
-            chartKey="userRole"
-            title="Foydalanuvchilar tarkibi"
-            icon={<PieChartOutlined style={{ color: '#f59e0b' }} />}
-            width={50}
-            index={4}
-          >
-            <Pie 
-              data={userRolePieChart} 
-              options={pieChartOptions}
-              onClick={() => handleChartClick('user_role_pie')}
-            />
-          </ResizableChart>
+        {/* Popular Tests Analytics */}
+        <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
+          <Col xs={24}>
+            <Card
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              <Title level={3} style={{
+                fontSize: '1.25rem',
+                fontWeight: 700,
+                color: '#1e293b',
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <BookOutlined style={{ color: '#7c3aed' }} />
+                Eng mashhur testlar
+              </Title>
+              <Table
+                dataSource={stats.popularTests.slice(0, 5)}
+                columns={columns.tests}
+                pagination={false}
+                size="small"
+                rowKey="id"
+              />
+            </Card>
+          </Col>
         </Row>
-      </div>
-
-      <div style={{ marginBottom: '24px' }}>
-        <Row gutter={[0, 24]}>
-          <ResizableChart
-            chartKey="subjectRadar"
-            title="Fanlar radar"
-            icon={<RiseOutlined style={{ color: '#8b5cf6' }} />}
-            width={50}
-            index={5}
-          >
-            <Radar 
-              data={subjectPerformanceRadarChart} 
-              options={radarChartOptions}
-              onClick={() => handleChartClick('subject_radar')}
-            />
-          </ResizableChart>
-
-          <ResizableChart
-            chartKey="testTypes"
-            title="Test turlari"
-            icon={<BookOutlined style={{ color: '#7c3aed' }} />}
-            width={50}
-            index={6}
-          >
-            <Pie 
-              data={testDifficultyDoughnutChart} 
-              options={pieChartOptions}
-              onClick={() => handleChartClick('test_types_pie')}
-            />
-          </ResizableChart>
-        </Row>
-      </div>
-
-      {/* Top Classes and Students Analytics */}
-      <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
-        <Col xs={24} lg={12}>
-          <Card
-            style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            }}
-          >
-            <Title level={3} style={{
-              fontSize: '1.25rem',
-              fontWeight: 700,
-              color: '#1e293b',
-              marginBottom: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <TeamOutlined style={{ color: '#16a34a' }} />
-              Top 5 sinflar
-            </Title>
-            <Table
-              dataSource={stats.classPerformance.slice(0, 5)}
-              columns={columns.classes}
-              pagination={false}
-              size="small"
-              rowKey="name"
-            />
-          </Card>
-        </Col>
-
-        <Col xs={24} lg={12}>
-          <Card
-            style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            }}
-          >
-            <Title level={3} style={{
-              fontSize: '1.25rem',
-              fontWeight: 700,
-              color: '#1e293b',
-              marginBottom: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <StarOutlined style={{ color: '#f59e0b' }} />
-              Top 5 o'quvchilar
-            </Title>
-            <Table
-              dataSource={stats.topStudents.slice(0, 5)}
-              columns={columns.students}
-              pagination={false}
-              size="small"
-              rowKey="id"
-            />
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Popular Tests Analytics */}
-      <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
-        <Col xs={24}>
-          <Card
-            style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-            }}
-          >
-            <Title level={3} style={{
-              fontSize: '1.25rem',
-              fontWeight: 700,
-              color: '#1e293b',
-              marginBottom: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <BookOutlined style={{ color: '#7c3aed' }} />
-              Eng mashhur testlar
-            </Title>
-            <Table
-              dataSource={stats.popularTests.slice(0, 5)}
-              columns={columns.tests}
-              pagination={false}
-              size="small"
-              rowKey="id"
-            />
-          </Card>
-        </Col>
-      </Row>
 
       </div>
 

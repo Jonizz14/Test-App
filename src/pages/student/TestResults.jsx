@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Table,
   Card,
@@ -36,6 +36,7 @@ const { Search } = Input;
 const { Option } = Select;
 
 const TestResults = () => {
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [results, setResults] = useState([]);
   const [tests, setTests] = useState([]);
