@@ -14,11 +14,13 @@ import {
 import {
   ArrowLeftOutlined,
   StarOutlined,
+  StarFilled,
+  SketchOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 
 const PricingPage = () => {
   const navigate = useNavigate();
@@ -32,12 +34,12 @@ const PricingPage = () => {
     const loadPricingData = async () => {
       try {
         setLoading(true);
-        
+
         // Add timeout to prevent hanging
-        const timeoutPromise = new Promise((_, reject) => 
+        const timeoutPromise = new Promise((_, reject) =>
           setTimeout(() => reject(new Error('Request timeout')), 10000)
         );
-        
+
         const [pricingResponse, starResponse] = await Promise.all([
           Promise.race([
             apiService.get('/pricing/'),
@@ -61,7 +63,7 @@ const PricingPage = () => {
           discount: `${plan.discount_percentage}% Chegirma`,
           popular: plan.plan_type === 'month', // Make month popular
           color: plan.plan_type === 'week' ? '#2563eb' :
-                 plan.plan_type === 'month' ? '#d97706' : '#16a34a'
+            plan.plan_type === 'month' ? '#d97706' : '#16a34a'
         }));
 
         // Transform star packages data with fallback
@@ -149,7 +151,7 @@ const PricingPage = () => {
       } catch (err) {
         console.error('Failed to load pricing data:', err);
         setError('Narxlarni yuklashda xatolik yuz berdi. Fallback ma\'lumotlar ishlatilmoqda.');
-        
+
         // Set fallback data on error
         setPricingPlans([
           {
@@ -180,7 +182,7 @@ const PricingPage = () => {
             color: '#16a34a'
           }
         ]);
-        
+
         setStarPackages([
           {
             key: 'stars_100',
@@ -230,7 +232,7 @@ const PricingPage = () => {
       key: 'planType',
       render: (text, record) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Text style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.875rem' }}>
+          <Text style={{ fontWeight: 900, color: '#1e293b', fontSize: '1rem', textTransform: 'uppercase' }}>
             {text}
           </Text>
           {record.popular && (
@@ -238,14 +240,16 @@ const PricingPage = () => {
               style={{
                 backgroundColor: '#d97706',
                 color: 'white',
-                fontWeight: 600,
+                fontWeight: 900,
                 fontSize: '0.7rem',
                 margin: 0,
-                height: '20px',
-                lineHeight: '20px'
+                height: '24px',
+                lineHeight: '20px',
+                borderRadius: 0,
+                border: '2px solid rgba(255,255,255,0.4)'
               }}
             >
-              Eng mashhur
+              MASHHUR
             </Tag>
           )}
         </div>
@@ -257,18 +261,20 @@ const PricingPage = () => {
       key: 'discountedPrice',
       render: (text, record) => (
         <div>
-          <Title level={4} style={{
-            fontWeight: 700,
+          <Title level={3} style={{
+            fontWeight: 900,
             color: record.color,
             marginBottom: '4px',
-            marginTop: 0
+            marginTop: 0,
+            fontSize: '1.5rem'
           }}>
             {text}
           </Title>
           <Text style={{
             color: '#64748b',
             textDecoration: 'line-through',
-            fontSize: '0.75rem'
+            fontSize: '0.875rem',
+            fontWeight: 700
           }}>
             {record.originalPrice}
           </Text>
@@ -284,9 +290,11 @@ const PricingPage = () => {
           style={{
             backgroundColor: '#ecfdf5',
             color: '#059669',
-            fontWeight: 600,
-            fontSize: '0.75rem',
-            margin: 0
+            fontWeight: 900,
+            fontSize: '0.875rem',
+            margin: 0,
+            borderRadius: 0,
+            border: '2px solid #059669'
           }}
         >
           {text}
@@ -299,16 +307,18 @@ const PricingPage = () => {
       render: (_, record) => (
         <Button
           type="primary"
-          size="small"
           onClick={() => handlePurchase(record.key)}
           style={{
             backgroundColor: record.color,
             color: 'white',
-            fontWeight: 600,
-            border: 'none',
-            fontSize: '0.75rem',
-            padding: '4px 8px',
-            height: 'auto'
+            fontWeight: 900,
+            border: '2px solid rgba(255,255,255,0.2)',
+            fontSize: '0.875rem',
+            padding: '8px 16px',
+            height: 'auto',
+            borderRadius: 0,
+            boxShadow: `4px 4px 0px rgba(0,0,0,0.05)`,
+            textTransform: 'uppercase'
           }}
         >
           Sotib olish
@@ -399,16 +409,18 @@ const PricingPage = () => {
       render: (_, record) => (
         <Button
           type="primary"
-          size="small"
           onClick={() => handlePurchase(record.key)}
           style={{
             backgroundColor: record.color,
             color: 'white',
-            fontWeight: 600,
-            border: 'none',
-            fontSize: '0.75rem',
-            padding: '4px 8px',
-            height: 'auto'
+            fontWeight: 900,
+            border: '2px solid rgba(255,255,255,0.2)',
+            fontSize: '0.875rem',
+            padding: '8px 16px',
+            height: 'auto',
+            borderRadius: 0,
+            boxShadow: `4px 4px 0px rgba(0,0,0,0.05)`,
+            textTransform: 'uppercase'
           }}
         >
           Sotib olish
@@ -424,39 +436,40 @@ const PricingPage = () => {
       maxWidth: '1800px',
       margin: '0 auto'
     }}>
-      <div className="animate__animated animate__slideInDown" style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '24px',
-        paddingBottom: '16px',
-        borderBottom: '1px solid #e2e8f0'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div style={{ marginBottom: '60px' }}>
+        <div style={{ backgroundColor: '#2563eb', color: '#fff', padding: '8px 16px', fontWeight: 700, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px', display: 'inline-block' }}>
+          Market
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '24px' }}>
+          <Title level={1} style={{ fontWeight: 900, fontSize: '3rem', lineHeight: 0.9, textTransform: 'uppercase', letterSpacing: '-0.05em', color: '#1e293b', margin: 0 }}>
+            Narxlar <span style={{ color: '#2563eb' }}>Do'koni</span>
+          </Title>
           <Button
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate(-1)}
             style={{
               borderColor: '#e2e8f0',
-              color: '#64748b'
+              borderWidth: '2px',
+              color: '#64748b',
+              fontWeight: 900,
+              borderRadius: 0,
+              boxShadow: '4px 4px 0px rgba(0,0,0,0.05)',
+              height: 'auto',
+              padding: '12px 24px',
+              textTransform: 'uppercase'
             }}
           >
-            Orqaga
+            ORQAGA
           </Button>
-          <Title level={2} style={{
-            fontSize: '2.5rem',
-            fontWeight: 700,
-            color: '#1e293b',
-            marginBottom: '-1px',
-            marginLeft: '16px'
-          }}>
-            Narxlar Do'koni
-          </Title>
         </div>
+        <div style={{ width: '80px', height: '10px', backgroundColor: '#2563eb', margin: '24px 0' }}></div>
+        <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, color: '#333', maxWidth: '600px', marginBottom: 0 }}>
+          Premium imkoniyatlar, yulduzlar to'plami va maxsus obunalar bilan o'quv jarayoningizni yanada foydali qiling.
+        </Paragraph>
       </div>
 
       {error && (
-        <div className="animate__animated animate__slideInRight">
+        <div className="animate__animated animate__fadeIn">
           <Alert
             message={error}
             type="error"
@@ -472,80 +485,48 @@ const PricingPage = () => {
       ) : (
         <>
           {/* Premium Plans Section */}
-          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms', marginBottom: '32px' }}>
+          <div className="animate__animated animate__fadeIn" style={{ animationDelay: '200ms', marginBottom: '32px' }}>
             <Title level={3} style={{
               fontWeight: 600,
               color: '#374151',
               marginBottom: '16px',
               textAlign: 'left'
             }}>
-              💎 Premium Obunalar
+              <SketchOutlined style={{ color: '#2563eb', marginRight: '8px' }} /> Premium Obunalar
             </Title>
 
-            <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '600ms' }}>
+            <div className="animate__animated animate__fadeIn" style={{ animationDelay: '600ms' }}>
+              <Card style={{ border: '4px solid #2563eb', padding: 0, borderRadius: 0, boxShadow: '12px 12px 0px rgba(37, 99, 235, 0.1)', overflow: 'hidden' }}>
                 <Table
                   columns={pricingColumns}
                   dataSource={pricingPlans}
                   pagination={false}
-                  style={{
-                    '& .ant-table-thead > tr > th': {
-                      backgroundColor: '#f8fafc',
-                      fontWeight: 700,
-                      fontSize: '0.875rem',
-                      color: '#1e293b',
-                      borderBottom: '1px solid #e2e8f0',
-                      padding: '16px'
-                    },
-                    '& .ant-table-tbody > tr > td': {
-                      borderBottom: '1px solid #f1f5f9',
-                      padding: '16px',
-                      fontSize: '0.875rem',
-                      color: '#334155'
-                    },
-                    '& .ant-table-tbody > tr:hover > td': {
-                      backgroundColor: '#f8fafc'
-                    }
-                  }}
+                  rowClassName="brutalist-row"
                 />
+              </Card>
             </div>
           </div>
 
           {/* Stars Section */}
-          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '400ms', marginBottom: '32px' }}>
+          <div className="animate__animated animate__fadeIn" style={{ animationDelay: '400ms', marginBottom: '32px' }}>
             <Title level={3} style={{
               fontWeight: 600,
               color: '#374151',
               marginBottom: '16px',
               textAlign: 'left'
             }}>
-              ⭐ Yulduzlar
+              <StarFilled style={{ color: '#f59e0b', marginRight: '8px' }} /> Yulduzlar
             </Title>
 
-            <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '800ms' }}>
+            <div className="animate__animated animate__fadeIn" style={{ animationDelay: '800ms' }}>
+              <Card style={{ border: '4px solid #f59e0b', padding: 0, borderRadius: 0, boxShadow: '12px 12px 0px rgba(245, 158, 11, 0.1)', overflow: 'hidden' }}>
                 <Table
                   columns={starColumns}
                   dataSource={starPackages}
                   pagination={false}
-                  style={{
-                    '& .ant-table-thead > tr > th': {
-                      backgroundColor: '#f8fafc',
-                      fontWeight: 700,
-                      fontSize: '0.875rem',
-                      color: '#1e293b',
-                      borderBottom: '1px solid #e2e8f0',
-                      padding: '16px'
-                    },
-                    '& .ant-table-tbody > tr > td': {
-                      borderBottom: '1px solid #f1f5f9',
-                      padding: '16px',
-                      fontSize: '0.875rem',
-                      color: '#334155'
-                    },
-                    '& .ant-table-tbody > tr:hover > td': {
-                      backgroundColor: '#f8fafc'
-                    }
-                  }}
+                  rowClassName="brutalist-row"
                 />
+              </Card>
             </div>
           </div>
 

@@ -22,7 +22,7 @@ import { shouldShowPremiumFeatures } from '../../utils/premiumVisibility';
 import GradientPicker from '../../components/GradientPicker';
 import EmojiPicker from '../../components/EmojiPicker';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 
 const StudentProfile = () => {
   const { currentUser, setCurrentUserData, logout } = useAuth();
@@ -193,11 +193,11 @@ const StudentProfile = () => {
     setDeleteLoading(true);
     try {
       await apiService.deleteStudentProfileData(currentUser.id);
-      
+
       // Refresh user data
       const updatedUser = await apiService.getUser(currentUser.id);
       setCurrentUserData(updatedUser);
-      
+
       alert('✅ Profil ma\'lumotlari muvaffaqiyatli o\'chirildi!');
     } catch (error) {
       console.error('Failed to delete profile data:', error);
@@ -211,9 +211,9 @@ const StudentProfile = () => {
     <Card
       style={{
         backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        border: `4px solid ${color}`,
+        borderRadius: 0,
+        boxShadow: `12px 12px 0px ${color}10`,
         transition: 'all 0.3s ease',
       }}
       styles={{ body: { padding: '24px' } }}
@@ -224,9 +224,9 @@ const StudentProfile = () => {
           <Text
             style={{
               fontSize: '12px',
-              fontWeight: 600,
+              fontWeight: 900,
               textTransform: 'uppercase',
-              letterSpacing: '0.5px',
+              letterSpacing: '1px',
               color: '#64748b',
               display: 'block',
               marginBottom: '8px'
@@ -234,28 +234,22 @@ const StudentProfile = () => {
           >
             {title}
           </Text>
-          <Statistic
-            value={value}
-            suffix={suffix}
-            styles={{
-              content: {
-                fontSize: '32px',
-                fontWeight: 700,
-                color: '#1e293b',
-                lineHeight: 1.2
-              }
-            }}
-          />
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+            <Text style={{ fontSize: '32px', fontWeight: 900, color: '#1e293b' }}>{value}</Text>
+            {suffix && <Text style={{ fontSize: '18px', fontWeight: 700, color: color }}>{suffix}</Text>}
+          </div>
         </div>
         <div
           style={{
             backgroundColor: color,
-            borderRadius: '12px',
+            borderRadius: 0,
             padding: '12px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            marginLeft: '16px'
+            marginLeft: '16px',
+            boxShadow: `4px 4px 0px ${color}40`,
+            border: '2px solid rgba(255,255,255,0.4)'
           }}
         >
           {React.cloneElement(icon, {
@@ -310,45 +304,32 @@ const StudentProfile = () => {
       paddingBottom: '16px',
       backgroundColor: '#ffffff'
     }}>
-      {/* Header */}
-      <div className="animate__animated animate__slideInDown" style={{
-        marginBottom: '24px',
-        paddingBottom: '16px',
-        borderBottom: '1px solid #e2e8f0'
-      }}>
-        {/* Main Content with Flex Layout */}
+      <div style={{ marginBottom: '60px' }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '24px'
         }}>
-          {/* Title and Description */}
-          <div style={{
-            flex: 1
-          }}>
-            <Title level={2} style={{
-              fontSize: '2.5rem',
-              fontWeight: 700,
-              color: '#1e293b',
-              marginBottom: '12px'
-            }}>
-              Mening ma'lumotlarim
+          <div>
+            <div style={{ backgroundColor: '#2563eb', color: '#fff', padding: '8px 16px', fontWeight: 700, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px', display: 'inline-block' }}>
+              Profil Ma'lumotlari
+            </div>
+            <Title level={1} style={{ fontWeight: 900, fontSize: '3rem', lineHeight: 0.9, textTransform: 'uppercase', letterSpacing: '-0.05em', color: '#1e293b', margin: 0 }}>
+              Mening <span style={{ color: '#2563eb' }}>ma'lumotlarim</span>
             </Title>
-            <Text style={{
-              fontSize: '1.125rem',
-              color: '#64748b',
-              fontWeight: 400
-            }}>
-              Shaxsiy ma'lumotlaringizni ko'rish va tahrirlash
-            </Text>
+            <div style={{ width: '80px', height: '10px', backgroundColor: '#2563eb', margin: '24px 0' }}></div>
+            <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, color: '#333', maxWidth: '600px', marginBottom: 0 }}>
+              Shaxsiy ma'lumotlaringizni ko'rish, tahrirlash va hisobingizni boshqarish bo'limi.
+            </Paragraph>
           </div>
-          
-          {/* Action Buttons */}
+
+          {/* Action Buttons Container */}
           <div style={{
             display: 'flex',
             gap: '12px',
-            marginLeft: '16px'
-          }}>
+          }} className="header-actions">
             <Button
               size="large"
               icon={<ShoppingOutlined />}
@@ -356,17 +337,19 @@ const StudentProfile = () => {
               style={{
                 backgroundColor: '#f59e0b',
                 color: 'white',
-                fontSize: '1.1rem',
-                fontWeight: 600,
+                fontSize: '1rem',
+                fontWeight: 900,
                 padding: '12px 24px',
-                borderRadius: '12px',
-                boxShadow: '0 4px 20px rgba(245, 158, 11, 0.3)',
-                borderColor: '#f59e0b',
+                borderRadius: 0,
+                height: 'auto',
+                boxShadow: '8px 8px 0px rgba(245, 158, 11, 0.2)',
+                border: '4px solid #f59e0b',
+                textTransform: 'uppercase'
               }}
             >
               Market
             </Button>
-            
+
             {/* Edit Button - Only for premium users */}
             {shouldShowPremiumFeatures(currentUser, currentUser) && (
               <Button
@@ -376,18 +359,20 @@ const StudentProfile = () => {
                 style={{
                   backgroundColor: '#10b981',
                   color: 'white',
-                  fontSize: '1.1rem',
-                  fontWeight: 600,
+                  fontSize: '1rem',
+                  fontWeight: 900,
                   padding: '12px 24px',
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
-                  borderColor: '#10b981',
+                  borderRadius: 0,
+                  height: 'auto',
+                  boxShadow: '8px 8px 0px rgba(16, 185, 129, 0.2)',
+                  border: '4px solid #10b981',
+                  textTransform: 'uppercase'
                 }}
               >
                 Tahrirlash
               </Button>
             )}
-            
+
             {/* Delete Profile Data Button - Only for specific student */}
             {currentUser?.id === 'TO\'XTAYEVJT9-03-AE114' && (
               <Button
@@ -398,20 +383,14 @@ const StudentProfile = () => {
                 style={{
                   backgroundColor: '#dc2626',
                   color: 'white',
-                  fontSize: '1.1rem',
-                  fontWeight: 600,
+                  fontSize: '1rem',
+                  fontWeight: 900,
                   padding: '12px 24px',
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 20px rgba(220, 38, 38, 0.3)',
-                  borderColor: '#dc2626',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#b91c1c';
-                  e.target.style.boxShadow = '0 8px 30px rgba(220, 38, 38, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = '#dc2626';
-                  e.target.style.boxShadow = '0 4px 20px rgba(220, 38, 38, 0.3)';
+                  borderRadius: 0,
+                  height: 'auto',
+                  boxShadow: '8px 8px 0px rgba(220, 38, 38, 0.2)',
+                  border: '4px solid #dc2626',
+                  textTransform: 'uppercase'
                 }}
               >
                 Profilni tozalash
@@ -419,34 +398,35 @@ const StudentProfile = () => {
             )}
           </div>
         </div>
-
-
       </div>
 
       {/* Success Message */}
       {saveSuccess && (
-        <div className="animate__animated animate__slideInRight">
+        <div className="animate__animated animate__fadeIn">
           <Alert
-          message="✅ Profil muvaffaqiyatli saqlandi!"
-          type="success"
-          style={{
-            marginBottom: '16px',
-            backgroundColor: '#ecfdf5',
-            border: '1px solid #10b981',
-            color: '#059669',
-            borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.15)'
-          }}
-          showIcon
+            message="Profil muvaffaqiyatli saqlandi!"
+            type="success"
+            style={{
+              marginBottom: '16px',
+              backgroundColor: '#ecfdf5',
+              border: '4px solid #10b981',
+              color: '#059669',
+              borderRadius: 0,
+              boxShadow: '8px 8px 0px rgba(16, 185, 129, 0.1)',
+              fontWeight: 800
+            }}
+            showIcon
           />
         </div>
       )}
 
       {/* Profile Card */}
-      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms' }}>
+      <div className="animate__animated animate__fadeIn" style={{ animationDelay: '200ms' }}>
         <Card style={{
-          marginBottom: '16px',
-          borderRadius: '20px',
+          marginBottom: '24px',
+          borderRadius: 0,
+          border: `4px solid ${isCustomGradient() ? 'rgba(255,255,255,0.3)' : '#2563eb'}`,
+          boxShadow: isCustomGradient() ? '12px 12px 0px rgba(0,0,0,0.2)' : '12px 12px 0px rgba(37, 99, 235, 0.1)',
           overflow: 'hidden',
           position: 'relative',
           minHeight: '200px',
@@ -456,154 +436,163 @@ const StudentProfile = () => {
             display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
             alignItems: 'center',
-            padding: '24px',
+            padding: '32px',
             minHeight: '200px',
             position: 'relative',
             overflow: 'hidden'
           }}>
-          {/* Profile Photo */}
-          <div style={{
-            position: 'relative',
-            marginBottom: { xs: '12px', md: 0 },
-            marginRight: { xs: 0, md: '16px' },
-            zIndex: 3
-          }}>
-            {currentUser?.profile_photo_url ? (
-              <Avatar
-                src={currentUser.profile_photo_url}
-                size={120}
-                style={{
-                  border: '4px solid rgba(255, 255, 255, 0.8)',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                  backgroundColor: '#2563eb'
-                }}
-              >
-                {currentUser?.name.charAt(0).toUpperCase()}
-              </Avatar>
-            ) : (
-              <Avatar
-                size={120}
-                style={{
-                  fontSize: '3rem',
-                  fontWeight: 'bold',
-                  border: '4px solid rgba(255, 255, 255, 0.8)',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                  backgroundColor: '#2563eb',
-                  color: '#ffffff'
-                }}
-              >
-                {currentUser?.name.charAt(0).toUpperCase()}
-              </Avatar>
-            )}
-          </div>
-
-          {/* Profile Info */}
-          <div style={{
-            textAlign: { xs: 'center', md: 'left' },
-            flex: 1,
-            color: isCustomGradient() ? '#ffffff' : '#1e293b',
-            position: 'relative',
-            marginLeft: "10px",
-            zIndex: 2
-          }}>
-            <Title level={2} style={{
-              fontWeight: 700,
-              marginBottom: '-20px',
-              color: isCustomGradient() ? '#ffffff' : '#1e293b',
-              textShadow: isCustomGradient() ? '0 2px 4px rgba(0,0,0,0.3)' : 'none'
+            {/* Profile Photo */}
+            <div style={{
+              position: 'relative',
+              marginBottom: { xs: '12px', md: 0 },
+              marginRight: { xs: 0, md: '24px' },
+              zIndex: 3
             }}>
-              {currentUser?.name}
-            </Title>
+              {currentUser?.profile_photo_url ? (
+                <Avatar
+                  src={currentUser.profile_photo_url}
+                  size={140}
+                  style={{
+                    border: `6px solid ${isCustomGradient() ? '#fff' : '#2563eb'}`,
+                    boxShadow: '8px 8px 0px rgba(0,0,0,0.2)',
+                    backgroundColor: '#2563eb',
+                    borderRadius: 0
+                  }}
+                >
+                  {currentUser?.name.charAt(0).toUpperCase()}
+                </Avatar>
+              ) : (
+                <Avatar
+                  size={140}
+                  style={{
+                    fontSize: '4rem',
+                    fontWeight: 'bold',
+                    border: `6px solid ${isCustomGradient() ? '#fff' : '#2563eb'}`,
+                    boxShadow: '8px 8px 0px rgba(0,0,0,0.2)',
+                    backgroundColor: '#2563eb',
+                    color: '#ffffff',
+                    borderRadius: 0
+                  }}
+                >
+                  {currentUser?.name.charAt(0).toUpperCase()}
+                </Avatar>
+              )}
+            </div>
 
-            {currentUser?.profile_status && (
-              <Title level={4} style={{
-                marginBottom: '16px',
-                fontStyle: 'italic',
-                opacity: 0.9,
+            {/* Profile Info */}
+            <div style={{
+              textAlign: { xs: 'center', md: 'left' },
+              flex: 1,
+              color: isCustomGradient() ? '#ffffff' : '#1e293b',
+              position: 'relative',
+              marginLeft: "16px",
+              zIndex: 2
+            }}>
+              <Title level={1} style={{
+                fontWeight: 900,
+                fontSize: '3rem',
+                marginBottom: 0,
                 color: isCustomGradient() ? '#ffffff' : '#1e293b',
-                textShadow: isCustomGradient() ? '0 1px 2px rgba(0,0,0,0.3)' : 'none'
+                textShadow: isCustomGradient() ? '4px 4px 0px rgba(0,0,0,0.3)' : 'none',
+                textTransform: 'uppercase'
               }}>
-                "{currentUser.profile_status}"
+                {currentUser?.name}
               </Title>
-            )}
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: { xs: 'center', md: 'flex-start' } }}>
-              <span style={{
-                backgroundColor: isCustomGradient() ? 'rgba(255, 255, 255, 0.2)' : '#ecfdf5',
-                color: isCustomGradient() ? '#ffffff' : '#059669',
-                padding: '4px 12px',
-                borderRadius: '16px',
-                fontWeight: 600,
-                fontSize: '0.875rem',
-                border: isCustomGradient() ? '1px solid rgba(255, 255, 255, 0.3)' : 'none'
-              }}>
-                O'quvchi
-              </span>
-              <span style={{
-                backgroundColor: isCustomGradient() ? 'rgba(255, 255, 255, 0.2)' : '#eff6ff',
-                color: isCustomGradient() ? '#ffffff' : '#2563eb',
-                padding: '4px 12px',
-                borderRadius: '16px',
-                fontWeight: 600,
-                fontSize: '0.875rem',
-                border: isCustomGradient() ? '1px solid rgba(255, 255, 255, 0.3)' : 'none'
-              }}>
-                {currentUser?.class_group || 'Noma\'lum'} sinf
-              </span>
-              <span style={{
-                backgroundColor: isCustomGradient() ? 'rgba(255, 255, 255, 0.2)' : '#f3f4f6',
-                color: isCustomGradient() ? '#ffffff' : '#374151',
-                padding: '4px 12px',
-                borderRadius: '16px',
-                fontWeight: 600,
-                fontSize: '0.875rem',
-                border: isCustomGradient() ? '1px solid rgba(255, 255, 255, 0.3)' : 'none'
-              }}>
-                {currentUser?.direction === 'natural' ? 'Tabiiy fanlar' : currentUser?.direction === 'exact' ? 'Aniq fanlar' : 'Yo\'nalish yo\'q'}
-              </span>
+              {currentUser?.profile_status && (
+                <p style={{
+                  fontSize: '1.25rem',
+                  fontWeight: 800,
+                  marginBottom: '16px',
+                  fontStyle: 'italic',
+                  opacity: 0.9,
+                  color: isCustomGradient() ? '#ffffff' : '#1e293b',
+                  textShadow: isCustomGradient() ? '2px 2px 0px rgba(0,0,0,0.3)' : 'none'
+                }}>
+                  "{currentUser.profile_status}"
+                </p>
+              )}
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: { xs: 'center', md: 'flex-start' } }}>
+                <span style={{
+                  backgroundColor: '#1e293b',
+                  color: '#fff',
+                  padding: '6px 16px',
+                  borderRadius: 0,
+                  fontWeight: 900,
+                  fontSize: '0.875rem',
+                  border: '2px solid rgba(255,255,255,0.2)',
+                  textTransform: 'uppercase'
+                }}>
+                  O'quvchi
+                </span>
+                <span style={{
+                  backgroundColor: '#2563eb',
+                  color: '#fff',
+                  padding: '6px 16px',
+                  borderRadius: 0,
+                  fontWeight: 900,
+                  fontSize: '0.875rem',
+                  border: '2px solid rgba(255,255,255,0.2)',
+                  textTransform: 'uppercase'
+                }}>
+                  {currentUser?.class_group || 'Noma\'lum'} sinf
+                </span>
+                <span style={{
+                  backgroundColor: '#059669',
+                  color: '#fff',
+                  padding: '6px 16px',
+                  borderRadius: 0,
+                  fontWeight: 900,
+                  fontSize: '0.875rem',
+                  border: '2px solid rgba(255,255,255,0.2)',
+                  textTransform: 'uppercase'
+                }}>
+                  {currentUser?.direction === 'natural' ? 'Tabiiy fanlar' : currentUser?.direction === 'exact' ? 'Aniq fanlar' : 'Yo\'nalish yo\'q'}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
         </Card>
       </div>
 
       {/* Statistics Cards */}
-      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '400ms' }}>
+      <div className="animate__animated animate__fadeIn" style={{ animationDelay: '400ms' }}>
         <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
-        <Col xs={24} sm={12} md={6}>
-          <StatCard
-            title="Topshirilgan testlar"
-            value={loading ? '...' : testCount}
-            icon={<BookOutlined />}
-            color="#2563eb"
-          />
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <StatCard
-            title="O'rtacha ball"
-            value={loading ? '...' : averageScore}
-            suffix="%"
-            icon={<TrophyOutlined />}
-            color="#16a34a"
-          />
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <StatCard
-            title="Eng yuqori ball"
-            value={loading ? '...' : highestScore}
-            suffix="%"
-            icon={<BarChartOutlined />}
-            color="#059669"
-          />
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <StatCard
-            title="Premium status"
-            value={currentUser?.premium_info?.is_premium ? 'Faol' : 'Yo\'q'}
-            icon={<StarOutlined />}
-            color={currentUser?.premium_info?.is_premium ? '#d97706' : '#6b7280'}
-          />
-        </Col>
+          <Col xs={24} sm={12} md={6}>
+            <StatCard
+              title="Jami testlar"
+              value={loading ? '...' : testCount}
+              icon={<BookOutlined />}
+              color="#2563eb"
+            />
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <StatCard
+              title="O'rtacha ball"
+              value={loading ? '...' : averageScore}
+              suffix="%"
+              icon={<TrophyOutlined />}
+              color="#16a34a"
+            />
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <StatCard
+              title="Eng yuqori ball"
+              value={loading ? '...' : highestScore}
+              suffix="%"
+              icon={<BarChartOutlined />}
+              color="#059669"
+            />
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <StatCard
+              title="Premium status"
+              value={currentUser?.premium_info?.is_premium ? 'Faol' : 'Yo\'q'}
+              icon={<StarOutlined />}
+              color={currentUser?.premium_info?.is_premium ? '#d97706' : '#6b7280'}
+            />
+          </Col>
         </Row>
       </div>
 
@@ -612,82 +601,148 @@ const StudentProfile = () => {
       {/* Edit Profile Dialog */}
       <Modal
         title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <EditOutlined style={{ color: '#2563eb' }} />
-            Profilni sozlash
+          <div>
+            <div style={{ backgroundColor: '#2563eb', color: '#fff', padding: '4px 12px', fontWeight: 700, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '8px', display: 'inline-block' }}>
+              Sozlamalar
+            </div>
+            <Title level={4} style={{ fontWeight: 900, fontSize: '1.5rem', textTransform: 'uppercase', letterSpacing: '-0.02em', color: '#1e293b', margin: 0 }}>
+              Profilni <span style={{ color: '#2563eb' }}>sozlash</span>
+            </Title>
           </div>
         }
         open={editDialogOpen}
+        onOk={handleSaveProfile}
         onCancel={() => setEditDialogOpen(false)}
+        okText="SAQLASH"
+        cancelText="BEKOR QILISH"
+        confirmLoading={saving}
         width={600}
-        footer={[
-          <Button key="cancel" onClick={() => setEditDialogOpen(false)} style={{ color: '#64748b' }}>
-            Bekor qilish
-          </Button>,
-          <Button key="submit" type="primary" onClick={handleSaveProfile} loading={saving} style={{ backgroundColor: '#2563eb' }}>
-            {saving ? 'Saqlanmoqda...' : 'Saqlash'}
-          </Button>
-        ]}
+        closeIcon={<span className="material-symbols-outlined" style={{ color: '#000', fontWeight: 900 }}>close</span>}
         style={{ top: 20 }}
+        modalRender={(modal) => (
+          <div style={{
+            border: '6px solid #000',
+            boxShadow: '16px 16px 0px rgba(0,0,0,1)',
+            borderRadius: 0,
+            overflow: 'hidden'
+          }}>
+            {modal}
+          </div>
+        )}
+        styles={{
+          header: {
+            borderRadius: 0,
+            borderBottom: '4px solid #000',
+            padding: '24px',
+            margin: 0,
+            backgroundColor: '#f8fafc'
+          },
+          body: {
+            padding: '32px',
+            backgroundColor: '#fff'
+          },
+          footer: {
+            borderRadius: 0,
+            borderTop: '4px solid #000',
+            padding: '24px',
+            margin: 0,
+            backgroundColor: '#f8fafc'
+          }
+        }}
+        okButtonProps={{
+          style: {
+            borderRadius: 0,
+            height: 'auto',
+            padding: '12px 32px',
+            fontWeight: 900,
+            fontSize: '1rem',
+            backgroundColor: '#2563eb',
+            border: '4px solid #000',
+            boxShadow: '4px 4px 0px #000',
+            textTransform: 'uppercase'
+          }
+        }}
+        cancelButtonProps={{
+          style: {
+            borderRadius: 0,
+            height: 'auto',
+            padding: '12px 32px',
+            fontWeight: 900,
+            fontSize: '1rem',
+            backgroundColor: '#fff',
+            color: '#000',
+            border: '4px solid #000',
+            boxShadow: '4px 4px 0px #000',
+            textTransform: 'uppercase'
+          }
+        }}
       >
         <div style={{ paddingTop: '8px' }}>
           {/* Profile Photo Upload */}
-          <div style={{ marginBottom: '16px' }}>
-            <Title level={6} style={{ marginBottom: '8px', fontWeight: 600, color: '#1e293b' }}>
-              📸 Profil rasmi
-            </Title>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ marginBottom: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <div style={{ backgroundColor: '#f59e0b', color: '#fff', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 0 }}>
+                <CameraOutlined style={{ fontSize: '18px' }} />
+              </div>
+              <Title level={4} style={{ margin: 0, fontWeight: 900, textTransform: 'uppercase', color: '#1e293b' }}>
+                Profil rasmi
+              </Title>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
               <Avatar
                 src={profilePhoto ? URL.createObjectURL(profilePhoto) : currentUser?.profile_photo_url}
-                size={80}
+                size={100}
                 style={{
-                  border: '3px solid #e2e8f0',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                  border: '4px solid #f59e0b',
+                  boxShadow: '8px 8px 0px rgba(245, 158, 11, 0.1)',
+                  borderRadius: 0,
+                  backgroundColor: '#2563eb'
                 }}
               >
                 {currentUser?.name.charAt(0).toUpperCase()}
               </Avatar>
-              <Button
-                icon={<CameraOutlined />}
-                onClick={() => document.getElementById('profile-photo-input').click()}
-                style={{
-                  borderColor: '#2563eb',
-                  color: '#2563eb',
-                  borderRadius: '8px',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#eff6ff';
-                  e.target.style.borderColor = '#1d4ed8';
-                  e.target.style.transform = 'translateY(-1px)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.15)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = 'transparent';
-                  e.target.style.borderColor = '#2563eb';
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = 'none';
-                }}
-              >
-                Rasm tanlash
-              </Button>
-              <input
-                id="profile-photo-input"
-                type="file"
-                accept="image/*,.gif"
-                hidden
-                onChange={handlePhotoChange}
-              />
+              <div style={{ flex: 1 }}>
+                <Button
+                  onClick={() => document.getElementById('profile-photo-input').click()}
+                  style={{
+                    backgroundColor: '#f8fafc',
+                    borderColor: '#e2e8f0',
+                    borderWidth: '2px',
+                    color: '#1e293b',
+                    fontWeight: 900,
+                    borderRadius: 0,
+                    height: 'auto',
+                    padding: '10px 20px',
+                    boxShadow: '4px 4px 0px rgba(0, 0, 0, 0.05)',
+                    textTransform: 'uppercase'
+                  }}
+                >
+                  Rasm tanlash
+                </Button>
+                <input
+                  id="profile-photo-input"
+                  type="file"
+                  accept="image/*,.gif"
+                  hidden
+                  onChange={handlePhotoChange}
+                />
+                <Text style={{ marginTop: '12px', display: 'block', fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>
+                  GIF va rasm fayllarini yuklash mumkin
+                </Text>
+              </div>
             </div>
-            <Text style={{ marginTop: '4px', display: 'block', fontSize: '0.75rem', color: '#64748b' }}>
-              GIF va rasm fayllarini yuklash mumkin (animatsion GIFlar ham qo'llab-quvvatlanadi)
-            </Text>
           </div>
 
           {/* Status Message */}
-          <div style={{ marginBottom: '16px' }}>
-            <Title level={6} style={{ marginBottom: '8px', fontWeight: 600, color: '#1e293b' }}>
-              💬 Status xabari
-            </Title>
+          <div style={{ marginBottom: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <div style={{ backgroundColor: '#3b82f6', color: '#fff', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 0 }}>
+                <EditOutlined style={{ fontSize: '18px' }} />
+              </div>
+              <Title level={4} style={{ margin: 0, fontWeight: 900, textTransform: 'uppercase', color: '#1e293b' }}>
+                Status xabari
+              </Title>
+            </div>
             <textarea
               rows={3}
               placeholder="Sizning status xabaringiz..."
@@ -695,52 +750,71 @@ const StudentProfile = () => {
               onChange={(e) => setStatusText(e.target.value)}
               style={{
                 width: '100%',
-                padding: '8px 12px',
-                borderRadius: '8px',
-                border: '1px solid #d1d5db',
-                fontSize: '14px',
-                resize: 'none'
+                padding: '16px',
+                borderRadius: 0,
+                border: '4px solid #3b82f6',
+                fontSize: '1rem',
+                fontWeight: 600,
+                resize: 'none',
+                boxShadow: '8px 8px 0px rgba(59, 130, 246, 0.05)'
               }}
             />
-            <Text style={{ marginTop: '4px', display: 'block', fontSize: '0.75rem', color: '#64748b' }}>
+            <Text style={{ marginTop: '8px', display: 'block', fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>
               Status xabari boshqa o'quvchilarga ko'rinadi
             </Text>
           </div>
 
           {/* Gradient Selection */}
           <div style={{ marginBottom: '16px' }}>
-            <Title level={6} style={{ marginBottom: '8px', fontWeight: 600, color: '#1e293b' }}>
-              🎨 Profil fon gradienti
-            </Title>
-            <div 
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <div style={{ backgroundColor: '#10b981', color: '#fff', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 0 }}>
+                <StarOutlined style={{ fontSize: '18px' }} />
+              </div>
+              <Title level={4} style={{ margin: 0, fontWeight: 900, textTransform: 'uppercase', color: '#1e293b' }}>
+                Profil fon gradienti
+              </Title>
+            </div>
+            <div
               onClick={() => setGradientPickerOpen(true)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px',
-                padding: '12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
+                gap: '16px',
+                padding: '16px',
+                border: '4px solid #10b981',
+                borderRadius: 0,
                 cursor: 'pointer',
-                backgroundColor: '#f9fafb'
+                backgroundColor: '#fff',
+                boxShadow: '8px 8px 0px rgba(16, 185, 129, 0.05)'
               }}
             >
               <div style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '8px',
+                width: '60px',
+                height: '60px',
+                borderRadius: 0,
                 background: selectedGradient?.css || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                border: '2px solid #e2e8f0'
+                border: '3px solid #10b981',
+                boxShadow: '4px 4px 0px rgba(16, 185, 129, 0.1)'
               }} />
               <div style={{ flex: 1 }}>
-                <Text style={{ fontWeight: 600, color: '#1e293b' }}>
+                <Text style={{ fontWeight: 900, color: '#1e293b', fontSize: '1.1rem', textTransform: 'uppercase' }}>
                   {selectedGradient?.name || 'Gradient tanlash'}
                 </Text>
-                <Text style={{ display: 'block', fontSize: '0.75rem', color: '#64748b' }}>
+                <Text style={{ display: 'block', fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>
                   Premium profilingiz uchun chiroyli gradient tanlang
                 </Text>
               </div>
-              <Button type="primary" style={{ backgroundColor: '#2563eb' }}>
+              <Button
+                style={{
+                  backgroundColor: '#2563eb',
+                  color: '#fff',
+                  fontWeight: 900,
+                  borderRadius: 0,
+                  border: '2px solid rgba(255,255,255,0.2)',
+                  boxShadow: '4px 4px 0px rgba(0,0,0,0.05)',
+                  textTransform: 'uppercase'
+                }}
+              >
                 Tanlash
               </Button>
             </div>

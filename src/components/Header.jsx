@@ -422,9 +422,14 @@ const Header = ({ demoMode = false }) => {
             { label: 'Sinfdoshlar', path: '/student/classmates' }
           ]
         },
-        { label: 'Test topshirish', path: '/student/take-test' },
-        { label: 'Natijalarim', path: '/student/results' },
-        { label: 'Darslar', path: '/student/lessons' },
+        {
+          label: 'O\'quv jarayoni',
+          children: [
+            { label: 'Test topshirish', path: '/student/take-test' },
+            { label: 'Natijalarim', path: '/student/results' },
+            { label: 'Darslar', path: '/student/lessons' }
+          ]
+        },
         {
           label: 'Statistika',
           children: [
@@ -677,11 +682,22 @@ const Header = ({ demoMode = false }) => {
                       </>
                     )}
 
+                    {currentUser?.role === 'student' && (
+                      <div
+                        className="storage-icon-container is-visible"
+                        onClick={() => navigate('/student/profile')}
+                        title={t('nav.profile')}
+                        style={{ marginLeft: '8px', cursor: 'pointer' }}
+                      >
+                        <span className="material-symbols-outlined">person</span>
+                      </div>
+                    )}
+
                     {/* Dashboard Notification Icon */}
                     <div
                       className={`storage-icon-container message-icon is-visible ${showNotifications ? 'active' : ''}`}
                       onClick={toggleNotifications}
-                      style={{ width: '44px', opacity: 1, transform: 'scale(1)', overflow: 'visible' }}
+                      style={{ width: '44px', opacity: 1, transform: 'scale(1)', overflow: 'visible', marginLeft: '8px' }}
                     >
                       <span className="material-symbols-outlined">notifications</span>
                       <span className="item-count msg-count">0</span>
