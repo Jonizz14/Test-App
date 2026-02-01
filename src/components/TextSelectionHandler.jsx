@@ -244,7 +244,7 @@ const TextSelectionHandler = () => {
         __html: `
         .selection-frame {
           transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-          border-radius: 12px;
+          border-radius: 0;
           pointer-events: none;
         }
 
@@ -273,7 +273,7 @@ const TextSelectionHandler = () => {
           background: rgba(255, 255, 255, 0.1);
           backdrop-filter: blur(2px);
           box-shadow: 0 0 30px rgba(0,0,0,0.15);
-          border-radius: 12px;
+          border-radius: 0;
           animation: pulseBorder 2s infinite ease-in-out;
         }
 
@@ -311,7 +311,7 @@ const TextSelectionHandler = () => {
           padding: 1.5rem;
           box-shadow: 15px 15px 0px #000;
           color: #000;
-          border-radius: 20px;
+          border-radius: 0;
         }
 
         .inline-header {

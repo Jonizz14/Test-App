@@ -15,6 +15,8 @@ const Contact = () => {
   const { t } = useTranslation();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [subject, setSubject] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -135,13 +137,35 @@ const Contact = () => {
                     <input type="email" name="email" placeholder={t('contact.emailPlaceholder')} required />
                   </div>
                   <input type="tel" name="phone" placeholder={t('contact.phonePlaceholder')} />
-                  <select name="subject" required>
-                    <option value="">{t('contact.selectSubject')}</option>
-                    <option value="technical">{t('contact.subjects.technical')}</option>
-                    <option value="billing">{t('contact.subjects.billing')}</option>
-                    <option value="feature">{t('contact.subjects.feature')}</option>
-                    <option value="other">{t('contact.subjects.other')}</option>
-                  </select>
+                  <div className={`custom-select-wrapper ${dropdownOpen ? 'open' : ''}`}>
+                    <div className="custom-select-trigger" onClick={() => setDropdownOpen(!dropdownOpen)}>
+                      <span>{subject ? t(`contact.subjects.${subject}`) : t('contact.selectSubject')}</span>
+                      <span className="material-symbols-outlined custom-arrow">expand_more</span>
+                    </div>
+                    <ul className="custom-options">
+                      {['technical', 'billing', 'feature', 'other'].map(opt => (
+                        <li
+                          key={opt}
+                          className={`custom-option ${subject === opt ? 'selected' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSubject(opt);
+                            setDropdownOpen(false);
+                          }}
+                        >
+                          {t(`contact.subjects.${opt}`)}
+                        </li>
+                      ))}
+                    </ul>
+                    <input
+                      type="text"
+                      name="subject"
+                      value={subject}
+                      required
+                      style={{ opacity: 0, width: 1, height: 1, position: 'absolute', bottom: 0, left: 0, zIndex: -1 }}
+                      onChange={() => { }}
+                    />
+                  </div>
                   <textarea name="message" placeholder={t('contact.messagePlaceholder')} rows="4" required></textarea>
                   <button type="submit" className="btn-modern-submit" disabled={isSubmitting}>
                     {isSubmitting ? t('contact.sending') : t('contact.send')}
