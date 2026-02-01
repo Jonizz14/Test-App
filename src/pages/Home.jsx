@@ -15,16 +15,15 @@ const Home = () => {
   const { t } = useTranslation();
 
   const videoRef = React.useRef(null);
-  const [skipAnimation, setSkipAnimation] = useState(false);
-
   // Check if coming from onboarding to skip animation
-  useEffect(() => {
+  const [skipAnimation] = useState(() => {
     const shouldSkip = sessionStorage.getItem('skipHomeAnimation') === 'true';
     if (shouldSkip) {
-      setSkipAnimation(true);
       sessionStorage.removeItem('skipHomeAnimation');
+      return true;
     }
-  }, []);
+    return false;
+  });
 
   useEffect(() => {
     if (videoRef.current) {

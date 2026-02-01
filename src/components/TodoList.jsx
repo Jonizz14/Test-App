@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -31,10 +31,17 @@ const TodoList = ({ tasks = [], onChange }) => {
   const [editingTask, setEditingTask] = useState(null);
   const [editText, setEditText] = useState('');
 
-  const handleAddTask = () => {
+  // Use ref for ID generation to avoid impure function calls during render
+  const idCounterRef = useRef(0);
+  const generateId = useCallback(() => {
+    idCounterRef.current += 1;
+    return `task-${idCounterRef.current}-${Math.random().toString(36).substr(2, 9)}`;
+  }, []);
+
+  const handleAddTask = useCallback(() => {
     if (newTaskText.trim()) {
       const newTask = {
-        id: Date.now().toString(),
+        id: generateId(),
         text: newTaskText.trim(),
         completed: false,
         priority: 'medium',
@@ -44,7 +51,7 @@ const TodoList = ({ tasks = [], onChange }) => {
       onChange([...tasks, newTask]);
       setNewTaskText('');
     }
-  };
+  }, [newTaskText, generateId, onChange, tasks]);
 
   const handleToggleTask = (taskId) => {
     const updatedTasks = tasks.map(task =>

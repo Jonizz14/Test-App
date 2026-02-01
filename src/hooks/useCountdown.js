@@ -1,47 +1,58 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+
+// Helper to calculate time left
+const calculateTimeRemaining = (expiryDate) => {
+  if (!expiryDate) return { timeLeft: null, isExpired: false };
+
+  const now = new Date().getTime();
+  const expiry = new Date(expiryDate).getTime();
+  const difference = expiry - now;
+
+  if (difference <= 0) {
+    return { timeLeft: 0, isExpired: true };
+  }
+
+  return { timeLeft: Math.floor(difference / 1000), isExpired: false };
+};
 
 export const useCountdown = (expiryDate, onExpire) => {
-  const [timeLeft, setTimeLeft] = useState(null);
-  const [isExpired, setIsExpired] = useState(false);
+  // Initialize with computed value
+  const initialState = useMemo(() => calculateTimeRemaining(expiryDate), [expiryDate]);
+  const [timeLeft, setTimeLeft] = useState(initialState.timeLeft);
+  const [isExpired, setIsExpired] = useState(initialState.isExpired);
+
+  // Memoize the onExpire callback
+  const handleExpire = useCallback(() => {
+    if (onExpire) {
+      onExpire();
+    }
+  }, [onExpire]);
 
   useEffect(() => {
     if (!expiryDate) {
-      setTimeLeft(null);
-      setIsExpired(false);
       return;
     }
 
-    const calculateTimeLeft = () => {
-      const now = new Date().getTime();
-      const expiry = new Date(expiryDate).getTime();
-      const difference = expiry - now;
+    const tick = () => {
+      const { timeLeft: newTimeLeft, isExpired: newIsExpired } = calculateTimeRemaining(expiryDate);
 
-      if (difference <= 0) {
-        if (!isExpired) {
-          setIsExpired(true);
-          setTimeLeft(0);
-          // Call onExpire callback when premium expires
-          if (onExpire) {
-            onExpire();
-          }
-        }
-        return;
+      setTimeLeft(newTimeLeft);
+
+      if (newIsExpired && !isExpired) {
+        setIsExpired(true);
+        handleExpire();
+      } else if (!newIsExpired && isExpired) {
+        setIsExpired(false);
       }
-
-      setTimeLeft(Math.floor(difference / 1000)); // Convert to seconds
-      setIsExpired(false);
     };
 
-    // Calculate immediately
-    calculateTimeLeft();
-
     // Update every second
-    const timer = setInterval(calculateTimeLeft, 1000);
+    const timer = setInterval(tick, 1000);
 
     return () => clearInterval(timer);
-  }, [expiryDate, onExpire, isExpired]);
+  }, [expiryDate, handleExpire, isExpired]);
 
-  const formatTime = (seconds) => {
+  const formatTime = useCallback((seconds) => {
     if (seconds === null || seconds <= 0) {
       return 'Vaqt tugagan';
     }
@@ -60,7 +71,7 @@ export const useCountdown = (expiryDate, onExpire) => {
     } else {
       return `${secs} soniya`;
     }
-  };
+  }, []);
 
   return {
     timeLeft,

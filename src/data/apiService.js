@@ -81,7 +81,7 @@ class ApiService {
             data: JSON.parse(errorText),
             status: response.status
           };
-        } catch (e) {
+        } catch (_e) {
           error.response = {
             data: errorText,
             status: response.status

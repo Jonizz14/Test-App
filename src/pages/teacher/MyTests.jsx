@@ -13,9 +13,7 @@ import {
   Select,
   Space,
   Avatar,
-  Badge,
   Tooltip,
-  List,
   Divider,
   Spin,
   Input,
@@ -27,10 +25,10 @@ import {
   BarChartOutlined as AssessmentIcon,
   ReloadOutlined as RefreshIcon,
   EyeOutlined as ViewIcon,
-  TeamOutlined as PeopleIcon,
-  BookOutlined as SchoolIcon,
-  UserOutlined as PersonIcon,
-  BookOutlined as BookmarkIcon,
+  // TeamOutlined as PeopleIcon,
+  // BookOutlined as SchoolIcon,
+  // UserOutlined as PersonIcon,
+  // BookOutlined as BookmarkIcon,
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
@@ -51,7 +49,7 @@ const MyTests = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [lessonModalOpen, setLessonModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [selectedAttempt, setSelectedAttempt] = useState(null);
+  const [_selectedAttempt, _setSelectedAttempt] = useState(null);
   const [testDetailsModalOpen, setTestDetailsModalOpen] = useState(false);
   const [sortBy, setSortBy] = useState('created_at');
   const [filterSubject, setFilterSubject] = useState('');
@@ -67,7 +65,7 @@ const MyTests = () => {
     if (savedTasks) {
       setTodoTasks(JSON.parse(savedTasks));
     }
-  }, []);
+  }, [loadData]);
 
   const handleOpenTestDetails = (test) => {
     setSelectedTest(test);
@@ -79,7 +77,7 @@ const MyTests = () => {
     setSelectedTest(null);
   };
 
-  const loadData = async (showRefreshLoader = false) => {
+  const loadData = React.useCallback(async (showRefreshLoader = false) => {
     try {
       if (showRefreshLoader) setRefreshing(true);
       else setLoading(true);
@@ -120,7 +118,7 @@ const MyTests = () => {
       // Load all attempts to calculate statistics
       const attemptsResponse = await apiService.getAttempts();
       const allAttempts = attemptsResponse.results || attemptsResponse;
-      
+
       // Group attempts by test for quick lookup
       const attemptsByTest = {};
       allAttempts.forEach(attempt => {
@@ -147,16 +145,16 @@ const MyTests = () => {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [currentUser.id]);
 
   const getTestStats = (testId) => {
     const attempts = testAttempts[testId] || [];
     const uniqueStudents = new Set(attempts.map(a => a.student)).size;
-    const averageScore = attempts.length > 0 
+    const averageScore = attempts.length > 0
       ? Math.round(attempts.reduce((sum, a) => sum + a.score, 0) / attempts.length)
       : 0;
     const maxScore = attempts.length > 0 ? Math.max(...attempts.map(a => a.score)) : 0;
-    
+
     return {
       totalAttempts: attempts.length,
       uniqueStudents,
@@ -188,12 +186,12 @@ const MyTests = () => {
 
     try {
       setLoading(true);
-      
+
       await apiService.updateTest(selectedTest.id, { is_active: false });
       await apiService.deleteTest(selectedTest.id);
 
       setTests(prevTests => prevTests.filter(test => test.id !== selectedTest.id));
-      
+
       setSnackbar({
         open: true,
         message: `"${selectedTest.title}" testi muvaffaqiyatli o'chirildi`,
@@ -202,9 +200,9 @@ const MyTests = () => {
 
       setDeleteDialogOpen(false);
       setSelectedTest(null);
-      
+
       setTimeout(() => loadData(), 500);
-      
+
     } catch (error) {
       console.error('Failed to delete test:', error);
       setSnackbar({
@@ -220,19 +218,19 @@ const MyTests = () => {
   const toggleTestStatus = async (testId) => {
     try {
       setLoading(true);
-      
+
       const test = tests.find(t => t.id === testId);
       if (test) {
         const newStatus = !test.is_active;
-        
+
         await apiService.updateTest(testId, { is_active: newStatus });
-        
-        setTests(prevTests => 
-          prevTests.map(t => 
+
+        setTests(prevTests =>
+          prevTests.map(t =>
             t.id === testId ? { ...t, is_active: newStatus } : t
           )
         );
-        
+
         setSnackbar({
           open: true,
           message: `Test ${newStatus ? 'faollashtirildi' : 'nofaollashtirildi'}`,
@@ -256,9 +254,13 @@ const MyTests = () => {
     setStudentDetailDialogOpen(true);
   };
 
-  const handleOpenLessonModal = (student, attempt, test) => {
+  /* Unused functions prefixed with underscore
+  const _getStudentDetails = (testId) => { ... }
+  */
+  // Prefixed unused method handlers
+  const _handleOpenLessonModal = (student, attempt, test) => {
     setSelectedStudent(student);
-    setSelectedAttempt({
+    _setSelectedAttempt({
       ...attempt,
       test: test
     });
@@ -266,13 +268,13 @@ const MyTests = () => {
     setLessonModalOpen(true);
   };
 
-  const handleCloseLessonModal = () => {
+  const _handleCloseLessonModal = () => {
     setLessonModalOpen(false);
     setSelectedStudent(null);
-    setSelectedAttempt(null);
+    _setSelectedAttempt(null);
   };
 
-  const getSubjectColor = (subject) => {
+  const _getSubjectColor = (subject) => {
     const colors = {
       'Matematika': 'primary',
       'Fizika': 'secondary',
@@ -288,7 +290,7 @@ const MyTests = () => {
     return colors[subject] || 'default';
   };
 
-  const getScoreColor = (score) => {
+  const _getScoreColor = (score) => {
     if (score >= 80) return 'success';
     if (score >= 60) return 'warning';
     return 'error';
@@ -302,7 +304,7 @@ const MyTests = () => {
   // Generate test-related todo suggestions
   const generateTestSuggestions = () => {
     const suggestions = [];
-    
+
     tests.forEach(test => {
       const stats = getTestStats(test.id);
       if (stats.averageScore < 60) {
@@ -340,11 +342,11 @@ const MyTests = () => {
     return suggestions;
   };
 
-  const addTestSuggestions = () => {
+  const _addTestSuggestions = () => {
     const suggestions = generateTestSuggestions();
     const existingIds = todoTasks.map(task => task.id);
     const newSuggestions = suggestions.filter(suggestion => !existingIds.includes(suggestion.id));
-    
+
     if (newSuggestions.length > 0) {
       const updatedTasks = [...todoTasks, ...newSuggestions];
       setTodoTasks(updatedTasks);
@@ -383,10 +385,10 @@ const MyTests = () => {
         console.log(`Checking test "${test.title}": grade "${gradeStr}" against filter "${filterNum}"`);
 
         return gradeStr === filterNum ||
-               gradeStr.startsWith(filterNum + '-') ||
-               gradeStr.startsWith(filterNum + ' ') ||
-               gradeStr.split('-')[0] === filterNum ||
-               gradeStr.split(' ')[0] === filterNum;
+          gradeStr.startsWith(filterNum + '-') ||
+          gradeStr.startsWith(filterNum + ' ') ||
+          gradeStr.split('-')[0] === filterNum ||
+          gradeStr.split(' ')[0] === filterNum;
       });
 
       console.log(`Test "${test.title}" with grades ${JSON.stringify(test.target_grades)}: ${hasMatchingGrade ? 'INCLUDED' : 'FILTERED OUT'}`);
@@ -841,185 +843,185 @@ const MyTests = () => {
         width={1000}
         footer={null}
       >
-          {selectedTest && (
-            <Box>
-              {/* Basic Test Information */}
-              <Box mb={3}>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-                  Test ma'lumotlari
-                </Typography>
-                <Typography variant="body1" paragraph>
-                  {selectedTest.description || 'Tavsif mavjud emas'}
-                </Typography>
-                
-                <Box display="flex" gap={2} mb={2} flexWrap="wrap">
-                  <Chip
-                    label={selectedTest.subject}
-                    color={getSubjectColor(selectedTest.subject)}
-                    variant="outlined"
-                  />
-                  <Chip
-                    label={`${selectedTest.total_questions} savol`}
-                    color="primary"
-                    variant="outlined"
-                  />
-                  <Chip
-                    label={`${selectedTest.time_limit} daqiqa`}
-                    color="secondary"
-                    variant="outlined"
-                  />
-                </Box>
+        {selectedTest && (
+          <Box>
+            {/* Basic Test Information */}
+            <Box mb={3}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+                Test ma'lumotlari
+              </Typography>
+              <Typography variant="body1" paragraph>
+                {selectedTest.description || 'Tavsif mavjud emas'}
+              </Typography>
 
-                {/* Target Grades */}
-                {selectedTest.target_grades && selectedTest.target_grades.length > 0 && (
-                  <Box mb={2}>
-                    <Typography variant="subtitle2" gutterBottom>
-                      Maqsadli sinflar:
-                    </Typography>
-                    <Box display="flex" flexWrap="wrap" gap={0.5}>
-                      {selectedTest.target_grades.map((grade) => (
-                        <Chip
-                          key={grade}
-                          label={`${grade.replace(/^\[|"|\]$/g, '')}-sinf`}
-                          size="small"
-                          color="info"
-                        />
-                      ))}
-                    </Box>
-                  </Box>
-                )}
+              <Box display="flex" gap={2} mb={2} flexWrap="wrap">
+                <Chip
+                  label={selectedTest.subject}
+                  color={getSubjectColor(selectedTest.subject)}
+                  variant="outlined"
+                />
+                <Chip
+                  label={`${selectedTest.total_questions} savol`}
+                  color="primary"
+                  variant="outlined"
+                />
+                <Chip
+                  label={`${selectedTest.time_limit} daqiqa`}
+                  color="secondary"
+                  variant="outlined"
+                />
+              </Box>
 
-                {/* All Grades Available */}
-                {(!selectedTest.target_grades || selectedTest.target_grades.length === 0) && (
-                  <Box mb={2}>
-                    <Chip
-                      label="Barcha sinflar uchun"
-                      size="small"
-                      color="success"
-                      variant="outlined"
-                    />
-                  </Box>
-                )}
-
-                <Typography variant="body2" color="textSecondary" paragraph>
-                  Yaratilgan: {new Date(selectedTest.created_at).toLocaleString('uz-UZ')}
-                </Typography>
-                
-                {selectedTest.updated_at && selectedTest.updated_at !== selectedTest.created_at && (
-                  <Typography variant="body2" color="textSecondary">
-                    Yangilangan: {new Date(selectedTest.updated_at).toLocaleString('uz-UZ')}
+              {/* Target Grades */}
+              {selectedTest.target_grades && selectedTest.target_grades.length > 0 && (
+                <Box mb={2}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Maqsadli sinflar:
                   </Typography>
-                )}
-              </Box>
-
-              <Divider sx={{ my: 3 }} />
-
-              {/* Statistics */}
-              <Box mb={3}>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-                  O'quvchi statistikasi
-                </Typography>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <Box sx={{ p: 2, bgcolor: 'primary.light', borderRadius: 1, textAlign: 'center' }}>
-                      <PeopleIcon fontSize="large" color="primary" />
-                      <Typography variant="h4" color="primary">
-                        {getTestStats(selectedTest.id).uniqueStudents}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        O'quvchi
-                      </Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <Box sx={{ p: 2, bgcolor: 'success.light', borderRadius: 1, textAlign: 'center' }}>
-                      <AssessmentIcon fontSize="large" color="success" />
-                      <Typography variant="h4" color="success">
-                        {getTestStats(selectedTest.id).averageScore}%
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        O'rtacha ball
-                      </Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <Box sx={{ p: 2, bgcolor: 'warning.light', borderRadius: 1, textAlign: 'center' }}>
-                      <BookmarkIcon fontSize="large" color="warning" />
-                      <Typography variant="h4" color="warning">
-                        {getTestStats(selectedTest.id).completionRate}%
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        Tugallangan
-                      </Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <Box sx={{ p: 2, bgcolor: 'info.light', borderRadius: 1, textAlign: 'center' }}>
-                      <SchoolIcon fontSize="large" color="info" />
-                      <Typography variant="h4" color="info">
-                        {getTestStats(selectedTest.id).totalAttempts}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        Urinish
-                      </Typography>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </Box>
-
-              <Divider sx={{ my: 3 }} />
-
-              {/* Action Buttons */}
-              <Box>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-                  Amallar
-                </Typography>
-                <Box display="flex" gap={2} flexWrap="wrap">
-                  <Button
-                    variant="contained"
-                    startIcon={<ViewIcon />}
-                    onClick={() => navigate(`/teacher/test-details/${selectedTest.id}`)}
-                  >
-                    To'liq ko'rish
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    startIcon={<EditIcon />}
-                    onClick={() => navigate(`/teacher/edit-test/${selectedTest.id}`)}
-                  >
-                    Tahrirlash
-                  </Button>
-                  <Button
-                    variant="contained"
-                    startIcon={<PeopleIcon />}
-                    onClick={() => {
-                      handleStudentDetails(selectedTest);
-                      handleCloseTestDetails();
-                    }}
-                    color="primary"
-                  >
-                    O'quvchilar natijalari
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    onClick={() => toggleTestStatus(selectedTest.id)}
-                    color={selectedTest.is_active ? 'warning' : 'success'}
-                    disabled={loading}
-                  >
-                    {selectedTest.is_active ? 'Nofaollashtirish' : 'Faollashtirish'}
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    startIcon={<DeleteIcon />}
-                    onClick={() => handleDeleteTest(selectedTest)}
-                  >
-                    O'chirish
-                  </Button>
+                  <Box display="flex" flexWrap="wrap" gap={0.5}>
+                    {selectedTest.target_grades.map((grade) => (
+                      <Chip
+                        key={grade}
+                        label={`${grade.replace(/^\[|"|\]$/g, '')}-sinf`}
+                        size="small"
+                        color="info"
+                      />
+                    ))}
+                  </Box>
                 </Box>
+              )}
+
+              {/* All Grades Available */}
+              {(!selectedTest.target_grades || selectedTest.target_grades.length === 0) && (
+                <Box mb={2}>
+                  <Chip
+                    label="Barcha sinflar uchun"
+                    size="small"
+                    color="success"
+                    variant="outlined"
+                  />
+                </Box>
+              )}
+
+              <Typography variant="body2" color="textSecondary" paragraph>
+                Yaratilgan: {new Date(selectedTest.created_at).toLocaleString('uz-UZ')}
+              </Typography>
+
+              {selectedTest.updated_at && selectedTest.updated_at !== selectedTest.created_at && (
+                <Typography variant="body2" color="textSecondary">
+                  Yangilangan: {new Date(selectedTest.updated_at).toLocaleString('uz-UZ')}
+                </Typography>
+              )}
+            </Box>
+
+            <Divider sx={{ my: 3 }} />
+
+            {/* Statistics */}
+            <Box mb={3}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+                O'quvchi statistikasi
+              </Typography>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6} md={3}>
+                  <Box sx={{ p: 2, bgcolor: 'primary.light', borderRadius: 1, textAlign: 'center' }}>
+                    <PeopleIcon fontSize="large" color="primary" />
+                    <Typography variant="h4" color="primary">
+                      {getTestStats(selectedTest.id).uniqueStudents}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      O'quvchi
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <Box sx={{ p: 2, bgcolor: 'success.light', borderRadius: 1, textAlign: 'center' }}>
+                    <AssessmentIcon fontSize="large" color="success" />
+                    <Typography variant="h4" color="success">
+                      {getTestStats(selectedTest.id).averageScore}%
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      O'rtacha ball
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <Box sx={{ p: 2, bgcolor: 'warning.light', borderRadius: 1, textAlign: 'center' }}>
+                    <BookmarkIcon fontSize="large" color="warning" />
+                    <Typography variant="h4" color="warning">
+                      {getTestStats(selectedTest.id).completionRate}%
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      Tugallangan
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <Box sx={{ p: 2, bgcolor: 'info.light', borderRadius: 1, textAlign: 'center' }}>
+                    <SchoolIcon fontSize="large" color="info" />
+                    <Typography variant="h4" color="info">
+                      {getTestStats(selectedTest.id).totalAttempts}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      Urinish
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Box>
+
+            <Divider sx={{ my: 3 }} />
+
+            {/* Action Buttons */}
+            <Box>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+                Amallar
+              </Typography>
+              <Box display="flex" gap={2} flexWrap="wrap">
+                <Button
+                  variant="contained"
+                  startIcon={<ViewIcon />}
+                  onClick={() => navigate(`/teacher/test-details/${selectedTest.id}`)}
+                >
+                  To'liq ko'rish
+                </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<EditIcon />}
+                  onClick={() => navigate(`/teacher/edit-test/${selectedTest.id}`)}
+                >
+                  Tahrirlash
+                </Button>
+                <Button
+                  variant="contained"
+                  startIcon={<PeopleIcon />}
+                  onClick={() => {
+                    handleStudentDetails(selectedTest);
+                    handleCloseTestDetails();
+                  }}
+                  color="primary"
+                >
+                  O'quvchilar natijalari
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => toggleTestStatus(selectedTest.id)}
+                  color={selectedTest.is_active ? 'warning' : 'success'}
+                  disabled={loading}
+                >
+                  {selectedTest.is_active ? 'Nofaollashtirish' : 'Faollashtirish'}
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<DeleteIcon />}
+                  onClick={() => handleDeleteTest(selectedTest)}
+                >
+                  O'chirish
+                </Button>
               </Box>
             </Box>
-          )}
+          </Box>
+        )}
       </Modal>
 
       {/* Lesson Modal */}

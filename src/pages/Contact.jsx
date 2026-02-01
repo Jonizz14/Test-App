@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import apiService from "../data/apiService";
 import { useAuth } from "../context/AuthContext";
-import { showSuccess, showError } from "../utils/antdNotification";
+// import { showSuccess, showError } from "../utils/antdNotification"; // Unused but kept for reference if needed later
 import { useSentMessages } from "../context/SentMessagesContext";
 import "../styles/Contact.css";
 import { useTranslation } from "react-i18next";
 
 const Contact = () => {
-  const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const _navigate = useNavigate();
+  const { currentUser: _currentUser } = useAuth();
   const { addMessage } = useSentMessages();
   const { t } = useTranslation();
 
@@ -32,7 +32,7 @@ const Contact = () => {
 
     try {
       setIsSubmitting(true);
-      const response = await apiService.submitContactMessage(messageData);
+      const _response = await apiService.submitContactMessage(messageData);
 
       // Get button rect for animation start
       const rect = e.target.querySelector('button').getBoundingClientRect();

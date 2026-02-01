@@ -84,8 +84,8 @@ const trackEvent = (eventName, parameters = {}) => {
 };
 
 const StatisticsPage = () => {
-  const navigate = useNavigate();
-  const chartRefs = useRef({});
+  const _navigate = useNavigate();
+  const _chartRefs = useRef({});
   const [stats, setStats] = useState({
     // Overview stats
     totalUsers: 0,
@@ -415,7 +415,7 @@ const StatisticsPage = () => {
       gradient.addColorStop(0, color1);
       gradient.addColorStop(1, color2);
       return gradient;
-    } catch (error) {
+    } catch (_error) {
       return color1;
     }
   };
@@ -433,7 +433,7 @@ const StatisticsPage = () => {
             const { ctx, chartArea } = chart || {};
             if (!chartArea || !ctx) return 'rgba(37, 99, 235, 0.3)';
             return createGradient(ctx, 'rgba(37, 99, 235, 0.3)', 'rgba(37, 99, 235, 0.05)');
-          } catch (error) {
+          } catch (_error) {
             return 'rgba(37, 99, 235, 0.3)';
           }
         },
@@ -456,7 +456,7 @@ const StatisticsPage = () => {
             const { ctx, chartArea } = chart || {};
             if (!chartArea || !ctx) return 'rgba(124, 58, 237, 0.3)';
             return createGradient(ctx, 'rgba(124, 58, 237, 0.3)', 'rgba(124, 58, 237, 0.05)');
-          } catch (error) {
+          } catch (_error) {
             return 'rgba(124, 58, 237, 0.3)';
           }
         },
@@ -479,7 +479,7 @@ const StatisticsPage = () => {
             const { ctx, chartArea } = chart || {};
             if (!chartArea || !ctx) return 'rgba(5, 150, 105, 0.3)';
             return createGradient(ctx, 'rgba(5, 150, 105, 0.3)', 'rgba(5, 150, 105, 0.05)');
-          } catch (error) {
+          } catch (_error) {
             return 'rgba(5, 150, 105, 0.3)';
           }
         },
@@ -508,7 +508,7 @@ const StatisticsPage = () => {
             const { ctx, chartArea } = chart || {};
             if (!chartArea || !ctx) return 'rgba(245, 158, 11, 0.3)';
             return createGradient(ctx, 'rgba(245, 158, 11, 0.3)', 'rgba(245, 158, 11, 0.05)');
-          } catch (error) {
+          } catch (_error) {
             return 'rgba(245, 158, 11, 0.3)';
           }
         },
@@ -531,7 +531,7 @@ const StatisticsPage = () => {
             const { ctx, chartArea } = chart || {};
             if (!chartArea || !ctx) return 'rgba(220, 38, 38, 0.3)';
             return createGradient(ctx, 'rgba(220, 38, 38, 0.3)', 'rgba(220, 38, 38, 0.05)');
-          } catch (error) {
+          } catch (_error) {
             return 'rgba(220, 38, 38, 0.3)';
           }
         },
@@ -554,7 +554,7 @@ const StatisticsPage = () => {
             const { ctx, chartArea } = chart || {};
             if (!chartArea || !ctx) return 'rgba(22, 163, 74, 0.3)';
             return createGradient(ctx, 'rgba(22, 163, 74, 0.3)', 'rgba(22, 163, 74, 0.05)');
-          } catch (error) {
+          } catch (_error) {
             return 'rgba(22, 163, 74, 0.3)';
           }
         },
@@ -583,7 +583,7 @@ const StatisticsPage = () => {
             const { ctx, chartArea } = chart || {};
             if (!chartArea || !ctx) return 'rgba(139, 92, 246, 0.4)';
             return createGradient(ctx, 'rgba(139, 92, 246, 0.4)', 'rgba(139, 92, 246, 0.1)');
-          } catch (error) {
+          } catch (_error) {
             return 'rgba(139, 92, 246, 0.4)';
           }
         },
@@ -684,29 +684,29 @@ const StatisticsPage = () => {
   const testDifficultyDoughnutChart = {
     labels: ['Oson', 'O\'rta', 'Qiyin', 'Juda qiyin'],
     datasets: [
-        {
-          data: [
-            stats.popularTests.filter(test => test.averageScore >= 80).length,
-            stats.popularTests.filter(test => test.averageScore >= 60 && test.averageScore < 80).length,
-            stats.popularTests.filter(test => test.averageScore >= 40 && test.averageScore < 60).length,
-            stats.popularTests.filter(test => test.averageScore < 40).length
-          ],
-          backgroundColor: [
-            '#10b981',
-            '#f59e0b',
-            '#ef4444',
-            '#7c2d12'
-          ],
-          borderColor: [
-            '#ffffff',
-            '#ffffff',
-            '#ffffff',
-            '#ffffff'
-          ],
-          borderWidth: 3,
-          hoverOffset: 15,
-        },
-      ],
+      {
+        data: [
+          stats.popularTests.filter(test => test.averageScore >= 80).length,
+          stats.popularTests.filter(test => test.averageScore >= 60 && test.averageScore < 80).length,
+          stats.popularTests.filter(test => test.averageScore >= 40 && test.averageScore < 60).length,
+          stats.popularTests.filter(test => test.averageScore < 40).length
+        ],
+        backgroundColor: [
+          '#10b981',
+          '#f59e0b',
+          '#ef4444',
+          '#7c2d12'
+        ],
+        borderColor: [
+          '#ffffff',
+          '#ffffff',
+          '#ffffff',
+          '#ffffff'
+        ],
+        borderWidth: 3,
+        hoverOffset: 15,
+      },
+    ],
   };
 
   const chartOptions = {
@@ -934,7 +934,7 @@ const StatisticsPage = () => {
     });
   };
 
-  const StatCard = ({ title, value, icon, color, suffix, trend, subtitle }) => (
+  const StatCard = ({ title, value, icon, color, suffix, trend, _subtitle }) => (
     <div>
       <Card
         style={{
@@ -1081,7 +1081,7 @@ const StatisticsPage = () => {
     );
   };
 
-  const getInsightColor = (type) => {
+  const _getInsightColor = (type) => {
     switch (type) {
       case 'positive': return '#16a34a';
       case 'warning': return '#f59e0b';
@@ -1346,7 +1346,7 @@ const StatisticsPage = () => {
                     <Switch
                       size="small"
                       checked={visibleCards[chart.key]}
-                      onChange={(checked) => toggleCard(chart.key)}
+                      onChange={(_checked) => toggleCard(chart.key)}
                       style={{ backgroundColor: visibleCards[chart.key] ? '#2563eb' : '#d1d5db' }}
                     />
                   </div>

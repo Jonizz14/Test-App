@@ -3,34 +3,22 @@ import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import {
   Card,
   Typography,
-  Row,
-  Col,
   Button,
   Tag,
-  Avatar,
   Radio,
   Input,
   Progress,
   Modal,
   Alert,
   Select,
-  Table,
-  Space,
-  Checkbox,
-  ConfigProvider,
-  Spin,
-  Divider
 } from 'antd';
 import {
-  UserOutlined,
   ClockCircleOutlined,
   CheckCircleOutlined,
   PlayCircleOutlined,
   SortAscendingOutlined,
-  SearchOutlined,
   InfoCircleOutlined,
   WarningOutlined,
-  TrophyOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import { useServerTest } from '../../context/ServerTestContext';
@@ -39,8 +27,8 @@ import LaTeXPreview from '../../components/LaTeXPreview';
 import MathSymbols from '../../components/MathSymbols';
 import 'animate.css';
 
-const { Title, Text, Paragraph } = Typography;
-const { Search } = Input;
+const { Title, Text } = Typography;
+const { Search: _Search } = Input;
 const { Option } = Select;
 
 const TakeTest = () => {
@@ -63,29 +51,29 @@ const TakeTest = () => {
   } = useServerTest();
 
   const [searchParams] = useSearchParams();
-  const location = useLocation();
+  const _location = useLocation();
   const navigate = useNavigate();
   const [teachers, setTeachers] = useState([]);
-  const [teacherTests, setTeacherTests] = useState({});
+  const [_teacherTests, _setTeacherTests] = useState({});
   const [allTests, setAllTests] = useState([]);
   const [takenTests, setTakenTests] = useState(new Set());
   const [selectedTest, setSelectedTest] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [testCompleted, setTestCompleted] = useState(false);
-  const [score, setScore] = useState(0);
+  const [_score, _setScore] = useState(0);
   const [sortBy, setSortBy] = useState('date');
-  const [exitDialogOpen, setExitDialogOpen] = useState(false);
-  const [urgentSubmitDialogOpen, setUrgentSubmitDialogOpen] = useState(false);
-  const [sessionRecovering, setSessionRecovering] = useState(false);
-  const [activeTestSessions, setActiveTestSessions] = useState({});
+  const [_exitDialogOpen, _setExitDialogOpen] = useState(false);
+  const [_urgentSubmitDialogOpen, _setUrgentSubmitDialogOpen] = useState(false);
+  const [_sessionRecovering, _setSessionRecovering] = useState(false);
+  const [_activeTestSessions, _setStatActiveTestSessions] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [mathSymbolsOpen, setMathSymbolsOpen] = useState(false);
-  const [pageSize, setPageSize] = useState(10);
+  const [_pageSize, _setPageSize] = useState(10);
 
 
 
-  const difficultyLabels = {
+  const _difficultyLabels = {
     easy: 'Oson',
     medium: 'O\'rtacha',
     hard: 'Qiyin'
@@ -130,7 +118,7 @@ const TakeTest = () => {
     if (currentUser) {
       loadTeachers();
     }
-  }, [currentUser]);
+  }, [currentUser, loadTeachers]);
 
   useEffect(() => {
     const checkAllActiveSessions = async () => {
@@ -144,16 +132,16 @@ const TakeTest = () => {
           if (activeSession) {
             sessionsMap[test.id] = activeSession;
           }
-        } catch (error) {
+        } catch (_error) {
           console.debug(`No active session for test ${test.id}`);
         }
       }
 
-      setActiveTestSessions(sessionsMap);
+      _setStatActiveTestSessions(sessionsMap);
     };
 
     checkAllActiveSessions();
-  }, [allTests, currentUser]);
+  }, [allTests, currentUser, checkActiveSession]);
 
   useEffect(() => {
     const testIdFromParams = searchParams.get('testId');
@@ -161,7 +149,7 @@ const TakeTest = () => {
     if (testIdFromParams && teachers.length > 0 && currentUser) {
       const checkAndHandleTest = async () => {
         try {
-          setSessionRecovering(true);
+          _setSessionRecovering(true);
 
           const attempts = await apiService.getAttempts({ student: currentUser.id, test: testIdFromParams });
           const hasAttempt = attempts && attempts.length > 0;
@@ -189,21 +177,21 @@ const TakeTest = () => {
           }
           clearSession();
         } finally {
-          setSessionRecovering(false);
+          _setSessionRecovering(false);
         }
       };
 
       checkAndHandleTest();
     }
-  }, [searchParams, teachers, navigate, checkActiveSession, currentUser]);
+  }, [searchParams, teachers, navigate, checkActiveSession, currentUser, continueTestFromSession, startTest, clearSession]);
 
   useEffect(() => {
     if (currentSession && hasTimeRemaining === false && sessionStarted) {
       handleSubmitTest();
     }
-  }, [hasTimeRemaining, sessionStarted]);
+  }, [currentSession, hasTimeRemaining, sessionStarted, handleSubmitTest]);
 
-  const continueTestFromSession = async (session, testId) => {
+  const continueTestFromSession = useCallback(async (session, testId) => {
     if (!session || !testId) {
       alert("Sessiya yoki test ID topilmadi. Iltimos, sahifani yangilang yoki administratorga murojaat qiling.");
       return;
@@ -224,9 +212,9 @@ const TakeTest = () => {
       console.error('Failed to continue test session:', error);
       clearSession();
     }
-  };
+  }, [clearSession]);
 
-  const loadTeachers = async () => {
+  const loadTeachers = useCallback(async () => {
     try {
       // Load teachers from API
       const allUsers = await apiService.getUsers();
@@ -256,7 +244,7 @@ const TakeTest = () => {
           testsMap[teacher.id] = [];
         }
       }
-      setTeacherTests(testsMap);
+      _setTeacherTests(testsMap);
       setAllTests(allTestsArray);
 
       // Load student's taken tests
@@ -270,13 +258,13 @@ const TakeTest = () => {
     } catch (error) {
       console.error('Failed to load teachers:', error);
     }
-  };
+  }, [currentUser]);
 
   const hasStudentTakenTest = (testId) => {
     return takenTests.has(testId);
   };
 
-  const startTest = async (test) => {
+  const startTest = useCallback(async (test) => {
     if (!test || !test.id) {
       alert("Test ma'lumotlari to'liq emas yoki noto'g'ri. Iltimos, boshqa test tanlang yoki administratorga murojaat qiling.");
       return;
@@ -298,7 +286,7 @@ const TakeTest = () => {
         alert('Testni boshlashda muammo yuz berdi. Keyinroq qayta urinib ko‘ring.');
       }
     }
-  };
+  }, [navigate, startTestSession]);
 
   const continueTest = async (test) => {
     if (!test || !test.id) {
@@ -380,9 +368,9 @@ const TakeTest = () => {
     setMathSymbolsOpen(false);
   };
 
-  const handleSubmitTest = () => {
+  const handleSubmitTest = useCallback(() => {
     navigate('/student/submit-test');
-  };
+  }, [navigate]);
 
   const resetTest = () => {
     setSelectedTest(null);

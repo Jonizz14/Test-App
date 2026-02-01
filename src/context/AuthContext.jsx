@@ -21,8 +21,8 @@ export const AuthProvider = ({ children }) => {
       try {
         const storedUser = localStorage.getItem('currentUser');
         const accessToken = localStorage.getItem('accessToken');
-        const refreshToken = localStorage.getItem('refreshToken');
-        
+        const _refreshToken = localStorage.getItem('refreshToken');
+
         if (storedUser && accessToken) {
           const parsedUser = JSON.parse(storedUser);
           apiService.setToken(accessToken);
@@ -44,16 +44,16 @@ export const AuthProvider = ({ children }) => {
                 language: navigator.language,
                 timestamp: Date.now()
               };
-              
+
               // Store device info for this user
               const userDeviceKey = `userDevice_${parsedUser.id}`;
               localStorage.setItem(userDeviceKey, JSON.stringify(deviceInfo));
-              
+
               console.log('Restored user from localStorage:', parsedUser?.name);
               console.log('User data cached for this device');
               setCurrentUser(parsedUser);
             }
-          } catch (validationError) {
+          } catch (_validationError) {
             console.log('User validation failed, clearing stored data');
             localStorage.removeItem('currentUser');
             localStorage.removeItem('accessToken');
@@ -108,7 +108,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const storedUser = localStorage.getItem('currentUser');
       const accessToken = localStorage.getItem('accessToken');
-      
+
       if (storedUser && accessToken) {
         const parsedUser = JSON.parse(storedUser);
         return parsedUser.email === email && !parsedUser.is_banned;

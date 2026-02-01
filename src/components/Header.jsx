@@ -9,8 +9,137 @@ import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../context/SettingsContext';
 import { useServerTest } from '../context/ServerTestContext';
-import { showWarning } from '../utils/antdNotification';
+// showWarning imported but kept for future use
+// const { showWarning } = require('../utils/antdNotification');
 
+const getSearchData = (t) => [
+  // Pages
+  {
+    id: 'home',
+    title: t('nav.search.results.home.title'),
+    path: '/',
+    icon: 'home',
+    category: t('nav.home') || 'Page',
+    description: t('nav.search.results.home.desc'),
+    content: t('nav.search.results.home.content')
+  },
+  {
+    id: 'contact',
+    title: t('nav.search.results.contact.title'),
+    path: '/contact',
+    icon: 'contact_support',
+    category: t('nav.contact') || 'Page',
+    description: t('nav.search.results.contact.desc'),
+    content: t('nav.search.results.contact.content')
+  },
+  {
+    id: 'login',
+    title: t('nav.search.results.login.title'),
+    path: '/login',
+    icon: 'login',
+    category: t('nav.login') || 'Auth',
+    description: t('nav.search.results.login.desc'),
+    content: t('nav.search.results.login.content')
+  },
+  {
+    id: 'welcome',
+    title: t('nav.search.results.welcome.title'),
+    path: '/welcome',
+    icon: 'waving_hand',
+    category: 'Intro',
+    description: t('nav.search.results.welcome.desc'),
+    content: t('nav.search.results.welcome.content')
+  },
+
+  // Admin Pages
+  {
+    id: 'dashboard-admin',
+    title: t('nav.search.results.adminDashboard.title'),
+    path: '/admin',
+    icon: 'dashboard',
+    category: t('nav.dashboard') || 'Admin',
+    description: t('nav.search.results.adminDashboard.desc'),
+    content: t('nav.search.results.adminDashboard.content')
+  },
+  {
+    id: 'admin-teachers',
+    title: t('nav.search.results.adminTeachers.title'),
+    path: '/admin/teachers',
+    icon: 'school',
+    category: t('nav.teachers') || 'Admin',
+    description: t('nav.search.results.adminTeachers.desc'),
+    content: t('nav.search.results.adminTeachers.content')
+  },
+  {
+    id: 'admin-students',
+    title: t('nav.search.results.adminStudents.title'),
+    path: '/admin/students',
+    icon: 'face',
+    category: t('nav.students') || 'Admin',
+    description: t('nav.search.results.adminStudents.desc'),
+    content: t('nav.search.results.adminStudents.content')
+  },
+
+  // Teacher Pages
+  {
+    id: 'teacher-classes',
+    title: t('nav.search.results.teacherClasses.title'),
+    path: '/teacher/classes',
+    icon: 'groups',
+    category: t('nav.classes') || 'Teacher',
+    description: t('nav.search.results.teacherClasses.desc'),
+    content: t('nav.search.results.teacherClasses.content')
+  },
+  {
+    id: 'teacher-tests',
+    title: t('nav.search.results.teacherTests.title'),
+    path: '/teacher/tests',
+    icon: 'quiz',
+    category: t('nav.tests') || 'Teacher',
+    description: t('nav.search.results.teacherTests.desc'),
+    content: t('nav.search.results.teacherTests.content')
+  },
+
+  // Student Pages
+  {
+    id: 'student-tests',
+    title: t('nav.search.results.studentTests.title'),
+    path: '/student/tests',
+    icon: 'assignment',
+    category: t('nav.tests') || 'Student',
+    description: t('nav.search.results.studentTests.desc'),
+    content: t('nav.search.results.studentTests.content')
+  },
+  {
+    id: 'student-results',
+    title: t('nav.search.results.studentResults.title'),
+    path: '/student/results',
+    icon: 'bar_chart',
+    category: t('nav.results') || 'Student',
+    description: t('nav.search.results.studentResults.desc'),
+    content: t('nav.search.results.studentResults.content')
+  },
+
+  // User & System
+  {
+    id: 'profile',
+    title: t('nav.search.results.profile.title'),
+    path: '/profile',
+    icon: 'person',
+    category: t('nav.profile') || 'User',
+    description: t('nav.search.results.profile.desc'),
+    content: t('nav.search.results.profile.content')
+  },
+  {
+    id: 'ai-help',
+    title: t('nav.search.results.aiHelp.title'),
+    path: '#',
+    icon: 'smart_toy',
+    category: 'AI',
+    description: t('nav.search.results.aiHelp.desc'),
+    content: t('nav.search.results.aiHelp.content')
+  }
+];
 
 const Header = ({ demoMode = false }) => {
   const navigate = useNavigate();
@@ -42,134 +171,7 @@ const Header = ({ demoMode = false }) => {
   // Search Data
   // Enhanced Search Data with "Content" simulation
   // Enhanced Search Data with "Content" simulation for all pages
-  const getSearchData = (t) => [
-    // Pages
-    {
-      id: 'home',
-      title: t('nav.search.results.home.title'),
-      path: '/',
-      icon: 'home',
-      category: t('nav.home') || 'Page',
-      description: t('nav.search.results.home.desc'),
-      content: t('nav.search.results.home.content')
-    },
-    {
-      id: 'contact',
-      title: t('nav.search.results.contact.title'),
-      path: '/contact',
-      icon: 'contact_support',
-      category: t('nav.contact') || 'Page',
-      description: t('nav.search.results.contact.desc'),
-      content: t('nav.search.results.contact.content')
-    },
-    {
-      id: 'login',
-      title: t('nav.search.results.login.title'),
-      path: '/login',
-      icon: 'login',
-      category: t('nav.login') || 'Auth',
-      description: t('nav.search.results.login.desc'),
-      content: t('nav.search.results.login.content')
-    },
-    {
-      id: 'welcome',
-      title: t('nav.search.results.welcome.title'),
-      path: '/welcome',
-      icon: 'waving_hand',
-      category: 'Intro',
-      description: t('nav.search.results.welcome.desc'),
-      content: t('nav.search.results.welcome.content')
-    },
 
-    // Admin Pages
-    {
-      id: 'dashboard-admin',
-      title: t('nav.search.results.adminDashboard.title'),
-      path: '/admin',
-      icon: 'dashboard',
-      category: t('nav.dashboard') || 'Admin',
-      description: t('nav.search.results.adminDashboard.desc'),
-      content: t('nav.search.results.adminDashboard.content')
-    },
-    {
-      id: 'admin-teachers',
-      title: t('nav.search.results.adminTeachers.title'),
-      path: '/admin/teachers',
-      icon: 'school',
-      category: t('nav.teachers') || 'Admin',
-      description: t('nav.search.results.adminTeachers.desc'),
-      content: t('nav.search.results.adminTeachers.content')
-    },
-    {
-      id: 'admin-students',
-      title: t('nav.search.results.adminStudents.title'),
-      path: '/admin/students',
-      icon: 'face',
-      category: t('nav.students') || 'Admin',
-      description: t('nav.search.results.adminStudents.desc'),
-      content: t('nav.search.results.adminStudents.content')
-    },
-
-    // Teacher Pages
-    {
-      id: 'teacher-classes',
-      title: t('nav.search.results.teacherClasses.title'),
-      path: '/teacher/classes',
-      icon: 'groups',
-      category: t('nav.classes') || 'Teacher',
-      description: t('nav.search.results.teacherClasses.desc'),
-      content: t('nav.search.results.teacherClasses.content')
-    },
-    {
-      id: 'teacher-tests',
-      title: t('nav.search.results.teacherTests.title'),
-      path: '/teacher/tests',
-      icon: 'quiz',
-      category: t('nav.tests') || 'Teacher',
-      description: t('nav.search.results.teacherTests.desc'),
-      content: t('nav.search.results.teacherTests.content')
-    },
-
-    // Student Pages
-    {
-      id: 'student-tests',
-      title: t('nav.search.results.studentTests.title'),
-      path: '/student/tests',
-      icon: 'assignment',
-      category: t('nav.tests') || 'Student',
-      description: t('nav.search.results.studentTests.desc'),
-      content: t('nav.search.results.studentTests.content')
-    },
-    {
-      id: 'student-results',
-      title: t('nav.search.results.studentResults.title'),
-      path: '/student/results',
-      icon: 'bar_chart',
-      category: t('nav.results') || 'Student',
-      description: t('nav.search.results.studentResults.desc'),
-      content: t('nav.search.results.studentResults.content')
-    },
-
-    // User & System
-    {
-      id: 'profile',
-      title: t('nav.search.results.profile.title'),
-      path: '/profile',
-      icon: 'person',
-      category: t('nav.profile') || 'User',
-      description: t('nav.search.results.profile.desc'),
-      content: t('nav.search.results.profile.content')
-    },
-    {
-      id: 'ai-help',
-      title: t('nav.search.results.aiHelp.title'),
-      path: '#',
-      icon: 'smart_toy',
-      category: 'AI',
-      description: t('nav.search.results.aiHelp.desc'),
-      content: t('nav.search.results.aiHelp.content')
-    }
-  ];
 
   const searchData = React.useMemo(() => getSearchData(t), [t]);
 
@@ -499,7 +501,7 @@ const Header = ({ demoMode = false }) => {
     return classes.join(' ');
   };
 
-  const handleHeaderClick = (e) => {
+  const handleHeaderClick = (_e) => {
     if (isDashboard && !isDashboardExpanded) {
       setIsDashboardExpanded(true);
     }

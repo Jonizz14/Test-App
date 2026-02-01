@@ -31,9 +31,9 @@ import apiService from '../../data/apiService';
 import LaTeXPreview from '../../components/LaTeXPreview';
 import 'animate.css';
 
-const { Title, Text, Paragraph } = Typography;
-const { Search } = Input;
-const { Option } = Select;
+const { Title, Text } = Typography;
+const _Search = Input.Search;
+const _Option = Select.Option;
 
 const TestResults = () => {
   const navigate = useNavigate();
@@ -46,8 +46,8 @@ const TestResults = () => {
   const [questions, setQuestions] = useState([]);
   const [questionsLoading, setQuestionsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('date');
-  const [pageSize, setPageSize] = useState(10);
+  const [_sortBy, _setSortBy] = useState('date');
+  const [_pageSize, _setPageSize] = useState(10);
   const [searchParams] = useSearchParams();
   const [highlightId, setHighlightId] = useState(null);
 
@@ -66,9 +66,9 @@ const TestResults = () => {
     if (currentUser?.id) {
       loadResults();
     }
-  }, [currentUser?.id]);
+  }, [currentUser?.id, loadResults]);
 
-  const loadResults = async () => {
+  const loadResults = React.useCallback(async () => {
     try {
       setLoading(true);
       const attemptsResponse = await apiService.getAttempts({ student: currentUser.id });
@@ -83,7 +83,7 @@ const TestResults = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser?.id]);
 
   const getTestById = (testId) => {
     return tests.find(test => test.id === testId);

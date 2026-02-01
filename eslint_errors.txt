@@ -1,0 +1,546 @@
+﻿
+C:\Users\User\Desktop\Test-App\src\components\GradientPicker.jsx
+  151:44  error  'index' is defined but never used  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\components\Header.jsx
+   12:10  error  'showWarning' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                 no-unused-vars
+  502:9   error  'handleHeaderClick' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  502:30  error  'e' is defined but never used                                                                      no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\components\LaTeXPreview.jsx
+   6:31  error  'variant' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+  24:9   error  'latexContent' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+  30:9   error  Error: Avoid constructing JSX within try/catch
+
+React does not immediately render components when JSX is rendered, so any errors from this component will not be caught by the try/catch. To catch errors in rendering a given component, wrap that component in an error boundary. (https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary).
+
+  28 |       const parts = text.split('$');
+  29 |       return (
+> 30 |         <Box sx={sx}>
+     |         ^^^^^^^^^^^^^
+> 31 |           {parts.map((part, index) => {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 32 |             if (index % 2 === 1) {
+     тАж
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 45 |           })}
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 46 |         </Box>
+     | ^^^^^^^^^^^^^^^ Avoid constructing JSX within try/catch
+  47 |       );
+  48 |     }
+  49 |   react-hooks/error-boundaries
+  38:24  error  'error' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             no-unused-vars
+  54:9   error  Error: Avoid constructing JSX within try/catch
+
+React does not immediately render components when JSX is rendered, so any errors from this component will not be caught by the try/catch. To catch errors in rendering a given component, wrap that component in an error boundary. (https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary).
+
+  52 |       const parts = text.split('$$');
+  53 |       return (
+> 54 |         <Box sx={sx}>
+     |         ^^^^^^^^^^^^^
+> 55 |           {parts.map((part, index) => {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 56 |             if (index % 2 === 1) {
+     тАж
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 71 |           })}
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 72 |         </Box>
+     | ^^^^^^^^^^^^^^^ Avoid constructing JSX within try/catch
+  73 |       );
+  74 |     }
+  75 |  react-hooks/error-boundaries
+  64:24  error  'error' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             no-unused-vars
+  80:11  error  Error: Avoid constructing JSX within try/catch
+
+React does not immediately render components when JSX is rendered, so any errors from this component will not be caught by the try/catch. To catch errors in rendering a given component, wrap that component in an error boundary. (https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary).
+
+  78 |       try {
+  79 |         return (
+> 80 |           <Box sx={sx}>
+     |           ^^^^^^^^^^^^^
+> 81 |             <InlineMath math={text} />
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 82 |           </Box>
+     | ^^^^^^^^^^^^^^^^^ Avoid constructing JSX within try/catch
+  83 |         );
+  84 |       } catch (error) {
+  85 |         return (                                                                                                                                                   react-hooks/error-boundaries
+  81:13  error  Error: Avoid constructing JSX within try/catch
+
+React does not immediately render components when JSX is rendered, so any errors from this component will not be caught by the try/catch. To catch errors in rendering a given component, wrap that component in an error boundary. (https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary).
+
+  79 |         return (
+  80 |           <Box sx={sx}>
+> 81 |             <InlineMath math={text} />
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid constructing JSX within try/catch
+  82 |           </Box>
+  83 |         );
+  84 |       } catch (error) {                                                                                                                                                                                                                                                      react-hooks/error-boundaries
+  84:16  error  'error' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             no-unused-vars
+  86:11  error  Error: Avoid constructing JSX within try/catch
+
+React does not immediately render components when JSX is rendered, so any errors from this component will not be caught by the try/catch. To catch errors in rendering a given component, wrap that component in an error boundary. (https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary).
+
+  84 |       } catch (error) {
+  85 |         return (
+> 86 |           <Typography variant="body2" sx={{ color: '#64748b', fontStyle: 'italic', ...sx }}>
+     |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 87 |             {text}
+     | ^^^^^^^^^^^^^^^^^^
+> 88 |           </Typography>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^ Avoid constructing JSX within try/catch
+  89 |         );
+  90 |       }
+  91 |     }                                                  react-hooks/error-boundaries
+  95:7   error  Error: Avoid constructing JSX within try/catch
+
+React does not immediately render components when JSX is rendered, so any errors from this component will not be caught by the try/catch. To catch errors in rendering a given component, wrap that component in an error boundary. (https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary).
+
+   93 |     // Fallback to regular text
+   94 |     return (
+>  95 |       <Typography variant="body2" sx={{ color: '#64748b', fontStyle: 'italic', ...sx }}>
+      |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  96 |         {text}
+      | ^^^^^^^^^^^^^^
+>  97 |       </Typography>
+      | ^^^^^^^^^^^^^^^^^^^^ Avoid constructing JSX within try/catch
+   98 |     );
+   99 |
+  100 |   } catch (error) {                                                         react-hooks/error-boundaries
+
+C:\Users\User\Desktop\Test-App\src\components\LoadingComponents.jsx
+  159:3  error  'disabled' is defined but never used          no-unused-vars
+  160:3  error  'variant' is assigned a value but never used  no-unused-vars
+  162:3  error  'size' is assigned a value but never used     no-unused-vars
+  163:6  error  'props' is defined but never used             no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\components\NotificationCenter.jsx
+  31:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  29 |     if (currentUser) {
+  30 |       const userNotifications = getNotificationsForUser(currentUser);
+> 31 |       setNotifications(userNotifications);
+     |       ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  32 |       setUnreadCount(userNotifications.filter(n => !n.isRead).length);
+  33 |     }
+  34 |   }, [currentUser]);  react-hooks/set-state-in-effect
+
+C:\Users\User\Desktop\Test-App\src\components\RouteLoadingIndicator.jsx
+   11:3   error  'threshold' is assigned a value but never used                                                                                  no-unused-vars
+  122:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  160:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  189:3   error  'color' is assigned a value but never used                                                                                      no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\components\SendLessonModal.jsx
+  29:10  error  'success' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\components\StudentCompletionStats.jsx
+  15:6  warning  React Hook useEffect has a missing dependency: 'loadAttemptStats'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\User\Desktop\Test-App\src\components\TodoList.jsx
+  37:13  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  35 |     if (newTaskText.trim()) {
+  36 |       const newTask = {
+> 37 |         id: Date.now().toString(),
+     |             ^^^^^^^^^^ Cannot call impure function
+  38 |         text: newTaskText.trim(),
+  39 |         completed: false,
+  40 |         priority: 'medium',  react-hooks/purity
+
+C:\Users\User\Desktop\Test-App\src\components\UnbanModal.jsx
+  59:14  error  'error' is defined but never used  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\context\AuthContext.jsx
+   6:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  24:15  error  'refreshToken' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                    no-unused-vars
+  56:20  error  'validationError' is defined but never used                                                                                     no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\context\LoadingContext.jsx
+  5:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\User\Desktop\Test-App\src\context\NewsContext.jsx
+  77:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\User\Desktop\Test-App\src\context\SavedItemsContext.jsx
+  75:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\User\Desktop\Test-App\src\context\SentMessagesContext.jsx
+  37:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\User\Desktop\Test-App\src\context\ServerTestContext.jsx
+  7:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\User\Desktop\Test-App\src\context\SettingsContext.jsx
+  7:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\User\Desktop\Test-App\src\context\StatisticsContext.jsx
+  5:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\User\Desktop\Test-App\src\context\ThemeContext.jsx
+   5:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         react-refresh/only-export-components
+  22:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  20 |
+  21 |     if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+> 22 |       setIsDarkMode(true);
+     |       ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  23 |       document.documentElement.classList.add('dark');
+  24 |     } else {
+  25 |       setIsDarkMode(false);  react-hooks/set-state-in-effect
+
+C:\Users\User\Desktop\Test-App\src\data\apiService.js
+  84:18  error  'e' is defined but never used  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\data\enhancedApiService.js
+   89:37  error  'endpoint' is defined but never used                                                           no-unused-vars
+   89:47  error  'options' is defined but never used                                                            no-unused-vars
+  140:7   error  'cacheDuration' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  302:30  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  312:24  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  376:26  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  385:30  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  395:24  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  437:30  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  446:34  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  456:28  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  484:29  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  488:33  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  510:30  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  522:50  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  529:36  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  539:28  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  564:29  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  573:33  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  582:27  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  600:33  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  609:37  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  619:31  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  638:26  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  647:30  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  657:24  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  692:30  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  702:44  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  713:30  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  722:29  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  743:36  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  747:53  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  756:48  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  768:45  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  772:41  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+  782:45  error  'loadingCallback' is defined but never used                                                    no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\hooks\useCountdown.js
+  9:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+   7 |   useEffect(() => {
+   8 |     if (!expiryDate) {
+>  9 |       setTimeLeft(null);
+     |       ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  10 |       setIsExpired(false);
+  11 |       return;
+  12 |     }  react-hooks/set-state-in-effect
+
+C:\Users\User\Desktop\Test-App\src\pages\Contact.jsx
+   6:10  error  'showSuccess' is defined but never used. Allowed unused vars must match /^[A-Z_]/u           no-unused-vars
+   6:23  error  'showError' is defined but never used. Allowed unused vars must match /^[A-Z_]/u             no-unused-vars
+  12:9   error  'navigate' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+  13:11  error  'currentUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  35:13  error  'response' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\HeadAdminDashboard.jsx
+  23:11  error  'currentUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\Home.jsx
+  24:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  22 |     const shouldSkip = sessionStorage.getItem('skipHomeAnimation') === 'true';
+  23 |     if (shouldSkip) {
+> 24 |       setSkipAnimation(true);
+     |       ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  25 |       sessionStorage.removeItem('skipHomeAnimation');
+  26 |     }
+  27 |   }, []);  react-hooks/set-state-in-effect
+
+C:\Users\User\Desktop\Test-App\src\pages\NewsPage.jsx
+  95:40  error  'index' is defined but never used  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\NotFoundPage.jsx
+  11:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+   9 |
+  10 |   useEffect(() => {
+> 11 |     setIsVisible(true);
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  12 |   }, []);
+  13 |
+  14 |   return (  react-hooks/set-state-in-effect
+
+C:\Users\User\Desktop\Test-App\src\pages\SellerDashboard.jsx
+  16:11  error  'currentUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\TeacherDashboard.jsx
+  33:11  error  'currentUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\UnbanPage.jsx
+  38:14  error  'error' is defined but never used  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\admin\AddStudent.jsx
+  45:18  error  'error' is defined but never used                                                         no-unused-vars
+  70:15  error  'response' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\admin\AddTeacher.jsx
+  67:31  error  'values' is defined but never used  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\admin\AdminOverview.jsx
+  12:26  error  'theme' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\admin\ClassDetails.jsx
+   96:10  error  'tests' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u           no-unused-vars
+  195:9   error  'recentActivity' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\admin\ClassStatistics.jsx
+  472:26  error  'record' is defined but never used  no-unused-vars
+  472:34  error  'index' is defined but never used   no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\admin\ClassesPage.jsx
+   93:23  error  'setChartWidths' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  570:56  error  'index' is defined but never used                                                               no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\admin\ManageStudents.jsx
+  152:6   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  325:17  error    'displayId' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                    no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\admin\ManageTeachers.jsx
+  182:17  error  'displayId' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  277:22  error  'record' is defined but never used                                                         no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\admin\Questions.jsx
+  142:11  error  Unexpected lexical declaration in case block  no-case-declarations
+  143:11  error  Unexpected lexical declaration in case block  no-case-declarations
+
+C:\Users\User\Desktop\Test-App\src\pages\admin\StatisticsPage.jsx
+    87:9   error  'navigate' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u         no-unused-vars
+    88:9   error  'chartRefs' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u        no-unused-vars
+   418:14  error  'error' is defined but never used                                                                no-unused-vars
+   436:20  error  'error' is defined but never used                                                                no-unused-vars
+   459:20  error  'error' is defined but never used                                                                no-unused-vars
+   482:20  error  'error' is defined but never used                                                                no-unused-vars
+   511:20  error  'error' is defined but never used                                                                no-unused-vars
+   534:20  error  'error' is defined but never used                                                                no-unused-vars
+   557:20  error  'error' is defined but never used                                                                no-unused-vars
+   586:20  error  'error' is defined but never used                                                                no-unused-vars
+   937:65  error  'subtitle' is defined but never used                                                             no-unused-vars
+  1084:9   error  'getInsightColor' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  1349:34  error  'checked' is defined but never used                                                              no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\admin\StudentDetails.jsx
+  37:10  error  'emojiPositions' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\admin\StudentRatings.jsx
+   19:10  error  'attempts' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  309:26  error  'record' is defined but never used                                                        no-unused-vars
+  309:34  error  'index' is defined but never used                                                         no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\admin\StudentsPage.jsx
+   98:23  error  'setChartWidths' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  129:15  error  'tests' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u           no-unused-vars
+  850:34  error  'checked' is defined but never used                                                             no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\admin\TestStatistics.jsx
+  357:26  error  'record' is defined but never used  no-unused-vars
+  357:34  error  'index' is defined but never used   no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\admin\TestsPage.jsx
+   99:23  error  'setChartWidths' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  882:34  error  'checked' is defined but never used                                                             no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\headadmin\AddAdmin.jsx
+  44:18  error  'error' is defined but never used  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\headadmin\AdminDetails.jsx
+  41:16  error  'error' is defined but never used  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\headadmin\HeadAdminOverview.jsx
+  30:11  error  'currentUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\headadmin\ManageNews.jsx
+  129:14  error  'error' is defined but never used  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\seller\ManagePrices.jsx
+  11:11  error  'currentUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\seller\ManageStudents.jsx
+   28:11  error    'currentUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                        no-unused-vars
+   34:10  error    'premiumModalOpen' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                   no-unused-vars
+   35:10  error    'selectedStudent' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                    no-unused-vars
+   37:10  error    'starsDialogOpen' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                    no-unused-vars
+   37:27  error    'setStarsDialogOpen' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                 no-unused-vars
+   38:10  error    'givingStars' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                        no-unused-vars
+   47:6   warning  React Hook useEffect has a missing dependency: 'filterStudents'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  116:13  error    'response' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                           no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\seller\SellerOverview.jsx
+  25:11  error  'currentUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  67:42  error  'color' is defined but never used                                                            no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\student\ClassesRating.jsx
+  36:10  error  'error' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  99:22  error  'index' is defined but never used                                                      no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\student\MyClassStatistics.jsx
+   92:10  error  'error' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  454:76  error  'index' is defined but never used                                                      no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\student\PricingPage.jsx
+   27:24  error  'setCurrentUserData' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  223:27  error  'planId' is defined but never used                                                                  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\student\ReceivedLessons.jsx
+  45:6  warning  React Hook useEffect has a missing dependency: 'loadLessons'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\User\Desktop\Test-App\src\pages\student\SearchTeachers.jsx
+  40:25  error    'setSubjectFilter' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u             no-unused-vars
+  43:10  error    'studentAttempts' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u              no-unused-vars
+  52:6   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  89:16  error    'error' is defined but never used                                                                            no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\student\StudentProfile.jsx
+   33:10  error    'curatorTeacher' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                       no-unused-vars
+   42:10  error    'emojiPickerOpen' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                      no-unused-vars
+   42:27  error    'setEmojiPickerOpen' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                   no-unused-vars
+   48:6   warning  React Hook useEffect has a missing dependency: 'loadStudentStats'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   60:18  error    'e' is defined but never used                                                                                        no-unused-vars
+   81:11  error    'formattedTime' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                        no-unused-vars
+   81:26  error    'isExpired' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                            no-unused-vars
+  274:16  error    'e' is defined but never used                                                                                        no-unused-vars
+  294:16  error    'e' is defined but never used                                                                                        no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\student\StudentProfileView.jsx
+  91:10  error  'isOwnProfile' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u    no-unused-vars
+  93:10  error  'placedGifts' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+  93:23  error  'setPlacedGifts' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  94:10  error  'myGifts' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u         no-unused-vars
+  94:19  error  'setMyGifts' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u      no-unused-vars
+  95:10  error  'displayGift' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+  95:23  error  'setDisplayGift' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\student\StudentStatistics.jsx
+  102:10  error  'error' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  524:55  error  'i' is defined but never used                                                          no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\student\StudentsRating.jsx
+   41:10  error  'error' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u      no-unused-vars
+  132:9   error  'getCardBg' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\student\SubmitTest.jsx
+   25:5   error    'selectedTest' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                     no-unused-vars
+   34:6   warning  React Hook useEffect has a missing dependency: 'handleSubmit'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   67:18  error    'fetchError' is defined but never used                                                                           no-unused-vars
+  124:11  error    'scoreColor' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                       no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\student\TakeTest.jsx
+    1:38  error    'useCallback' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                             no-unused-vars
+   51:5   error    'isLoading' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                      no-unused-vars
+   55:5   error    'continueTestSession' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                            no-unused-vars
+   57:5   error    'submitTest' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                     no-unused-vars
+   61:5   error    'isSessionActive' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                no-unused-vars
+   66:9   error    'location' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                       no-unused-vars
+   69:10  error    'teacherTests' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                   no-unused-vars
+   75:10  error    'testCompleted' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                  no-unused-vars
+   76:10  error    'score' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                          no-unused-vars
+  133:6   warning  React Hook useEffect has a missing dependency: 'loadTeachers'. Either include it or remove the dependency array                                                react-hooks/exhaustive-deps
+  147:18  error    'error' is defined but never used                                                                                                                              no-unused-vars
+  156:6   warning  React Hook useEffect has a missing dependency: 'checkActiveSession'. Either include it or remove the dependency array                                          react-hooks/exhaustive-deps
+  198:6   warning  React Hook useEffect has missing dependencies: 'clearSession', 'continueTestFromSession', and 'startTest'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  204:6   warning  React Hook useEffect has missing dependencies: 'currentSession' and 'handleSubmitTest'. Either include them or remove the dependency array                     react-hooks/exhaustive-deps
+
+C:\Users\User\Desktop\Test-App\src\pages\student\TeacherDetails.jsx
+   50:6   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  114:16  error    'error' is defined but never used                                                                            no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\student\TestDetails.jsx
+  51:6  warning  React Hook useEffect has a missing dependency: 'loadTestData'. Either include it or remove the dependency array      react-hooks/exhaustive-deps
+  60:6  warning  React Hook useEffect has a missing dependency: 'handleSubmitTest'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\User\Desktop\Test-App\src\pages\student\TestResults.jsx
+  69:6  warning  React Hook useEffect has a missing dependency: 'loadResults'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\User\Desktop\Test-App\src\pages\teacher\CreateTest.jsx
+    1:38  error    'useRef' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                          no-unused-vars
+    1:46  error    'useCallback' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                     no-unused-vars
+   80:6   warning  React Hook useEffect has a missing dependency: 'loadTestForEditing'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  168:9   error    'handleChange' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                           no-unused-vars
+  492:9   error    'testFormSubmission' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                     no-unused-vars
+  501:31  error    'values' is defined but never used                                                                                     no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\teacher\MyTests.jsx
+   49:10  error    'snackbar' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                     no-unused-vars
+   70:6   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   72:9   error    'handleOpenTestDetails' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u        no-unused-vars
+  291:9   error    'getScoreColor' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                no-unused-vars
+  297:9   error    'handleTodoTasksChange' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u        no-unused-vars
+  343:9   error    'addTestSuggestions' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u           no-unused-vars
+  409:9   error    Unexpected lexical declaration in case block                                                                 no-case-declarations
+  410:9   error    Unexpected lexical declaration in case block                                                                 no-case-declarations
+
+C:\Users\User\Desktop\Test-App\src\pages\teacher\SentLessons.jsx
+  35:6  warning  React Hook useEffect has a missing dependency: 'loadSentLessons'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\User\Desktop\Test-App\src\pages\teacher\TeacherOverview.jsx
+  20:9  error  'navigate' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\teacher\TeacherStatistics.jsx
+   48:6  warning  React Hook useEffect has a missing dependency: 'loadStatistics'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  197:9  error    'testCreationData' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                   no-unused-vars
+
+C:\Users\User\Desktop\Test-App\src\pages\teacher\TestDetails.jsx
+  17:3  error    'message' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                      no-unused-vars
+  53:6  warning  React Hook useEffect has a missing dependency: 'loadTestDetails'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\User\Desktop\Test-App\src\utils\cacheManager.js
+    2:10  error  'swUtils' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                 no-unused-vars
+  186:14  error  'error' is defined but never used                                                              no-unused-vars
+  239:14  error  'error' is defined but never used                                                              no-unused-vars
+  273:11  error  'now' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u            no-unused-vars
+  292:16  error  'error' is defined but never used                                                              no-unused-vars
+  314:15  error  Unexpected lexical declaration in case block                                                   no-case-declarations
+  318:15  error  Unexpected lexical declaration in case block                                                   no-case-declarations
+  386:7   error  'cacheDuration' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+тЬЦ 227 problems (207 errors, 20 warnings)
+

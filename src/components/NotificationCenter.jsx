@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Badge,
   Button,
   Dropdown,
   Typography,
-  Space,
   Tag,
-  Divider,
   Empty,
 } from 'antd';
 import {
@@ -22,16 +20,20 @@ const { Text, Title } = Typography;
 const NotificationCenter = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
 
-  useEffect(() => {
+  // Use useMemo for initial state computation to avoid setState in effect
+  const initialNotifications = useMemo(() => {
     if (currentUser) {
-      const userNotifications = getNotificationsForUser(currentUser);
-      setNotifications(userNotifications);
-      setUnreadCount(userNotifications.filter(n => !n.isRead).length);
+      return getNotificationsForUser(currentUser);
     }
+    return [];
   }, [currentUser]);
+
+  const [notifications, setNotifications] = useState(initialNotifications);
+  const unreadCount = useMemo(() =>
+    notifications.filter(n => !n.isRead).length,
+    [notifications]
+  );
 
   const markAsRead = (notificationId) => {
     markNotificationAsRead(notificationId);
@@ -55,16 +57,16 @@ const NotificationCenter = () => {
   };
 
   const notificationMenu = (
-    <div style={{ 
-      width: 450, 
-      maxHeight: 500, 
+    <div style={{
+      width: 450,
+      maxHeight: 500,
       overflowY: 'auto',
       backgroundColor: '#ffffff',
       borderRadius: '8px',
       boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
     }}>
-      <div style={{ 
-        padding: '16px', 
+      <div style={{
+        padding: '16px',
         borderBottom: '1px solid #f0f0f0',
         borderRadius: '8px 8px 0 0'
       }}>
@@ -75,7 +77,7 @@ const NotificationCenter = () => {
 
       {notifications.length === 0 ? (
         <div style={{ padding: '40px 20px', textAlign: 'center' }}>
-          <Empty 
+          <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description="Bildirishnomalar yo'q"
           />
@@ -103,39 +105,39 @@ const NotificationCenter = () => {
                 }}
               >
                 <div style={{ width: '100%', wordWrap: 'break-word' }}>
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'space-between', 
-                    marginBottom: '4px' 
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '4px'
                   }}>
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
                       flex: 1,
                       minWidth: 0
                     }}>
                       {notification.type === 'admin_registration' || notification.type === 'admin_plan_selection' ? (
-                        <BankOutlined 
-                          style={{ 
-                            marginRight: '8px', 
-                            color: '#faad14', 
-                            fontSize: '16px' 
-                          }} 
+                        <BankOutlined
+                          style={{
+                            marginRight: '8px',
+                            color: '#faad14',
+                            fontSize: '16px'
+                          }}
                         />
                       ) : (
-                        <BankOutlined 
-                          style={{ 
-                            marginRight: '8px', 
-                            color: '#1890ff', 
-                            fontSize: '16px' 
-                          }} 
+                        <BankOutlined
+                          style={{
+                            marginRight: '8px',
+                            color: '#1890ff',
+                            fontSize: '16px'
+                          }}
                         />
                       )}
-                      <Text 
-                        strong 
-                        style={{ 
-                          fontSize: '14px', 
+                      <Text
+                        strong
+                        style={{
+                          fontSize: '14px',
                           lineHeight: 1.2,
                           color: '#1f2937',
                           margin: 0
@@ -145,7 +147,7 @@ const NotificationCenter = () => {
                       </Text>
                     </div>
                     {!notification.isRead && (
-                      <Tag 
+                      <Tag
                         color={notification.type === 'admin_registration' || notification.type === 'admin_plan_selection' ? 'orange' : 'blue'}
                         size="small"
                         style={{ marginLeft: '8px', fontSize: '10px', height: '20px', lineHeight: '18px' }}
@@ -155,10 +157,10 @@ const NotificationCenter = () => {
                     )}
                   </div>
 
-                  <Text 
-                    style={{ 
-                      fontSize: '13px', 
-                      color: '#6b7280', 
+                  <Text
+                    style={{
+                      fontSize: '13px',
+                      color: '#6b7280',
                       lineHeight: 1.3,
                       display: 'block',
                       marginBottom: '4px'
@@ -167,13 +169,13 @@ const NotificationCenter = () => {
                     {notification.message}
                   </Text>
 
-                  <Text 
-                    type="secondary" 
+                  <Text
+                    type="secondary"
                     style={{ fontSize: '11px' }}
                   >
-                    {new Date(notification.createdAt).toLocaleDateString('uz-UZ')} • 
-                    {notification.type === 'admin_registration' || notification.type === 'admin_plan_selection' 
-                      ? notification.adminName 
+                    {new Date(notification.createdAt).toLocaleDateString('uz-UZ')} •
+                    {notification.type === 'admin_registration' || notification.type === 'admin_plan_selection'
+                      ? notification.adminName
                       : notification.teacherName}
                   </Text>
                 </div>
@@ -184,8 +186,8 @@ const NotificationCenter = () => {
       )}
 
       {notifications.length > 10 && (
-        <div style={{ 
-          padding: '12px 16px', 
+        <div style={{
+          padding: '12px 16px',
           textAlign: 'center',
           borderTop: '1px solid #f0f0f0'
         }}>
@@ -203,14 +205,14 @@ const NotificationCenter = () => {
       trigger={['click']}
       placement="bottomRight"
     >
-      <Button 
-        type="text" 
+      <Button
+        type="text"
         icon={
           <Badge count={unreadCount} size="small">
             <BellOutlined style={{ fontSize: '18px', color: '#ffffff' }} />
           </Badge>
         }
-        style={{ 
+        style={{
           marginRight: '8px',
           height: '40px',
           width: '40px',

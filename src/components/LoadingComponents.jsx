@@ -21,17 +21,17 @@ const SpinnerContainer = styled(Box)(({ theme }) => ({
 }));
 
 // Basic spinner component
-export const LoadingSpinner = ({ 
-  size = 40, 
-  color = 'primary', 
+export const LoadingSpinner = ({
+  size = 40,
+  color = 'primary',
   thickness = 4,
   message = 'Yuklanmoqda...',
-  fullScreen = false 
+  fullScreen = false
 }) => (
   <LoadingContainer fullScreen={fullScreen}>
-    <CircularProgress 
-      size={size} 
-      color={color} 
+    <CircularProgress
+      size={size}
+      color={color}
       thickness={thickness}
       sx={{ mb: message ? 1 : 0 }}
     />
@@ -44,8 +44,8 @@ export const LoadingSpinner = ({
 );
 
 // Linear progress component with message
-export const LoadingProgress = ({ 
-  message = 'Yuklanmoqda...', 
+export const LoadingProgress = ({
+  message = 'Yuklanmoqda...',
   fullScreen = false,
   color = 'primary',
   variant = 'indeterminate'
@@ -67,9 +67,9 @@ export const CardSkeleton = ({ count = 1, height = 120 }) => (
   <Box>
     {Array.from({ length: count }).map((_, index) => (
       <Box key={index} sx={{ mb: 2 }}>
-        <Skeleton 
-          variant="rectangular" 
-          height={height} 
+        <Skeleton
+          variant="rectangular"
+          height={height}
           sx={{ borderRadius: 1, mb: 1 }}
         />
         <Skeleton variant="text" height={20} width="80%" />
@@ -85,10 +85,10 @@ export const ListSkeleton = ({ count = 5, showAvatar = true }) => (
     {Array.from({ length: count }).map((_, index) => (
       <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         {showAvatar && (
-          <Skeleton 
-            variant="circular" 
-            width={40} 
-            height={40} 
+          <Skeleton
+            variant="circular"
+            width={40}
+            height={40}
             sx={{ mr: 2 }}
           />
         )}
@@ -129,7 +129,7 @@ export const DashboardSkeleton = () => (
       <Skeleton variant="text" height={32} width="40%" />
       <Skeleton variant="text" height={20} width="60%" />
     </Box>
-    
+
     {/* Stats cards */}
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 2, mb: 3 }}>
       {Array.from({ length: 4 }).map((_, index) => (
@@ -139,7 +139,7 @@ export const DashboardSkeleton = () => (
         </Box>
       ))}
     </Box>
-    
+
     {/* Main content */}
     <Box sx={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 2 }}>
       <Box>
@@ -153,14 +153,14 @@ export const DashboardSkeleton = () => (
 );
 
 // Button with loading state
-export const LoadingButton = ({ 
-  loading = false, 
-  children, 
-  disabled,
-  variant = 'contained',
+export const LoadingButton = ({
+  loading = false,
+  children,
+  _disabled,
+  _variant = 'contained',
   color = 'primary',
-  size = 'medium',
-  ...props 
+  _size = 'medium',
+  ..._props
 }) => (
   <Box sx={{ position: 'relative', display: 'inline-block' }}>
     <Box
@@ -187,13 +187,13 @@ export const LoadingButton = ({
 );
 
 // Page loading overlay
-export const PageLoadingOverlay = ({ 
-  isLoading, 
+export const PageLoadingOverlay = ({
+  isLoading,
   message = 'Yuklanmoqda...',
-  children 
+  children
 }) => {
   if (!isLoading) return children;
-  
+
   return (
     <Box sx={{ position: 'relative' }}>
       {children}

@@ -8,25 +8,27 @@ const NotFoundPage = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    setIsVisible(true);
+    // Start animation in the next tick to allow DOM to mount and avoid synchronous state update warning
+    const timeout = setTimeout(() => setIsVisible(true), 50);
+    return () => clearTimeout(timeout);
   }, []);
 
   return (
     <Layout>
       <div className={`not-found-container ${isVisible ? 'in-view' : ''}`}>
         <div className="not-found-bg-glitch"></div>
-        
+
         <div className="not-found-content">
           <div className="not-found-eye">
             <span className="material-symbols-outlined">visibility_off</span>
           </div>
-          
+
           <h1 className="not-found-code">404</h1>
-          
+
           <div className="not-found-text">
             <h2 className="not-found-title">SAHIFA TOPILMADI</h2>
             <p className="not-found-description">
-              Siz qidirayotgan sahifa koinotda adashib qoldi yoki hech qachon mavjud bo'lmagan. 
+              Siz qidirayotgan sahifa koinotda adashib qoldi yoki hech qachon mavjud bo'lmagan.
               Ehtimol, u administrativ ravishda o'chirilgan bo'lishi ham mumkin.
             </p>
           </div>

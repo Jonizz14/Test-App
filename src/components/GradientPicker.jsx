@@ -148,7 +148,7 @@ const GradientPicker = ({ open, onClose, selectedGradient, onGradientSelect }) =
         </Typography>
 
         <Grid container spacing={2}>
-          {GRADIENT_PRESETS.map((gradient, index) => (
+          {GRADIENT_PRESETS.map((gradient) => (
             <Grid item xs={12} sm={6} md={4} key={gradient.id}>
               <Box
                 onClick={() => handleGradientClick(gradient)}
@@ -173,8 +173,8 @@ const GradientPicker = ({ open, onClose, selectedGradient, onGradientSelect }) =
                   }
                 }}
               >
-                <Typography variant="h6" sx={{ 
-                  fontWeight: 700, 
+                <Typography variant="h6" sx={{
+                  fontWeight: 700,
                   fontSize: '1rem',
                   color: 'rgba(255, 255, 255, 0.95)',
                   flex: 1,
@@ -183,7 +183,7 @@ const GradientPicker = ({ open, onClose, selectedGradient, onGradientSelect }) =
                 }}>
                   {gradient.name}
                 </Typography>
-                
+
                 {selectedGradient && selectedGradient.name === gradient.name && (
                   <Box sx={{
                     backgroundColor: '#2563eb',

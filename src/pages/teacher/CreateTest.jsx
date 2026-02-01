@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+// import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'; // Unused in this version
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Typography,
@@ -26,7 +26,7 @@ import {
   CameraOutlined as PhotoCameraIcon,
   CloseOutlined as ClearIcon,
   UploadOutlined as ImportIcon,
-  FileExcelOutlined,
+  // FileExcelOutlined,
   DownloadOutlined,
 } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
@@ -77,6 +77,7 @@ const CreateTest = () => {
       console.log('Loading test for editing, testId:', testId);
       loadTestForEditing();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [testId]);
 
   // Log form data changes
@@ -159,8 +160,8 @@ const CreateTest = () => {
       } else {
         setError('Test not found or access denied');
       }
-    } catch (err) {
-      console.error('Failed to load test for editing:', err);
+    } catch (_err) {
+      console.error('Failed to load test for editing:', _err);
       setError('Failed to load test for editing');
     }
   };
@@ -489,7 +490,7 @@ const CreateTest = () => {
   };
 
   // Manual test function for debugging
-  const testFormSubmission = async () => {
+  const _testFormSubmission = async () => {
     console.log('Manual test function called');
     // Create a mock event
     const mockEvent = {
@@ -498,7 +499,7 @@ const CreateTest = () => {
     await handleSubmit(mockEvent);
   };
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (_values) => {
     // e.preventDefault(); // Not needed for Ant Design onFinish
 
     // Check authentication

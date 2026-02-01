@@ -25,7 +25,7 @@ import GradientPicker from '../../components/GradientPicker';
 const { Title, Text, Paragraph } = Typography;
 
 const StudentProfile = () => {
-  const { currentUser, setCurrentUserData, logout } = useAuth();
+  const { currentUser, setCurrentUserData, logout: _logout } = useAuth();
   const navigate = useNavigate();
   const [testCount, setTestCount] = useState(0);
   const [averageScore, setAverageScore] = useState(0);
@@ -57,7 +57,7 @@ const StudentProfile = () => {
             ? JSON.parse(currentUser.background_gradient)
             : currentUser.background_gradient;
           setSelectedGradient(gradientData);
-        } catch (e) {
+        } catch (_e) {
           setSelectedGradient(null);
         }
       }
@@ -78,14 +78,14 @@ const StudentProfile = () => {
     }
   };
 
-  const { formattedTime, isExpired } = useCountdown(currentUser?.premium_expiry_date, handlePremiumExpire);
+  const { formattedTime: _formattedTime, isExpired: _isExpired } = useCountdown(currentUser?.premium_expiry_date, handlePremiumExpire);
 
-  const loadStudentStats = async () => {
+  const loadStudentStats = React.useCallback(async () => {
     if (!currentUser) return;
 
     try {
       setLoading(true);
-      const [attempts, users] = await Promise.all([
+      const [attempts, _users] = await Promise.all([
         apiService.getAttempts({ student: currentUser.id }),
         apiService.getUsers()
       ]);
@@ -115,7 +115,7 @@ const StudentProfile = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser]);
 
   const handlePhotoChange = (event) => {
     const file = event.target.files[0];
