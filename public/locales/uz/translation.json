@@ -161,6 +161,13 @@
                 "desc": "Har qanday qurilmada — telefondan tortib kompyutergacha — qulay interfeys va tezkor ishlash."
             }
         },
+        "analytics": {
+            "title": "PLATFORMA TAHLILI",
+            "desc": "Saytning qisqacha statistikasi",
+            "users": "FOYDALANUVCHILAR",
+            "activity": "PLATFORMA FAOLLIGI",
+            "growth": "OYLIK YARATILGAN TESTLAR"
+        },
         "stats": "RAQAMLARDA BIZ",
         "statsLabels": {
             "tests": "Yaratilgan Testlar",

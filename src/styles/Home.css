@@ -471,27 +471,18 @@ section.in-view .feature-card:nth-child(3) {
 .features-section::before {
   content: '';
   position: absolute;
-  top: -10%;
-  right: -5%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 80%;
-  height: 90%;
-  background: radial-gradient(circle, rgba(0, 0, 0, 0.12) 0%, transparent 70%);
-  filter: blur(120px);
+  height: 80%;
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.25) 0%, transparent 70%);
+  filter: blur(150px);
   z-index: 0;
-  animation: meshFloat 15s infinite alternate ease-in-out;
 }
 
 .features-section::after {
-  content: '';
-  position: absolute;
-  bottom: -5%;
-  left: -5%;
-  width: 70%;
-  height: 80%;
-  background: radial-gradient(circle, rgba(0, 0, 0, 0.08) 0%, transparent 60%);
-  filter: blur(100px);
-  z-index: 0;
-  animation: meshFloat 20s infinite alternate-reverse ease-in-out;
+  content: none;
 }
 
 @keyframes meshFloat {
@@ -897,5 +888,111 @@ section.in-view .feature-card:nth-child(3) {
     transform: none !important;
     filter: none !important;
     transition: none !important;
+  }
+}
+
+/* Analytics Section */
+.analytics-section {
+  background: #fff;
+  color: #000;
+  padding: 4rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Grid Pattern for Analytics */
+.analytics-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.15) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(circle at center, black 10%, transparent 95%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Entrance Animations - Matching Users Section */
+.analytics-section .section-header {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.analytics-section.in-view .section-header {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Charts Grid container - No animation, just layout */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 3rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* Individual Chart Item Animation */
+.chart-item {
+  background: #fff;
+  border: 4px solid #000;
+  box-shadow: 6px 6px 0px #000;
+  padding: 1.5rem;
+
+  /* Initial State (Hidden) */
+  opacity: 0;
+  transform: translateY(120px) scale(0.9);
+  filter: blur(20px);
+  will-change: transform, opacity, filter;
+  transition:
+    opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1.5s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Active State */
+.analytics-section.in-view .chart-item {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+/* Stagger Delays */
+.analytics-section.in-view .chart-item:nth-child(1) {
+  transition-delay: 0.2s;
+}
+
+.analytics-section.in-view .chart-item:nth-child(2) {
+  transition-delay: 0.35s;
+}
+
+.analytics-section.in-view .chart-item:nth-child(3) {
+  transition-delay: 0.5s;
+}
+
+.chart-item h3 {
+  font-size: 1.25rem;
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  text-transform: uppercase;
+  color: #000;
+}
+
+.wide-chart {
+  grid-column: span 2;
+}
+
+@media (max-width: 900px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wide-chart {
+    grid-column: span 1;
   }
 }

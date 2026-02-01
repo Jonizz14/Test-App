@@ -6,6 +6,7 @@ import "../styles/Home.css";
 import { useSavedItems } from "../context/SavedItemsContext";
 import { useTranslation } from "react-i18next";
 import { useSettings } from "../context/SettingsContext";
+import ReactECharts from 'echarts-for-react';
 
 const Home = () => {
   const { settings } = useSettings();
@@ -399,6 +400,121 @@ const Home = () => {
               <span className="stat-number">{stats?.attempts_count || 12000}+</span>
               <span className="stat-label">{t('home.statsLabels.attempts')}</span>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Analytics Section - New ECharts Section */}
+      <section className="analytics-section">
+        <div className="section-container">
+          <div className="section-header">
+            <h2>{t('home.analytics.title', 'Platforma Tahlili')}</h2>
+            <p>{t('home.analytics.desc', 'Saytning qisqacha statistikasi')}</p>
+          </div>
+
+          <div className="charts-grid">
+            <div className="chart-item">
+              <h3>{t('home.analytics.users', 'Foydalanuvchilar')}</h3>
+              <ReactECharts
+                option={{
+                  animationDuration: 2500,
+                  animationEasing: 'cubicOut',
+                  tooltip: { trigger: 'item' },
+                  legend: { bottom: '5%', left: 'center' },
+                  series: [
+                    {
+                      name: 'Foydalanuvchilar',
+                      type: 'pie',
+                      radius: ['35%', '65%'],
+                      center: ['50%', '45%'],
+                      avoidLabelOverlap: false,
+                      itemStyle: {
+                        borderRadius: 0,
+                        borderColor: '#fff',
+                        borderWidth: 2
+                      },
+                      label: { show: false, position: 'center' },
+                      emphasis: {
+                        label: { show: true, fontSize: 20, fontWeight: 'bold' }
+                      },
+                      labelLine: { show: false },
+                      data: [
+                        { value: stats?.students_count || 0, name: 'O\'quvchilar', itemStyle: { color: '#3b82f6' } },
+                        { value: stats?.teachers_count || 0, name: 'O\'qituvchilar', itemStyle: { color: '#10b981' } }
+                      ]
+                    }
+                  ]
+                }}
+                style={{ height: '220px' }}
+              />
+            </div>
+
+            <div className="chart-item">
+              <h3>{t('home.analytics.activity', 'Platforma Faolligi')}</h3>
+              <ReactECharts
+                option={{
+                  animationDuration: 2500,
+                  animationEasing: 'cubicOut',
+                  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                  grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                  xAxis: [
+                    {
+                      type: 'category',
+                      data: ['Testlar', 'Urinishlar', 'Savollar'],
+                      axisTick: { alignWithLabel: true }
+                    }
+                  ],
+                  yAxis: [{ type: 'value' }],
+                  series: [
+                    {
+                      name: 'Soni',
+                      type: 'bar',
+                      barWidth: '60%',
+                      data: [
+                        { value: stats?.tests_count || 0, itemStyle: { color: '#f59e0b' } },
+                        { value: stats?.attempts_count || 0, itemStyle: { color: '#8b5cf6' } },
+                        { value: (stats?.tests_count || 0) * 15, itemStyle: { color: '#ec4899' } }
+                      ]
+                    }
+                  ]
+                }}
+                style={{ height: '220px' }}
+              />
+            </div>
+
+            {/* Third chart for diversity */}
+            <div className="chart-item wide-chart">
+              <h3>{t('home.analytics.growth', 'Oylik Yaratilgan Testlar')}</h3>
+              <ReactECharts
+                option={{
+                  animationDuration: 2500,
+                  animationEasing: 'cubicOut',
+                  xAxis: {
+                    type: 'category',
+                    data: ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun', 'Iyul'],
+                    boundaryGap: false
+                  },
+                  yAxis: {
+                    type: 'value'
+                  },
+                  series: [
+                    {
+                      name: 'Yaratilgan Testlar',
+                      data: [120, 132, 191, 234, 190, 330, 310],
+                      type: 'line',
+                      areaStyle: { color: 'rgba(245, 158, 11, 0.2)' },
+                      lineStyle: { color: '#f59e0b', width: 3 },
+                      itemStyle: { color: '#f59e0b' },
+                      smooth: true
+                    }
+                  ],
+                  grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                  tooltip: { trigger: 'axis' }
+                }}
+                style={{ height: '220px' }}
+              />
+            </div>
+
           </div>
         </div>
       </section>

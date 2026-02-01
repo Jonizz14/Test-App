@@ -26,6 +26,7 @@ export default defineConfig({
           antd: ['antd', '@ant-design/icons'],
           xlsx: ['xlsx'],
           charts: ['chart.js', 'react-chartjs-2'],
+          echarts: ['echarts', 'echarts-for-react'],
           utils: ['axios', 'dayjs', 'i18next', 'react-i18next']
         }
       }
