@@ -6,7 +6,6 @@ import "../styles/Home.css";
 import { useSavedItems } from "../context/SavedItemsContext";
 import { useTranslation } from "react-i18next";
 import { useSettings } from "../context/SettingsContext";
-// Lazy load heavy chart library
 const ReactECharts = React.lazy(() => import('echarts-for-react'));
 
 const Home = () => {
