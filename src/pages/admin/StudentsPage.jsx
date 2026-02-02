@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import 'animate.css';
 import {
   Row,
   Col,
@@ -541,7 +540,7 @@ const StudentsPage = () => {
     
     return (
       <div 
-        className="animate__animated animate__fadeInUp"
+        
         style={{ 
           width: `${chartWidth}%`, 
           padding: '0 8px',
@@ -727,9 +726,9 @@ const StudentsPage = () => {
   }
 
   return (
-    <div className="animate__animated animate__fadeIn" style={{ padding: '24px 0' }}>
+    <div  style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div className='animate__animated animate__slideInDown' style={{
+      <div  style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -745,7 +744,7 @@ const StudentsPage = () => {
       {/* Statistics Cards with Entrance Animations */}
       <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '100ms' }}>
+          <div  style={{ }}>
             <StatCard
               title="Jami o'quvchilar"
               value={stats.totalStudents}
@@ -755,7 +754,7 @@ const StudentsPage = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '200ms' }}>
+          <div  style={{ }}>
             <StatCard
               title="Faol o'quvchilar"
               value={stats.activeStudents}
@@ -766,7 +765,7 @@ const StudentsPage = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '300ms' }}>
+          <div  style={{ }}>
             <StatCard
               title="Bloklangan"
               value={stats.bannedStudents}
@@ -776,7 +775,7 @@ const StudentsPage = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '400ms' }}>
+          <div  style={{ }}>
             <StatCard
               title="O'rtacha ball"
               value={stats.averageScore}
@@ -788,7 +787,7 @@ const StudentsPage = () => {
         </Col>
       </Row>
 
-      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '500ms', marginBottom: '16px' }}>
+      <div  style={{ marginBottom: '16px' }}>
         <Card style={{
           backgroundColor: '#eff6ff',
           borderRadius: '12px',

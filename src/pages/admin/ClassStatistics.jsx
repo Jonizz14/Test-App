@@ -13,7 +13,6 @@ import {
   Tooltip,
   Spin,
 } from 'antd';
-import 'animate.css';
 import {
   SearchOutlined,
   EyeOutlined,
@@ -410,7 +409,7 @@ const ClassStatistics = () => {
             fontWeight: 600,
             transition: 'all 0.3s ease'
           }}
-          className="animate__animated"
+          
         >
           Ko'rish
         </Button>
@@ -419,9 +418,9 @@ const ClassStatistics = () => {
   ];
 
   return (
-    <div className="animate__animated animate__fadeIn" style={{ padding: '24px 0' }}>
+    <div  style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div className="animate__animated animate__slideInDown" style={{
+      <div  style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -436,7 +435,7 @@ const ClassStatistics = () => {
 
       {/* Alerts */}
       {error && (
-        <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '100ms' }}>
+        <div  style={{ }}>
           <Alert
             message={error}
             type="error"
@@ -449,7 +448,7 @@ const ClassStatistics = () => {
       )}
 
       {/* Search */}
-      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms', marginBottom: '24px' }}>
+      <div  style={{ marginBottom: '24px' }}>
         <Input
           placeholder="Sinf yoki rahbar nomini qidirish..."
           prefix={<SearchOutlined />}
@@ -463,17 +462,16 @@ const ClassStatistics = () => {
       </div>
 
       {/* Table */}
-      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '300ms' }}>
+      <div  style={{ }}>
         <Table
           columns={columns}
           dataSource={classes}
           rowKey="name"
           loading={loading}
-          rowClassName={(record, index) => `animate__animated animate__fadeInLeft`}
+          rowClassName={() => ""}
           onRow={(record, index) => ({
-            className: 'animate__animated animate__fadeInLeft',
             style: { 
-              animationDelay: `${index * 100}ms`,
+              animationDelay: `${index * 50}ms`,
               transition: 'all 0.3s ease'
             },
             onMouseEnter: (e) => {
@@ -584,7 +582,7 @@ const ClassStatistics = () => {
                       fontWeight: 600,
                       transition: 'all 0.3s ease'
                     }}
-                    className="animate__animated animate__pulse"
+                    
                   >
                     To'liq ko'rish
                   </Button>

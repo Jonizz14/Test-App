@@ -45,7 +45,6 @@ import {
   Filler,
 } from 'chart.js';
 import { Line, Bar, Pie, Doughnut, Radar } from 'react-chartjs-2';
-import 'animate.css';
 
 // Register Chart.js components
 ChartJS.register(
@@ -518,10 +517,11 @@ const ClassesPage = () => {
     if (!isVisible) return null;
     
     return (
-      <div className="animate__animated animate__fadeInUp" style={{ 
+      <div  style={{ 
         width: `${chartWidth}%`, 
         padding: '0 8px',
-        animationDelay: `${animationDelay}ms`
+        animationDelay: `${animationDelay}ms`,
+        transition: 'all 0.3s ease'
       }}>
         <Card
           style={{
@@ -675,12 +675,12 @@ const ClassesPage = () => {
   }
 
   return (
-    <div className="animate__animated animate__fadeIn" style={{
+    <div  style={{
       paddingTop: '16px',
       paddingBottom: '16px',
       backgroundColor: '#ffffff'
     }}>
-      <div className='animate__animated animate__slideInDown' style={{
+      <div  style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -712,7 +712,7 @@ const ClassesPage = () => {
       {/* Main Statistics Cards */}
       <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '100ms' }}>
+          <div  style={{ }}>
             <StatCard
               title="Jami sinflar"
               value={stats.totalClasses}
@@ -722,7 +722,7 @@ const ClassesPage = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '200ms' }}>
+          <div  style={{ }}>
             <StatCard
               title="Jami o'quvchilar"
               value={stats.totalStudents}
@@ -733,7 +733,7 @@ const ClassesPage = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '300ms' }}>
+          <div  style={{ }}>
             <StatCard
               title="O'rtacha o'quvchi/sinf"
               value={stats.averageStudentsPerClass}
@@ -743,7 +743,7 @@ const ClassesPage = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '400ms' }}>
+          <div  style={{ }}>
             <StatCard
               title="Eng yaxshi sinf"
               value={stats.topPerformingClass?.classGroup || 'N/A'}
@@ -756,7 +756,7 @@ const ClassesPage = () => {
       </Row>
 
       <div style={{ marginTop: '16px' }}>
-        <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '500ms', marginBottom: '16px' }}>
+        <div  style={{ marginBottom: '16px' }}>
           <Card style={{
             backgroundColor: '#eff6ff',
             borderRadius: '12px',
@@ -987,7 +987,7 @@ const ClassesPage = () => {
       </div>
 
       {/* Recent Activity */}
-      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '700ms' }}>
+      <div  style={{ }}>
         <Card
           style={{
             backgroundColor: '#ffffff',
@@ -1037,7 +1037,7 @@ const ClassesPage = () => {
       </div>
 
       {/* Classes Table */}
-      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '800ms' }}>
+      <div  style={{ }}>
         <Card
           style={{
             backgroundColor: '#ffffff',

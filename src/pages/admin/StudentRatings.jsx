@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import 'animate.css';
 import {
   Table,
   Card,
@@ -265,9 +264,9 @@ const StudentRatings = () => {
   ];
 
   return (
-    <div className="animate__animated animate__fadeIn" style={{ padding: '24px 0' }}>
+    <div  style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div className="animate__animated animate__slideInDown" style={{
+      <div  style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -281,7 +280,7 @@ const StudentRatings = () => {
       </div>
 
       {/* Search Input */}
-      <div className="animate__animated animate__fadeInUp" style={{ marginBottom: '24px' }}>
+      <div  style={{ marginBottom: '24px' }}>
         <Input
           placeholder="Sinf yoki rahbar nomini qidirish..."
           prefix={<SearchOutlined />}
@@ -295,7 +294,7 @@ const StudentRatings = () => {
       </div>
 
       {/* Students Table */}
-      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '300ms' }}>
+      <div  style={{ }}>
         <Table
           dataSource={students}
           columns={columns}
@@ -306,11 +305,10 @@ const StudentRatings = () => {
             showQuickJumper: true,
             showTotal: (total) => `Jami ${total} ta o'quvchi`,
           }}
-          rowClassName={(record, index) => `animate__animated animate__fadeInLeft`}
+          rowClassName={() => ""}
           onRow={(record, index) => ({
-            className: 'animate__animated animate__fadeInLeft',
             style: { 
-              animationDelay: `${index * 100}ms`,
+              animationDelay: `${index * 50}ms`,
               transition: 'all 0.3s ease'
             },
             onMouseEnter: (e) => {

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import 'animate.css';
 import {
   Row,
   Col,
@@ -217,9 +216,9 @@ const AdminOverview = () => {
   }
 
   return (
-    <div className="animate__animated animate__fadeIn" style={{ padding: '24px 0' }}>
+    <div  style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div className="animate__animated animate__fadeInDown" style={{
+      <div  style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -235,7 +234,7 @@ const AdminOverview = () => {
       {/* All Statistics Cards with Entrance Animations */}
       <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '100ms' }}>
+          <div  style={{ }}>
             <StatCard
               title="Jami foydalanuvchilar"
               value={stats.totalUsers}
@@ -245,7 +244,7 @@ const AdminOverview = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '200ms' }}>
+          <div  style={{ }}>
             <StatCard
               title="O'qituvchilar"
               value={stats.totalTeachers}
@@ -255,7 +254,7 @@ const AdminOverview = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '300ms' }}>
+          <div  style={{ }}>
             <StatCard
               title="O'quvchilar"
               value={stats.totalStudents}
@@ -265,7 +264,7 @@ const AdminOverview = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '400ms' }}>
+          <div  style={{ }}>
             <StatCard
               title="Jami testlar"
               value={stats.totalTests}
@@ -275,7 +274,7 @@ const AdminOverview = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '500ms' }}>
+          <div  style={{ }}>
             <StatCard
               title="Jami urinishlar"
               value={stats.totalAttempts}
@@ -285,7 +284,7 @@ const AdminOverview = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '600ms' }}>
+          <div  style={{ }}>
             <StatCard
               title="Faol testlar"
               value={stats.activeTests}
@@ -295,7 +294,7 @@ const AdminOverview = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '700ms' }}>
+          <div  style={{ }}>
             <StatCard
               title="O'rtacha ball"
               value={stats.averageScore}
@@ -306,7 +305,7 @@ const AdminOverview = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '800ms' }}>
+          <div  style={{ }}>
             <StatCard
               title="Eng yuqori ball"
               value={stats.highestScore}
@@ -317,7 +316,7 @@ const AdminOverview = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div className="animate__animated animate__zoomIn" style={{ animationDelay: '1000ms' }}>
+          <div  style={{ }}>
             <StatCard
               title="Premium o'quvchilar"
               value={stats.premiumStudents}
@@ -330,7 +329,7 @@ const AdminOverview = () => {
 
       {/* Banned Users Section with Entrance Animation */}
       {stats.bannedUsers.length > 0 && (
-        <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '1000ms' }}>
+        <div  style={{ }}>
           <Card
             style={{
               backgroundColor: '#ffffff',

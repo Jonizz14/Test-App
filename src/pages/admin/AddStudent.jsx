@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import 'animate.css';
 import { Form, Input, Select, Button, Alert, Spin, Typography, Space, DatePicker, ConfigProvider, Divider } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -99,7 +98,7 @@ const AddStudent = () => {
         },
       }}
     >
-      <div className="animate__animated animate__fadeIn" style={{ padding: '40px 0' }}>
+      <div  style={{ padding: '40px 0' }}>
         {/* Brutalist Header */}
         <div style={{ marginBottom: '60px' }}>
           <Button
@@ -164,7 +163,7 @@ const AddStudent = () => {
           />
         )}
 
-        <div className="animate__animated animate__fadeIn" style={{ 
+        <div  style={{ 
           maxWidth: '800px',
           padding: '40px',
           border: '4px solid #000',

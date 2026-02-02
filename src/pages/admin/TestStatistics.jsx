@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 dayjs.extend(isSameOrAfter);
-import 'animate.css';
 import {
   Table,
   Card,
@@ -199,7 +198,7 @@ const TestStatistics = () => {
             fontWeight: 600,
             transition: 'all 0.3s ease'
           }}
-          className="animate__animated"
+          
         >
           Batafsil
         </Button>
@@ -226,9 +225,9 @@ const TestStatistics = () => {
   }
 
   return (
-    <div className="animate__animated animate__fadeIn" style={{ padding: '24px 0' }}>
+    <div  style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div className="animate__animated animate__slideInDown" style={{
+      <div  style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -242,7 +241,7 @@ const TestStatistics = () => {
       </div>
 
       {/* Search and Filters Row */}
-      <div className="animate__animated animate__fadeInUp" style={{
+      <div  style={{
         marginBottom: '24px',
         display: 'flex',
         gap: '12px',
@@ -340,7 +339,7 @@ const TestStatistics = () => {
       </div>
 
       {/* Table */}
-      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '300ms' }}>
+      <div  style={{ }}>
         <Table
           columns={columns}
           dataSource={displayTests}
@@ -354,11 +353,10 @@ const TestStatistics = () => {
           locale={{
             emptyText: searchTerm ? 'Qidiruv natijasi topilmadi' : 'Testlar topilmadi'
           }}
-          rowClassName={(record, index) => `animate__animated animate__fadeInLeft`}
+          rowClassName={() => ""}
           onRow={(record, index) => ({
-            className: 'animate__animated animate__fadeInLeft',
             style: {
-              animationDelay: `${index * 100}ms`,
+              animationDelay: `${index * 50}ms`,
               transition: 'all 0.3s ease'
             },
             onMouseEnter: (e) => {

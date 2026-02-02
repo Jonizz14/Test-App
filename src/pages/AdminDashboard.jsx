@@ -228,7 +228,7 @@ const AdminDashboard = () => {
       <Header
         style={{
           position: 'fixed',
-          top: 64,
+          top: 0,
           left: 0,
           right: 0,
           zIndex: 1000,
@@ -295,7 +295,7 @@ const AdminDashboard = () => {
           style={{
             position: 'fixed',
             left: 0,
-            top: 128,
+            top: 64,
             bottom: 0,
             background: '#ffffff',
             borderRight: '1px solid #f0f0f0',
@@ -326,8 +326,10 @@ const AdminDashboard = () => {
           style={{
             marginLeft: collapsed ? 80 : 280,
             transition: 'margin-left 0.2s',
-            height: '100%',
-            overflow: 'hidden'
+            height: '105%',
+            overflow: 'hidden',
+            top: 0,
+            marginTop: -64,
           }}
         >
           <Content

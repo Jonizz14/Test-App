@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import 'animate.css'
 import {
   Card,
   Button,
@@ -88,7 +87,7 @@ const StudentDetails = () => {
 
   if (loading) {
     return (
-      <div className="animate__animated animate__fadeIn" style={{
+      <div  style={{
         padding: '24px',
         display: 'flex',
         justifyContent: 'center',
@@ -97,17 +96,17 @@ const StudentDetails = () => {
         flexDirection: 'column',
         gap: '16px'
       }}>
-        <div className="animate__animated animate__bounce animate__infinite">
+        <div >
           <div style={{
             width: '40px',
             height: '40px',
             border: '4px solid #e2e8f0',
             borderTop: '4px solid #2563eb',
             borderRadius: '50%',
-            animation: 'spin 1s linear infinite'
+            
           }}></div>
         </div>
-        <div className="animate__animated animate__pulse" style={{
+        <div  style={{
           color: '#64748b',
           fontSize: '16px',
           fontWeight: 500
@@ -132,8 +131,8 @@ const StudentDetails = () => {
 
   if (!student) {
     return (
-      <div className="animate__animated animate__fadeIn" style={{ padding: '24px' }}>
-        <div className="animate__animated animate__bounceIn" style={{ 
+      <div  style={{ padding: '24px' }}>
+        <div  style={{ 
           textAlign: 'center', 
           padding: '48px 0',
           backgroundColor: '#f8fafc',
@@ -156,7 +155,7 @@ const StudentDetails = () => {
           <Button
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate('/admin/students')}
-            className="animate__animated animate__pulse animate__infinite"
+            
             style={{ 
               marginTop: '16px',
               borderColor: '#2563eb',
@@ -217,9 +216,9 @@ const StudentDetails = () => {
   ];
 
   return (
-    <div className="animate__animated animate__fadeIn" style={{ padding: '24px 0' }}>
+    <div  style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div className="animate__animated animate__fadeInDown" style={{
+      <div  style={{
         marginBottom: '24px',
         display: 'flex',
         alignItems: 'center',
@@ -228,7 +227,7 @@ const StudentDetails = () => {
         <Button
           icon={<ArrowLeftOutlined />}
           onClick={() => navigate('/admin/students')}
-          className="animate__animated animate__hover-lift"
+          
           style={{
             borderColor: '#2563eb',
             color: '#2563eb',
@@ -237,10 +236,10 @@ const StudentDetails = () => {
         >
           Orqaga
         </Button>
-        <Title level={2} className="animate__animated animate__fadeInRight" style={{ 
+        <Title level={2}  style={{ 
           margin: 0, 
           color: '#1e293b',
-          animationDelay: '0.2s'
+          
         }}>
           {student.name} - Batafsil ma'lumotlar
         </Title>
@@ -248,7 +247,7 @@ const StudentDetails = () => {
 
       {/* Profile Card */}
       <Card
-        className="animate__animated animate__fadeInUp"
+        
         style={{
           marginBottom: '24px',
           background: shouldShowPremiumFeatures(student, null) && student.background_gradient?.css
@@ -293,12 +292,12 @@ const StudentDetails = () => {
 
         <Row gutter={24} align="middle">
           {/* Profile Photo */}
-          <Col className="animate__animated animate__fadeInUp" style={{ animationDelay: '0.3s' }}>
+          <Col  style={{ }}>
             <div style={{ position: 'relative' }}>
               <Avatar
                 src={student.profile_photo_url}
                 size={150}
-                className="animate__animated animate__fadeInUp"
+                
                 style={{
                   border: '4px solid rgba(255, 255, 255, 0.8)',
                   boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
@@ -330,7 +329,7 @@ const StudentDetails = () => {
                     border: '3px solid rgba(255, 255, 255, 0.8)',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                     transition: 'all 0.3s ease',
-                    animationDelay: '0.8s',
+                    
                     cursor: 'pointer'
                   }}
                 >
@@ -347,7 +346,7 @@ const StudentDetails = () => {
           </Col>
 
           {/* Profile Info */}
-          <Col flex="auto" className="animate__animated animate__fadeInUp" style={{ animationDelay: '0.4s' }}>
+          <Col flex="auto"  style={{ }}>
             <div style={{
               color: student.is_premium ? '#ffffff' : '#1e293b',
               textAlign: 'left'
@@ -374,14 +373,14 @@ const StudentDetails = () => {
                 </Text>
               )}
 
-              <Space wrap className="animate__animated animate__fadeInUp" style={{ animationDelay: '0.5s' }}>
+              <Space wrap  style={{ }}>
                 <Tag 
                   color="green" 
-                  className="animate__animated animate__fadeInUp"
+                  
                   style={{ 
                     fontWeight: 600,
                     transition: 'all 0.3s ease',
-                    animationDelay: '0.6s'
+                    
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.transform = 'scale(1.05)';
@@ -396,11 +395,11 @@ const StudentDetails = () => {
                 </Tag>
                 <Tag 
                   color="blue" 
-                  className="animate__animated animate__fadeInUp"
+                  
                   style={{ 
                     fontWeight: 600,
                     transition: 'all 0.3s ease',
-                    animationDelay: '0.7s'
+                    
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.transform = 'scale(1.05)';
@@ -415,11 +414,11 @@ const StudentDetails = () => {
                 </Tag>
                 <Tag 
                   color="default" 
-                  className="animate__animated animate__fadeInUp"
+                  
                   style={{ 
                     fontWeight: 600,
                     transition: 'all 0.3s ease',
-                    animationDelay: '0.8s'
+                    
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.transform = 'scale(1.05)';
@@ -439,10 +438,10 @@ const StudentDetails = () => {
       </Card>
 
       {/* Statistics Cards */}
-      <div className="animate__animated animate__fadeInUp">
+      <div >
         <Row gutter={24} style={{ marginBottom: '24px' }}>
           <Col xs={24} sm={12} md={6}>
-            <div className="animate__animated animate__zoomIn" style={{ animationDelay: '100ms' }}>
+            <div  style={{ }}>
               <Card
                 style={{
                   backgroundColor: '#ffffff',
@@ -499,7 +498,7 @@ const StudentDetails = () => {
           </Col>
 
           <Col xs={24} sm={12} md={6}>
-            <div className="animate__animated animate__zoomIn" style={{ animationDelay: '200ms' }}>
+            <div  style={{ }}>
               <Card
                 style={{
                   backgroundColor: '#ffffff',
@@ -557,7 +556,7 @@ const StudentDetails = () => {
           </Col>
 
           <Col xs={24} sm={12} md={6}>
-            <div className="animate__animated animate__zoomIn" style={{ animationDelay: '300ms' }}>
+            <div  style={{ }}>
               <Card
                 style={{
                   backgroundColor: '#ffffff',
@@ -615,7 +614,7 @@ const StudentDetails = () => {
           </Col>
 
           <Col xs={24} sm={12} md={6}>
-            <div className="animate__animated animate__zoomIn" style={{ animationDelay: '400ms' }}>
+            <div  style={{ }}>
               <Card
                 style={{
                   backgroundColor: '#ffffff',
@@ -674,9 +673,9 @@ const StudentDetails = () => {
       </div>
       {/* Test Results Table */}
       <Card
-        className="animate__animated animate__fadeInUp"
+        
         title={
-          <span className="animate__animated animate__slideInRight">
+          <span >
             {`Test natijalari (${attempts.length})`}
           </span>
         }
@@ -691,7 +690,7 @@ const StudentDetails = () => {
         bodyStyle={{ padding: '0' }}
       >
         {attempts.length === 0 ? (
-          <div className="animate__animated animate__bounceIn" style={{
+          <div  style={{
             textAlign: 'center',
             padding: '48px 24px',
             backgroundColor: '#f8fafc',
@@ -700,7 +699,7 @@ const StudentDetails = () => {
             margin: '24px'
           }}>
             <FileTextOutlined 
-              className="animate__animated animate__pulse animate__infinite" 
+               
               style={{ 
                 fontSize: '48px', 
                 color: '#cbd5e1', 
@@ -713,9 +712,9 @@ const StudentDetails = () => {
             </Text>
           </div>
         ) : (
-          <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '0.2s' }}>
+          <div  style={{ }}>
             <Table
-              className="animate__animated animate__fadeInUp"
+              
               columns={columns}
               dataSource={attempts}
               rowKey="id"
@@ -724,23 +723,23 @@ const StudentDetails = () => {
                 showSizeChanger: true,
                 showQuickJumper: true,
                 showTotal: (total) => `Jami ${total} ta test`,
-                className: 'animate__animated animate__fadeInUp',
-                style: { animationDelay: '0.3s' }
+                
+                style: { }
               }}
               locale={{
                 emptyText: 'Test natijalari mavjud emas'
               }}
               rowClassName={(record, index) => 
-                `animate__animated animate__fadeInUp ${
+                `${
                   index % 2 === 0 ? 'table-row-even' : 'table-row-odd'
                 }`
               }
               onRow={(record, index) => ({
-                className: `animate__animated animate__fadeInUp ${
+                className: `${
                   index % 2 === 0 ? 'table-row-even' : 'table-row-odd'
                 }`,
                 style: { 
-                  animationDelay: `${0.1 + index * 0.05}s`,
+                  animationDelay: `${index * 50}ms`,
                   transition: 'all 0.3s ease',
                   cursor: 'pointer'
                 },

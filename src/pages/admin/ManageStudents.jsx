@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import 'animate.css';
 import {
   Table,
   Card,
@@ -748,9 +747,9 @@ const ManageStudents = () => {
   });
 
   return (
-    <div className="animate__animated animate__fadeIn" style={{ padding: '24px 0' }}>
+    <div  style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div className="animate__animated animate__slideInDown" style={{
+      <div  style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -765,7 +764,7 @@ const ManageStudents = () => {
 
       {/* Alerts */}
       {success && (
-        <div className="animate__animated animate__slideInRight">
+        <div >
           <Alert
             message={success}
             type="success"
@@ -778,7 +777,7 @@ const ManageStudents = () => {
       )}
 
       {error && (
-        <div className="animate__animated animate__slideInRight">
+        <div >
           <Alert
             message={error}
             type="error"
@@ -791,7 +790,7 @@ const ManageStudents = () => {
       )}
 
       {/* Controls */}
-      <div className="animate__animated animate__fadeInUp" style={{
+      <div  style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -851,7 +850,7 @@ const ManageStudents = () => {
       )}
 
       {/* Tabs */}
-      <div className="animate__animated animate__fadeInUp" style={{ animationDelay: '300ms' }}>
+      <div  style={{ }}>
         <Tabs activeKey={activeTab} onChange={setActiveTab} style={{ marginBottom: '24px' }}>
         <TabPane tab="👥 O'quvchilar" key="students">
             <Table
@@ -871,10 +870,9 @@ const ManageStudents = () => {
                 emptyText: 'O\'quvchilar mavjud emas'
               }}
              onRow={(record, index) => ({
-              className: 'animate__animated animate__fadeInLeft',
               style: { 
-              animationDelay: `${index * 100}ms`,
-              transition: 'all 0.3s ease'
+                animationDelay: `${index * 50}ms`,
+                transition: 'all 0.3s ease'
               },
              onMouseEnter: (e) => {
               e.currentTarget.style.transform = 'scale(1.02)';
@@ -951,7 +949,7 @@ const ManageStudents = () => {
       {/* Empty State */}
       {((activeTab === 'students' && filteredStudents.length === 0) || 
         (activeTab === 'classes' && filteredClasses.length === 0)) && !loading && (
-        <div className="animate__animated animate__zoomIn" style={{ textAlign: 'center', padding: '48px 0' }}>
+        <div  style={{ textAlign: 'center', padding: '48px 0' }}>
           <Text style={{ fontSize: '16px', color: '#64748b' }}>
             {searchTerm ? 'Qidiruv bo\'yicha natijalar topilmadi' : 'Ma\'lumotlar mavjud emas'}
           </Text>
@@ -1006,7 +1004,7 @@ const ManageStudents = () => {
             loading={importing}
             disabled={importing}
             onClick={() => fileInputRef.current?.click()}
-            className={importing ? 'animate__animated animate__pulse' : ''}
+            
           >
             {importing ? 'Import qilinmoqda...' : 'Fayl tanlash (.xlsx)'}
           </Button>
