@@ -144,7 +144,7 @@ const SubmitTest = () => {
               borderRadius: 0,
               backgroundColor: success ? '#fff' : '#fff5f5'
             }}
-            bodyStyle={{ padding: '48px 24px', textAlign: 'center' }}
+            styles={{ body: { padding: '48px 24px', textAlign: 'center' } }}
           >
             {success ? (
               <>

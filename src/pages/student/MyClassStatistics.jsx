@@ -37,38 +37,9 @@ import {
   ReadOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  RadialLinearScale,
-  Title as ChartTitle,
-  Tooltip as ChartTooltip,
-  Legend,
-  Filler,
-} from 'chart.js';
-import { Line, Bar, Pie, Doughnut, Radar } from 'react-chartjs-2';
+import ReactECharts from 'echarts-for-react';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
-
-// Register Chart.js components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  RadialLinearScale,
-  ChartTitle,
-  ChartTooltip,
-  Legend,
-  Filler
-);
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -217,7 +188,7 @@ const MyClassStatistics = () => {
         boxShadow: `8px 8px 0px ${color}20`,
         height: '100%',
       }}
-      bodyStyle={{ padding: '20px' }}
+      styles={{ body: { padding: '20px' } }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
         <div style={{
@@ -245,6 +216,107 @@ const MyClassStatistics = () => {
       )}
     </Card>
   );
+
+  // ECharts - Bar Chart for Subject Performance
+  const getBarChartOption = () => ({
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#1e293b',
+      borderColor: '#1e293b',
+      textStyle: { color: '#fff', fontWeight: 700 },
+      axisPointer: { type: 'shadow' }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      top: '10%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: stats.subjectPerformance.map(s => s.subject),
+      axisLine: { lineStyle: { color: '#e2e8f0', width: 2 } },
+      axisLabel: { color: '#1e293b', fontWeight: 700, rotate: 30 },
+      axisTick: { show: false }
+    },
+    yAxis: {
+      type: 'value',
+      min: 0,
+      max: 100,
+      axisLine: { show: false },
+      axisLabel: { color: '#1e293b', fontWeight: 700 },
+      splitLine: { lineStyle: { color: '#f1f5f9', type: 'dashed' } }
+    },
+    series: [{
+      type: 'bar',
+      data: stats.subjectPerformance.map(s => ({
+        value: s.averageScore,
+        itemStyle: {
+          color: {
+            type: 'linear',
+            x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [
+              { offset: 0, color: '#f59e0b' },
+              { offset: 1, color: '#d97706' }
+            ]
+          }
+        }
+      })),
+      barWidth: 25,
+      itemStyle: { borderRadius: [0, 0, 0, 0] }
+    }]
+  });
+
+  // ECharts - Pie Chart for Class Performance
+  const getPieChartOption = () => {
+    const excellentCount = stats.classmates.filter(c => c.averageScore >= 80).length;
+    const goodCount = stats.classmates.filter(c => c.averageScore >= 60 && c.averageScore < 80).length;
+    const lowCount = stats.classmates.filter(c => c.averageScore < 60).length;
+
+    return {
+      tooltip: {
+        trigger: 'item',
+        backgroundColor: '#1e293b',
+        borderColor: '#1e293b',
+        textStyle: { color: '#fff', fontWeight: 700 }
+      },
+      legend: {
+        bottom: '5%',
+        left: 'center',
+        textStyle: { fontWeight: 800, color: '#1e293b' }
+      },
+      series: [{
+        type: 'pie',
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 0,
+          borderColor: '#fff',
+          borderWidth: 4
+        },
+        label: {
+          show: false,
+          position: 'center'
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: 20,
+            fontWeight: 'bold'
+          }
+        },
+        labelLine: {
+          show: false
+        },
+        data: [
+          { value: excellentCount, name: 'A\'lo (80%+)', itemStyle: { color: '#2563eb' } },
+          { value: goodCount, name: 'Yaxshi (60-80%)', itemStyle: { color: '#64748b' } },
+          { value: lowCount, name: 'Past (<60%)', itemStyle: { color: '#cbd5e1' } }
+        ]
+      }]
+    };
+  };
 
   if (loading) {
     return (
@@ -348,7 +420,7 @@ const MyClassStatistics = () => {
           <Col xs={24} sm={12} lg={6}>
             <StatCard
               title="Faollik"
-              value={`${Math.round((stats.activeStudents / stats.totalStudents) * 100)}%`}
+              value={`${stats.totalStudents > 0 ? Math.round((stats.activeStudents / stats.totalStudents) * 100) : 0}%`}
               icon={<TeamOutlined />}
               description="O'quvchilar ishtiroki"
               color="#7c3aed"
@@ -408,33 +480,15 @@ const MyClassStatistics = () => {
             </Col>
           )}
 
-          {/* Subject Performance Bar Chart */}
+          {/* Subject Performance Bar Chart - ECharts */}
           {visibleCharts.subjectAverage && (
             <Col xs={24} lg={10}>
               <Card title={<Text style={{ fontWeight: 900, textTransform: 'uppercase', color: '#f59e0b' }}>Fanlar o'rtachasi</Text>} style={{ border: '4px solid #f59e0b', boxShadow: '12px 12px 0px rgba(245, 158, 11, 0.1)', height: '100%' }}>
-                <div style={{ height: '400px' }}>
-                  <Bar
-                    data={{
-                      labels: stats.subjectPerformance.map(s => s.subject),
-                      datasets: [{
-                        label: 'O\'rtacha Ball',
-                        data: stats.subjectPerformance.map(s => s.averageScore),
-                        backgroundColor: '#f59e0b',
-                        borderWidth: 0,
-                        barThickness: 25
-                      }]
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: { legend: { display: false } },
-                      scales: {
-                        x: { grid: { display: false }, ticks: { font: { weight: 800 }, color: '#1e293b' } },
-                        y: { beginAtZero: true, max: 100, grid: { borderDash: [5, 5], color: '#f1f5f9' }, ticks: { font: { weight: 800 }, color: '#1e293b' } }
-                      }
-                    }}
-                  />
-                </div>
+                <ReactECharts
+                  option={getBarChartOption()}
+                  style={{ height: '400px' }}
+                  opts={{ renderer: 'canvas' }}
+                />
               </Card>
             </Col>
           )}
@@ -452,6 +506,7 @@ const MyClassStatistics = () => {
                 ) : (
                   <Timeline
                     items={stats.recentActivity.slice(0, 6).map((activity, index) => ({
+                      key: index,
                       children: (
                         <div style={{ backgroundColor: '#fff', border: '2px solid #1e293b', padding: '10px 15px', boxShadow: '4px 4px 0px rgba(30, 41, 59, 0.1)', marginBottom: '10px' }}>
                           <Text style={{ fontWeight: 900, color: '#1e293b' }}>{activity.studentName}</Text>
@@ -471,39 +526,17 @@ const MyClassStatistics = () => {
           {visibleCharts.classPerformance && (
             <Col xs={24} lg={12}>
               <Card title={<Text style={{ fontWeight: 900, textTransform: 'uppercase', color: '#7c3aed' }}>Sinf o'zlashtirishi</Text>} style={{ border: '4px solid #7c3aed', boxShadow: '12px 12px 0px rgba(124, 58, 237, 0.1)' }}>
-                <div style={{ height: '350px' }}>
-                  <Doughnut
-                    data={{
-                      labels: ['A\'lo (80%+)', 'Yaxshi (60-80%)', 'Past (<60%)'],
-                      datasets: [{
-                        data: [
-                          stats.classmates.filter(c => c.averageScore >= 80).length,
-                          stats.classmates.filter(c => c.averageScore >= 60 && c.averageScore < 80).length,
-                          stats.classmates.filter(c => c.averageScore < 60).length
-                        ],
-                        backgroundColor: ['#2563eb', '#64748b', '#cbd5e1'],
-                        borderColor: '#fff',
-                        borderWidth: 4
-                      }]
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                        legend: {
-                          position: 'bottom',
-                          labels: { font: { weight: 800 }, color: '#000', usePointStyle: true }
-                        }
-                      }
-                    }}
-                  />
-                </div>
+                <ReactECharts
+                  option={getPieChartOption()}
+                  style={{ height: '350px' }}
+                  opts={{ renderer: 'canvas' }}
+                />
               </Card>
             </Col>
           )}
         </Row>
       </div>
-    </ConfigProvider >
+    </ConfigProvider>
   );
 };
 

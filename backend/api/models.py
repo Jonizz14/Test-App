@@ -502,6 +502,6 @@ class SiteSettings(models.Model):
         """Get or create the singleton settings instance"""
         obj, created = cls.objects.get_or_create(id=1)
         if created or not obj.welcome_steps:
-            obj.welcome_steps = [True, True, True, True, True, True]
+            obj.welcome_steps = [True, True, True, True, True, True, True, True, True]
             obj.save()
         return obj

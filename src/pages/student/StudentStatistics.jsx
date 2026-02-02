@@ -289,7 +289,7 @@ const StudentStatistics = () => {
         boxShadow: `8px 8px 0px ${color}20`,
         height: '100%',
       }}
-      bodyStyle={{ padding: '20px' }}
+      styles={{ body: { padding: '20px' } }}
     >
       <div style={{
         backgroundColor: color,
@@ -522,9 +522,9 @@ const StudentStatistics = () => {
                 <Timeline
                   mode="alternate"
                   items={stats.recentActivity.map((a, i) => ({
-                    label: <Text style={{ fontWeight: 800, color: '#64748b' }}>{a.time}</Text>,
-                    dot: <FireOutlined style={{ fontSize: '18px', color: '#2563eb' }} />,
-                    children: (
+                    title: <Text style={{ fontWeight: 800, color: '#64748b' }}>{a.time}</Text>,
+                    icon: <FireOutlined style={{ fontSize: '18px', color: '#2563eb' }} />,
+                    content: (
                       <div className="animate__animated animate__fadeIn" style={{ backgroundColor: '#fff', border: '3px solid #1e293b', padding: '12px', boxShadow: '4px 4px 0px rgba(30, 41, 59, 0.1)', marginBottom: '16px' }}>
                         <Text style={{ fontWeight: 900, display: 'block', color: '#1e293b' }}>{a.test}</Text>
                         <Text style={{ fontSize: '12px', fontWeight: 700, color: '#64748b' }}>Fan: {a.subject}</Text>

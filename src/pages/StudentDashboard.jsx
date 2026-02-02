@@ -110,7 +110,8 @@ const StudentDashboard = () => {
           className="animate__animated animate__fadeIn"
           style={{
             background: '#ffffff',
-            padding: '32px',
+            paddingTop: '28px',
+            paddingBottom: '28px',
             flex: 1,
             height: 'calc(100vh - 96px)',
             border: '4px solid #000',
@@ -119,28 +120,31 @@ const StudentDashboard = () => {
             transition: 'all 0.8s cubic-bezier(0.19, 1, 0.22, 1)',
             willChange: 'height, min-height',
             position: 'relative',
-            overflowY: 'auto'
+            overflow: 'auto'
           }}
         >
           <div style={{
             position: 'sticky',
-            top: '-32px',
+            top: '-28px',
             zIndex: 100,
             backgroundColor: '#ffffff',
             paddingBottom: '16px',
-            paddingTop: '32px',
-            marginTop: '-32px',
+            paddingTop: '28px',
+            paddingLeft: '28px',
+            paddingRight: '28px',
+            marginTop: '-28px',
             marginBottom: '16px',
             display: 'flex',
-            alignItems: 'center',
-            borderBottom: '4px solid #000'
+            flexDirection: 'column',
+            gap: '16px'
           }}>
             <div style={{
               backgroundColor: '#fff',
               padding: '6px 16px',
               border: '2px solid #000',
               boxShadow: '4px 4px 0px rgba(0,0,0,0.1)',
-              display: 'inline-block'
+              display: 'inline-block',
+              alignSelf: 'flex-start'
             }}>
               <Breadcrumb
                 items={breadcrumbItems}
@@ -148,24 +152,27 @@ const StudentDashboard = () => {
                 style={{ color: '#000' }}
               />
             </div>
+            <div style={{ width: 'calc(100% + 56px)', marginLeft: '-28px', height: '4px', backgroundColor: '#000' }}></div>
           </div>
-          <Routes>
-            <Route path="/" element={<StudentOverview />} />
-            <Route path="/search" element={<SearchTeachers />} />
-            <Route path="/classmates" element={<Classmates />} />
-            <Route path="/teacher-details/:teacherId" element={<TeacherDetails />} />
-            <Route path="/take-test" element={<TakeTest />} />
-            <Route path="/submit-test" element={<SubmitTest />} />
-            <Route path="/results" element={<TestResults />} />
-            <Route path="/lessons" element={<ReceivedLessons />} />
-            <Route path="/statistics" element={<StudentStatistics />} />
-            <Route path="/profile" element={<StudentProfile />} />
-            <Route path="/student-profile/:id" element={<StudentProfileView />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/my-class-statistics" element={<MyClassStatistics />} />
-            <Route path="/students-rating" element={<StudentsRating />} />
-            <Route path="/classes-rating" element={<ClassesRating />} />
-          </Routes>
+          <div style={{ padding: '0 28px' }}>
+            <Routes>
+              <Route path="/" element={<StudentOverview />} />
+              <Route path="/search" element={<SearchTeachers />} />
+              <Route path="/classmates" element={<Classmates />} />
+              <Route path="/teacher-details/:teacherId" element={<TeacherDetails />} />
+              <Route path="/take-test" element={<TakeTest />} />
+              <Route path="/submit-test" element={<SubmitTest />} />
+              <Route path="/results" element={<TestResults />} />
+              <Route path="/lessons" element={<ReceivedLessons />} />
+              <Route path="/statistics" element={<StudentStatistics />} />
+              <Route path="/profile" element={<StudentProfile />} />
+              <Route path="/student-profile/:id" element={<StudentProfileView />} />
+              <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/my-class-statistics" element={<MyClassStatistics />} />
+              <Route path="/students-rating" element={<StudentsRating />} />
+              <Route path="/classes-rating" element={<ClassesRating />} />
+            </Routes>
+          </div>
         </div>
       </Content>
 

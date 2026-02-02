@@ -669,35 +669,54 @@ const Header = ({ demoMode = false }) => {
                     <button className="btn-secondary" onClick={logout} style={{ background: '#ff4757', color: 'white' }}>{t('nav.logout')}</button>
 
                     {/* Seller, HeadAdmin & Student Icons */}
+                    {/* Dashboard specific icons */}
                     {isSellerOrHeadAdmin && !isMobile && (
                       <>
-                        <div
-                          className={`storage-icon-container message-icon ${sentMessages.length > 0 ? 'is-visible' : ''} ${showMessages ? 'active' : ''}`}
-                          onClick={toggleMessages}
-                          id="header-message-icon"
-                          title={t('nav.sentMessages')}
-                        >
-                          <span className="material-symbols-outlined">forum</span>
-                          <span className="item-count msg-count">{sentMessages.length}</span>
-                        </div>
-                        <div
-                          className={`storage-icon-container has-items ${savedItems.length > 0 ? 'is-visible' : ''} ${showSaved ? 'active' : ''}`}
-                          onClick={toggleSaved}
-                          id="header-storage-bin"
-                          title={t('nav.savedData')}
-                        >
-                          <span className="material-symbols-outlined">notes</span>
-                          <span className="item-count">{savedItems.length}</span>
-                        </div>
-                        <div
-                          className={`storage-icon-container search-icon ${showSearch ? 'active' : ''}`}
-                          onClick={toggleSearch}
-                          id="header-search-icon"
-                          title="Qidirish"
-                          style={{ width: '44px', opacity: 1, transform: 'scale(1)', overflow: 'visible' }}
-                        >
-                          <span className="material-symbols-outlined">search</span>
-                        </div>
+                        {settings.header.messages && (
+                          <div
+                            className={`storage-icon-container message-icon ${sentMessages.length > 0 ? 'is-visible' : ''} ${showMessages ? 'active' : ''}`}
+                            onClick={toggleMessages}
+                            id="header-message-icon"
+                            title={t('nav.sentMessages')}
+                          >
+                            <span className="material-symbols-outlined">forum</span>
+                            <span className="item-count msg-count">{sentMessages.length}</span>
+                          </div>
+                        )}
+                        {settings.header.storage && (
+                          <div
+                            className={`storage-icon-container has-items ${savedItems.length > 0 ? 'is-visible' : ''} ${showSaved ? 'active' : ''}`}
+                            onClick={toggleSaved}
+                            id="header-storage-bin"
+                            title={t('nav.savedData')}
+                          >
+                            <span className="material-symbols-outlined">notes</span>
+                            <span className="item-count">{savedItems.length}</span>
+                          </div>
+                        )}
+                        {settings.header.search && (
+                          <div
+                            className={`storage-icon-container search-icon ${showSearch ? 'active' : ''}`}
+                            onClick={toggleSearch}
+                            id="header-search-icon"
+                            title="Qidirish"
+                            style={{ width: '44px', opacity: 1, transform: 'scale(1)', overflow: 'visible' }}
+                          >
+                            <span className="material-symbols-outlined">search</span>
+                          </div>
+                        )}
+                        {settings.header.language && (
+                          <div
+                            className={`storage-icon-container lang-icon ${showLanguages ? 'active' : ''}`}
+                            onClick={toggleLanguages}
+                            id="header-lang-icon"
+                            title={t('nav.changeLanguage')}
+                            style={{ width: '44px', opacity: 1, transform: 'scale(1)', overflow: 'visible', marginLeft: '8px' }}
+                          >
+                            <span className="material-symbols-outlined">language</span>
+                            <span className="current-lang-code">{i18n.language ? i18n.language.split('-')[0].toUpperCase() : 'UZ'}</span>
+                          </div>
+                        )}
                       </>
                     )}
 
@@ -712,15 +731,17 @@ const Header = ({ demoMode = false }) => {
                       </div>
                     )}
 
-                    {/* Dashboard Notification Icon */}
-                    <div
-                      className={`storage-icon-container message-icon is-visible ${showNotifications ? 'active' : ''}`}
-                      onClick={toggleNotifications}
-                      style={{ width: '44px', opacity: 1, transform: 'scale(1)', overflow: 'visible', marginLeft: '8px' }}
-                    >
-                      <span className="material-symbols-outlined">notifications</span>
-                      <span className="item-count msg-count">0</span>
-                    </div>
+                    {/* Dashboard Notification Icon - Linked to messages setting */}
+                    {settings.header.messages && (
+                      <div
+                        className={`storage-icon-container message-icon is-visible ${showNotifications ? 'active' : ''}`}
+                        onClick={toggleNotifications}
+                        style={{ width: '44px', opacity: 1, transform: 'scale(1)', overflow: 'visible', marginLeft: '8px' }}
+                      >
+                        <span className="material-symbols-outlined">notifications</span>
+                        <span className="item-count msg-count">0</span>
+                      </div>
+                    )}
                   </>
                 ) : (
                   <>

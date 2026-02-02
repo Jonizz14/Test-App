@@ -31,9 +31,8 @@ import apiService from '../../data/apiService';
 import LaTeXPreview from '../../components/LaTeXPreview';
 import 'animate.css';
 
-const { Title, Text } = Typography;
-const _Search = Input.Search;
-const _Option = Select.Option;
+const { Title, Text, Paragraph } = Typography;
+const Search = Input.Search;
 
 const TestResults = () => {
   const navigate = useNavigate();
@@ -46,8 +45,8 @@ const TestResults = () => {
   const [questions, setQuestions] = useState([]);
   const [questionsLoading, setQuestionsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [_sortBy, _setSortBy] = useState('date');
-  const [_pageSize, _setPageSize] = useState(10);
+  const [sortBy, setSortBy] = useState('date');
+  const [pageSize, setPageSize] = useState(10);
   const [searchParams] = useSearchParams();
   const [highlightId, setHighlightId] = useState(null);
 
@@ -61,12 +60,6 @@ const TestResults = () => {
       return () => clearTimeout(timer);
     }
   }, [searchParams]);
-
-  useEffect(() => {
-    if (currentUser?.id) {
-      loadResults();
-    }
-  }, [currentUser?.id, loadResults]);
 
   const loadResults = React.useCallback(async () => {
     try {
@@ -84,6 +77,12 @@ const TestResults = () => {
       setLoading(false);
     }
   }, [currentUser?.id]);
+
+  useEffect(() => {
+    if (currentUser?.id) {
+      loadResults();
+    }
+  }, [currentUser?.id, loadResults]);
 
   const getTestById = (testId) => {
     return tests.find(test => test.id === testId);
@@ -305,11 +304,11 @@ const TestResults = () => {
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                   <SortAscendingOutlined style={{ fontSize: '20px' }} />
                   <Select value={sortBy} onChange={setSortBy} style={{ width: '100%' }} size="large">
-                    <Option value="date">Sana</Option>
-                    <Option value="name">Nomi</Option>
-                    <Option value="subject">Fan</Option>
-                    <Option value="score_high">Eng baland ball</Option>
-                    <Option value="score_low">Eng past ball</Option>
+                    <Select.Option value="date">Sana</Select.Option>
+                    <Select.Option value="name">Nomi</Select.Option>
+                    <Select.Option value="subject">Fan</Select.Option>
+                    <Select.Option value="score_high">Eng baland ball</Select.Option>
+                    <Select.Option value="score_low">Eng past ball</Select.Option>
                   </Select>
                 </div>
               </Col>

@@ -11,6 +11,10 @@ import {
   Modal,
   Alert,
   Select,
+  ConfigProvider,
+  Row,
+  Col,
+  Table,
 } from 'antd';
 import {
   ClockCircleOutlined,
@@ -27,8 +31,8 @@ import LaTeXPreview from '../../components/LaTeXPreview';
 import MathSymbols from '../../components/MathSymbols';
 import 'animate.css';
 
-const { Title, Text } = Typography;
-const { Search: _Search } = Input;
+const { Title, Text, Paragraph } = Typography;
+const { Search } = Input;
 const { Option } = Select;
 
 const TakeTest = () => {
@@ -61,19 +65,17 @@ const TakeTest = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [testCompleted, setTestCompleted] = useState(false);
-  const [_score, _setScore] = useState(0);
   const [sortBy, setSortBy] = useState('date');
-  const [_exitDialogOpen, _setExitDialogOpen] = useState(false);
-  const [_urgentSubmitDialogOpen, _setUrgentSubmitDialogOpen] = useState(false);
-  const [_sessionRecovering, _setSessionRecovering] = useState(false);
-  const [_activeTestSessions, _setStatActiveTestSessions] = useState({});
+  const [sessionRecovering, setSessionRecovering] = useState(false);
+  const [activeTestSessions, setActiveTestSessions] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [mathSymbolsOpen, setMathSymbolsOpen] = useState(false);
-  const [_pageSize, _setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(10);
+  const [exitDialogOpen, setExitDialogOpen] = useState(false);
+  const [urgentSubmitDialogOpen, setUrgentSubmitDialogOpen] = useState(false);
+  const [score, setScore] = useState(0);
 
-
-
-  const _difficultyLabels = {
+  const difficultyLabels = {
     easy: 'Oson',
     medium: 'O\'rtacha',
     hard: 'Qiyin'
@@ -114,82 +116,7 @@ const TakeTest = () => {
     });
   };
 
-  useEffect(() => {
-    if (currentUser) {
-      loadTeachers();
-    }
-  }, [currentUser, loadTeachers]);
 
-  useEffect(() => {
-    const checkAllActiveSessions = async () => {
-      if (allTests.length === 0 || !currentUser) return;
-
-      const sessionsMap = {};
-
-      for (const test of allTests) {
-        try {
-          const activeSession = await checkActiveSession(test.id);
-          if (activeSession) {
-            sessionsMap[test.id] = activeSession;
-          }
-        } catch (_error) {
-          console.debug(`No active session for test ${test.id}`);
-        }
-      }
-
-      _setStatActiveTestSessions(sessionsMap);
-    };
-
-    checkAllActiveSessions();
-  }, [allTests, currentUser, checkActiveSession]);
-
-  useEffect(() => {
-    const testIdFromParams = searchParams.get('testId');
-
-    if (testIdFromParams && teachers.length > 0 && currentUser) {
-      const checkAndHandleTest = async () => {
-        try {
-          _setSessionRecovering(true);
-
-          const attempts = await apiService.getAttempts({ student: currentUser.id, test: testIdFromParams });
-          const hasAttempt = attempts && attempts.length > 0;
-
-          if (hasAttempt) {
-            navigate('/student/results');
-            return;
-          }
-
-          const activeSession = await checkActiveSession(testIdFromParams);
-
-          if (activeSession) {
-            await continueTestFromSession(activeSession, testIdFromParams);
-          } else {
-            const test = await apiService.getTest(testIdFromParams);
-            if (test && test.is_active) {
-              startTest(test);
-            }
-          }
-        } catch (error) {
-          console.error('Failed to handle test from URL:', error);
-          if (error.message && (error.message.includes('Test already completed') || error.message.includes('400') || error.message.includes('already completed'))) {
-            navigate('/student/results');
-            return;
-          }
-          clearSession();
-        } finally {
-          _setSessionRecovering(false);
-        }
-      };
-
-      checkAndHandleTest();
-    }
-  }, [searchParams, teachers, navigate, checkActiveSession, currentUser, continueTestFromSession, startTest, clearSession]);
-
-  useEffect(() => {
-    if (currentSession && hasTimeRemaining === false && sessionStarted) {
-      handleSubmitTest();
-    }
-  }, [currentSession, hasTimeRemaining, sessionStarted, handleSubmitTest]);
 
   const continueTestFromSession = useCallback(async (session, testId) => {
     if (!session || !testId) {
@@ -380,6 +307,83 @@ const TakeTest = () => {
     setScore(0);
     clearSession();
   };
+
+  useEffect(() => {
+    if (currentUser) {
+      loadTeachers();
+    }
+  }, [currentUser, loadTeachers]);
+
+  useEffect(() => {
+    const checkAllActiveSessions = async () => {
+      if (allTests.length === 0 || !currentUser) return;
+
+      const sessionsMap = {};
+
+      for (const test of allTests) {
+        try {
+          const activeSession = await checkActiveSession(test.id);
+          if (activeSession) {
+            sessionsMap[test.id] = activeSession;
+          }
+        } catch (_error) {
+          console.debug(`No active session for test ${test.id}`);
+        }
+      }
+
+      setActiveTestSessions(sessionsMap);
+    };
+
+    checkAllActiveSessions();
+  }, [allTests, currentUser, checkActiveSession]);
+
+  useEffect(() => {
+    const testIdFromParams = searchParams.get('testId');
+
+    if (testIdFromParams && teachers.length > 0 && currentUser) {
+      const checkAndHandleTest = async () => {
+        try {
+          setSessionRecovering(true);
+
+          const attempts = await apiService.getAttempts({ student: currentUser.id, test: testIdFromParams });
+          const hasAttempt = attempts && attempts.length > 0;
+
+          if (hasAttempt) {
+            navigate('/student/results');
+            return;
+          }
+
+          const activeSession = await checkActiveSession(testIdFromParams);
+
+          if (activeSession) {
+            await continueTestFromSession(activeSession, testIdFromParams);
+          } else {
+            const test = await apiService.getTest(testIdFromParams);
+            if (test && test.is_active) {
+              startTest(test);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to handle test from URL:', error);
+          if (error.message && (error.message.includes('Test already completed') || error.message.includes('400') || error.message.includes('already completed'))) {
+            navigate('/student/results');
+            return;
+          }
+          clearSession();
+        } finally {
+          setSessionRecovering(false);
+        }
+      };
+
+      checkAndHandleTest();
+    }
+  }, [searchParams, teachers, navigate, checkActiveSession, currentUser, continueTestFromSession, startTest, clearSession]);
+
+  useEffect(() => {
+    if (currentSession && hasTimeRemaining === false && sessionStarted) {
+      handleSubmitTest();
+    }
+  }, [currentSession, hasTimeRemaining, sessionStarted, handleSubmitTest]);
 
   if (!currentUser) {
     return (
@@ -763,12 +767,12 @@ const TakeTest = () => {
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
                   <SortAscendingOutlined style={{ fontSize: '20px' }} />
                   <Select value={sortBy} onChange={setSortBy} style={{ width: '100%' }} size="large">
-                    <Option value="date">Sana</Option>
-                    <Option value="name">Nomi</Option>
-                    <Option value="difficulty">Qiyinchilik</Option>
-                    <Option value="easy">Osonlar</Option>
-                    <Option value="medium">O'rtachalar</Option>
-                    <Option value="hard">Qiyinlar</Option>
+                    <Select.Option value="date">Sana</Select.Option>
+                    <Select.Option value="name">Nomi</Select.Option>
+                    <Select.Option value="difficulty">Qiyinchilik</Select.Option>
+                    <Select.Option value="easy">Osonlar</Select.Option>
+                    <Select.Option value="medium">O'rtachalar</Select.Option>
+                    <Select.Option value="hard">Qiyinlar</Select.Option>
                   </Select>
                 </div>
               </Col>
