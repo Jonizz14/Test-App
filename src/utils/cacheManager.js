@@ -1,5 +1,4 @@
 // Data Cache Manager - Memory and localStorage caching
-import { swUtils } from './serviceWorker';
 
 class CacheManager {
   constructor() {

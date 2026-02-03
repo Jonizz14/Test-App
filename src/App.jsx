@@ -13,7 +13,7 @@ import { SettingsProvider } from './context/SettingsContext';
 import { ServerTestProvider } from './context/ServerTestContext';
 import { ThemeProvider as CustomThemeProvider } from './context/ThemeContext.jsx';
 import { LoadingProvider } from './context/LoadingContext';
-import { registerSW } from './utils/serviceWorker';
+// Service Worker removed - not needed
 import ScrollToTop from './components/ScrollToTop';
 import RouteLoadingIndicator from './components/RouteLoadingIndicator';
 import { SavedItemsProvider } from './context/SavedItemsContext';
@@ -292,6 +292,7 @@ const AnimatedRoutes = () => {
 
         <Route path="/user/password/questions" element={<Questions />} />
 
+
         {/* Protected routes - Require authentication and specific roles */}
         <Route
           path="/headadmin/*"
@@ -388,17 +389,13 @@ function App() {
   const [isLoaderRemoved, setIsLoaderRemoved] = React.useState(false);
   const [showHelpOverlay, setShowHelpOverlay] = React.useState(false);
 
-  // Register service worker
+  // Unregister any old service workers on app load
   React.useEffect(() => {
-    registerSW({
-      onSuccess: (registration) => {
-        console.log('SW registered: ', registration);
-      },
-      onUpdate: (registration) => {
-        console.log('SW updated: ', registration);
-        // You can show update notification here
-      },
-    });
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        registrations.forEach(registration => registration.unregister());
+      });
+    }
   }, []);
 
   return (

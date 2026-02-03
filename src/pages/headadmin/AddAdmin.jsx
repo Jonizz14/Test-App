@@ -4,13 +4,13 @@ import {
   Form,
   Input,
   Button,
-  Alert,
   Space,
   Spin,
   Divider,
   ConfigProvider,
+  notification,
 } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiService from '../../data/apiService';
 import 'animate.css';
@@ -65,7 +65,23 @@ const AddAdmin = () => {
         };
         if (values.password) updateData.password = values.password;
         await apiService.updateUser(id, updateData);
-        setSuccess('ADMIN MA\'LUMOTLARI YANGILANDI!');
+        notification.open({
+          message: (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ color: '#fff', fontWeight: 900, fontSize: '14px' }}>ADMINISTRATOR</span>
+              <span style={{ color: '#666', fontSize: '14px' }}>yangilandi</span>
+            </div>
+          ),
+          icon: <SafetyCertificateOutlined style={{ color: '#1890ff', fontSize: '20px' }} />,
+          style: {
+            backgroundColor: '#000',
+            borderRadius: '12px',
+            border: '1px solid #222',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.5)',
+            padding: '12px 20px',
+          },
+          closeIcon: null,
+        });
       } else {
         await apiService.post('/users/', {
           username: values.email,
@@ -77,7 +93,23 @@ const AddAdmin = () => {
           name: adminData.name,
           organization: values.organization,
         });
-        setSuccess('YANGI ADMIN MUVAFFAQIYATLI QO\'SHILDI!');
+        notification.open({
+          message: (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ color: '#fff', fontWeight: 900, fontSize: '14px' }}>ADMINISTRATOR</span>
+              <span style={{ color: '#666', fontSize: '14px' }}>saqlandi</span>
+            </div>
+          ),
+          icon: <SafetyCertificateOutlined style={{ color: '#1890ff', fontSize: '20px' }} />,
+          style: {
+            backgroundColor: '#000',
+            borderRadius: '12px',
+            border: '1px solid #222',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.5)',
+            padding: '12px 20px',
+          },
+          closeIcon: null,
+        });
         form.resetFields();
       }
     } catch (err) {
