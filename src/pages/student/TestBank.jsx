@@ -260,14 +260,15 @@ const TestBank = () => {
 
     return (
         <ConfigProvider theme={{ token: { borderRadius: 0, colorPrimary: '#000' } }}>
-            <div style={{ padding: '0 0' }}>
-                <div className="animate__animated animate__fadeIn" style={{ marginBottom: '40px' }}>
+            <div style={{ padding: '40px 0' }}>
+                <div className="animate__animated animate__fadeIn" style={{ marginBottom: '60px' }}>
                     <div style={{ backgroundColor: '#000', color: '#fff', padding: '8px 16px', fontWeight: 700, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px', display: 'inline-block' }}>
                         TESTLAR BAZASI
                     </div>
                     <Title level={1} style={{ fontWeight: 900, fontSize: '2.5rem', lineHeight: 0.9, textTransform: 'uppercase', letterSpacing: '-0.05em', color: '#000' }}>
                         GLOBAL TESTLAR BAZASI
                     </Title>
+                    <div style={{ width: '80px', height: '10px', backgroundColor: '#000', margin: '24px 0' }}></div>
                     <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, color: '#333', maxWidth: '600px' }}>
                         Platformadagi barcha ochiq testlar to'plami. Reytingingizni oshirish uchun testlarni yeching!
                     </Paragraph>

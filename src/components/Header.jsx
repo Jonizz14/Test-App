@@ -434,6 +434,7 @@ const Header = ({ demoMode = false }) => {
         {
           label: 'O\'quv jarayoni',
           children: [
+            { label: 'Testlar bazasi', path: '/student/test-bank' },
             { label: 'Test topshirish', path: '/student/take-test' },
             { label: 'Natijalarim', path: '/student/results' },
             { label: 'Darslar', path: '/student/lessons' }
