@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import './HeaderDynamicIsland.css';
 
 const HeaderDynamicIsland = ({ isDashboard, isMobile, onToggle, forceExpanded }) => {
@@ -6,6 +6,7 @@ const HeaderDynamicIsland = ({ isDashboard, isMobile, onToggle, forceExpanded })
     const [prevMode, setPrevMode] = useState('time');
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [time, setTime] = useState(new Date());
+    const [isExpandedRender, setIsExpandedRender] = useState(forceExpanded);
 
     const [weather] = useState({
         temp: 22,
@@ -19,6 +20,16 @@ const HeaderDynamicIsland = ({ isDashboard, isMobile, onToggle, forceExpanded })
         const timer = setInterval(() => setTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
+
+    useEffect(() => {
+        if (forceExpanded) {
+            setIsExpandedRender(true);
+            return;
+        }
+
+        const t = setTimeout(() => setIsExpandedRender(false), 120);
+        return () => clearTimeout(t);
+    }, [forceExpanded]);
 
     const formatTime = (date) => {
         return date.toLocaleTimeString('uz-UZ', {
@@ -54,11 +65,11 @@ const HeaderDynamicIsland = ({ isDashboard, isMobile, onToggle, forceExpanded })
 
     return (
         <div
-            className={`dynamic-island-container ${forceExpanded ? 'expanded' : 'collapsed'}`}
+            className={`dynamic-island-container ${forceExpanded ? 'expanded' : 'collapsed'} ${!forceExpanded && isExpandedRender ? 'closing' : ''}`}
             onClick={() => onToggle(!forceExpanded)}
         >
             <div className="dynamic-island-content">
-                {!forceExpanded ? (
+                {!forceExpanded && !isExpandedRender ? (
                     <div className="island-pill-view">
                         <div className="island-mode-toggle" onClick={handleModeToggle}>
                             <span className="material-symbols-outlined mini-icon">

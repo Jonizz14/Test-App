@@ -116,6 +116,14 @@
     justify-content: space-between;
     padding: 0 6px;
     overflow: hidden;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.dynamic-island-container.closing .island-expanded-view {
+    opacity: 0;
+    transform: translateY(-4px);
 }
 
 .expanded-content-wrapper {
@@ -179,7 +187,9 @@
 
 .weather-location {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
     margin-top: -2px;
 }
 
