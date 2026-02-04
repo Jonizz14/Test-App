@@ -834,12 +834,16 @@ const Header = ({ demoMode = false }) => {
                   </>
                 )}
 
-                <HeaderDynamicIsland
-                  isDashboard={isDashboard}
-                  isMobile={isMobile}
-                  onToggle={toggleIsland}
-                  forceExpanded={showIsland}
-                />
+                {(settings?.header?.time || settings?.header?.weather) && (
+                  <HeaderDynamicIsland
+                    isDashboard={isDashboard}
+                    isMobile={isMobile}
+                    onToggle={toggleIsland}
+                    forceExpanded={showIsland}
+                    enableTime={settings?.header?.time}
+                    enableWeather={settings?.header?.weather}
+                  />
+                )}
 
                 {/* Mobile Menu Button - Shown only on Mobile */}
                 {isMobile && (

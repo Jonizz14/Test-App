@@ -1,8 +1,8 @@
 ﻿import React, { useState, useEffect } from 'react';
 import './HeaderDynamicIsland.css';
 
-const HeaderDynamicIsland = ({ isDashboard, isMobile, onToggle, forceExpanded }) => {
-    const [mode, setMode] = useState('time'); // 'time' or 'weather'
+const HeaderDynamicIsland = ({ isDashboard, isMobile, onToggle, forceExpanded, enableTime = true, enableWeather = true }) => {
+    const [mode, setMode] = useState(enableTime ? 'time' : 'weather'); // 'time' or 'weather'
     const [prevMode, setPrevMode] = useState('time');
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [time, setTime] = useState(new Date());
@@ -20,6 +20,14 @@ const HeaderDynamicIsland = ({ isDashboard, isMobile, onToggle, forceExpanded })
         const timer = setInterval(() => setTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
+
+    useEffect(() => {
+        if (mode === 'time' && !enableTime && enableWeather) {
+            setMode('weather');
+        } else if (mode === 'weather' && !enableWeather && enableTime) {
+            setMode('time');
+        }
+    }, [enableTime, enableWeather, mode]);
 
     useEffect(() => {
         if (forceExpanded) {
@@ -51,6 +59,7 @@ const HeaderDynamicIsland = ({ isDashboard, isMobile, onToggle, forceExpanded })
         // Stop propagation so it doesn't trigger the expansion toggle if we only want mode change
         e.stopPropagation();
         if (isTransitioning) return;
+        if (!(enableTime && enableWeather)) return;
 
         setPrevMode(mode);
         setIsTransitioning(true);
@@ -61,7 +70,7 @@ const HeaderDynamicIsland = ({ isDashboard, isMobile, onToggle, forceExpanded })
         }, 400);
     };
 
-    if (isMobile) return null;
+    if (isMobile || (!enableTime && !enableWeather)) return null;
 
     return (
         <div
@@ -71,11 +80,13 @@ const HeaderDynamicIsland = ({ isDashboard, isMobile, onToggle, forceExpanded })
             <div className="dynamic-island-content">
                 {!forceExpanded && !isExpandedRender ? (
                     <div className="island-pill-view">
-                        <div className="island-mode-toggle" onClick={handleModeToggle}>
-                            <span className="material-symbols-outlined mini-icon">
-                                {mode === 'time' ? 'schedule' : weather.icon}
-                            </span>
-                        </div>
+                        {enableTime && enableWeather && (
+                            <div className="island-mode-toggle" onClick={handleModeToggle}>
+                                <span className="material-symbols-outlined mini-icon">
+                                    {mode === 'time' ? 'schedule' : weather.icon}
+                                </span>
+                            </div>
+                        )}
                         <div className="island-data-wrapper">
                             <div className="preview-text-container">
                                 {isTransitioning && (
@@ -142,11 +153,13 @@ const HeaderDynamicIsland = ({ isDashboard, isMobile, onToggle, forceExpanded })
                             </div>
                         </div>
 
-                        <div className="expanded-mode-nav" onClick={handleModeToggle}>
-                            <span className="material-symbols-outlined">
-                                {mode === 'time' ? 'cloud' : 'schedule'}
-                            </span>
-                        </div>
+                        {enableTime && enableWeather && (
+                            <div className="expanded-mode-nav" onClick={handleModeToggle}>
+                                <span className="material-symbols-outlined">
+                                    {mode === 'time' ? 'cloud' : 'schedule'}
+                                </span>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
@@ -155,3 +168,4 @@ const HeaderDynamicIsland = ({ isDashboard, isMobile, onToggle, forceExpanded })
 };
 
 export default HeaderDynamicIsland;
+

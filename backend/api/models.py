@@ -496,6 +496,8 @@ class SiteSettings(models.Model):
     header_storage = models.BooleanField(default=True)
     header_search = models.BooleanField(default=True)
     header_language = models.BooleanField(default=True)
+    header_time = models.BooleanField(default=True)
+    header_weather = models.BooleanField(default=True)
     
     # Welcome Page Steps (Array of Booleans)
     welcome_steps = models.JSONField(default=list)

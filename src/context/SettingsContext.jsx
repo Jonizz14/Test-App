@@ -19,7 +19,9 @@ export const SettingsProvider = ({ children }) => {
       messages: true,
       storage: true,
       search: true,
-      language: true
+      language: true,
+      time: true,
+      weather: true
     },
     welcome: {
       steps: [true, true, true, true, true, true, true, true, true]
@@ -43,7 +45,9 @@ export const SettingsProvider = ({ children }) => {
             messages: data.header_messages,
             storage: data.header_storage,
             search: data.header_search,
-            language: data.header_language
+            language: data.header_language,
+            time: data.header_time,
+            weather: data.header_weather
           },
           welcome: {
             steps: data.welcome_steps || [true, true, true, true, true, true, true, true, true]

@@ -170,6 +170,30 @@ const AppSettings = () => {
                   />
                 </div>
               </List.Item>
+              <List.Item style={listItemStyle}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                  <div style={{ marginRight: 16 }}>
+                    <Text style={{ fontWeight: 900, display: 'block', textTransform: 'uppercase' }}>Vaqt</Text>
+                    <Text type="secondary" style={{ fontWeight: 600 }}>Headerda vaqt ko'rsatishni yoqish</Text>
+                  </div>
+                  <Switch 
+                    checked={settings?.header?.time} 
+                    onChange={(val) => updateHeaderSetting('time', val)}
+                  />
+                </div>
+              </List.Item>
+              <List.Item style={listItemStyle}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                  <div style={{ marginRight: 16 }}>
+                    <Text style={{ fontWeight: 900, display: 'block', textTransform: 'uppercase' }}>Ob-havo</Text>
+                    <Text type="secondary" style={{ fontWeight: 600 }}>Headerda ob-havo ko'rsatishni yoqish</Text>
+                  </div>
+                  <Switch 
+                    checked={settings?.header?.weather} 
+                    onChange={(val) => updateHeaderSetting('weather', val)}
+                  />
+                </div>
+              </List.Item>
             </List>
           </Card>
 
