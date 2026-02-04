@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../context/SettingsContext';
 import { useServerTest } from '../context/ServerTestContext';
+import HeaderDynamicIsland from './HeaderDynamicIsland';
 // showWarning imported but kept for future use
 // const { showWarning } = require('../utils/antdNotification');
 
@@ -157,6 +158,7 @@ const Header = ({ demoMode = false }) => {
   const [showNotifications, setShowNotifications] = React.useState(false);
   const [showLanguages, setShowLanguages] = React.useState(false);
   const [showSearch, setShowSearch] = React.useState(false);
+  const [showIsland, setShowIsland] = React.useState(false);
   const [activeDropdown, setActiveDropdown] = React.useState(null);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
@@ -259,6 +261,8 @@ const Header = ({ demoMode = false }) => {
       if (showLanguages && (!isDashboard || isSellerOrHeadAdmin)) newHeight = 140;
       else if (showSearch && (!isDashboard || isSellerOrHeadAdmin)) newHeight = 380;
       else newHeight = 380; // Default for expanded storage/messages
+    } else if (showIsland) {
+      newHeight = 64; // Island expansion happens within the header, but we can nudge it if needed
     }
 
     // Add height for notifications
@@ -344,6 +348,7 @@ const Header = ({ demoMode = false }) => {
         setShowMessages(false);
         setShowLanguages(false);
         setShowSearch(false);
+        setShowIsland(false);
       }
     };
 
@@ -533,7 +538,7 @@ const Header = ({ demoMode = false }) => {
       setShowNotifications(false);
       setShowLanguages(false);
       setShowSearch(false);
-
+      setShowIsland(false);
     }
   };
 
@@ -544,7 +549,7 @@ const Header = ({ demoMode = false }) => {
       setShowNotifications(false);
       setShowLanguages(false);
       setShowSearch(false);
-
+      setShowIsland(false);
     }
   };
 
@@ -554,7 +559,7 @@ const Header = ({ demoMode = false }) => {
     setShowMessages(false);
     setShowLanguages(false);
     setShowSearch(false);
-
+    setShowIsland(false);
   };
 
   const toggleLanguages = () => {
@@ -563,7 +568,7 @@ const Header = ({ demoMode = false }) => {
     setShowMessages(false);
     setShowNotifications(false);
     setShowSearch(false);
-
+    setShowIsland(false);
   };
 
   const toggleSearch = () => {
@@ -572,9 +577,20 @@ const Header = ({ demoMode = false }) => {
     setShowMessages(false);
     setShowNotifications(false);
     setShowLanguages(false);
+    setShowIsland(false);
     if (!showSearch) {
       setTimeout(() => document.getElementById('global-search-input')?.focus(), 100);
+    }
+  };
 
+  const toggleIsland = (val) => {
+    setShowIsland(val);
+    if (val) {
+      setShowSaved(false);
+      setShowMessages(false);
+      setShowNotifications(false);
+      setShowLanguages(false);
+      setShowSearch(false);
     }
   };
 
@@ -719,7 +735,6 @@ const Header = ({ demoMode = false }) => {
                       </div>
                     )}
 
-                    {/* Dashboard Notification Icon - Linked to messages setting */}
                     {settings.header.messages && (
                       <div
                         className={`storage-icon-container message-icon is-visible ${showNotifications ? 'active' : ''}`}
@@ -730,6 +745,7 @@ const Header = ({ demoMode = false }) => {
                         <span className="item-count msg-count">0</span>
                       </div>
                     )}
+
                   </>
                 ) : (
                   <>
@@ -817,6 +833,13 @@ const Header = ({ demoMode = false }) => {
                     )}
                   </>
                 )}
+
+                <HeaderDynamicIsland
+                  isDashboard={isDashboard}
+                  isMobile={isMobile}
+                  onToggle={toggleIsland}
+                  forceExpanded={showIsland}
+                />
 
                 {/* Mobile Menu Button - Shown only on Mobile */}
                 {isMobile && (

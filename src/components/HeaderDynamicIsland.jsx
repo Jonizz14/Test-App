@@ -1,26 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import './HeaderDynamicIsland.css';
 
-const HeaderDynamicIsland = ({ isDashboard, isMobile }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-    const [view, setView] = useState('time'); // 'time' or 'weather'
+const HeaderDynamicIsland = ({ isDashboard, isMobile, onToggle, forceExpanded }) => {
+    const [mode, setMode] = useState('time'); // 'time' or 'weather'
+    const [prevMode, setPrevMode] = useState('time');
+    const [isTransitioning, setIsTransitioning] = useState(false);
     const [time, setTime] = useState(new Date());
-    const [weather, setWeather] = useState({
+
+    const [weather] = useState({
         temp: 22,
         city: 'Tashkent',
-        condition: 'Sunny',
-        icon: 'sunny'
+        address: 'Sergeli tumani, 5-daha',
+        condition: 'Bulutli havo',
+        icon: 'cloud'
     });
 
-    // Update time every minute
     useEffect(() => {
-        const timer = setInterval(() => {
-            setTime(new Date());
-        }, 1000 * 60);
+        const timer = setInterval(() => setTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
 
-    // Use current local time from the system (based on metadata)
     const formatTime = (date) => {
         return date.toLocaleTimeString('uz-UZ', {
             hour: '2-digit',
@@ -37,66 +36,105 @@ const HeaderDynamicIsland = ({ isDashboard, isMobile }) => {
         });
     };
 
-    const toggleExpand = (e) => {
+    const handleModeToggle = (e) => {
+        // Stop propagation so it doesn't trigger the expansion toggle if we only want mode change
         e.stopPropagation();
-        setIsExpanded(!isExpanded);
+        if (isTransitioning) return;
+
+        setPrevMode(mode);
+        setIsTransitioning(true);
+        setMode(prev => prev === 'time' ? 'weather' : 'time');
+
+        setTimeout(() => {
+            setIsTransitioning(false);
+        }, 400);
     };
 
-    const toggleView = (e) => {
-        e.stopPropagation();
-        if (isExpanded) return; // Don't toggle view if expanded, just enjoy the view
-        setView(view === 'time' ? 'weather' : 'time');
-    };
-
-    // Click outside logic
-    useEffect(() => {
-        if (!isExpanded) return;
-
-        const handleClickOutside = () => setIsExpanded(false);
-        window.addEventListener('click', handleClickOutside);
-        return () => window.removeEventListener('click', handleClickOutside);
-    }, [isExpanded]);
-
-    if (isMobile) return null; // Better UX for mobile would be different, let's keep it simple as requested
+    if (isMobile) return null;
 
     return (
         <div
-            className={`dynamic-island-container ${isExpanded ? 'expanded' : 'collapsed'}`}
-            onClick={toggleExpand}
+            className={`dynamic-island-container ${forceExpanded ? 'expanded' : 'collapsed'}`}
+            onClick={() => onToggle(!forceExpanded)}
         >
             <div className="dynamic-island-content">
-                {!isExpanded ? (
-                    <div className="island-collapsed-view" onClick={toggleView}>
-                        {view === 'time' ? (
-                            <div className="island-item animate__animated animate__fadeIn">
-                                <span className="material-symbols-outlined island-mini-icon">schedule</span>
-                                <span className="island-text">{formatTime(time)}</span>
+                {!forceExpanded ? (
+                    <div className="island-pill-view">
+                        <div className="island-mode-toggle" onClick={handleModeToggle}>
+                            <span className="material-symbols-outlined mini-icon">
+                                {mode === 'time' ? 'schedule' : weather.icon}
+                            </span>
+                        </div>
+                        <div className="island-data-wrapper">
+                            <div className="preview-text-container">
+                                {isTransitioning && (
+                                    <span className="preview-text slide-up-exit">
+                                        {prevMode === 'time' ? formatTime(time) : `${weather.temp}°C`}
+                                    </span>
+                                )}
+                                <span className={`preview-text ${isTransitioning ? 'slide-up-enter' : ''}`}>
+                                    {mode === 'time' ? formatTime(time) : `${weather.temp}°C`}
+                                </span>
                             </div>
-                        ) : (
-                            <div className="island-item animate__animated animate__fadeIn">
-                                <span className="material-symbols-outlined island-mini-icon">{weather.icon}</span>
-                                <span className="island-text">{weather.temp}°C</span>
-                            </div>
-                        )}
+                        </div>
                     </div>
                 ) : (
-                    <div className="island-expanded-view animate__animated animate__zoomIn">
-                        <div className="expanded-row header-row">
-                            <div className="expanded-time-section">
-                                <span className="expanded-time">{formatTime(time)}</span>
-                                <span className="expanded-date">{formatDate(time)}</span>
-                            </div>
-                            <div className="expanded-weather-section">
-                                <span className="material-symbols-outlined weather-main-icon">{weather.icon}</span>
-                                <div className="weather-details">
-                                    <span className="weather-temp">{weather.temp}°C</span>
-                                    <span className="weather-city">{weather.city}</span>
+                    <div className="island-expanded-view">
+                        <div className="expanded-content-wrapper">
+                            <div className="mode-layout-container">
+                                {isTransitioning && (
+                                    <div className="slide-up-exit" style={{ position: 'absolute', width: '100%' }}>
+                                        {prevMode === 'time' ? (
+                                            <div className="expanded-time-layout">
+                                                <div className="time-main">
+                                                    <span className="big-time">{formatTime(time)}</span>
+                                                    <span className="seconds-dot"></span>
+                                                </div>
+                                                <div className="date-secondary">{formatDate(time)}</div>
+                                            </div>
+                                        ) : (
+                                            <div className="expanded-weather-layout">
+                                                <div className="weather-top">
+                                                    <span className="big-temp">{weather.temp}°C</span>
+                                                    <span className="material-symbols-outlined expanded-weather-icon">{weather.icon}</span>
+                                                </div>
+                                                <div className="weather-location">
+                                                    <span className="location-city">{weather.city}</span>
+                                                    <span className="location-address">{weather.address}</span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                                <div className={isTransitioning ? 'slide-up-enter' : ''}>
+                                    {mode === 'time' ? (
+                                        <div className="expanded-time-layout">
+                                            <div className="time-main">
+                                                <span className="big-time">{formatTime(time)}</span>
+                                                <span className="seconds-dot"></span>
+                                            </div>
+                                            <div className="date-secondary">{formatDate(time)}</div>
+                                        </div>
+                                    ) : (
+                                        <div className="expanded-weather-layout">
+                                            <div className="weather-top">
+                                                <span className="big-temp">{weather.temp}°C</span>
+                                                <span className="material-symbols-outlined expanded-weather-icon">{weather.icon}</span>
+                                            </div>
+                                            <div className="weather-location">
+                                                <span className="location-city">{weather.city}</span>
+                                                <span className="location-address" title={weather.address}>{weather.address}</span>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
-                        <div className="expanded-footer">
-                            <span className="weather-desc">{weather.condition}</span>
-                            <div className="island-status-dot"></div>
+
+                        <div className="expanded-mode-nav" onClick={handleModeToggle}>
+                            <span className="material-symbols-outlined">
+                                {mode === 'time' ? 'cloud' : 'schedule'}
+                            </span>
                         </div>
                     </div>
                 )}

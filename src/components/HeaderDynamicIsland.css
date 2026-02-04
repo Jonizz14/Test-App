@@ -1,0 +1,265 @@
+.dynamic-island-container {
+    position: relative;
+    background: #000000;
+    color: white;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-left: 12px;
+    user-select: none;
+    z-index: 1000;
+}
+
+.dynamic-island-container.collapsed {
+    width: 140px;
+    height: 38px;
+    border-radius: 19px;
+    display: flex;
+    align-items: center;
+}
+
+.dynamic-island-container.collapsed:hover {
+    background: #0a0a0a;
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.dynamic-island-container.expanded {
+    width: 260px;
+    height: 80px;
+    border-radius: 20px;
+    background: #000000;
+    cursor: default;
+}
+
+.dynamic-island-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+}
+
+/* Pill View */
+.island-pill-view {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.island-mode-toggle {
+    width: 22px;
+    height: 22px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+}
+
+.island-mode-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.mini-icon {
+    font-size: 14px !important;
+    color: white;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.island-data-wrapper {
+    flex: 1;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-right: 20px;
+    /* Offset for icon */
+}
+
+.preview-text-container {
+    position: relative;
+    height: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.preview-text {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.85);
+    transition: color 0.2s ease;
+    position: absolute;
+    white-space: nowrap;
+}
+
+.dynamic-island-container:hover .preview-text {
+    color: #ffffff;
+}
+
+/* Expanded View Transitions */
+.island-expanded-view {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6px;
+    overflow: hidden;
+}
+
+.expanded-content-wrapper {
+    flex: 1;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.mode-layout-container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.time-main {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.big-time {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+.seconds-dot {
+    width: 6px;
+    height: 6px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: blink 1s infinite;
+}
+
+.date-secondary {
+    font-size: 11px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    margin-top: -2px;
+}
+
+.weather-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.big-temp {
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.expanded-weather-icon {
+    font-size: 28px !important;
+    color: #fbbf24;
+}
+
+.weather-location {
+    display: flex;
+    flex-direction: column;
+    margin-top: -2px;
+}
+
+.location-city {
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.location-address {
+    font-size: 10px;
+    color: #888;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+}
+
+.expanded-mode-nav {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+}
+
+.expanded-mode-nav:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.expanded-mode-nav span {
+    font-size: 14px !important;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+/* Custom Sliding Animations */
+.slide-up-exit {
+    animation: slideOutUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.slide-up-enter {
+    animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes slideOutUp {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
