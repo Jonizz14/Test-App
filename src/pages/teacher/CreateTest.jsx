@@ -508,8 +508,8 @@ const CreateTest = () => {
       return;
     }
 
-    if (currentUser.role !== 'teacher' && currentUser.role !== 'admin') {
-      setError('Faqat o\'qituvchilar test yarata oladi');
+    if (currentUser.role !== 'teacher' && currentUser.role !== 'admin' && currentUser.role !== 'content_manager') {
+      setError('Faqat o\'qituvchilar va kontent menejerlar test yarata oladi');
       return;
     }
 

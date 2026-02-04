@@ -22,6 +22,7 @@ import Classmates from './student/Classmates';
 import MyClassStatistics from './student/MyClassStatistics';
 import StudentsRating from './student/StudentsRating';
 import ClassesRating from './student/ClassesRating';
+import TestBank from './student/TestBank';
 
 const { Content } = Layout;
 
@@ -43,6 +44,7 @@ const StudentDashboard = () => {
     '/student/my-class-statistics': 'Sinf statistikasi',
     '/student/students-rating': 'O\'quvchilar reytingi',
     '/student/classes-rating': 'Sinflar reytingi',
+    '/student/test-bank': 'Testlar bazasi',
   };
 
   const getBreadcrumbItems = () => {
@@ -171,6 +173,7 @@ const StudentDashboard = () => {
               <Route path="/my-class-statistics" element={<MyClassStatistics />} />
               <Route path="/students-rating" element={<StudentsRating />} />
               <Route path="/classes-rating" element={<ClassesRating />} />
+              <Route path="/test-bank" element={<TestBank />} />
             </Routes>
           </div>
         </div>

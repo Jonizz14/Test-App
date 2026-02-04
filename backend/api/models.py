@@ -9,8 +9,9 @@ class User(AbstractUser):
         ('teacher', 'Teacher'),
         ('student', 'Student'),
         ('seller', 'Seller'),
+        ('content_manager', 'Content Manager'),
     ]
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
     name = models.CharField(max_length=100, blank=True)
     display_id = models.CharField(max_length=50, blank=True, help_text="Human-readable ID like AHMEDOV_A_11_N")
     created_by_admin = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='created_users', help_text="Admin who created this user")
@@ -181,6 +182,22 @@ class User(AbstractUser):
                 self.premium_emoji_count = 0
             return True
         return False
+
+    def update_student_stats(self):
+        """Update student's total tests taken and average score"""
+        if self.role != 'student':
+            return
+
+        attempts = self.attempts.all()
+        self.total_tests_taken = attempts.count()
+        
+        if self.total_tests_taken > 0:
+            total_score = sum(attempt.score for attempt in attempts)
+            self.average_score = total_score / self.total_tests_taken
+        else:
+            self.average_score = 0
+            
+        self.save(update_fields=['total_tests_taken', 'average_score'])
 
     def generate_display_id(self):
         """Generate a display ID for student/teacher based on name and role with admin isolation"""

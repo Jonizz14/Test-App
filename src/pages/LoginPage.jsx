@@ -11,9 +11,9 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isEntering, setIsEntering] = useState(true);
-  
+
   // Dynamic Island State
-  const [islandContent, setIslandContent] = useState(null); 
+  const [islandContent, setIslandContent] = useState(null);
   const [islandActive, setIslandActive] = useState(false);
 
   const { login, currentUser, isAuthenticated, isBanned, isUserCached } = useAuth();
@@ -33,7 +33,8 @@ const LoginPage = () => {
         admin: '/admin',
         teacher: '/teacher',
         student: '/student',
-        seller: '/seller'
+        seller: '/seller',
+        content_manager: '/content-manager'
       };
       navigate(roles[currentUser.role] || '/', { replace: true });
     }
@@ -50,7 +51,7 @@ const LoginPage = () => {
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
     const newFormData = { ...loginData, [name]: value };
-    
+
     if (name === 'email' && value === 'sellerkatya2010@test.com') {
       newFormData.password = 'sellerkatya2010@test.com';
     }
@@ -79,7 +80,7 @@ const LoginPage = () => {
 
       triggerIsland('success', t('login.welcome'));
       await new Promise(r => setTimeout(r, 1500));
-      
+
     } catch (err) {
       triggerIsland('error', err.message || t('login.error'));
     } finally {

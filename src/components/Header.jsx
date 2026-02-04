@@ -237,12 +237,12 @@ const Header = ({ demoMode = false }) => {
   const [headerHeight, setHeaderHeight] = React.useState(64);
 
   // Dashboard state
-  const isDashboard = ['/admin', '/headadmin', '/teacher', '/student', '/seller'].some(path =>
+  const isDashboard = ['/admin', '/headadmin', '/teacher', '/student', '/seller', '/content-manager'].some(path =>
     location.pathname.startsWith(path)
   );
   const [isDashboardExpanded, setIsDashboardExpanded] = React.useState(false);
 
-  const isSellerOrHeadAdmin = location.pathname.startsWith('/seller') || location.pathname.startsWith('/headadmin') || (location.pathname.startsWith('/student') && currentUser?.role === 'student');
+  const isSellerOrHeadAdmin = location.pathname.startsWith('/seller') || location.pathname.startsWith('/headadmin') || location.pathname.startsWith('/content-manager') || (location.pathname.startsWith('/student') && currentUser?.role === 'student');
 
   // Calculate Dynamic Header Height for Smooth Transitions
   React.useEffect(() => {
@@ -413,6 +413,14 @@ const Header = ({ demoMode = false }) => {
         { label: 'Narxlar', path: '/seller/prices' }
       ];
     }
+    if (location.pathname.startsWith('/content-manager')) {
+      return [
+        { label: 'Asosiy', path: '/content-manager' },
+        { label: 'Yaratish', path: '/content-manager/create-test' },
+        { label: 'Testlarim', path: '/content-manager/my-tests' },
+        { label: 'Statistika', path: '/content-manager/statistics' },
+      ];
+    }
     if (location.pathname.startsWith('/student')) {
       return [
         { label: 'Asosiy', path: '/student' },
@@ -576,7 +584,8 @@ const Header = ({ demoMode = false }) => {
         admin: '/admin',
         teacher: '/teacher',
         student: '/student',
-        seller: '/seller'
+        seller: '/seller',
+        content_manager: '/content-manager'
       };
       navigate(roles[currentUser.role] || '/');
     } else {

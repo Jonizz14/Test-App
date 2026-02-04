@@ -37,6 +37,7 @@ const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const TeacherDashboard = React.lazy(() => import('./pages/TeacherDashboard'));
 const StudentDashboard = React.lazy(() => import('./pages/StudentDashboard'));
 const SellerDashboard = React.lazy(() => import('./pages/SellerDashboard'));
+const ContentManagerDashboard = React.lazy(() => import('./pages/ContentManagerDashboard'));
 
 // Theme definition
 const theme = createTheme({
@@ -339,6 +340,15 @@ const AnimatedRoutes = () => {
           }
         />
 
+        <Route
+          path="/content-manager/*"
+          element={
+            <ProtectedRoute allowedRoles={['content_manager']}>
+              <ContentManagerDashboard />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Home page */}
         <Route path="/" element={<Home />} />
 
@@ -369,7 +379,7 @@ const AnimatedRoutes = () => {
 const GlobalHeader = () => {
   const location = useLocation();
   // Include only public routes and headadmin/seller dashboards
-  const themedRoutes = ['/', '/login', '/contact', '/updates', '/headadmin', '/seller', '/student'];
+  const themedRoutes = ['/', '/login', '/contact', '/updates', '/headadmin', '/seller', '/student', '/content-manager'];
 
   const isThemedRoute = themedRoutes.some(route =>
     route === '/' ? location.pathname === '/' : location.pathname.startsWith(route)
@@ -478,6 +488,8 @@ const RoleBasedRedirect = () => {
       return <Navigate to="/student" replace />;
     case 'seller':
       return <Navigate to="/seller" replace />;
+    case 'content_manager':
+      return <Navigate to="/content-manager" replace />;
     default:
       // Fallback to login if role is not recognized
       return <Navigate to="/login" replace />;

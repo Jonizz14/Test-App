@@ -89,6 +89,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class TestSerializer(serializers.ModelSerializer):
     teacher_name = serializers.CharField(source='teacher.username', read_only=True)
+    teacher_role = serializers.CharField(source='teacher.role', read_only=True)
     question_count = serializers.SerializerMethodField()
     attempt_count = serializers.SerializerMethodField()
     average_score = serializers.SerializerMethodField()
@@ -97,7 +98,7 @@ class TestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Test
-        fields = ['id', 'teacher', 'teacher_name', 'subject', 'title', 'description',
+        fields = ['id', 'teacher', 'teacher_name', 'teacher_role', 'subject', 'title', 'description',
                   'total_questions', 'question_count', 'time_limit', 'difficulty', 'target_grades', 'created_at', 'is_active',
                   'attempt_count', 'average_score', 'average_time']
         read_only_fields = ['id', 'created_at', 'teacher']

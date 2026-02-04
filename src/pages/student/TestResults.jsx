@@ -353,11 +353,15 @@ const TestResults = () => {
           onCancel={handleCloseDialog}
           width={900}
           centered
-          styles={{ mask: { backdropFilter: 'blur(4px)' } }}
+          styles={{
+            mask: { backdropFilter: 'blur(4px)' },
+            body: { padding: '24px', maxHeight: '70vh', overflowY: 'auto' }
+          }}
+          className="custom-modal-scroll"
           footer={[<Button key="close" onClick={handleCloseDialog} style={{ borderRadius: 0, border: '3px solid #000', fontWeight: 900, height: '44px' }}>YOPISh</Button>]}
         >
           {selectedResult && (
-            <div style={{ padding: '20px 0' }}>
+            <div style={{ padding: '0px' }}>
               {(() => {
                 const test = getTestById(selectedResult.test);
                 return (
@@ -375,60 +379,42 @@ const TestResults = () => {
                       </Row>
                     </div>
 
-                    <Title level={4} style={{ fontWeight: 900, textTransform: 'uppercase', marginBottom: '24px', fontSize: '16px' }}>Savollar tahlili</Title>
+                    <Title level={4} style={{ fontWeight: 900, textTransform: 'uppercase', marginBottom: '16px', fontSize: '14px', letterSpacing: '1px' }}>Javoblar xaritasi</Title>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '32px', padding: '16px', backgroundColor: '#f8fafc', border: '3px solid #000' }}>
+                      {questions.map((question, index) => {
+                        const studentAnswer = selectedResult.answers?.[question.id];
+                        const isCorrect = studentAnswer && question.correct_answer &&
+                          studentAnswer.toString().trim().toLowerCase() === question.correct_answer.toString().trim().toLowerCase();
 
-                    {questionsLoading ? (
-                      <div style={{ textAlign: 'center', padding: '40px' }}><Spin size="large" /></div>
-                    ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        {questions.map((question, index) => {
-                          const studentAnswer = selectedResult.answers?.[question.id];
-                          const isCorrect = studentAnswer && question.correct_answer &&
-                            studentAnswer.toString().trim().toLowerCase() === question.correct_answer.toString().trim().toLowerCase();
+                        return (
+                          <div
+                            key={`map-${question.id}`}
+                            onClick={() => {
+                              const el = document.getElementById(`q-detail-${question.id}`);
+                              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }}
+                            style={{
+                              width: '40px',
+                              height: '40px',
+                              backgroundColor: isCorrect ? '#059669' : '#dc2626',
+                              color: '#fff',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontWeight: 900,
+                              fontSize: '16px',
+                              border: '2px solid #000',
+                              boxShadow: '3px 3px 0px #000',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            {index + 1}
+                          </div>
+                        );
+                      })}
+                    </div>
 
-                          return (
-                            <Card
-                              key={question.id}
-                              style={{
-                                borderRadius: 0,
-                                border: '3px solid #000',
-                                borderLeft: `12px solid ${isCorrect ? '#059669' : '#dc2626'}`,
-                                backgroundColor: isCorrect ? '#f0fdf4' : '#fef2f2'
-                              }}
-                            >
-                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                                <Tag style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 900, backgroundColor: '#000', color: '#fff' }}>SAVOL {index + 1}</Tag>
-                                <Tag color={isCorrect ? 'green' : 'red'} style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 900, textTransform: 'uppercase' }}>
-                                  {isCorrect ? 'TO\'G\'RI' : 'NOTO\'G\'RI'}
-                                </Tag>
-                              </div>
-
-                              <div style={{ marginBottom: '16px' }}>
-                                <LaTeXPreview text={question.question_text} style={{ fontSize: '1.1rem', fontWeight: 700, color: '#000' }} />
-                              </div>
-
-                              {question.image && (
-                                <div style={{ marginBottom: '16px', border: '2px solid #000', padding: '8px', display: 'inline-block', backgroundColor: '#fff' }}>
-                                  <img src={question.image} alt="Savol rasmi" style={{ maxWidth: '100%', maxHeight: '300px' }} />
-                                </div>
-                              )}
-
-                              <div style={{ padding: '12px', border: '2px solid #000', backgroundColor: '#fff' }}>
-                                <Text style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: '#666' }}>Sizning javobingiz:</Text>
-                                <Text style={{ fontWeight: 700, color: isCorrect ? '#059669' : '#dc2626' }}>{studentAnswer || 'Javob berilmagan'}</Text>
-                              </div>
-
-                              {question.explanation && (
-                                <div style={{ marginTop: '16px', padding: '12px', border: '2px dashed #000', backgroundColor: '#fff' }}>
-                                  <Text style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', color: '#666', marginBottom: '4px' }}>Tushuntirish:</Text>
-                                  <Text style={{ fontWeight: 600 }}>{question.explanation}</Text>
-                                </div>
-                              )}
-                            </Card>
-                          );
-                        })}
-                      </div>
-                    )}
+                    {/* Detailed Analysis removed as per request - Answer map remains above */}
                   </>
                 );
               })()}
@@ -439,6 +425,20 @@ const TestResults = () => {
           @keyframes brutalist-flash {
             from { opacity: 1; transform: scale(1); }
             to { opacity: 0.7; transform: scale(1.02); }
+          }
+          .custom-modal-scroll .ant-modal-body::-webkit-scrollbar {
+            width: 10px;
+          }
+          .custom-modal-scroll .ant-modal-body::-webkit-scrollbar-track {
+            background: #fff;
+            border-left: 2px solid #000;
+          }
+          .custom-modal-scroll .ant-modal-body::-webkit-scrollbar-thumb {
+            background: #000;
+            border: 2px solid #fff;
+          }
+          .custom-modal-scroll .ant-modal-body::-webkit-scrollbar-thumb:hover {
+            background: #333;
           }
         `}</style>
       </div>

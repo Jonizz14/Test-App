@@ -24,6 +24,7 @@ import {
   SafetyCertificateOutlined,
   SearchOutlined,
   TeamOutlined,
+  GlobalOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
@@ -370,7 +371,27 @@ const StudentOverview = () => {
                 </div>
               </Card>
             </Col>
-            <Col xs={24} sm={12} lg={8}>
+            <Col xs={24} sm={12} lg={6}>
+              <Card
+                hoverable
+                onClick={() => navigate('/student/test-bank')}
+                style={{
+                  borderRadius: 0,
+                  border: '4px solid #000',
+                  boxShadow: '10px 10px 0px #000',
+                  cursor: 'pointer',
+                  height: '100%',
+                  backgroundColor: '#e0e7ff'
+                }}
+              >
+                <div style={{ textAlign: 'center', padding: '12px' }}>
+                  <GlobalOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
+                  <Title level={4} style={{ fontWeight: 800, textTransform: 'uppercase', margin: 0 }}>Testlar Bazasi</Title>
+                  <Text style={{ fontWeight: 600 }}>Global test bankini ko'ring va bilimingizni sinang</Text>
+                </div>
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} lg={6}>
               <Card
                 hoverable
                 onClick={() => navigate('/student/search')}

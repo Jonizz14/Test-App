@@ -577,17 +577,29 @@ class TestViewSet(viewsets.ModelViewSet):
                     models.Q(teacher=self.request.user)  # Can see their own tests
                 )
 
-        # Apply student isolation - students can only see tests from teachers created by their admin
+        # Apply student isolation - students can only see tests from teachers created by their admin OR global tests
         elif self.request.user.is_authenticated and self.request.user.role == 'student':
+            # Base query for global tests
+            global_tests_query = models.Q(teacher__role='content_manager')
+            
             if self.request.user.created_by_admin:
-                # Student can only see tests from teachers created by their admin
+                # Student can see tests from teachers created by their admin AND global tests
                 queryset = queryset.filter(
                     models.Q(teacher__created_by_admin=self.request.user.created_by_admin) |
-                    models.Q(teacher=self.request.user.created_by_admin)  # Admin's own tests
+                    models.Q(teacher=self.request.user.created_by_admin) |  # Admin's own tests
+                    global_tests_query
                 )
             else:
-                # If student has no admin, don't show any tests
-                queryset = queryset.none()
+                # If student has no admin, only show global tests
+                queryset = queryset.filter(global_tests_query)
+
+        subject = self.request.query_params.get('subject', None)
+        teacher = self.request.query_params.get('teacher', None)
+        if subject:
+            queryset = queryset.filter(subject=subject)
+        # Apply teacher/content_manager isolation - only see their own tests
+        elif self.request.user.is_authenticated and self.request.user.role in ['teacher', 'content_manager']:
+            queryset = queryset.filter(teacher=self.request.user)
 
         subject = self.request.query_params.get('subject', None)
         teacher = self.request.query_params.get('teacher', None)
@@ -597,22 +609,26 @@ class TestViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(teacher=teacher)  # Fixed: use teacher instead of teacher_id
 
         # Filter tests for students based on their class_group (additional filtering)
-        if self.request.user.role == 'student':
-            # For students, only show tests that are specifically assigned to their class
+        if self.request.user.is_authenticated and self.request.user.role == 'student':
+            # Base filter: must be active
+            queryset = queryset.filter(is_active=True)
+            
+            # For students, only show tests that are specifically assigned to their class OR global tests
             class_group = self.request.user.class_group
             if class_group:
                 # Extract grade from class_group (e.g., "9-01" -> "9")
                 student_grade = class_group.split('-')[0] if '-' in class_group else class_group
 
-                # Only show tests where the student's grade is in target_grades
+                # Only show tests where the student's grade matches OR is for content_manager
                 from django.db.models import Q
                 queryset = queryset.filter(
                     Q(target_grades__icontains=student_grade) |  # Grade in target_grades string
-                    Q(target_grades='')     # Empty means all grades
-                ).filter(is_active=True)
+                    Q(target_grades='') |                        # Empty means all grades
+                    Q(teacher__role='content_manager')           # Global tests are always allowed
+                )
             else:
-                # If no class_group, don't show any tests
-                queryset = queryset.none()
+                # If no class_group, ONLY show global tests
+                queryset = queryset.filter(teacher__role='content_manager')
         return queryset
 
     def perform_update(self, serializer):
@@ -659,12 +675,28 @@ class TestAttemptViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         test = serializer.validated_data['test']
 
-        # Check if student can access this test (same admin isolation)
-        if self.request.user.created_by_admin and test.teacher.created_by_admin != self.request.user.created_by_admin:
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("Siz faqat o'z adminingizning testlarida qatnasha olasiz")
+        # Check if student can access this test (admin isolation OR global test)
+        if self.request.user.role == 'student':
+            is_global_test = test.teacher.role == 'content_manager'
+            
+            if self.request.user.created_by_admin:
+                # Student with admin can see tests from their admin's teachers OR global tests
+                can_access = (
+                    test.teacher.created_by_admin == self.request.user.created_by_admin or
+                    test.teacher == self.request.user.created_by_admin or
+                    is_global_test
+                )
+            else:
+                # Student without admin can only see global tests
+                can_access = is_global_test
+                
+            if not can_access:
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied("Siz ushbu testda qatnasha olmaysiz")
 
-        serializer.save(student=self.request.user)
+        attempt = serializer.save(student=self.request.user)
+        self.request.user.update_student_stats()
+        return attempt
 
     def get_queryset(self):
         queryset = TestAttempt.objects.all()
@@ -797,9 +829,23 @@ class TestSessionViewSet(viewsets.ModelViewSet):
         except Test.DoesNotExist:
             return Response({'error': 'Test not found or inactive'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Check if student can access this test (same admin isolation)
-        if request.user.created_by_admin and test.teacher.created_by_admin != request.user.created_by_admin:
-            return Response({'error': 'Siz faqat o\'z adminingizning testlarida qatnasha olasiz'}, status=status.HTTP_403_FORBIDDEN)
+        # Check if student can access this test (admin isolation OR global test)
+        if request.user.role == 'student':
+            is_global_test = test.teacher.role == 'content_manager'
+            
+            if request.user.created_by_admin:
+                # Student with admin can see tests from their admin's teachers OR global tests
+                can_access = (
+                    test.teacher.created_by_admin == request.user.created_by_admin or
+                    test.teacher == request.user.created_by_admin or
+                    is_global_test
+                )
+            else:
+                # Student without admin can only see global tests
+                can_access = is_global_test
+                
+            if not can_access:
+                return Response({'error': 'Siz ushbu testda qatnasha olmaysiz'}, status=status.HTTP_403_FORBIDDEN)
 
         # Check if student already has an attempt for this test
         existing_attempt = TestAttempt.objects.filter(student=request.user, test=test).first()
@@ -881,7 +927,13 @@ class TestSessionViewSet(viewsets.ModelViewSet):
                 return Response({'error': 'Session is expired or completed'}, status=status.HTTP_400_BAD_REQUEST)
                 
             # Update answers
-            session.answers = answers
+            current_answers = session.answers or {}
+            if isinstance(answers, dict):
+                current_answers.update(answers)
+            else:
+                current_answers = answers
+                
+            session.answers = current_answers
             session.save()
             
             return Response({'status': 'success'})
@@ -1218,157 +1270,6 @@ class SiteUpdateViewSet(viewsets.ModelViewSet):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-
-        # Create new session
-        from django.utils import timezone
-        import uuid
-
-        now = timezone.now()
-        expires_at = now + timezone.timedelta(minutes=test.time_limit)
-
-        session = TestSession.objects.create(
-            session_id=str(uuid.uuid4()),
-            test=test,
-            student=request.user,
-            started_at=now,
-            expires_at=expires_at,
-            answers={}
-        )
-
-        serializer = self.get_serializer(session)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    @action(detail=False, methods=['get'])
-    def get_session(self, request):
-        """Get an existing test session by session_id"""
-        session_id = request.query_params.get('session_id')
-        if not session_id:
-            return Response({'error': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            session = TestSession.objects.get(session_id=session_id, student=request.user)
-            
-            # Check if session has expired
-            if session.is_expired or session.time_remaining <= 0:
-                session.mark_expired()
-                return Response({'error': 'Test session has expired'}, status=status.HTTP_410_GONE)
-            
-            # Check if session is completed
-            if session.is_completed:
-                return Response({'error': 'Test already completed'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            serializer = self.get_serializer(session)
-            return Response(serializer.data)
-            
-        except TestSession.DoesNotExist:
-            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
-
-    @action(detail=False, methods=['put'])
-    def update_answers(self, request):
-        """Update answers in a test session"""
-        session_id = request.data.get('session_id')
-        answers = request.data.get('answers', {})
-
-        if not session_id:
-            return Response({'error': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            session = TestSession.objects.get(session_id=session_id, student=request.user)
-
-            # Check if session is still active
-            if session.is_expired or session.time_remaining <= 0:
-                session.mark_expired()
-                return Response({'error': 'Test session has expired'}, status=status.HTTP_410_GONE)
-
-            if session.is_completed:
-                return Response({'error': 'Test already completed'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Update answers
-            session.answers.update(answers)
-            session.save()
-
-            serializer = self.get_serializer(session)
-            return Response(serializer.data)
-
-        except TestSession.DoesNotExist:
-            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
-
-    @action(detail=False, methods=['post'])
-    def complete_session(self, request):
-        """Complete a test session and create attempt record"""
-        session_id = request.data.get('session_id')
-
-        if not session_id:
-            return Response({'error': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            session = TestSession.objects.get(session_id=session_id, student=request.user)
-
-            if session.is_completed:
-                return Response({'error': 'Test already completed'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Check if session has expired
-            is_expired = session.is_expired or session.time_remaining <= 0
-            if is_expired and not session.is_expired:
-                session.mark_expired()
-
-            # Calculate score based on saved answers
-            questions = session.test.questions.all()
-            correct_answers = 0
-            total_questions = questions.count()
-
-            for question in questions:
-                user_answer = session.answers.get(str(question.id), '')
-                if user_answer and user_answer.lower().strip() == question.correct_answer.lower().strip():
-                    correct_answers += 1
-
-            score = (correct_answers / total_questions * 100) if total_questions > 0 else 0
-
-            # Calculate time taken
-            from django.utils import timezone
-            if is_expired:
-                # For expired sessions, use the full time limit
-                time_taken = session.test.time_limit
-            else:
-                # For manually completed sessions, calculate actual time taken
-                time_taken = int((timezone.now() - session.started_at).total_seconds() / 60)
-
-            # Create attempt record
-            try:
-                attempt = TestAttempt.objects.create(
-                    student=session.student,
-                    test=session.test,
-                    answers=session.answers,
-                    score=score,
-                    time_taken=time_taken
-                )
-            except Exception as e:
-                # Handle unique constraint violation (student already has an attempt for this test)
-                if 'UNIQUE constraint failed' in str(e) or 'duplicate key value' in str(e):
-                    return Response({
-                        'error': 'Test has already been completed by this student',
-                        'code': 'DUPLICATE_ATTEMPT'
-                    }, status=status.HTTP_409_CONFLICT)
-                else:
-                    raise e
-
-            # Mark session as completed
-            session.complete()
-
-            message = 'Test completed successfully'
-            if is_expired:
-                message = 'Test auto-completed due to time expiry'
-
-            return Response({
-                'success': True,
-                'score': score,
-                'attempt_id': attempt.id,
-                'message': message,
-                'expired': is_expired
-            })
-
-        except TestSession.DoesNotExist:
-            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
 
 class PricingViewSet(viewsets.ModelViewSet):
     queryset = Pricing.objects.all()
