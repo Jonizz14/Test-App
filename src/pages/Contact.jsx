@@ -7,6 +7,8 @@ import { useAuth } from "../context/AuthContext";
 import { useSentMessages } from "../context/SentMessagesContext";
 import "../styles/Contact.css";
 import { useTranslation } from "react-i18next";
+import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const Contact = () => {
   const _navigate = useNavigate();
@@ -177,21 +179,39 @@ const Contact = () => {
         </section>
 
         {/* Contact info grid - Dark Section */}
-        <section className="contact-modern-info">
+        <section className="stats-section">
           <div className="section-container">
-            <h2>{t('contact.ourAddress')}</h2>
-            <div className="stats-grid-large">
-              <div className="stat-box" onClick={() => window.open('tel:+998901234567')}>
-                <span className="stat-label">{t('contact.phone')}</span>
-                <span className="stat-number">+998 90 123 45 67</span>
+            <div className="stats-header">
+              <h2>{t('contact.ourAddress')}</h2>
+            </div>
+            <div className="contact-map-split">
+              <div className="stats-grid-large">
+                <div className="stat-box" onClick={() => window.open('tel:+998901234567')} style={{ cursor: 'pointer' }}>
+                  <span className="stat-label">{t('contact.phone')}</span>
+                  <span className="stat-number">+998 90 123 45 67</span>
+                </div>
+                <div className="stat-box" onClick={() => window.open('mailto:info@examify.uz')} style={{ cursor: 'pointer' }}>
+                  <span className="stat-label">{t('contact.email')}</span>
+                  <span className="stat-number">info@examify.uz</span>
+                </div>
+                <div className="stat-box">
+                  <span className="stat-label">{t('contact.address')}</span>
+                  <span className="stat-number">{t('contact.addressText')}</span>
+                </div>
               </div>
-              <div className="stat-box" onClick={() => window.open('mailto:info@examify.uz')}>
-                <span className="stat-label">{t('contact.email')}</span>
-                <span className="stat-number">info@examify.uz</span>
-              </div>
-              <div className="stat-box">
-                <span className="stat-label">{t('contact.address')}</span>
-                <span className="stat-number">{t('contact.addressText')}</span>
+
+              <div className="map-container custom-map-style">
+                <MapContainer center={[41.210458, 69.221518]} zoom={17} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <CircleMarker center={[41.210458, 69.221518]} radius={10} pathOptions={{ color: 'white', fillColor: '#ef4444', fillOpacity: 1 }}>
+                    <Popup>
+                      Sergeli ixtisoslashtirilgan maktab <br /> Nilufar ko'chasi 63.
+                    </Popup>
+                  </CircleMarker>
+                </MapContainer>
               </div>
             </div>
           </div>

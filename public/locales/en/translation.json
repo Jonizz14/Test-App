@@ -1,5 +1,7 @@
 {
     "welcome": "Welcome",
+    "questions": "Questions",
+    "count": "Count",
     "language": "Language",
     "nav": {
         "dashboard": "Dashboard",
@@ -160,6 +162,13 @@
                 "title": "Flexibility",
                 "desc": "Convenient interface and fast performance on any device — from phone to computer."
             }
+        },
+        "analytics": {
+            "title": "PLATFORM ANALYTICS",
+            "desc": "Brief statistics of the site",
+            "users": "USERS",
+            "activity": "PLATFORM ACTIVITY",
+            "growth": "MONTHLY CREATED TESTS"
         },
         "stats": "WE IN NUMBERS",
         "statsLabels": {

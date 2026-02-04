@@ -107,7 +107,7 @@ const Home = () => {
     return () => observer.disconnect();
   }, [skipAnimation]);
 
-  const [chartsVisible, setChartsVisible] = useState(false);
+  const [chartsVisible, setChartsVisible] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -119,19 +119,6 @@ const Home = () => {
       }
     };
     fetchStats();
-
-    // Intersection Observer to lazy load the heavy Analytics section
-    const chartsObserver = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        setChartsVisible(true);
-        chartsObserver.disconnect();
-      }
-    }, { threshold: 0.1 });
-
-    const analyticsSection = document.querySelector('.analytics-section');
-    if (analyticsSection) chartsObserver.observe(analyticsSection);
-
-    return () => chartsObserver.disconnect();
   }, []);
 
   const scrollToSection = (className) => {
@@ -438,7 +425,7 @@ const Home = () => {
                       legend: { bottom: '5%', left: 'center' },
                       series: [
                         {
-                          name: 'Foydalanuvchilar',
+                          name: t('home.analytics.users', 'Foydalanuvchilar'),
                           type: 'pie',
                           radius: ['35%', '65%'],
                           center: ['50%', '45%'],
@@ -454,8 +441,8 @@ const Home = () => {
                           },
                           labelLine: { show: false },
                           data: [
-                            { value: stats?.students_count || 0, name: 'O\'quvchilar', itemStyle: { color: '#3b82f6' } },
-                            { value: stats?.teachers_count || 0, name: 'O\'qituvchilar', itemStyle: { color: '#10b981' } }
+                            { value: stats?.students_count || 0, name: t('nav.students', "O'quvchilar"), itemStyle: { color: '#3b82f6' } },
+                            { value: stats?.teachers_count || 0, name: t('nav.teachers', "O'qituvchilar"), itemStyle: { color: '#10b981' } }
                           ]
                         }
                       ]
@@ -477,14 +464,14 @@ const Home = () => {
                       xAxis: [
                         {
                           type: 'category',
-                          data: ['Testlar', 'Urinishlar', 'Savollar'],
+                          data: [t('nav.tests', 'Testlar'), t('home.statsLabels.attempts', 'Urinishlar'), t('questions', 'Savollar')],
                           axisTick: { alignWithLabel: true }
                         }
                       ],
                       yAxis: [{ type: 'value' }],
                       series: [
                         {
-                          name: 'Soni',
+                          name: t('count', 'Soni'),
                           type: 'bar',
                           barWidth: '60%',
                           data: [
@@ -518,7 +505,7 @@ const Home = () => {
                       },
                       series: [
                         {
-                          name: 'Yaratilgan Testlar',
+                          name: t('home.statsLabels.tests', 'Yaratilgan Testlar'),
                           data: [120, 132, 191, 234, 190, 330, 310],
                           type: 'line',
                           areaStyle: { color: 'rgba(245, 158, 11, 0.2)' },
@@ -537,8 +524,8 @@ const Home = () => {
             </div>
           ) : (
             <div style={{ height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-               {/* Placeholder to reserve space and avoid CLS when charts load */}
-               <div className="chart-skeleton-placeholder" style={{ opacity: 0.1 }}>Tahlillar yuklanmoqda...</div>
+              {/* Placeholder to reserve space and avoid CLS when charts load */}
+              <div className="chart-skeleton-placeholder" style={{ opacity: 0.1 }}>Tahlillar yuklanmoqda...</div>
             </div>
           )}
         </div>

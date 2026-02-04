@@ -94,45 +94,69 @@
   background: #333;
 }
 
-.contact-modern-info {
-  background: #000;
-  color: #fff;
-}
-
-.contact-modern-info h2 {
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  font-weight: 900;
+/* Overrides for Stats Section in Contact Page to fit text better */
+.modern-contact-page .stats-section .stats-header h2 {
+  font-size: clamp(2.1rem, 4.5vw, 4rem);
   margin-bottom: 4rem;
-  text-align: center;
 }
 
-.contact-modern-info .stats-grid-large {
+.modern-contact-page .stats-section .stat-number {
+  font-size: clamp(1.4rem, 3vw, 3rem);
+  white-space: nowrap;
+}
+
+.modern-contact-page .stats-section .stat-label {
+  font-size: 1rem;
+}
+
+/* Stack stats vertically for Contact Page */
+.modern-contact-page .contact-map-split {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 4rem;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
-.stat-box {
-  cursor: pointer;
-  display: flex;
+.modern-contact-page .stats-grid-large {
+  display: flex !important;
   flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
+  gap: 3rem;
+  align-items: flex-start;
+  /* Left align text next to map */
+  text-align: left;
+  flex: 1;
 }
 
-.stat-box .stat-label {
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  opacity: 0.5;
-  color: #3b82f6;
+.modern-contact-page .map-container {
+  flex: 1;
+  height: 400px;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.stat-box .stat-number {
-  font-size: clamp(1.2rem, 3vw, 2.5rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
+/* On mobile, stack them */
+@media (max-width: 968px) {
+  .modern-contact-page .contact-map-split {
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .modern-contact-page .stats-grid-large {
+    align-items: center;
+    text-align: center;
+    width: 100%;
+  }
+
+  .modern-contact-page .map-container {
+    width: 100%;
+    height: 300px;
+  }
 }
+
+/* Styles replaced by global stats-section in index.css */
 
 .contact-modern-messages {
   background: #fff;

@@ -1015,11 +1015,11 @@
   }
 
   .nav-desktop {
-    gap: 1rem;
+    gap: 1.5rem;
   }
 
   .nav-links {
-    gap: 0.8rem;
+    gap: 1.5rem;
   }
 
   .btn-secondary {
