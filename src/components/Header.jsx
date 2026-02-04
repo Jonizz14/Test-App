@@ -654,28 +654,6 @@ const Header = ({ demoMode = false }) => {
               <div className="nav-buttons">
                 {isDashboard ? (
                   <>
-                    {currentUser?.role === 'student' && sessionStarted && (
-                      <div className="test-timer-header animate__animated animate__fadeInRight" style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        backgroundColor: '#4f46e5',
-                        color: '#fff',
-                        padding: '6px 16px',
-                        borderRadius: '12px',
-                        marginRight: '16px',
-                        fontWeight: '900',
-                        fontSize: '1rem',
-                        border: '2px solid #000',
-                        boxShadow: '4px 4px 0px #000',
-                        cursor: 'default'
-                      }}>
-                        <span className="material-symbols-outlined" style={{ animation: 'pulse 1s infinite' }}>timer</span>
-                        <span style={{ fontFamily: 'monospace', fontSize: '1.2rem', letterSpacing: '1px' }}>
-                          {formatTime ? formatTime(timeRemaining) : '00:00'}
-                        </span>
-                      </div>
-                    )}
                     <button className="btn-secondary" onClick={logout} style={{ background: '#ff4757', color: 'white' }}>{t('nav.logout')}</button>
 
                     {/* Seller, HeadAdmin & Student Icons */}

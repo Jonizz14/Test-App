@@ -58,8 +58,8 @@ const PricingPage = () => {
         const transformedPricing = (pricingResponse || []).map(plan => ({
           key: plan.plan_type,
           planType: plan.plan_name,
-          originalPrice: `${plan.original_price}`,
-          discountedPrice: `${plan.discounted_price}`,
+          originalPrice: `$${plan.original_price}`,
+          discountedPrice: `$${plan.discounted_price}`,
           discount: `${plan.discount_percentage}% Chegirma`,
           popular: plan.plan_type === 'month', // Make month popular
           color: plan.plan_type === 'week' ? '#2563eb' :
@@ -70,8 +70,8 @@ const PricingPage = () => {
         const transformedStars = (starResponse || []).map(pkg => ({
           key: `stars_${pkg.stars}`,
           stars: pkg.stars,
-          originalPrice: `${pkg.original_price}`,
-          price: `${pkg.discounted_price}`,
+          originalPrice: `$${pkg.original_price}`,
+          price: `$${pkg.discounted_price}`,
           discount: pkg.discount_text,
           popular: pkg.is_popular,
           color: pkg.stars >= 500 ? '#d97706' : '#f59e0b'

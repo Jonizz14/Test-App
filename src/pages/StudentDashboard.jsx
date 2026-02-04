@@ -3,6 +3,7 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Layout, Breadcrumb } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';
 import { useAuth } from '../context/AuthContext';
+import { useServerTest } from '../context/ServerTestContext';
 import UnbanModal from '../components/UnbanModal';
 import 'antd/dist/reset.css';
 
@@ -28,6 +29,7 @@ const { Content } = Layout;
 
 const StudentDashboard = () => {
   const { isBanned } = useAuth();
+  const { sessionStarted } = useServerTest();
   const location = useLocation();
 
   const breadcrumbNameMap = {
@@ -48,9 +50,47 @@ const StudentDashboard = () => {
   };
 
   const getBreadcrumbItems = () => {
+    const pathSnippets = location.pathname.split('/').filter((i) => i);
+
+    const renderTitle = (url, title, isHome = false) => {
+      const baseStyle = {
+        fontWeight: isHome ? 900 : 800,
+        textTransform: 'uppercase',
+        fontSize: '12px',
+        display: isHome ? 'flex' : 'inline-block',
+        alignItems: isHome ? 'center' : 'initial',
+        gap: isHome ? '4px' : '0'
+      };
+
+      if (sessionStarted) {
+        return (
+          <span style={{
+            ...baseStyle,
+            color: '#64748b',
+            cursor: 'not-allowed',
+            opacity: 0.7
+          }}>
+            {isHome && <HomeOutlined />} {title}
+          </span>
+        );
+      }
+
+      return (
+        <Link
+          to={url}
+          style={{
+            ...baseStyle,
+            color: isHome ? '#2563eb' : '#000'
+          }}
+        >
+          {isHome && <HomeOutlined />} {title}
+        </Link>
+      );
+    };
+
     const items = [
       {
-        title: <Link to="/student" style={{ color: '#2563eb', fontWeight: 900, textTransform: 'uppercase', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}><HomeOutlined /> ASOSIY SAHIFA</Link>,
+        title: renderTitle('/student', 'ASOSIY SAHIFA', true),
         key: 'home',
       }
     ];
@@ -58,30 +98,29 @@ const StudentDashboard = () => {
     if (location.pathname.includes('/student-profile/')) {
       items.push({
         key: 'classmates',
-        title: <Link to="/student/classmates" style={{ color: '#000', fontWeight: 800, textTransform: 'uppercase', fontSize: '12px' }}>Sinfdoshlar</Link>
+        title: renderTitle('/student/classmates', 'Sinfdoshlar')
       });
       items.push({
         key: 'profile',
-        title: <span style={{ color: '#000', fontWeight: 800, textTransform: 'uppercase', fontSize: '12px' }}>Sinfdosh profili</span>
+        title: <span style={{ color: sessionStarted ? '#64748b' : '#000', fontWeight: 800, textTransform: 'uppercase', fontSize: '12px', opacity: sessionStarted ? 0.7 : 1 }}>Sinfdosh profili</span>
       });
     } else if (location.pathname.includes('/teacher-details/')) {
       items.push({
         key: 'search',
-        title: <Link to="/student/search" style={{ color: '#000', fontWeight: 800, textTransform: 'uppercase', fontSize: '12px' }}>O'qituvchilar</Link>
+        title: renderTitle('/student/search', 'O\'qituvchilar')
       });
       items.push({
         key: 'teacher',
-        title: <span style={{ color: '#000', fontWeight: 800, textTransform: 'uppercase', fontSize: '12px' }}>Ustoz ma'lumotlari</span>
+        title: <span style={{ color: sessionStarted ? '#64748b' : '#000', fontWeight: 800, textTransform: 'uppercase', fontSize: '12px', opacity: sessionStarted ? 0.7 : 1 }}>Ustoz ma'lumotlari</span>
       });
     } else {
-      const pathSnippets = location.pathname.split('/').filter((i) => i);
       pathSnippets.forEach((_, index) => {
         const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
         const title = breadcrumbNameMap[url];
         if (title && url !== '/student') {
           items.push({
             key: url,
-            title: <Link to={url} style={{ color: '#000', fontWeight: 800, textTransform: 'uppercase', fontSize: '12px' }}>{title}</Link>
+            title: renderTitle(url, title)
           });
         }
       });
