@@ -8,11 +8,11 @@ const HeaderDynamicIsland = ({ isDashboard, isMobile, onToggle, forceExpanded, e
     const [time, setTime] = useState(new Date());
     const [isExpandedRender, setIsExpandedRender] = useState(forceExpanded);
 
-    const [weather] = useState({
-        temp: 22,
-        city: 'Tashkent',
-        address: 'Sergeli tumani, 5-daha',
-        condition: 'Bulutli havo',
+    const [weather, setWeather] = useState({
+        temp: '--',
+        city: 'Yuklanmoqda...',
+        address: 'Manzil aniqlanmoqda...',
+        condition: 'Ob-havo...',
         icon: 'cloud'
     });
 
@@ -20,6 +20,66 @@ const HeaderDynamicIsland = ({ isDashboard, isMobile, onToggle, forceExpanded, e
         const timer = setInterval(() => setTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
+
+    useEffect(() => {
+        if (!enableWeather) return;
+
+        const fetchWeather = async (lat, lon) => {
+            try {
+                // Fetch weather from Open-Meteo (Free, no key required)
+                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+                const weatherData = await weatherRes.json();
+                
+                // Fetch Address from Nominatim (OpenStreetMap)
+                const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                const geoData = await geoRes.json();
+
+                const city = geoData.address.city || geoData.address.town || geoData.address.village || 'Noma\'lum';
+                const district = geoData.address.suburb || geoData.address.neighbourhood || '';
+                
+                const conditionMap = {
+                    0: 'Ochiq osmon',
+                    1: 'Asosan ochiq', 2: 'Qisman bulutli', 3: 'Bulutli',
+                    45: 'Tuman', 48: 'Qirovli tuman',
+                    51: 'Yengil shabada', 53: 'O\'rtacha shabada', 55: 'Kuchli shabada',
+                    61: 'Yengil yomg\'ir', 63: 'O\'rtacha yomg\'ir', 65: 'Kuchli yomg\'ir',
+                    71: 'Yengil qor', 73: 'O\'rtacha qor', 75: 'Kuchli qor',
+                    95: 'Momaqaldiroq'
+                };
+
+                const weatherCode = weatherData.current_weather.weathercode;
+                let icon = 'sunny';
+                if (weatherCode >= 1 && weatherCode <= 3) icon = 'cloud_queue';
+                if (weatherCode >= 45) icon = 'foggy';
+                if (weatherCode >= 51 && weatherCode <= 67) icon = 'rainy';
+                if (weatherCode >= 71 && weatherCode <= 86) icon = 'ac_unit';
+                if (weatherCode >= 95) icon = 'thunderstorm';
+
+                setWeather({
+                    temp: Math.round(weatherData.current_weather.temperature),
+                    city: city,
+                    address: district ? `${district}, ${city}` : city,
+                    condition: conditionMap[weatherCode] || 'Ma\'lumot yo\'q',
+                    icon: icon
+                });
+            } catch (error) {
+                console.error("Weather fetch error:", error);
+                setWeather(prev => ({ ...prev, city: 'Xatolik', address: 'Ma\'lumot olib bo\'lmadi' }));
+            }
+        };
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    fetchWeather(position.coords.latitude, position.coords.longitude);
+                },
+                (error) => {
+                    console.error("Geolocation error:", error);
+                    setWeather(prev => ({ ...prev, city: 'Toshkent', address: 'Joylashuv rad etildi', temp: 22 }));
+                }
+            );
+        }
+    }, [enableWeather]);
 
     useEffect(() => {
         if (mode === 'time' && !enableTime && enableWeather) {

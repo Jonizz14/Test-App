@@ -18,11 +18,11 @@
   top: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
-  width: fit-content;
-  /* Adapts to content size (languages, nav links) */
-  min-width: 600px;
-  /* Minimum width to maintain a good shape */
-  max-width: 95vw;
+  width: 92%;
+  max-width: 1300px;
+  /* Long and elegant */
+  min-width: 1000px;
+  /* Enhanced length for desktop */
   height: 64px;
   overflow: visible;
   display: flex;
@@ -63,7 +63,7 @@
 }
 
 .header.lang-uz {
-  min-width: 1010px;
+  min-width: 1200px;
 }
 
 

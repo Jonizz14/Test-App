@@ -449,12 +449,7 @@ const Header = ({ demoMode = false }) => {
           label: 'Statistika',
           children: [
             { label: 'Mening statistikam', path: '/student/statistics' },
-            { label: 'Sinf statistikasi', path: '/student/my-class-statistics' }
-          ]
-        },
-        {
-          label: 'Reytinglar',
-          children: [
+            { label: 'Sinf statistikasi', path: '/student/my-class-statistics' },
             { label: 'O\'quvchilar reytingi', path: '/student/students-rating' },
             { label: 'Sinflar reytingi', path: '/student/classes-rating' }
           ]
@@ -735,16 +730,6 @@ const Header = ({ demoMode = false }) => {
                       </div>
                     )}
 
-                    {settings.header.messages && (
-                      <div
-                        className={`storage-icon-container message-icon is-visible ${showNotifications ? 'active' : ''}`}
-                        onClick={toggleNotifications}
-                        style={{ width: '44px', opacity: 1, transform: 'scale(1)', overflow: 'visible', marginLeft: '8px' }}
-                      >
-                        <span className="material-symbols-outlined">notifications</span>
-                        <span className="item-count msg-count">0</span>
-                      </div>
-                    )}
 
                   </>
                 ) : (
