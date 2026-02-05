@@ -9,7 +9,6 @@ import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../context/SettingsContext';
 import { useServerTest } from '../context/ServerTestContext';
-import HeaderDynamicIsland from './HeaderDynamicIsland';
 // showWarning imported but kept for future use
 // const { showWarning } = require('../utils/antdNotification');
 
@@ -236,7 +235,7 @@ const Header = ({ demoMode = false }) => {
 
 
   const [activeNotifications, setActiveNotifications] = React.useState([]);
-  const [headerHeight, setHeaderHeight] = React.useState(64);
+  const [headerHeight, setHeaderHeight] = React.useState(62);
 
   // Dashboard state
   const isDashboard = ['/admin', '/headadmin', '/teacher', '/student', '/seller', '/content-manager'].some(path =>
@@ -248,7 +247,7 @@ const Header = ({ demoMode = false }) => {
 
   // Calculate Dynamic Header Height for Smooth Transitions
   React.useEffect(() => {
-    let newHeight = 64; // Base height
+    let newHeight = 62; // Base height
 
     const isExpanded =
       (showSaved && savedItems.length > 0) ||
@@ -262,7 +261,7 @@ const Header = ({ demoMode = false }) => {
       else if (showSearch && (!isDashboard || isSellerOrHeadAdmin)) newHeight = 380;
       else newHeight = 380; // Default for expanded storage/messages
     } else if (showIsland) {
-      newHeight = 64; // Island expansion happens within the header, but we can nudge it if needed
+      newHeight = 62; // Island expansion happens within the header, but we can nudge it if needed
     }
 
     // Add height for notifications
@@ -662,7 +661,7 @@ const Header = ({ demoMode = false }) => {
                   </div>
                 ))}
               </div>
-              <div className="nav-buttons">
+              <div className={`nav-buttons ${(settings?.header?.time || settings?.header?.weather) ? 'has-dynamic-island' : ''}`}>
                 {isDashboard ? (
                   <>
                     <button className="btn-secondary" onClick={logout} style={{ background: '#ff4757', color: 'white' }}>{t('nav.logout')}</button>
@@ -819,16 +818,7 @@ const Header = ({ demoMode = false }) => {
                   </>
                 )}
 
-                {(settings?.header?.time || settings?.header?.weather) && (
-                  <HeaderDynamicIsland
-                    isDashboard={isDashboard}
-                    isMobile={isMobile}
-                    onToggle={toggleIsland}
-                    forceExpanded={showIsland}
-                    enableTime={settings?.header?.time}
-                    enableWeather={settings?.header?.weather}
-                  />
-                )}
+                {/* Dynamic Island removed per request */}
 
                 {/* Mobile Menu Button - Shown only on Mobile */}
                 {isMobile && (
