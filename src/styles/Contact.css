@@ -135,6 +135,11 @@
   border-radius: 24px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  /* Entrance animation base */
+  opacity: 0;
+  transform: translateY(60px) scale(0.95);
+  filter: blur(15px);
+  transition: all 1.8s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 /* On mobile, stack them */
@@ -274,6 +279,13 @@ section.in-view .minimal-form textarea {
 
 section.in-view .btn-modern-submit {
   transition-delay: 0.6s;
+}
+
+section.in-view .map-container {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+  transition-delay: 0.5s;
 }
 
 /* Mobile Responsive Adjustments */

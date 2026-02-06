@@ -33,6 +33,7 @@ import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
 import MathSymbols from '../../components/MathSymbols';
 import LaTeXPreview from '../../components/LaTeXPreview';
+import { SUBJECTS } from '../../data/subjects';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -63,6 +64,7 @@ const ContentManagerCreateTest = () => {
     }]);
 
     const [mathSymbolsOpen, setMathSymbolsOpen] = useState(false);
+    const [importModalOpen, setImportModalOpen] = useState(false);
     const [currentField, setCurrentField] = useState({ questionIndex: null, field: null });
 
     useEffect(() => {
@@ -147,6 +149,153 @@ const ContentManagerCreateTest = () => {
         const newQuestions = [...questions];
         newQuestions[qIndex].correct_answer = answer;
         setQuestions(newQuestions);
+    };
+
+    const handleExportExcel = () => {
+        if (questions.length === 0) {
+            message.warning("Export qilish uchun savollar yo'q!");
+            return;
+        }
+
+        const data = questions.map((q, index) => {
+            const letterMap = ['A', 'B', 'C', 'D'];
+            let correctLetter = '';
+
+            // Find which option matches the correct_answer text
+            const correctIndex = q.options.findIndex(opt => opt.text === q.correct_answer);
+            if (correctIndex !== -1) {
+                correctLetter = letterMap[correctIndex];
+            }
+
+            return {
+                '№': index + 1,
+                'Savol matni': q.question_text,
+                'A': q.options[0]?.text || '',
+                'B': q.options[1]?.text || '',
+                'C': q.options[2]?.text || '',
+                'D': q.options[3]?.text || '',
+                'To\'g\'ri javob (A, B, C yoki D)': correctLetter,
+                'Tushuntirish': q.explanation || '',
+                'Formula': q.formula || '',
+                'Kod': q.code || ''
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Savollar");
+
+        const wscols = [
+            { wch: 5 }, { wch: 50 }, { wch: 25 }, { wch: 25 }, { wch: 25 }, { wch: 25 }, { wch: 25 }, { wch: 30 }, { wch: 20 }, { wch: 20 }
+        ];
+        ws['!cols'] = wscols;
+
+        XLSX.writeFile(wb, `${form.getFieldValue('title') || 'test'}_savollari.xlsx`);
+        message.success("Test Excel formatida (A, B, C, D) yuklab olindi!");
+    };
+
+    const handleImportExcel = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            try {
+                const dataRaw = new Uint8Array(evt.target.result);
+                const wb = XLSX.read(dataRaw, { type: 'array' });
+                const wsname = wb.SheetNames[0];
+                const ws = wb.Sheets[wsname];
+                const data = XLSX.utils.sheet_to_json(ws);
+
+                if (data.length === 0) {
+                    message.error("Excel fayli bo'sh yoki noto'g'ri formatda!");
+                    return;
+                }
+
+                const newQuestions = data.map(item => {
+                    const options = [
+                        { text: String(item['A'] || item['Variant A'] || ''), image: null },
+                        { text: String(item['B'] || item['Variant B'] || ''), image: null },
+                        { text: String(item['C'] || item['Variant C'] || ''), image: null },
+                        { text: String(item['D'] || item['Variant D'] || ''), image: null }
+                    ];
+
+                    const correctKey = String(item['To\'g\'ri javob (A, B, C yoki D)'] || item['Javob'] || item['To\'g\'ri javob'] || '').trim().toUpperCase();
+                    let correctAnswer = '';
+
+                    if (correctKey === 'A') correctAnswer = options[0].text;
+                    else if (correctKey === 'B') correctAnswer = options[1].text;
+                    else if (correctKey === 'C') correctAnswer = options[2].text;
+                    else if (correctKey === 'D') correctAnswer = options[3].text;
+                    else correctAnswer = correctKey;
+
+                    return {
+                        question_text: item['Savol matni'] || item['Savol'] || '',
+                        question_type: 'multiple_choice',
+                        options,
+                        correct_answer: correctAnswer,
+                        explanation: item['Tushuntirish'] || '',
+                        formula: item['Formula'] || '',
+                        code: item['Kod'] || ''
+                    };
+                });
+
+                setQuestions(newQuestions);
+                setImportModalOpen(false);
+                message.success(`${newQuestions.length} ta savol muvaffaqiyatli import qilindi!`);
+            } catch (error) {
+                console.error("Import xatosi:", error);
+                message.error("Faylni o'qishda xatolik yuz berdi!");
+            }
+        };
+        reader.readAsArrayBuffer(file);
+        e.target.value = '';
+    };
+
+    const handleDownloadTemplate = () => {
+        const templateData = [
+            {
+                '№': 1,
+                'Savol matni': "O'zbekistonning poytaxti qaysi shahar?",
+                'A': "Toshkent",
+                'B': "Samarqand",
+                'C': "Buxoro",
+                'D': "Xiva",
+                'To\'g\'ri javob (A, B, C yoki D)': "A",
+                'Tushuntirish': "O'zbekiston Respublikasi poytaxti Toshkent shahridir.",
+                'Formula': "",
+                'Kod': ""
+            },
+            {
+                '№': 2,
+                'Savol matni': "2 + 2 = ?",
+                'A': "3",
+                'B': "4",
+                'C': "5",
+                'D': "6",
+                'To\'g\'ri javob (A, B, C yoki D)': "B",
+                'Tushuntirish': "Arifmetik amal natijasi 4 ga teng.",
+                'Formula': "2+2=4",
+                'Kod': ""
+            }
+        ];
+
+        const ws = XLSX.utils.json_to_sheet(templateData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Template");
+
+        const instrData = [
+            ['KO\'RSATMA'],
+            ['1. Barcha savollar 4 ta variantli bo\'lishi shart (A, B, C, D).'],
+            ['2. To\'g\'ri javob ustuniga javob matnini emas, faqat mos harfni yozing (A, B, C yoki D).'],
+            ['3. Agar variantlar kamroq bo\'lsa, qolganlarini bo\'sh qoldiring.'],
+            ['4. Formula va Kod ustunlariga ixtiyoriy ma\'lumot kiritishingiz mumkin.']
+        ];
+        const wsInstr = XLSX.utils.aoa_to_sheet(instrData);
+        XLSX.utils.book_append_sheet(wb, wsInstr, "Yo'riqnoma");
+
+        XLSX.writeFile(wb, "test_shabloni_A_B_C_D.xlsx");
+        message.info("A, B, C, D formatidagi shablon yuklab olindi!");
     };
 
     const handleSubmit = async (values) => {
@@ -261,14 +410,10 @@ const ContentManagerCreateTest = () => {
                                 <Row gutter={16}>
                                     <Col span={12}>
                                         <Form.Item name="subject" label={<Text strong style={{ textTransform: 'uppercase' }}>Fan</Text>} rules={[{ required: true }]}>
-                                            <Select size="large" style={{ border: '3px solid #000' }}>
-                                                <Option value="Matematika">Matematika</Option>
-                                                <Option value="Fizika">Fizika</Option>
-                                                <Option value="Ona tili">Ona tili</Option>
-                                                <Option value="Ingliz tili">Ingliz tili</Option>
-                                                <Option value="Tarix">Tarix</Option>
-                                                <Option value="Biologiya">Biologiya</Option>
-                                                <Option value="Kimyo">Kimyo</Option>
+                                            <Select size="large" style={{ border: '3px solid #000' }} showSearch placeholder="Fanni tanlang">
+                                                {SUBJECTS.map(subject => (
+                                                    <Option key={subject} value={subject}>{subject}</Option>
+                                                ))}
                                             </Select>
                                         </Form.Item>
                                     </Col>
@@ -353,17 +498,21 @@ const ContentManagerCreateTest = () => {
                                                         <div
                                                             onClick={() => setCorrectAnswer(qIdx, opt.text)}
                                                             style={{
-                                                                width: '24px',
-                                                                height: '24px',
+                                                                width: '32px',
+                                                                height: '32px',
                                                                 border: '3px solid #000',
                                                                 cursor: 'pointer',
                                                                 backgroundColor: q.correct_answer === opt.text ? '#000' : '#fff',
                                                                 display: 'flex',
                                                                 alignItems: 'center',
-                                                                justifyContent: 'center'
+                                                                justifyContent: 'center',
+                                                                fontWeight: 900,
+                                                                color: q.correct_answer === opt.text ? '#fff' : '#000',
+                                                                fontSize: '16px',
+                                                                flexShrink: 0
                                                             }}
                                                         >
-                                                            {q.correct_answer === opt.text && <CorrectIcon style={{ color: '#fff' }} />}
+                                                            {['A', 'B', 'C', 'D'][oIdx]}
                                                         </div>
                                                         <Input
                                                             variant="borderless"
@@ -423,10 +572,98 @@ const ContentManagerCreateTest = () => {
                                         size="large"
                                         icon={<ArrowBackIcon />}
                                         onClick={() => navigate('/content-manager/my-tests')}
-                                        style={{ height: '60px', border: '3px solid #000', fontWeight: 900 }}
+                                        style={{ height: '60px', border: '3px solid #000', fontWeight: 900, marginBottom: '16px' }}
                                     >
                                         BEKOR QILISH
                                     </Button>
+
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                        <Button
+                                            block
+                                            size="large"
+                                            icon={<DownloadOutlined />}
+                                            onClick={handleExportExcel}
+                                            style={{ height: '50px', border: '3px solid #000', fontWeight: 900, fontSize: '10px' }}
+                                        >
+                                            EXPORT (EXCEL)
+                                        </Button>
+                                        <Button
+                                            block
+                                            size="large"
+                                            icon={<ImportIcon />}
+                                            onClick={() => setImportModalOpen(true)}
+                                            style={{ height: '50px', border: '3px solid #000', fontWeight: 900, fontSize: '10px', backgroundColor: '#f0fdf4' }}
+                                        >
+                                            IMPORT (EXCEL)
+                                        </Button>
+                                    </div>
+                                    <input
+                                        type="file"
+                                        id="excel-import-input"
+                                        style={{ display: 'none' }}
+                                        accept=".xlsx, .xls"
+                                        onChange={handleImportExcel}
+                                    />
+
+                                    <Modal
+                                        title={<span style={{ fontWeight: 900, textTransform: 'uppercase' }}>Excel Import Namuna</span>}
+                                        open={importModalOpen}
+                                        onCancel={() => setImportModalOpen(false)}
+                                        width={800}
+                                        footer={[
+                                            <Button key="cancel" onClick={() => setImportModalOpen(false)} style={{ border: '2px solid #000', fontWeight: 700 }}>BEKOR QILISH</Button>,
+                                            <Button
+                                                key="download"
+                                                icon={<DownloadOutlined />}
+                                                onClick={handleDownloadTemplate}
+                                                style={{ border: '2px solid #000', fontWeight: 700 }}
+                                            >
+                                                SHABLONNI YUKLASH
+                                            </Button>,
+                                            <Button
+                                                key="upload"
+                                                type="primary"
+                                                icon={<ImportIcon />}
+                                                onClick={() => document.getElementById('excel-import-input').click()}
+                                                style={{ backgroundColor: '#000', border: '2px solid #000', fontWeight: 700 }}
+                                            >
+                                                FAYLNI TANLASH
+                                            </Button>
+                                        ]}
+                                    >
+                                        <div style={{ padding: '20px 0' }}>
+                                            <Text strong style={{ display: 'block', marginBottom: '10px' }}>EXCEL FAYL QUYIDAGI FORMATDA BO'LISHI SHART:</Text>
+                                            <div style={{ overflowX: 'auto', border: '2px solid #000', marginBottom: '20px' }}>
+                                                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
+                                                    <thead>
+                                                        <tr style={{ backgroundColor: '#f4f4f5' }}>
+                                                            <th style={{ border: '1px solid #000', padding: '8px' }}>Savol matni</th>
+                                                            <th style={{ border: '1px solid #000', padding: '8px' }}>A</th>
+                                                            <th style={{ border: '1px solid #000', padding: '8px' }}>B</th>
+                                                            <th style={{ border: '1px solid #000', padding: '8px' }}>C</th>
+                                                            <th style={{ border: '1px solid #000', padding: '8px' }}>D</th>
+                                                            <th style={{ border: '1px solid #000', padding: '8px' }}>Javob</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td style={{ border: '1px solid #000', padding: '8px' }}>2+2 nechaga teng?</td>
+                                                            <td style={{ border: '1px solid #000', padding: '8px' }}>3</td>
+                                                            <td style={{ border: '1px solid #000', padding: '8px' }}>4</td>
+                                                            <td style={{ border: '1px solid #000', padding: '8px' }}>5</td>
+                                                            <td style={{ border: '1px solid #000', padding: '8px' }}>6</td>
+                                                            <td style={{ border: '1px solid #000', padding: '8px', fontWeight: 900 }}>B</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <ul style={{ paddingLeft: '20px', fontWeight: 600 }}>
+                                                <li>Javob ustuniga faqit <Text code>A</Text>, <Text code>B</Text>, <Text code>C</Text> yoki <Text code>D</Text> harfini yozing.</li>
+                                                <li>Sarlavhalar (Header) aynan namunadagidek bo'lishi tavsiya etiladi.</li>
+                                                <li>Formula va Tushuntirish ustunlarini ham qo'shishingiz mumkin.</li>
+                                            </ul>
+                                        </div>
+                                    </Modal>
 
                                     <Divider style={{ borderColor: '#000' }} />
 

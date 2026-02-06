@@ -34,6 +34,7 @@ import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
 import MathSymbols from '../../components/MathSymbols';
 import LaTeXPreview from '../../components/LaTeXPreview';
+import { SUBJECTS } from '../../data/subjects';
 
 const CreateTest = () => {
   const { currentUser } = useAuth();
@@ -850,22 +851,12 @@ const CreateTest = () => {
                   <Select
                     value={formData.subject}
                     onChange={(value) => setFormData({ ...formData, subject: value })}
+                    showSearch
+                    placeholder="Fanni tanlang"
                   >
-                    <Select.Option value="Matematika">Matematika</Select.Option>
-                    <Select.Option value="O'zbek tili">O'zbek tili</Select.Option>
-                    <Select.Option value="Ingliz tili">Ingliz tili</Select.Option>
-                    <Select.Option value="Rus tili">Rus tili</Select.Option>
-                    <Select.Option value="Fizika">Fizika</Select.Option>
-                    <Select.Option value="Kimyo">Kimyo</Select.Option>
-                    <Select.Option value="Biologiya">Biologiya</Select.Option>
-                    <Select.Option value="Tarix">Tarix</Select.Option>
-                    <Select.Option value="Geografiya">Geografiya</Select.Option>
-                    <Select.Option value="Adabiyot">Adabiyot</Select.Option>
-                    <Select.Option value="Informatika">Informatika</Select.Option>
-                    <Select.Option value="Tasviriy san'at">Tasviriy san'at</Select.Option>
-                    <Select.Option value="Musiqa">Musiqa</Select.Option>
-                    <Select.Option value="Jismoniy tarbiya">Jismoniy tarbiya</Select.Option>
-                    <Select.Option value="Texnologiya">Texnologiya</Select.Option>
+                    {SUBJECTS.map(subject => (
+                      <Select.Option key={subject} value={subject}>{subject}</Select.Option>
+                    ))}
                   </Select>
                 </Form.Item>
               </Col>

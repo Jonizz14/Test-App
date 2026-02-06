@@ -265,8 +265,37 @@ class Test(models.Model):
         ('medium', 'O\'rtacha'),
         ('hard', 'Qiyin'),
     ]
+    
+    SUBJECT_CHOICES = [
+        ('Algebra', 'Algebra'),
+        ('Astronomiya', 'Astronomiya'),
+        ('Biologiya', 'Biologiya'),
+        ('Chizmachilik', 'Chizmachilik'),
+        ('Fizika', 'Fizika'),
+        ('Geografiya', 'Geografiya'),
+        ('Geometriya', 'Geometriya'),
+        ('Huquq', 'Huquq'),
+        ('IELTS', 'IELTS'),
+        ('Informatika', 'Informatika'),
+        ('Ingliz tili', 'Ingliz tili'),
+        ('Iqtisodiyot', 'Iqtisodiyot'),
+        ('Jismoniy tarbiya', 'Jismoniy tarbiya'),
+        ('Kimyo', 'Kimyo'),
+        ('Koreys tili', 'Koreys tili'),
+        ('Matematika', 'Matematika'),
+        ('Musiqa', 'Musiqa'),
+        ('Ona tili va adabiyot', 'Ona tili va adabiyot'),
+        ('Robototexnika', 'Robototexnika'),
+        ('Rus tili', 'Rus tili'),
+        ('San\'at (Tasviriy san\'at)', 'San\'at (Tasviriy san\'at)'),
+        ('Tarix', 'Tarix'),
+        ('Tarbiya', 'Tarbiya'),
+        ('Texnologiya', 'Texnologiya'),
+        ('Boshqa', 'Boshqa'),
+    ]
+
     teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tests')
-    subject = models.CharField(max_length=100)
+    subject = models.CharField(max_length=100, choices=SUBJECT_CHOICES, default='Matematika')
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     total_questions = models.IntegerField(default=0)

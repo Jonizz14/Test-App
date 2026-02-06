@@ -3,6 +3,7 @@ import { Form, Input, Select, Button, Alert, Spin, Typography, Card, Checkbox } 
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiService from '../../data/apiService';
+import { SUBJECTS } from '../../data/subjects';
 
 const AddTeacher = () => {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ const AddTeacher = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    subjects: '',
+    subjects: [],
     isCurator: false,
     curatorClass: '',
   });
@@ -42,7 +43,7 @@ const AddTeacher = () => {
             const data = {
               firstName,
               lastName,
-              subjects: teacher.subjects ? teacher.subjects.join(', ') : '',
+              subjects: teacher.subjects || [],
               isCurator: teacher.is_curator || false,
               curatorClass: teacher.curator_class || '',
             };
@@ -70,7 +71,7 @@ const AddTeacher = () => {
     try {
       const teacherData = {
         name: `${formData.firstName} ${formData.lastName}`,
-        subjects: formData.subjects.split(',').map(s => s.trim()),
+        subjects: values.subjects, // Directly use the array from Select
         is_curator: formData.isCurator,
         curator_class: formData.isCurator ? formData.curatorClass : null,
       };
@@ -93,8 +94,8 @@ const AddTeacher = () => {
 
         setSuccess(
           <div>
-            <strong>✅ O'qituvchi muvaffaqiyatli qo'shildi!</strong><br/>
-            <strong>ID:</strong> {createdTeacher.display_id || createdTeacher.username}<br/>
+            <strong>✅ O'qituvchi muvaffaqiyatli qo'shildi!</strong><br />
+            <strong>ID:</strong> {createdTeacher.display_id || createdTeacher.username}<br />
             <strong>Parol:</strong> {createdTeacher.generated_password}
           </div>
         );
@@ -130,17 +131,17 @@ const AddTeacher = () => {
   }
 
   return (
-    <div  style={{ padding: '24px', backgroundColor: '#ffffff' }}>
+    <div style={{ padding: '24px', backgroundColor: '#ffffff' }}>
       {/* Header */}
-      <div  style={{
+      <div style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0',
-        
+
         animationFillMode: 'both'
       }}>
         <Button
-          
+
           type="default"
           icon={<ArrowLeftOutlined />}
           onClick={() => navigate('/admin/teachers')}
@@ -148,10 +149,10 @@ const AddTeacher = () => {
         >
           O'qituvchilarni boshqarishga qaytish
         </Button>
-        <Typography.Title level={1}  style={{ color: '#1e293b', marginBottom: '8px', animationFillMode: 'both' }}>
+        <Typography.Title level={1} style={{ color: '#1e293b', marginBottom: '8px', animationFillMode: 'both' }}>
           {isEditMode ? 'O\'qituvchi ma\'lumotlarini tahrirlash' : 'Yangi o\'qituvchi qo\'shish'}
         </Typography.Title>
-        <Typography.Text  style={{ fontSize: '18px', color: '#64748b', animationFillMode: 'both' }}>
+        <Typography.Text style={{ fontSize: '18px', color: '#64748b', animationFillMode: 'both' }}>
           {isEditMode ? 'O\'qituvchi ma\'lumotlarini yangilang' : 'Yangi o\'qituvchi ma\'lumotlarini kiriting'}
         </Typography.Text>
       </div>
@@ -159,7 +160,7 @@ const AddTeacher = () => {
       {/* Success Message */}
       {success && (
         <Alert
-          
+
           message="Muvaffaqiyat"
           description={success}
           type="success"
@@ -171,7 +172,7 @@ const AddTeacher = () => {
       {/* Error Message */}
       {error && (
         <Alert
-          
+
           message="Xatolik"
           description={error}
           type="error"
@@ -181,14 +182,14 @@ const AddTeacher = () => {
       )}
 
       {/* Form */}
-      <Card  style={{
+      <Card style={{
         padding: '24px',
         backgroundColor: '#ffffff',
         border: '1px solid #e2e8f0',
         borderRadius: '12px',
         maxWidth: '600px',
         margin: '0 auto',
-        
+
         animationFillMode: 'both'
       }}>
         <Form form={form} onFinish={handleSubmit} layout="vertical">
@@ -218,16 +219,21 @@ const AddTeacher = () => {
           </Form.Item>
 
           <Form.Item
-            label="Fanlar (vergul bilan ajratilgan)"
+            label="Fanlar"
             name="subjects"
-            rules={[{ required: true, message: 'Fanlarni kiriting' }]}
+            rules={[{ required: true, message: 'Fanlarni tanlang' }]}
             style={{ marginBottom: '16px' }}
           >
-            <Input
-              value={formData.subjects}
-              onChange={(e) => setFormData({ ...formData, subjects: e.target.value })}
-              placeholder="Masalan: Matematika, Fizika, Kimyo"
-            />
+            <Select
+              mode="multiple"
+              placeholder="Fanlarni tanlang"
+              allowClear
+              showSearch
+            >
+              {SUBJECTS.filter(s => s !== 'Boshqa').map(subject => (
+                <Select.Option key={subject} value={subject}>{subject}</Select.Option>
+              ))}
+            </Select>
           </Form.Item>
 
           <Form.Item
@@ -258,9 +264,9 @@ const AddTeacher = () => {
                 onChange={(value) => setFormData({ ...formData, curatorClass: value })}
                 placeholder="Sinf tanlang"
               >
-                {[5,6,7,8,9,10,11].flatMap(grade =>
-                  [1,2,3,4].map(num => {
-                    const classGroup = `${grade}-${String(num).padStart(2,'0')}`;
+                {[5, 6, 7, 8, 9, 10, 11].flatMap(grade =>
+                  [1, 2, 3, 4].map(num => {
+                    const classGroup = `${grade}-${String(num).padStart(2, '0')}`;
                     return (
                       <Select.Option key={classGroup} value={classGroup}>
                         {classGroup}
