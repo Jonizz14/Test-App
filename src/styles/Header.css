@@ -537,9 +537,10 @@
 
 .save-title {
   color: #ffffff;
-  font-weight: 800;
-  font-size: 0.95rem;
+  font-weight: 700;
+  font-size: 0.85rem;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .save-text {
@@ -602,7 +603,7 @@
 
 .notification-content .material-symbols-outlined {
   color: #3b82f6;
-  font-size: 2rem;
+  font-size: 1.5rem;
 }
 
 @keyframes fadeIn {

@@ -80,9 +80,24 @@ const ContentManagerTests = () => {
                 const newStatus = !test.is_active;
                 await apiService.updateTest(testId, { is_active: newStatus });
                 setTests(prev => prev.map(t => t.id === testId ? { ...t, is_active: newStatus } : t));
+
+                window.dispatchEvent(new CustomEvent('testAction', {
+                    detail: {
+                        title: "Test holati o'zgardi",
+                        message: `${test.title}: ${newStatus ? 'FAOL' : 'NOFAOL'}`,
+                        icon: 'notifications_active'
+                    }
+                }));
             }
         } catch (error) {
             console.error('Failed to toggle status:', error);
+            window.dispatchEvent(new CustomEvent('saveError', {
+                detail: {
+                    title: "Xatolik",
+                    message: "Holatni o'zgartirib bo'lmadi",
+                    icon: 'error'
+                }
+            }));
         }
     };
 
@@ -92,8 +107,23 @@ const ContentManagerTests = () => {
             await apiService.deleteTest(selectedTest.id);
             setTests(prev => prev.filter(t => t.id !== selectedTest.id));
             setDeleteDialogOpen(false);
+
+            window.dispatchEvent(new CustomEvent('testAction', {
+                detail: {
+                    title: "Global test o'chirildi",
+                    message: selectedTest.title,
+                    icon: 'delete'
+                }
+            }));
         } catch (error) {
             console.error('Delete failed:', error);
+            window.dispatchEvent(new CustomEvent('saveError', {
+                detail: {
+                    title: "Xatolik",
+                    message: "Testni o'chirib bo'lmadi",
+                    icon: 'error'
+                }
+            }));
         }
     };
 

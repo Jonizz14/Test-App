@@ -145,7 +145,7 @@ const Header = ({ demoMode = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const headerRef = React.useRef(null);
-  const { savedItems, removeItem, clearItems, toggleSidebar } = useSavedItems();
+  const { savedItems, saveItem, removeItem, clearItems, toggleSidebar } = useSavedItems();
   const { sentMessages, removeMessage, clearMessages } = useSentMessages();
   const { currentUser, isAuthenticated, logout } = useAuth();
   const { settings } = useSettings();
@@ -301,6 +301,17 @@ const Header = ({ demoMode = false }) => {
 
     setActiveNotifications(prev => [...prev, newNotification]);
 
+    // If it's a test action, automatically save it to the bin
+    if (data.autoSave && saveItem) {
+      saveItem({
+        id: `test-${Date.now()}`,
+        title: data.title,
+        description: data.message || 'Global test action',
+        icon: data.icon || 'quiz',
+        date: new Date().toISOString()
+      });
+    }
+
     setTimeout(() => {
       setActiveNotifications(prev => prev.map(n => n.id === id ? { ...n, isVisible: true } : n));
     }, 10);
@@ -317,11 +328,17 @@ const Header = ({ demoMode = false }) => {
     const handleItemSaved = (e) => handleNotification(e.detail);
     const handleSaveError = (e) => handleNotification({ ...e.detail, isError: true });
 
+    // Test specific events
+    const handleTestAction = (e) => handleNotification({ ...e.detail, autoSave: true });
+
     window.addEventListener('itemSaved', handleItemSaved);
     window.addEventListener('saveError', handleSaveError);
+    window.addEventListener('testAction', handleTestAction);
+
     return () => {
       window.removeEventListener('itemSaved', handleItemSaved);
       window.removeEventListener('saveError', handleSaveError);
+      window.removeEventListener('testAction', handleTestAction);
     };
   }, [handleNotification]);
 
@@ -1083,15 +1100,15 @@ const Header = ({ demoMode = false }) => {
           {activeNotifications.map(notification => (
             <div key={notification.id} className={`header-notification-area ${notification.isVisible ? 'visible' : ''} ${notification.isError ? 'is-error' : ''}`}>
               <div className="notification-content">
-                <span className="material-symbols-outlined">{notification.icon}</span>
-                {notification.isError || notification.isFullMessage ? (
-                  <span className="save-title">{notification.message || notification.title}</span>
-                ) : (
-                  <>
-                    <span className="save-title">{notification.title}</span>
-                    <span className="save-text"> {t('nav.saved')}</span>
-                  </>
-                )}
+                <span className="material-symbols-outlined" style={{ fontSize: '1.4rem', color: notification.isError ? '#ff4757' : '#3b82f6' }}>{notification.icon || 'info'}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className="save-title">{notification.title}</span>
+                  {notification.message && (
+                    <span className="save-text" style={{ textTransform: 'none', opacity: 0.7, fontWeight: 600 }}>
+                      — {notification.message}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           ))}

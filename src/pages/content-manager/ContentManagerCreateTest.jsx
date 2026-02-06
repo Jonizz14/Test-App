@@ -11,7 +11,6 @@ import {
     Col,
     Space,
     Modal,
-    message,
     ConfigProvider,
     InputNumber,
     Checkbox,
@@ -208,7 +207,13 @@ const ContentManagerCreateTest = () => {
                 const data = XLSX.utils.sheet_to_json(ws);
 
                 if (data.length === 0) {
-                    message.error("Excel fayli bo'sh yoki noto'g'ri formatda!");
+                    window.dispatchEvent(new CustomEvent('saveError', {
+                        detail: {
+                            title: "Fayl bo'sh",
+                            message: "Excel faylida ma'lumot topilmadi",
+                            icon: 'error'
+                        }
+                    }));
                     return;
                 }
 
@@ -242,10 +247,23 @@ const ContentManagerCreateTest = () => {
 
                 setQuestions(newQuestions);
                 setImportModalOpen(false);
-                message.success(`${newQuestions.length} ta savol muvaffaqiyatli import qilindi!`);
+
+                window.dispatchEvent(new CustomEvent('testAction', {
+                    detail: {
+                        title: "Fayl import qilindi",
+                        message: `${newQuestions.length} ta savol yuklandi`,
+                        icon: 'table_view'
+                    }
+                }));
             } catch (error) {
                 console.error("Import xatosi:", error);
-                message.error("Faylni o'qishda xatolik yuz berdi!");
+                window.dispatchEvent(new CustomEvent('saveError', {
+                    detail: {
+                        title: "Import xatosi",
+                        message: "Faylni o'qishda muammo yuz berdi",
+                        icon: 'error'
+                    }
+                }));
             }
         };
         reader.readAsArrayBuffer(file);
@@ -301,7 +319,13 @@ const ContentManagerCreateTest = () => {
     const handleSubmit = async (values) => {
         // Validation
         if (questions.some(q => !q.question_text || !q.correct_answer)) {
-            message.error('Barcha savollar va to\'g\'ri javoblar to\'ldirilishi shart!');
+            window.dispatchEvent(new CustomEvent('saveError', {
+                detail: {
+                    title: "To'ldirilmagan maydonlar",
+                    message: "Barcha savollarni to'ldiring",
+                    icon: 'warning'
+                }
+            }));
             return;
         }
 
@@ -339,11 +363,26 @@ const ContentManagerCreateTest = () => {
                 await apiService.createQuestion(qData);
             }
 
-            message.success(isEditing ? 'Test yangilandi!' : 'Yangi test yaratildi!');
+            // Trigger header notification
+            window.dispatchEvent(new CustomEvent('testAction', {
+                detail: {
+                    title: isEditing ? "Global test yangilandi" : "Yangi global test yaratildi",
+                    message: values.title,
+                    icon: isEditing ? 'edit' : 'plus'
+                }
+            }));
+
             navigate('/content-manager/my-tests');
         } catch (error) {
             console.error('Xatolik:', error);
-            message.error('Saqlashda xatolik yuz berdi');
+
+            window.dispatchEvent(new CustomEvent('saveError', {
+                detail: {
+                    title: "Xatolik yuz berdi",
+                    message: "Testni saqlash imkonsiz",
+                    icon: 'error'
+                }
+            }));
         } finally {
             setLoading(false);
         }
