@@ -72,6 +72,15 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkStoredUser();
+
+    // Listen for logout events from apiService
+    const handleApiLogout = () => {
+      console.log('Received logout event from API service');
+      setCurrentUser(null);
+    };
+
+    window.addEventListener('api-logout', handleApiLogout);
+    return () => window.removeEventListener('api-logout', handleApiLogout);
   }, []);
 
   const login = async (email, password) => {

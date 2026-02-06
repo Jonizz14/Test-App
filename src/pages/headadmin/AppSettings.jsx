@@ -53,7 +53,8 @@ const AppSettings = () => {
         },
       }}
     >
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .ant-switch {
           border: 3px solid #000 !important;
           height: 32px !important;
@@ -81,12 +82,12 @@ const AppSettings = () => {
       <div style={{ padding: '40px 0' }}>
         {/* Brutalist Header */}
         <div className="animate__animated animate__fadeIn" style={{ marginBottom: '60px' }}>
-          <div style={{ 
-            display: 'inline-block', 
-            backgroundColor: '#000', 
-            color: '#fff', 
-            padding: '8px 16px', 
-            fontWeight: 900, 
+          <div style={{
+            display: 'inline-block',
+            backgroundColor: '#000',
+            color: '#fff',
+            padding: '8px 16px',
+            fontWeight: 900,
             fontSize: '14px',
             textTransform: 'uppercase',
             letterSpacing: '0.2em',
@@ -94,22 +95,22 @@ const AppSettings = () => {
           }}>
             Texnik Boshqaruv
           </div>
-          <Title level={1} style={{ 
-            margin: 0, 
-            fontWeight: 900, 
-            fontSize: '2.5rem', 
-            lineHeight: 0.9, 
+          <Title level={1} style={{
+            margin: 0,
+            fontWeight: 900,
+            fontSize: '2.5rem',
+            lineHeight: 0.9,
             textTransform: 'uppercase',
             letterSpacing: '-0.05em',
             color: '#000'
           }}>
             Sayt Sozlamalari
           </Title>
-          <div style={{ 
-            width: '80px', 
-            height: '10px', 
-            backgroundColor: '#000', 
-            margin: '24px 0' 
+          <div style={{
+            width: '80px',
+            height: '10px',
+            backgroundColor: '#000',
+            margin: '24px 0'
           }}></div>
           <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, color: '#333', maxWidth: '600px' }}>
             Platformaning interfeysi va funksiyalarini real vaqt rejimida boshqaring.
@@ -117,8 +118,8 @@ const AppSettings = () => {
         </div>
 
         <div className="animate__animated animate__fadeInUp">
-          <Card 
-            title={<Title level={4} style={{ margin: 0, fontWeight: 900, textTransform: 'uppercase' }}>Header Funksiyalari</Title>} 
+          <Card
+            title={<Title level={4} style={{ margin: 0, fontWeight: 900, textTransform: 'uppercase' }}>Header Funksiyalari</Title>}
             style={cardStyle}
           >
             <List grid={{ gutter: 16, xs: 1, sm: 2 }}>
@@ -128,9 +129,9 @@ const AppSettings = () => {
                     <Text style={{ fontWeight: 900, display: 'block', textTransform: 'uppercase' }}>Xabarlar</Text>
                     <Text type="secondary" style={{ fontWeight: 600 }}>Headerda xabarlar panelini ko'rsatish</Text>
                   </div>
-                  <Switch 
-                    checked={settings?.header?.messages} 
-                    onChange={(val) => updateHeaderSetting('messages', val)} 
+                  <Switch
+                    checked={settings?.header?.messages}
+                    onChange={(val) => updateHeaderSetting('messages', val)}
                   />
                 </div>
               </List.Item>
@@ -140,8 +141,8 @@ const AppSettings = () => {
                     <Text style={{ fontWeight: 900, display: 'block', textTransform: 'uppercase' }}>Saqlash</Text>
                     <Text type="secondary" style={{ fontWeight: 600 }}>Inventory tizimini faollashtirish</Text>
                   </div>
-                  <Switch 
-                    checked={settings?.header?.storage} 
+                  <Switch
+                    checked={settings?.header?.storage}
                     onChange={(val) => updateHeaderSetting('storage', val)}
                   />
                 </div>
@@ -152,8 +153,8 @@ const AppSettings = () => {
                     <Text style={{ fontWeight: 900, display: 'block', textTransform: 'uppercase' }}>Qidiruv</Text>
                     <Text type="secondary" style={{ fontWeight: 600 }}>Global qidiruv panelini yoqish</Text>
                   </div>
-                  <Switch 
-                    checked={settings?.header?.search} 
+                  <Switch
+                    checked={settings?.header?.search}
                     onChange={(val) => updateHeaderSetting('search', val)}
                   />
                 </div>
@@ -164,41 +165,18 @@ const AppSettings = () => {
                     <Text style={{ fontWeight: 900, display: 'block', textTransform: 'uppercase' }}>Til Sozlamalari</Text>
                     <Text type="secondary" style={{ fontWeight: 600 }}>Tilni o'zgartirish tugmasini ko'rsatish</Text>
                   </div>
-                  <Switch 
-                    checked={settings?.header?.language} 
+                  <Switch
+                    checked={settings?.header?.language}
                     onChange={(val) => updateHeaderSetting('language', val)}
                   />
                 </div>
               </List.Item>
-              <List.Item style={listItemStyle}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                  <div style={{ marginRight: 16 }}>
-                    <Text style={{ fontWeight: 900, display: 'block', textTransform: 'uppercase' }}>Vaqt</Text>
-                    <Text type="secondary" style={{ fontWeight: 600 }}>Headerda vaqt ko'rsatishni yoqish</Text>
-                  </div>
-                  <Switch 
-                    checked={settings?.header?.time} 
-                    onChange={(val) => updateHeaderSetting('time', val)}
-                  />
-                </div>
-              </List.Item>
-              <List.Item style={listItemStyle}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                  <div style={{ marginRight: 16 }}>
-                    <Text style={{ fontWeight: 900, display: 'block', textTransform: 'uppercase' }}>Ob-havo</Text>
-                    <Text type="secondary" style={{ fontWeight: 600 }}>Headerda ob-havo ko'rsatishni yoqish</Text>
-                  </div>
-                  <Switch 
-                    checked={settings?.header?.weather} 
-                    onChange={(val) => updateHeaderSetting('weather', val)}
-                  />
-                </div>
-              </List.Item>
             </List>
+
           </Card>
 
-          <Card 
-            title={<Title level={4} style={{ margin: 0, fontWeight: 900, textTransform: 'uppercase' }}>Foydalanuvchi Funksiyalari</Title>} 
+          <Card
+            title={<Title level={4} style={{ margin: 0, fontWeight: 900, textTransform: 'uppercase' }}>Foydalanuvchi Funksiyalari</Title>}
             style={cardStyle}
           >
             <List grid={{ gutter: 16, xs: 1, sm: 2 }}>
@@ -208,8 +186,8 @@ const AppSettings = () => {
                     <Text style={{ fontWeight: 900, display: 'block', textTransform: 'uppercase' }}>Matn Saqlash</Text>
                     <Text type="secondary" style={{ fontWeight: 600 }}>Videlit orqali ma'lumot saqlash</Text>
                   </div>
-                  <Switch 
-                    checked={settings?.features?.textSelection} 
+                  <Switch
+                    checked={settings?.features?.textSelection}
                     onChange={(val) => updateFeatureSetting('textSelection', val)}
                   />
                 </div>
@@ -220,8 +198,8 @@ const AppSettings = () => {
                     <Text style={{ fontWeight: 900, display: 'block', textTransform: 'uppercase' }}>Home Save</Text>
                     <Text type="secondary" style={{ fontWeight: 600 }}>Bosh sahifadagi saqlash tugmalari</Text>
                   </div>
-                  <Switch 
-                    checked={settings?.features?.homeSaveButton} 
+                  <Switch
+                    checked={settings?.features?.homeSaveButton}
                     onChange={(val) => updateFeatureSetting('homeSaveButton', val)}
                   />
                 </div>
@@ -232,8 +210,8 @@ const AppSettings = () => {
                     <Text style={{ fontWeight: 900, display: 'block', textTransform: 'uppercase' }}>Animatsiyalar</Text>
                     <Text type="secondary" style={{ fontWeight: 600 }}>Fleyer (uchish) effekti</Text>
                   </div>
-                  <Switch 
-                    checked={settings?.features?.flyerAnimation} 
+                  <Switch
+                    checked={settings?.features?.flyerAnimation}
                     onChange={(val) => updateFeatureSetting('flyerAnimation', val)}
                   />
                 </div>
@@ -241,11 +219,11 @@ const AppSettings = () => {
             </List>
           </Card>
 
-          <Card 
-            title={<Title level={4} style={{ margin: 0, fontWeight: 900, textTransform: 'uppercase' }}>Welcome Page Qadamlari</Title>} 
+          <Card
+            title={<Title level={4} style={{ margin: 0, fontWeight: 900, textTransform: 'uppercase' }}>Welcome Page Qadamlari</Title>}
             style={cardStyle}
           >
-            <List 
+            <List
               grid={{ gutter: 16, xs: 1, sm: 2, md: 3 }}
               dataSource={welcomeStepNames}
               renderItem={(name, index) => (
@@ -255,8 +233,8 @@ const AppSettings = () => {
                       <Text style={{ fontWeight: 900, display: 'block', textTransform: 'uppercase' }}>{index + 1}-QADAM</Text>
                       <Text type="secondary" style={{ fontWeight: 600, fontSize: '13px' }}>{name}</Text>
                     </div>
-                    <Switch 
-                      checked={settings?.welcome?.steps?.[index]} 
+                    <Switch
+                      checked={settings?.welcome?.steps?.[index]}
                       onChange={(val) => updateWelcomeStep(index, val)}
                     />
                   </div>

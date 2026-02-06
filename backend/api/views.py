@@ -1,6 +1,6 @@
 import time
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -11,14 +11,29 @@ from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pr
 from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, PricingSerializer, StarPackageSerializer, ContactMessageSerializer, SiteUpdateSerializer, SiteSettingsSerializer
 
 class SiteSettingsViewSet(viewsets.ViewSet):
-    permission_classes = [AllowAny]
+    def initialize_request(self, request, *args, **kwargs):
+        if hasattr(self, 'action_map'):
+            self.action = self.action_map.get(request.method.lower())
+        return super().initialize_request(request, *args, **kwargs)
+
+    def get_permissions(self):
+        if self.action == 'update_settings':
+            return [IsAuthenticated()]
+        return [AllowAny()]
+
+    def get_authenticators(self):
+        if self.action == 'update_settings':
+            from rest_framework_simplejwt.authentication import JWTAuthentication
+            return [JWTAuthentication()]
+        return []
+
 
     def list(self, request):
         settings = SiteSettings.get_settings()
         serializer = SiteSettingsSerializer(settings)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['patch'], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['patch'])
     def update_settings(self, request):
         if request.user.role != 'head_admin':
             return Response({'error': 'Only head admin can update site settings'}, status=status.HTTP_403_FORBIDDEN)
@@ -34,6 +49,18 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+
+    def initialize_request(self, request, *args, **kwargs):
+        if hasattr(self, 'action_map'):
+            self.action = self.action_map.get(request.method.lower())
+        return super().initialize_request(request, *args, **kwargs)
+
+    def get_authenticators(self):
+        if self.action:
+            action_func = getattr(self, self.action, None)
+            if action_func and hasattr(action_func, 'authentication_classes'):
+                return [auth() for auth in action_func.authentication_classes]
+        return super().get_authenticators()
 
     def get_queryset(self):
         queryset = User.objects.all()
@@ -142,7 +169,7 @@ class UserViewSet(viewsets.ModelViewSet):
         print(f"Serializer errors: {serializer.errors}")  # Debug logging
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], authentication_classes=[], permission_classes=[AllowAny])
     def login(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -174,7 +201,7 @@ class UserViewSet(viewsets.ModelViewSet):
             })
         return Response({'error': 'Email yoki parol noto\'g\'ri'}, status=status.HTTP_401_UNAUTHORIZED)
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], authentication_classes=[], permission_classes=[AllowAny])
     def register(self, request):
         data = request.data.copy()
 
@@ -542,14 +569,26 @@ class TestViewSet(viewsets.ModelViewSet):
     serializer_class = TestSerializer
     permission_classes = [IsAuthenticated]
 
-    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    def initialize_request(self, request, *args, **kwargs):
+        if hasattr(self, 'action_map'):
+            self.action = self.action_map.get(request.method.lower())
+        return super().initialize_request(request, *args, **kwargs)
+
+    def get_authenticators(self):
+        if self.action:
+            action_func = getattr(self, self.action, None)
+            if action_func and hasattr(action_func, 'authentication_classes'):
+                return [auth() for auth in action_func.authentication_classes]
+        return super().get_authenticators()
+
+    @action(detail=False, methods=['get'], authentication_classes=[], permission_classes=[AllowAny])
     def public_list(self, request):
         """Public endpoint to get all tests (for questions page)"""
         queryset = Test.objects.filter(is_active=True)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    @action(detail=False, methods=['get'], authentication_classes=[], permission_classes=[AllowAny])
     def public_stats(self, request):
         """Public endpoint to get landing page statistics"""
         return Response({
@@ -650,6 +689,18 @@ class QuestionViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionSerializer
     permission_classes = [IsAuthenticated]
 
+    def initialize_request(self, request, *args, **kwargs):
+        if hasattr(self, 'action_map'):
+            self.action = self.action_map.get(request.method.lower())
+        return super().initialize_request(request, *args, **kwargs)
+
+    def get_authenticators(self):
+        if self.action:
+            action_func = getattr(self, self.action, None)
+            if action_func and hasattr(action_func, 'authentication_classes'):
+                return [auth() for auth in action_func.authentication_classes]
+        return super().get_authenticators()
+
     def get_queryset(self):
         queryset = Question.objects.all()
         test_id = self.request.query_params.get('test', None)
@@ -657,7 +708,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(test_id=test_id)
         return queryset
 
-    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    @action(detail=False, methods=['get'], authentication_classes=[], permission_classes=[AllowAny])
     def public_list(self, request):
         """Public endpoint to get all questions (for questions page)"""
         queryset = Question.objects.all()
@@ -1253,6 +1304,18 @@ class SiteUpdateViewSet(viewsets.ModelViewSet):
     serializer_class = SiteUpdateSerializer
     permission_classes = [AllowAny]
 
+    def initialize_request(self, request, *args, **kwargs):
+        if hasattr(self, 'action_map'):
+            self.action = self.action_map.get(request.method.lower())
+        return super().initialize_request(request, *args, **kwargs)
+
+    def get_authenticators(self):
+        if self.action:
+            action_func = getattr(self, self.action, None)
+            if action_func and hasattr(action_func, 'authentication_classes'):
+                return [auth() for auth in action_func.authentication_classes]
+        return super().get_authenticators()
+
     def get_permissions(self):
         # Create/Update/Delete requires admin/head_admin
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -1265,7 +1328,7 @@ class SiteUpdateViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Only admins can create updates'}, status=status.HTTP_403_FORBIDDEN)
         return super().create(request, *args, **kwargs)
 
-    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    @action(detail=False, methods=['get'], authentication_classes=[], permission_classes=[AllowAny])
     def public_list(self, request):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)

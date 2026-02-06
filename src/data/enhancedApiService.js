@@ -94,23 +94,51 @@ class EnhancedApiService {
         // Token expired, try to refresh
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
-          try {
-            const refreshResponse = await fetch(`${this.baseURL}/token/refresh/`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ refresh: refreshToken }),
-            });
+          // If a refresh is already in progress, wait for it
+          if (this.refreshPromise) {
+            try {
+              const newToken = await this.refreshPromise;
+              config.headers['Authorization'] = `Bearer ${newToken}`;
+              return await fetch(url, config);
+            } catch (error) {
+              // Wait for refresh to fail, then logout
+              throw new Error('Authentication failed - please login again');
+            }
+          }
 
-            if (refreshResponse.ok) {
-              const data = await refreshResponse.json();
-              this.setToken(data.access);
-              // Update config headers for retry
-              config.headers['Authorization'] = `Bearer ${data.access}`;
-              // Retry the original request
-              const retryResponse = await fetch(url, config);
-              if (retryResponse.ok) {
-                return retryResponse;
+          // Start a new refresh
+          this.refreshPromise = (async () => {
+            try {
+              const refreshResponse = await fetch(`${this.baseURL}/token/refresh/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ refresh: refreshToken }),
+              });
+
+              if (refreshResponse.ok) {
+                const data = await refreshResponse.json();
+                this.setToken(data.access);
+                return data.access;
+              } else {
+                this.logout();
+                throw new Error('Refresh failed');
               }
+            } catch (error) {
+              this.logout();
+              throw error;
+            } finally {
+              this.refreshPromise = null;
+            }
+          })();
+
+          try {
+            const newToken = await this.refreshPromise;
+            // Update config headers for retry
+            config.headers['Authorization'] = `Bearer ${newToken}`;
+            // Retry the original request
+            const retryResponse = await fetch(url, config);
+            if (retryResponse.ok) {
+              return retryResponse;
             }
           } catch (error) {
             console.error('Token refresh failed:', error);
@@ -282,6 +310,7 @@ class EnhancedApiService {
 
     // Clear all caches on logout
     cacheManager.clear();
+    window.dispatchEvent(new Event('api-logout'));
   }
 
   // Enhanced user methods with caching

@@ -661,7 +661,7 @@ const Header = ({ demoMode = false }) => {
                   </div>
                 ))}
               </div>
-              <div className={`nav-buttons ${(settings?.header?.time || settings?.header?.weather) ? 'has-dynamic-island' : ''}`}>
+              <div className="nav-buttons">
                 {isDashboard ? (
                   <>
                     <button className="btn-secondary" onClick={logout} style={{ background: '#ff4757', color: 'white' }}>{t('nav.logout')}</button>
