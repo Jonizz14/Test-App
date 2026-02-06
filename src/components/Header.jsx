@@ -329,7 +329,7 @@ const Header = ({ demoMode = false }) => {
     const handleSaveError = (e) => handleNotification({ ...e.detail, isError: true });
 
     // Test specific events
-    const handleTestAction = (e) => handleNotification({ ...e.detail, autoSave: true });
+    const handleTestAction = (e) => handleNotification({ ...e.detail });
 
     window.addEventListener('itemSaved', handleItemSaved);
     window.addEventListener('saveError', handleSaveError);

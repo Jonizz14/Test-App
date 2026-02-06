@@ -19,9 +19,9 @@ import ContentManagerOverview from './content-manager/ContentManagerOverview';
 import ContentManagerCreateTest from './content-manager/ContentManagerCreateTest';
 import ContentManagerTests from './content-manager/ContentManagerTests';
 import ContentManagerStatistics from './content-manager/ContentManagerStatistics';
-import TestDetails from './teacher/TestDetails';
-import StudentResult from './teacher/StudentResult';
-import StudentProfileView from './student/StudentProfileView';
+import ContentManagerTestDetails from './content-manager/ContentManagerTestDetails';
+import ContentManagerStudentResult from './content-manager/ContentManagerStudentResult';
+import ContentManagerStudentProfile from './content-manager/ContentManagerStudentProfile';
 
 const { Header, Content } = Layout;
 
@@ -35,6 +35,9 @@ const ContentManagerDashboard = () => {
         '/content-manager/create-test': 'Test yaratish',
         '/content-manager/my-tests': 'Mening testlarim',
         '/content-manager/statistics': 'Statistika',
+        '/content-manager/test-details': 'Test tafsilotlari',
+        '/content-manager/student-result': 'Natija',
+        '/content-manager/student-profile': 'O\'quvchi profili',
     };
 
     const getBreadcrumbItems = () => {
@@ -135,9 +138,9 @@ const ContentManagerDashboard = () => {
                                 <Route path="/create-test" element={<ContentManagerCreateTest />} />
                                 <Route path="/edit-test/:testId" element={<ContentManagerCreateTest />} />
                                 <Route path="/my-tests" element={<ContentManagerTests />} />
-                                <Route path="/test-details/:testId" element={<TestDetails />} />
-                                <Route path="/student-result/:attemptId" element={<StudentResult />} />
-                                <Route path="/student-profile/:id" element={<StudentProfileView />} />
+                                <Route path="/test-details/:testId" element={<ContentManagerTestDetails />} />
+                                <Route path="/student-result/:attemptId" element={<ContentManagerStudentResult />} />
+                                <Route path="/student-profile/:id" element={<ContentManagerStudentProfile />} />
                                 <Route path="/statistics" element={<ContentManagerStatistics />} />
                             </Routes>
                         </div>
