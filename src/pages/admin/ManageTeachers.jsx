@@ -430,9 +430,9 @@ const ManageTeachers = () => {
   ];
 
   return (
-    <div  style={{ padding: '24px 0' }}>
+    <div style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div  style={{
+      <div style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -473,7 +473,7 @@ const ManageTeachers = () => {
       )}
 
       {/* Controls */}
-      <div  style={{
+      <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -530,7 +530,7 @@ const ManageTeachers = () => {
       )}
 
       {/* Table */}
-      <div  style={{ }}>
+      <div style={{}}>
         <Table
           columns={columns}
           dataSource={filteredTeachers}
@@ -548,15 +548,9 @@ const ManageTeachers = () => {
             emptyText: 'O\'qituvchilar mavjud emas'
           }}
           onRow={(record, index) => ({
-            style: { 
+            style: {
               animationDelay: `${index * 50}ms`,
               transition: 'all 0.3s ease'
-            },
-            onMouseEnter: (e) => {
-              e.currentTarget.style.transform = 'scale(1.02)';
-            },
-            onMouseLeave: (e) => {
-              e.currentTarget.style.transform = 'scale(1)';
             }
           })}
         />
@@ -564,7 +558,7 @@ const ManageTeachers = () => {
 
       {/* Empty State */}
       {filteredTeachers.length === 0 && !loading && (
-        <div  style={{ textAlign: 'center', padding: '48px 0' }}>
+        <div style={{ textAlign: 'center', padding: '48px 0' }}>
           <Text style={{ fontSize: '16px', color: '#64748b' }}>
             {searchTerm ? 'Qidiruv bo\'yicha o\'qituvchilar topilmadi' : 'Hech qanday o\'qituvchi mavjud emas'}
           </Text>
@@ -621,7 +615,7 @@ const ManageTeachers = () => {
             loading={importing}
             disabled={importing}
             onClick={() => fileInputRef.current?.click()}
-            
+
           >
             {importing ? 'Import qilinmoqda...' : 'Fayl tanlash (.xlsx)'}
           </Button>

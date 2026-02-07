@@ -18,7 +18,7 @@ import {
 } from 'antd';
 import {
     ArrowLeftOutlined as ArrowBackIcon,
-    PersonOutlined as PersonIcon,
+    UserOutlined as PersonIcon,
     BarChartOutlined as AssessmentIcon,
     StarOutlined as StarIcon,
     CheckCircleOutlined,

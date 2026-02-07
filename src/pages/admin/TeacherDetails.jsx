@@ -50,7 +50,7 @@ const TeacherDetails = () => {
 
   if (loading) {
     return (
-      <div  style={{
+      <div style={{
         padding: '24px',
         display: 'flex',
         justifyContent: 'center',
@@ -66,10 +66,10 @@ const TeacherDetails = () => {
             border: '4px solid #e2e8f0',
             borderTop: '4px solid #2563eb',
             borderRadius: '50%',
-            
+
           }}></div>
         </div>
-        <div  style={{
+        <div style={{
           color: '#64748b',
           fontSize: '16px',
           fontWeight: 500
@@ -94,23 +94,23 @@ const TeacherDetails = () => {
 
   if (!teacher) {
     return (
-      <div  style={{ padding: '24px' }}>
-        <div  style={{ 
-          textAlign: 'center', 
+      <div style={{ padding: '24px' }}>
+        <div style={{
+          textAlign: 'center',
           padding: '48px 0',
           backgroundColor: '#f8fafc',
           borderRadius: '12px',
           border: '1px solid #e2e8f0'
         }}>
-          <FileTextOutlined style={{ 
-            fontSize: '64px', 
-            color: '#cbd5e1', 
+          <FileTextOutlined style={{
+            fontSize: '64px',
+            color: '#cbd5e1',
             marginBottom: '16px',
             display: 'block'
           }} />
-          <Text style={{ 
-            color: '#64748b', 
-            fontSize: '18px', 
+          <Text style={{
+            color: '#64748b',
+            fontSize: '18px',
             fontWeight: 500,
             display: 'block',
             marginBottom: '24px'
@@ -118,8 +118,8 @@ const TeacherDetails = () => {
           <Button
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate('/admin/teachers')}
-            
-            style={{ 
+
+            style={{
               marginTop: '16px',
               borderColor: '#2563eb',
               color: '#2563eb'
@@ -135,7 +135,7 @@ const TeacherDetails = () => {
   return (
     <div style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div  style={{
+      <div style={{
         marginBottom: '24px',
         display: 'flex',
         alignItems: 'center',
@@ -144,7 +144,7 @@ const TeacherDetails = () => {
         <Button
           icon={<ArrowLeftOutlined />}
           onClick={() => navigate('/admin/teachers')}
-          
+
           style={{
             borderColor: '#2563eb',
             color: '#2563eb',
@@ -153,10 +153,10 @@ const TeacherDetails = () => {
         >
           Orqaga
         </Button>
-        <Title level={2}  style={{ 
-          margin: 0, 
+        <Title level={2} style={{
+          margin: 0,
           color: '#1e293b',
-          
+
         }}>
           {teacher.name} - Batafsil ma'lumotlar
         </Title>
@@ -164,7 +164,7 @@ const TeacherDetails = () => {
 
       {/* Teacher Info Card */}
       <Card
-        
+
         style={{
           marginBottom: '24px',
           backgroundColor: '#f8fafc',
@@ -179,7 +179,7 @@ const TeacherDetails = () => {
           <Col>
             <Avatar
               size={80}
-              
+
               style={{
                 backgroundColor: '#2563eb',
                 fontSize: '32px',
@@ -217,13 +217,13 @@ const TeacherDetails = () => {
           <Col xs={24} md={12}>
             <Card
               size="small"
-              
+
               style={{
                 backgroundColor: '#ffffff',
                 border: '1px solid #e2e8f0',
                 borderRadius: '8px',
                 transition: 'all 0.3s ease',
-                
+
               }}
             >
               <div style={{ textAlign: 'center' }}>
@@ -239,13 +239,13 @@ const TeacherDetails = () => {
           <Col xs={24} md={12}>
             <Card
               size="small"
-              
+
               style={{
                 backgroundColor: '#ffffff',
                 border: '1px solid #e2e8f0',
                 borderRadius: '8px',
                 transition: 'all 0.3s ease',
-                
+
               }}
             >
               <div style={{ textAlign: 'center' }}>
@@ -263,7 +263,7 @@ const TeacherDetails = () => {
 
       {/* Tests Created */}
       <Card
-        
+
         title={
           <span >
             {`Yaratilgan testlar (${tests.length})`}
@@ -278,21 +278,21 @@ const TeacherDetails = () => {
         }}
       >
         {tests.length === 0 ? (
-          <div  style={{
+          <div style={{
             textAlign: 'center',
             padding: '48px 24px',
             backgroundColor: '#f8fafc',
             borderRadius: '8px',
             border: '1px solid #e2e8f0'
           }}>
-            <FileTextOutlined 
-               
-              style={{ 
-                fontSize: '48px', 
-                color: '#cbd5e1', 
+            <FileTextOutlined
+
+              style={{
+                fontSize: '48px',
+                color: '#cbd5e1',
                 marginBottom: '16px',
                 display: 'block'
-              }} 
+              }}
             />
             <Text style={{ color: '#64748b', fontSize: '16px', fontWeight: 500 }}>
               Hali testlar yaratilmagan
@@ -362,20 +362,18 @@ const TeacherDetails = () => {
                 </thead>
                 <tbody>
                   {tests.map((test, index) => (
-                    <tr 
+                    <tr
                       key={test.id}
-                      
+
                       style={{
                         animationDelay: `${index * 50}ms`,
                         transition: 'all 0.3s ease'
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = '#f8fafc';
-                        e.currentTarget.style.transform = 'scale(1.01)';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.backgroundColor = '#ffffff';
-                        e.currentTarget.style.transform = 'scale(1)';
                       }}
                     >
                       <td style={{
@@ -434,10 +432,10 @@ const TeacherDetails = () => {
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                           <TrophyOutlined style={{ fontSize: '12px' }} />
-                          <span style={{ 
+                          <span style={{
                             fontWeight: 600,
-                            color: (test.average_score || 0) >= 80 ? '#10b981' : 
-                                   (test.average_score || 0) >= 60 ? '#f59e0b' : '#ef4444'
+                            color: (test.average_score || 0) >= 80 ? '#10b981' :
+                              (test.average_score || 0) >= 60 ? '#f59e0b' : '#ef4444'
                           }}>
                             {(test.average_score || 0).toFixed(1)}%
                           </span>
@@ -448,9 +446,9 @@ const TeacherDetails = () => {
                 </tbody>
               </table>
             </div>
-            
+
             {/* Test Statistics Summary */}
-            <div  style={{
+            <div style={{
               marginTop: '24px',
               padding: '20px',
               backgroundColor: '#f8fafc',

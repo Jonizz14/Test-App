@@ -1,13 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   Table,
-  Card,
   Typography,
   Tag,
   Input,
+  Space,
+  Avatar,
+  Alert,
+  Select,
 } from 'antd';
 import {
   SearchOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import apiService from '../../data/apiService';
 
@@ -15,20 +21,25 @@ const { Title, Text } = Typography;
 
 const StudentRatings = () => {
   const [originalStudents, setOriginalStudents] = useState([]);
-  const [attempts, setAttempts] = useState([]);
-
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState('average_score');
   const [sortDirection, setSortDirection] = useState('desc');
-  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const loadStudents = async () => {
       try {
-        const allUsers = await apiService.getUsers();
-        const studentUsers = allUsers.filter((user) => user.role === 'student');
+        setLoading(true);
+        const [usersData, attemptsData] = await Promise.all([
+          apiService.getUsers(),
+          apiService.getAttempts()
+        ]);
 
-        const allAttempts = await apiService.getAttempts();
-        setAttempts(allAttempts);
+        const allUsers = usersData.results || usersData;
+        const studentUsers = allUsers.filter((user) => user.role === 'student');
+        const teachers = allUsers.filter((user) => user.role === 'teacher');
+        const allAttempts = attemptsData.results || attemptsData;
 
         // Calculate test statistics for each student
         const studentsWithStats = studentUsers.map(student => {
@@ -38,37 +49,79 @@ const StudentRatings = () => {
             ? studentAttempts.reduce((sum, attempt) => sum + (attempt.score || 0), 0) / testCount
             : 0;
 
+          // Find curator for this student's class
+          let curatorName = '';
+          if (student.class_group) {
+            const baseClass = student.class_group.split('-').slice(0, 2).join('-');
+            const curator = teachers.find(t =>
+              t.curator_class === student.class_group ||
+              t.curator_class === baseClass
+            );
+            if (curator) {
+              curatorName = `${curator.name || ''} ${curator.surname || ''}`.trim() || curator.username;
+            }
+          }
+
           return {
             ...student,
             total_tests_taken: testCount,
-            average_score: averageScore
+            average_score: averageScore,
+            curator_name: curatorName
           };
         });
 
         setOriginalStudents(studentsWithStats);
       } catch (error) {
         console.error('Failed to load students:', error);
+        setError('O\'quvchilar reytingini yuklashda xatolik yuz berdi');
+      } finally {
+        setLoading(false);
       }
     };
     loadStudents();
   }, []);
 
-  const students = useMemo(() => {
-    if (originalStudents.length === 0) return [];
+  const [classFilter, setClassFilter] = useState(undefined);
+  const [directionFilter, setDirectionFilter] = useState(undefined);
 
-    let filteredStudents = [...originalStudents];
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
+
+  const filteredStudents = useMemo(() => {
+    let result = [...originalStudents];
 
     // Apply search filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filteredStudents = filteredStudents.filter(student =>
+      result = result.filter(student =>
         (student.class_group && student.class_group.toLowerCase().includes(term)) ||
         (student.name && student.name.toLowerCase().includes(term)) ||
-        (student.username && student.username.toLowerCase().includes(term))
+        (student.username && student.username.toLowerCase().includes(term)) ||
+        (student.curator_name && student.curator_name.toLowerCase().includes(term))
       );
     }
 
-    return filteredStudents.sort((a, b) => {
+    // Apply class filter
+    if (classFilter) {
+      result = result.filter(student => student.class_group === classFilter);
+    }
+
+    // Apply direction filter
+    if (directionFilter) {
+      result = result.filter(student => student.direction === directionFilter);
+    }
+
+    return result;
+  }, [originalStudents, searchTerm, classFilter, directionFilter]);
+
+  const sortedStudents = useMemo(() => {
+    return [...filteredStudents].sort((a, b) => {
       let aValue, bValue;
 
       switch (sortField) {
@@ -83,94 +136,91 @@ const StudentRatings = () => {
         case 'name':
           aValue = (a.name || a.username || '').toLowerCase();
           bValue = (b.name || b.username || '').toLowerCase();
-          if (sortDirection === 'asc') {
-            return aValue.localeCompare(bValue);
-          } else {
-            return bValue.localeCompare(aValue);
-          }
+          return sortDirection === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         case 'class_group':
           aValue = (a.class_group || '').toLowerCase();
           bValue = (b.class_group || '').toLowerCase();
-          if (sortDirection === 'asc') {
-            return aValue.localeCompare(bValue);
-          } else {
-            return bValue.localeCompare(aValue);
-          }
-        case 'direction':
-          aValue = (a.direction || '').toLowerCase();
-          bValue = (b.direction || '').toLowerCase();
-          if (sortDirection === 'asc') {
-            return aValue.localeCompare(bValue);
-          } else {
-            return bValue.localeCompare(aValue);
-          }
-        case 'registration_date':
-          aValue = a.registration_date ? new Date(a.registration_date).getTime() : 0;
-          bValue = b.registration_date ? new Date(b.registration_date).getTime() : 0;
-          break;
+          return sortDirection === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         default:
           return 0;
       }
 
-      if (sortDirection === 'asc') {
-        return aValue - bValue;
-      } else {
-        return bValue - aValue;
-      }
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     });
-  }, [sortField, sortDirection, originalStudents, searchTerm]);
+  }, [filteredStudents, sortField, sortDirection]);
 
-
-
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('desc');
-    }
-  };
-
-  const handleTestCountClick = (studentId) => {
-    const student = students.find(s => s.id === studentId);
-    if (student) {
-      alert(`Testlar soni: ${student.total_tests_taken || 0}`);
-    }
-  };
-
-  const handleAverageScoreClick = (studentId) => {
-    const student = students.find(s => s.id === studentId);
-    if (student) {
-      alert(`O'rtacha ball: ${(student.average_score || 0).toFixed(1)}%`);
-    }
-  };
+  // Extract unique classes for filter
+  const uniqueClasses = useMemo(() => {
+    const classes = originalStudents.map(s => s.class_group).filter(Boolean);
+    return [...new Set(classes)].sort();
+  }, [originalStudents]);
 
   const columns = [
     {
       title: (
         <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('name')}>
-          Ism
+          O'quvchi
+          {sortField === 'name' && (
+            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
+          )}
         </div>
       ),
-      dataIndex: 'name',
       key: 'name',
-      render: (text, record) => (
-        <Text strong style={{ color: '#1e293b' }}>
-          {text || record.username}
-        </Text>
+      render: (_, record, index) => (
+        <Space>
+          <div style={{
+            width: 32,
+            height: 32,
+            borderRadius: '50%',
+            backgroundColor: index === 0 ? '#fbbf24' : index === 1 ? '#e5e7eb' : index === 2 ? '#cd7f32' : '#f3f4f6',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 700,
+            fontSize: '14px',
+            color: index < 3 ? '#ffffff' : '#64748b',
+          }}>
+            {index + 1}
+          </div>
+          <Space>
+            <Avatar
+              icon={<UserOutlined />}
+              src={record.profile_photo_url}
+              style={{ backgroundColor: '#f1f5f9', color: '#64748b' }}
+            />
+            <div>
+              <Text strong style={{ color: '#1e293b', display: 'block' }}>
+                {record.name || record.username}
+              </Text>
+            </div>
+          </Space>
+        </Space>
       ),
     },
     {
       title: (
         <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('class_group')}>
-          Sinflar
+          Sinf
+          {sortField === 'class_group' && (
+            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
+          )}
         </div>
       ),
       dataIndex: 'class_group',
       key: 'class_group',
       render: (text) => (
-        <Text style={{ color: '#1e293b', fontWeight: 500 }}>
-          {text}
+        <Tag color="blue" style={{ borderRadius: '6px', fontWeight: 600 }}>
+          {text || 'Sinf yo\'q'}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Sinf rahbari',
+      dataIndex: 'curator_name',
+      key: 'curator_name',
+      render: (text) => (
+        <Text style={{ color: '#64748b', fontWeight: 600 }}>
+          {text || <Text style={{ color: '#94a3b8', fontStyle: 'italic' }}>Rahbar yo'q</Text>}
         </Text>
       ),
     },
@@ -178,20 +228,15 @@ const StudentRatings = () => {
       title: (
         <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('total_tests_taken')}>
           Testlar soni
+          {sortField === 'total_tests_taken' && (
+            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
+          )}
         </div>
       ),
       dataIndex: 'total_tests_taken',
       key: 'total_tests_taken',
-      render: (value, record) => (
-        <Text
-          style={{
-            fontWeight: 700,
-            color: '#2563eb',
-            fontSize: '18px',
-            cursor: 'pointer'
-          }}
-          onClick={() => handleTestCountClick(record.id)}
-        >
+      render: (value) => (
+        <Text style={{ fontWeight: 700, color: '#2563eb', fontSize: '18px' }}>
           {value || 0}
         </Text>
       ),
@@ -200,73 +245,39 @@ const StudentRatings = () => {
       title: (
         <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('average_score')}>
           O'rtacha ball
+          {sortField === 'average_score' && (
+            sortDirection === 'asc' ? <ArrowUpOutlined style={{ marginLeft: 8, fontSize: 12 }} /> : <ArrowDownOutlined style={{ marginLeft: 8, fontSize: 12 }} />
+          )}
         </div>
       ),
       dataIndex: 'average_score',
       key: 'average_score',
-      render: (value, record) => (
-        <Text
-          style={{
-            fontWeight: 700,
-            color: '#059669',
-            fontSize: '18px',
-            cursor: 'pointer'
-          }}
-          onClick={() => handleAverageScoreClick(record.id)}
-        >
+      render: (value) => (
+        <Text style={{ fontWeight: 700, color: '#059669', fontSize: '18px' }}>
           {(value || 0).toFixed(1)}%
         </Text>
       ),
     },
     {
-      title: (
-        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('direction')}>
-          Yo'nalish
-        </div>
-      ),
+      title: 'Yo\'nalish',
       dataIndex: 'direction',
       key: 'direction',
-      render: (direction) => {
-        if (direction) {
-          return (
-            <Tag
-              color={direction === 'natural' ? 'green' : 'blue'}
-              style={{ fontWeight: 600 }}
-            >
-              {direction === 'natural' ? 'Tabiiy fanlar' : 'Aniq fanlar'}
-            </Tag>
-          );
-        }
-        return (
-          <Text style={{ color: '#64748b', fontStyle: 'italic' }}>
-            To'ldirilmagan
-          </Text>
-        );
-      },
-    },
-    {
-      title: (
-        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('registration_date')}>
-          Ro'yxatdan o'tgan sana
-        </div>
-      ),
-      dataIndex: 'registration_date',
-      key: 'registration_date',
-      render: (date) => (
-        <Text style={{
-          fontWeight: 500,
-          color: date ? '#1e293b' : '#64748b'
-        }}>
-          {date ? new Date(date).toLocaleDateString() : 'To\'ldirilmagan'}
-        </Text>
+      render: (direction) => (
+        direction ? (
+          <Tag color={direction === 'natural' ? 'green' : 'cyan'}>
+            {direction === 'natural' ? 'Tabiiy fanlar' : 'Aniq fanlar'}
+          </Tag>
+        ) : (
+          <Text type="secondary" italic>To'ldirilmagan</Text>
+        )
       ),
     },
   ];
 
   return (
-    <div  style={{ padding: '24px 0' }}>
+    <div style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div  style={{
+      <div style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -279,27 +290,82 @@ const StudentRatings = () => {
         </Text>
       </div>
 
-      {/* Search Input */}
-      <div  style={{ marginBottom: '24px' }}>
+      {/* Alerts */}
+      {error && (
+        <Alert
+          message={error}
+          type="error"
+          showIcon
+          style={{ marginBottom: '16px' }}
+          closable
+          onClose={() => setError('')}
+        />
+      )}
+
+      {/* Search and Filters */}
+      <div style={{
+        marginBottom: '24px',
+        display: 'flex',
+        gap: '12px',
+        flexWrap: 'wrap',
+        alignItems: 'center'
+      }}>
         <Input
-          placeholder="Sinf yoki rahbar nomini qidirish..."
+          placeholder="O'quvchi, sinf yoki rahbar nomi bo'yicha qidirish..."
           prefix={<SearchOutlined />}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
             borderRadius: '8px',
-            maxWidth: '100%'
+            minWidth: '300px',
+            flex: '1'
           }}
+          allowClear
         />
+
+        <Select
+          placeholder="Sinf"
+          value={classFilter}
+          onChange={setClassFilter}
+          style={{
+            borderRadius: '8px',
+            minWidth: '150px',
+            width: '200px'
+          }}
+          allowClear
+          showSearch
+        >
+          {uniqueClasses.map(className => (
+            <Select.Option key={className} value={className}>
+              {className}
+            </Select.Option>
+          ))}
+        </Select>
+
+        <Select
+          placeholder="Yo'nalish"
+          value={directionFilter}
+          onChange={setDirectionFilter}
+          style={{
+            borderRadius: '8px',
+            minWidth: '150px',
+            width: '180px'
+          }}
+          allowClear
+        >
+          <Select.Option value="natural">Tabiiy fanlar</Select.Option>
+          <Select.Option value="exact">Aniq fanlar</Select.Option>
+        </Select>
       </div>
 
-      {/* Students Table */}
-      <div  style={{ }}>
+      {/* Table */}
+      <div style={{}}>
         <Table
-          dataSource={students}
+          dataSource={sortedStudents}
           columns={columns}
           rowKey="id"
-          pagination={{ 
+          loading={loading}
+          pagination={{
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
@@ -307,15 +373,9 @@ const StudentRatings = () => {
           }}
           rowClassName={() => ""}
           onRow={(record, index) => ({
-            style: { 
+            style: {
               animationDelay: `${index * 50}ms`,
               transition: 'all 0.3s ease'
-            },
-            onMouseEnter: (e) => {
-              e.currentTarget.style.transform = 'scale(1.02)';
-            },
-            onMouseLeave: (e) => {
-              e.currentTarget.style.transform = 'scale(1)';
             }
           })}
         />

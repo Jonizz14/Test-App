@@ -12,6 +12,7 @@ import {
   Collapse,
   Tooltip,
   Spin,
+  Select,
 } from 'antd';
 import {
   SearchOutlined,
@@ -35,6 +36,9 @@ const ClassStatistics = () => {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [expanded, setExpanded] = useState({});
+  const [curatorFilter, setCuratorFilter] = useState(undefined);
+  const [gradeFilter, setGradeFilter] = useState(undefined);
+  const [directionFilter, setDirectionFilter] = useState(undefined);
   const [sortField, setSortField] = useState('averageScore');
   const [sortDirection, setSortDirection] = useState('desc');
   const navigate = useNavigate();
@@ -72,11 +76,17 @@ const ClassStatistics = () => {
           classGroups[classGroup].students.push(student);
         });
 
-        // Assign curators - match base class name (without suffix like -A, -B)
+        // Assign curators
         Object.keys(classGroups).forEach(className => {
           // Extract base class name (e.g., "9-03-A" -> "9-03")
           const baseClassName = className.split('-').slice(0, 2).join('-');
-          const curator = teachers.find(teacher => teacher.curator_class === baseClassName);
+
+          // Try exact match first, then base name match
+          const curator = teachers.find(teacher =>
+            teacher.curator_class === className ||
+            teacher.curator_class === baseClassName
+          );
+
           if (curator) {
             classGroups[className].curator = curator;
           }
@@ -91,6 +101,7 @@ const ClassStatistics = () => {
           let totalScore = 0;
           let studentsWithAttempts = 0;
           let activeStudents = 0;
+          const directions = {};
 
           classGroup.students.forEach(student => {
             const studentAttempts = classAttempts.filter(attempt => attempt.student === student.id);
@@ -100,14 +111,27 @@ const ClassStatistics = () => {
               studentsWithAttempts++;
             }
 
+            // Track directions
+            if (student.direction) {
+              directions[student.direction] = (directions[student.direction] || 0) + 1;
+            }
+
             // Active students (has login in last 30 days)
             if (student.last_login && new Date(student.last_login) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)) {
               activeStudents++;
             }
           });
 
+          // Determine majority direction for the class
+          let classDirection = null;
+          if (Object.keys(directions).length > 0) {
+            classDirection = Object.keys(directions).reduce((a, b) => directions[a] > directions[b] ? a : b);
+          }
+
           return {
             ...classGroup,
+            direction: classDirection,
+            grade: classGroup.name.split('-')[0], // Extract "9" from "9-03-A"
             statistics: {
               totalStudents: classGroup.students.length,
               totalAttempts: classAttempts.length,
@@ -130,21 +154,46 @@ const ClassStatistics = () => {
     loadClassStatistics();
   }, []);
 
-  // Filter classes based on search term
-  const filteredClasses = originalClasses.filter(classGroup => {
-    if (!searchTerm) return true;
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
 
-    const searchLower = searchTerm.toLowerCase();
-    const className = classGroup.name.toLowerCase();
-    const curatorName = classGroup.curator ? classGroup.curator.name.toLowerCase() : '';
+  // Filter classes based on all criteria
+  const filteredClasses = useMemo(() => {
+    let result = [...originalClasses];
 
-    return className.includes(searchLower) || curatorName.includes(searchLower);
-  });
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      result = result.filter(classGroup => {
+        const className = classGroup.name.toLowerCase();
+        const curatorName = classGroup.curator ? classGroup.curator.name.toLowerCase() : '';
+        const curatorSurname = classGroup.curator?.surname ? classGroup.curator.surname.toLowerCase() : '';
+        return className.includes(searchLower) || curatorName.includes(searchLower) || curatorSurname.includes(searchLower);
+      });
+    }
+
+    if (curatorFilter) {
+      result = result.filter(classGroup => classGroup.curator?.name === curatorFilter);
+    }
+
+    if (gradeFilter) {
+      result = result.filter(classGroup => classGroup.grade === gradeFilter);
+    }
+
+    if (directionFilter) {
+      result = result.filter(classGroup => classGroup.direction === directionFilter);
+    }
+
+    return result;
+  }, [originalClasses, searchTerm, curatorFilter, gradeFilter, directionFilter]);
 
   // Sort classes based on selected field and direction
-  const classes = useMemo(() => {
-    if (filteredClasses.length === 0) return [];
-
+  const sortedClasses = useMemo(() => {
     return [...filteredClasses].sort((a, b) => {
       let aValue, bValue;
 
@@ -168,30 +217,28 @@ const ClassStatistics = () => {
         case 'name':
           aValue = (a.name || '').toLowerCase();
           bValue = (b.name || '').toLowerCase();
-          if (sortDirection === 'asc') {
-            return aValue.localeCompare(bValue);
-          } else {
-            return bValue.localeCompare(aValue);
-          }
+          return sortDirection === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         case 'curator':
           aValue = (a.curator ? a.curator.name : '').toLowerCase();
           bValue = (b.curator ? b.curator.name : '').toLowerCase();
-          if (sortDirection === 'asc') {
-            return aValue.localeCompare(bValue);
-          } else {
-            return bValue.localeCompare(aValue);
-          }
+          return sortDirection === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         default:
           return 0;
       }
 
-      if (sortDirection === 'asc') {
-        return aValue - bValue;
-      } else {
-        return bValue - aValue;
-      }
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     });
   }, [sortField, sortDirection, filteredClasses]);
+
+  const uniqueCurators = useMemo(() => {
+    const curators = originalClasses.map(c => c.curator?.name).filter(Boolean);
+    return [...new Set(curators)].sort();
+  }, [originalClasses]);
+
+  const uniqueGrades = useMemo(() => {
+    const grades = originalClasses.map(c => c.grade).filter(Boolean);
+    return [...new Set(grades)].sort((a, b) => parseInt(a) - parseInt(b));
+  }, [originalClasses]);
 
   const handleViewDetails = (className) => {
     navigate(`/admin/class-details/${encodeURIComponent(className)}`);
@@ -201,24 +248,15 @@ const ClassStatistics = () => {
     setExpanded((prev) => ({ ...prev, [className]: !prev[className] }));
   };
 
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('desc');
-    }
-  };
-
   const handleTestCountClick = (className) => {
-    const classGroup = classes.find(c => c.name === className);
+    const classGroup = sortedClasses.find(c => c.name === className);
     if (classGroup) {
       alert(`Testlar soni: ${classGroup.statistics.totalAttempts || 0}`);
     }
   };
 
   const handleAverageScoreClick = (className) => {
-    const classGroup = classes.find(c => c.name === className);
+    const classGroup = sortedClasses.find(c => c.name === className);
     if (classGroup) {
       alert(`O'rtacha ball: ${(classGroup.statistics.averageScore || 0).toFixed(1)}%`);
     }
@@ -299,7 +337,7 @@ const ClassStatistics = () => {
                 {!record.curator.is_premium || !record.curator.profile_photo_url ? record.curator.name?.charAt(0) : undefined}
               </Avatar>
               <Text style={{ color: '#64748b', fontWeight: 600 }}>
-                {record.curator.name}
+                {record.curator.name} {record.curator.surname || ''}
               </Text>
             </Space>
           );
@@ -409,7 +447,7 @@ const ClassStatistics = () => {
             fontWeight: 600,
             transition: 'all 0.3s ease'
           }}
-          
+
         >
           Ko'rish
         </Button>
@@ -418,9 +456,9 @@ const ClassStatistics = () => {
   ];
 
   return (
-    <div  style={{ padding: '24px 0' }}>
+    <div style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div  style={{
+      <div style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -435,7 +473,7 @@ const ClassStatistics = () => {
 
       {/* Alerts */}
       {error && (
-        <div  style={{ }}>
+        <div style={{}}>
           <Alert
             message={error}
             type="error"
@@ -447,38 +485,92 @@ const ClassStatistics = () => {
         </div>
       )}
 
-      {/* Search */}
-      <div  style={{ marginBottom: '24px' }}>
+      {/* Search and Filters */}
+      <div style={{
+        marginBottom: '24px',
+        display: 'flex',
+        gap: '12px',
+        flexWrap: 'wrap',
+        alignItems: 'center'
+      }}>
         <Input
-          placeholder="Sinf yoki rahbar nomini qidirish..."
+          placeholder="Sinf kodi yoki rahbar nomini qidirish..."
           prefix={<SearchOutlined />}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
             borderRadius: '8px',
-            maxWidth: '100%'
+            minWidth: '250px',
+            flex: '1.5'
           }}
+          allowClear
         />
+
+        <Select
+          placeholder="Sinf"
+          value={gradeFilter}
+          onChange={setGradeFilter}
+          style={{
+            borderRadius: '8px',
+            minWidth: '100px',
+            width: '120px'
+          }}
+          allowClear
+        >
+          {uniqueGrades.map(grade => (
+            <Select.Option key={grade} value={grade}>
+              {grade}-sinf
+            </Select.Option>
+          ))}
+        </Select>
+
+        <Select
+          placeholder="Yo'nalish"
+          value={directionFilter}
+          onChange={setDirectionFilter}
+          style={{
+            borderRadius: '8px',
+            minWidth: '150px',
+            width: '180px'
+          }}
+          allowClear
+        >
+          <Select.Option value="natural">Tabiiy fanlar</Select.Option>
+          <Select.Option value="exact">Aniq fanlar</Select.Option>
+        </Select>
+
+        <Select
+          placeholder="Sinf rahbari"
+          value={curatorFilter}
+          onChange={setCuratorFilter}
+          style={{
+            borderRadius: '8px',
+            minWidth: '180px',
+            width: '220px'
+          }}
+          allowClear
+          showSearch
+        >
+          {uniqueCurators.map(curatorName => (
+            <Select.Option key={curatorName} value={curatorName}>
+              {curatorName}
+            </Select.Option>
+          ))}
+        </Select>
       </div>
 
       {/* Table */}
-      <div  style={{ }}>
+      <div style={{}}>
         <Table
           columns={columns}
-          dataSource={classes}
+          dataSource={sortedClasses}
           rowKey="name"
           loading={loading}
           rowClassName={() => ""}
           onRow={(record, index) => ({
-            style: { 
+            style: {
               animationDelay: `${index * 50}ms`,
               transition: 'all 0.3s ease'
-            },
-            onMouseEnter: (e) => {
-              e.currentTarget.style.transform = 'scale(1.02)';
-            },
-            onMouseLeave: (e) => {
-              e.currentTarget.style.transform = 'scale(1)';
             }
           })}
           pagination={{
@@ -582,7 +674,7 @@ const ClassStatistics = () => {
                       fontWeight: 600,
                       transition: 'all 0.3s ease'
                     }}
-                    
+
                   >
                     To'liq ko'rish
                   </Button>

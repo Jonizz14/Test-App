@@ -288,7 +288,7 @@ const ClassDetails = () => {
 
   if (loading) {
     return (
-      <div  style={{
+      <div style={{
         padding: '24px',
         display: 'flex',
         justifyContent: 'center',
@@ -303,16 +303,16 @@ const ClassDetails = () => {
             width: '60px',
             height: '60px'
           }}>
-            <div  style={{
+            <div style={{
               position: 'absolute',
               width: '60px',
               height: '60px',
               border: '4px solid rgba(226, 232, 240, 0.3)',
               borderTop: '4px solid #2563eb',
               borderRadius: '50%',
-              
+
             }}></div>
-            <div  style={{
+            <div style={{
               position: 'absolute',
               top: '10px',
               left: '10px',
@@ -321,20 +321,20 @@ const ClassDetails = () => {
               border: '3px solid rgba(37, 99, 235, 0.2)',
               borderBottom: '3px solid #10b981',
               borderRadius: '50%',
-              
+
             }}></div>
           </div>
         </div>
-        <div  style={{
+        <div style={{
           textAlign: 'center'
         }}>
-          <div  style={{
+          <div style={{
             color: '#2563eb',
             fontSize: '18px',
             fontWeight: 600,
             marginBottom: '8px'
           }}>Yuklanmoqda</div>
-          <div  style={{
+          <div style={{
             color: '#64748b',
             fontSize: '14px'
           }}>Iltimos kuting...</div>
@@ -394,9 +394,9 @@ const ClassDetails = () => {
   }
 
   return (
-    <div  style={{ padding: '24px 0' }}>
+    <div style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div  style={{
+      <div style={{
         display: 'flex',
         alignItems: 'center',
         marginBottom: '24px',
@@ -405,7 +405,7 @@ const ClassDetails = () => {
         <Button
           icon={<ArrowLeftOutlined />}
           onClick={() => navigate('/admin/students')}
-          
+
           style={{
             borderColor: '#2563eb',
             color: '#2563eb',
@@ -415,7 +415,7 @@ const ClassDetails = () => {
         >
           Orqaga
         </Button>
-        <div  style={{ }}>
+        <div style={{}}>
           <Title level={1} style={{ margin: 0, color: '#1e293b', marginBottom: '0px' }}>
             {classGroup} sinfi
           </Title>
@@ -437,7 +437,7 @@ const ClassDetails = () => {
       {/* Statistics Cards */}
       <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={12} md={6}>
-          <div  style={{ }}>
+          <div style={{}}>
             <StatCard
               title="Jami o'quvchi"
               value={statistics.totalStudents}
@@ -447,7 +447,7 @@ const ClassDetails = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div  style={{ }}>
+          <div style={{}}>
             <StatCard
               title="Jami testlar"
               value={statistics.totalAttempts}
@@ -457,7 +457,7 @@ const ClassDetails = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div  style={{ }}>
+          <div style={{}}>
             <StatCard
               title="O'rtacha ball"
               value={statistics.averageScore}
@@ -468,7 +468,7 @@ const ClassDetails = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div  style={{ }}>
+          <div style={{}}>
             <StatCard
               title="Faol o'quvchi"
               value={statistics.activeStudents}
@@ -481,15 +481,15 @@ const ClassDetails = () => {
 
       {/* Class Curator */}
       {curator && (
-        <div  style={{ }}>
+        <div style={{}}>
           <Card
-            
+
             style={{
               borderRadius: '12px',
               border: '1px solid #e2e8f0',
               marginBottom: '24px',
               transition: 'all 0.3s ease',
-              
+
             }}
             bodyStyle={{ padding: '24px' }}
           >
@@ -500,7 +500,7 @@ const ClassDetails = () => {
               <Avatar
                 src={curator.is_premium && curator.profile_photo_url ? curator.profile_photo_url : undefined}
                 size={64}
-                
+
                 style={{
                   border: '3px solid #e2e8f0',
                   backgroundColor: curator.is_premium && curator.profile_photo_url ? undefined : '#f1f5f9',
@@ -521,7 +521,7 @@ const ClassDetails = () => {
               >
                 {!curator.is_premium || !curator.profile_photo_url ? (curator.name ? curator.name.charAt(0) : 'R') : undefined}
               </Avatar>
-              <div  style={{ }}>
+              <div style={{}}>
                 <Text strong style={{ fontSize: '18px', color: '#1e293b', display: 'block' }}>
                   {curator.name}
                 </Text>
@@ -540,9 +540,9 @@ const ClassDetails = () => {
       )}
 
       {/* Students List */}
-      <div  style={{ }}>
+      <div style={{}}>
         <Card
-          
+
           title={
             <span >
               {`Barcha o'quvchilar (${students.length} ta)`}
@@ -552,11 +552,11 @@ const ClassDetails = () => {
             borderRadius: '12px',
             border: '1px solid #e2e8f0',
             transition: 'all 0.3s ease',
-            
+
           }}
         >
           <Table
-            
+
             columns={columns}
             dataSource={students}
             rowKey="id"
@@ -570,21 +570,17 @@ const ClassDetails = () => {
               emptyText: 'Bu sinfda hali o\'quvchilar yo\'q'
             }}
             onRow={(record, index) => ({
-              
-              style: { 
+
+              style: {
                 animationDelay: `${index * 50}ms`,
                 transition: 'all 0.3s ease',
                 cursor: 'pointer'
               },
               onMouseEnter: (e) => {
                 e.currentTarget.style.backgroundColor = '#f0f9ff';
-                e.currentTarget.style.transform = 'scale(1.01)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
               },
               onMouseLeave: (e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = 'none';
               }
             })}
           />

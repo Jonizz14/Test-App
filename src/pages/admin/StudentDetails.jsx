@@ -87,7 +87,7 @@ const StudentDetails = () => {
 
   if (loading) {
     return (
-      <div  style={{
+      <div style={{
         padding: '24px',
         display: 'flex',
         justifyContent: 'center',
@@ -103,10 +103,10 @@ const StudentDetails = () => {
             border: '4px solid #e2e8f0',
             borderTop: '4px solid #2563eb',
             borderRadius: '50%',
-            
+
           }}></div>
         </div>
-        <div  style={{
+        <div style={{
           color: '#64748b',
           fontSize: '16px',
           fontWeight: 500
@@ -131,23 +131,23 @@ const StudentDetails = () => {
 
   if (!student) {
     return (
-      <div  style={{ padding: '24px' }}>
-        <div  style={{ 
-          textAlign: 'center', 
+      <div style={{ padding: '24px' }}>
+        <div style={{
+          textAlign: 'center',
           padding: '48px 0',
           backgroundColor: '#f8fafc',
           borderRadius: '12px',
           border: '1px solid #e2e8f0'
         }}>
-          <FileTextOutlined style={{ 
-            fontSize: '64px', 
-            color: '#cbd5e1', 
+          <FileTextOutlined style={{
+            fontSize: '64px',
+            color: '#cbd5e1',
             marginBottom: '16px',
             display: 'block'
           }} />
-          <Text style={{ 
-            color: '#64748b', 
-            fontSize: '18px', 
+          <Text style={{
+            color: '#64748b',
+            fontSize: '18px',
             fontWeight: 500,
             display: 'block',
             marginBottom: '24px'
@@ -155,8 +155,8 @@ const StudentDetails = () => {
           <Button
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate('/admin/students')}
-            
-            style={{ 
+
+            style={{
               marginTop: '16px',
               borderColor: '#2563eb',
               color: '#2563eb'
@@ -216,9 +216,9 @@ const StudentDetails = () => {
   ];
 
   return (
-    <div  style={{ padding: '24px 0' }}>
+    <div style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div  style={{
+      <div style={{
         marginBottom: '24px',
         display: 'flex',
         alignItems: 'center',
@@ -227,7 +227,7 @@ const StudentDetails = () => {
         <Button
           icon={<ArrowLeftOutlined />}
           onClick={() => navigate('/admin/students')}
-          
+
           style={{
             borderColor: '#2563eb',
             color: '#2563eb',
@@ -236,10 +236,10 @@ const StudentDetails = () => {
         >
           Orqaga
         </Button>
-        <Title level={2}  style={{ 
-          margin: 0, 
+        <Title level={2} style={{
+          margin: 0,
           color: '#1e293b',
-          
+
         }}>
           {student.name} - Batafsil ma'lumotlar
         </Title>
@@ -247,7 +247,7 @@ const StudentDetails = () => {
 
       {/* Profile Card */}
       <Card
-        
+
         style={{
           marginBottom: '24px',
           background: shouldShowPremiumFeatures(student, null) && student.background_gradient?.css
@@ -292,12 +292,12 @@ const StudentDetails = () => {
 
         <Row gutter={24} align="middle">
           {/* Profile Photo */}
-          <Col  style={{ }}>
+          <Col style={{}}>
             <div style={{ position: 'relative' }}>
               <Avatar
                 src={student.profile_photo_url}
                 size={150}
-                
+
                 style={{
                   border: '4px solid rgba(255, 255, 255, 0.8)',
                   boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
@@ -314,7 +314,7 @@ const StudentDetails = () => {
 
               {/* Premium Checkmark */}
               {shouldShowPremiumFeatures(student, null) && (
-                <div 
+                <div
                   style={{
                     position: 'absolute',
                     bottom: 10,
@@ -329,16 +329,16 @@ const StudentDetails = () => {
                     border: '3px solid rgba(255, 255, 255, 0.8)',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                     transition: 'all 0.3s ease',
-                    
+
                     cursor: 'pointer'
                   }}
                 >
-                  <CheckCircleOutlined 
-                    style={{ 
-                      color: 'white', 
+                  <CheckCircleOutlined
+                    style={{
+                      color: 'white',
                       fontSize: '16px',
                       transition: 'all 0.3s ease'
-                    }} 
+                    }}
                   />
                 </div>
               )}
@@ -346,7 +346,7 @@ const StudentDetails = () => {
           </Col>
 
           {/* Profile Info */}
-          <Col flex="auto"  style={{ }}>
+          <Col flex="auto" style={{}}>
             <div style={{
               color: student.is_premium ? '#ffffff' : '#1e293b',
               textAlign: 'left'
@@ -373,14 +373,14 @@ const StudentDetails = () => {
                 </Text>
               )}
 
-              <Space wrap  style={{ }}>
-                <Tag 
-                  color="green" 
-                  
-                  style={{ 
+              <Space wrap style={{}}>
+                <Tag
+                  color="green"
+
+                  style={{
                     fontWeight: 600,
                     transition: 'all 0.3s ease',
-                    
+
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.transform = 'scale(1.05)';
@@ -393,13 +393,13 @@ const StudentDetails = () => {
                 >
                   O'quvchi
                 </Tag>
-                <Tag 
-                  color="blue" 
-                  
-                  style={{ 
+                <Tag
+                  color="blue"
+
+                  style={{
                     fontWeight: 600,
                     transition: 'all 0.3s ease',
-                    
+
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.transform = 'scale(1.05)';
@@ -412,13 +412,13 @@ const StudentDetails = () => {
                 >
                   {student.class_group || 'Noma\'lum'} sinf
                 </Tag>
-                <Tag 
-                  color="default" 
-                  
-                  style={{ 
+                <Tag
+                  color="default"
+
+                  style={{
                     fontWeight: 600,
                     transition: 'all 0.3s ease',
-                    
+
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.transform = 'scale(1.05)';
@@ -441,7 +441,7 @@ const StudentDetails = () => {
       <div >
         <Row gutter={24} style={{ marginBottom: '24px' }}>
           <Col xs={24} sm={12} md={6}>
-            <div  style={{ }}>
+            <div style={{}}>
               <Card
                 style={{
                   backgroundColor: '#ffffff',
@@ -498,7 +498,7 @@ const StudentDetails = () => {
           </Col>
 
           <Col xs={24} sm={12} md={6}>
-            <div  style={{ }}>
+            <div style={{}}>
               <Card
                 style={{
                   backgroundColor: '#ffffff',
@@ -556,7 +556,7 @@ const StudentDetails = () => {
           </Col>
 
           <Col xs={24} sm={12} md={6}>
-            <div  style={{ }}>
+            <div style={{}}>
               <Card
                 style={{
                   backgroundColor: '#ffffff',
@@ -614,7 +614,7 @@ const StudentDetails = () => {
           </Col>
 
           <Col xs={24} sm={12} md={6}>
-            <div  style={{ }}>
+            <div style={{}}>
               <Card
                 style={{
                   backgroundColor: '#ffffff',
@@ -673,7 +673,7 @@ const StudentDetails = () => {
       </div>
       {/* Test Results Table */}
       <Card
-        
+
         title={
           <span >
             {`Test natijalari (${attempts.length})`}
@@ -690,7 +690,7 @@ const StudentDetails = () => {
         bodyStyle={{ padding: '0' }}
       >
         {attempts.length === 0 ? (
-          <div  style={{
+          <div style={{
             textAlign: 'center',
             padding: '48px 24px',
             backgroundColor: '#f8fafc',
@@ -698,23 +698,23 @@ const StudentDetails = () => {
             border: '1px solid #e2e8f0',
             margin: '24px'
           }}>
-            <FileTextOutlined 
-               
-              style={{ 
-                fontSize: '48px', 
-                color: '#cbd5e1', 
+            <FileTextOutlined
+
+              style={{
+                fontSize: '48px',
+                color: '#cbd5e1',
                 marginBottom: '16px',
                 display: 'block'
-              }} 
+              }}
             />
             <Text style={{ color: '#64748b', fontSize: '16px', fontWeight: 500 }}>
               Hali testlar topshirilmagan
             </Text>
           </div>
         ) : (
-          <div  style={{ }}>
+          <div style={{}}>
             <Table
-              
+
               columns={columns}
               dataSource={attempts}
               rowKey="id"
@@ -723,35 +723,29 @@ const StudentDetails = () => {
                 showSizeChanger: true,
                 showQuickJumper: true,
                 showTotal: (total) => `Jami ${total} ta test`,
-                
-                style: { }
+
+                style: {}
               }}
               locale={{
                 emptyText: 'Test natijalari mavjud emas'
               }}
-              rowClassName={(record, index) => 
-                `${
-                  index % 2 === 0 ? 'table-row-even' : 'table-row-odd'
+              rowClassName={(record, index) =>
+                `${index % 2 === 0 ? 'table-row-even' : 'table-row-odd'
                 }`
               }
               onRow={(record, index) => ({
-                className: `${
-                  index % 2 === 0 ? 'table-row-even' : 'table-row-odd'
-                }`,
-                style: { 
+                className: `${index % 2 === 0 ? 'table-row-even' : 'table-row-odd'
+                  }`,
+                style: {
                   animationDelay: `${index * 50}ms`,
                   transition: 'all 0.3s ease',
                   cursor: 'pointer'
                 },
                 onMouseEnter: (e) => {
                   e.currentTarget.style.backgroundColor = '#f0f9ff';
-                  e.currentTarget.style.transform = 'scale(1.01)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
                 },
                 onMouseLeave: (e) => {
                   e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = 'none';
                 }
               })}
             />

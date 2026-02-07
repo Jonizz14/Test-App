@@ -57,7 +57,7 @@ const ManageStudents = () => {
   const [pageSize, setPageSize] = useState(10);
   const [classesPageSize, setClassesPageSize] = useState(10);
   const fileInputRef = useRef(null);
-  
+
   // Cache system for data
   const [cache, setCache] = useState({
     users: null,
@@ -65,19 +65,19 @@ const ManageStudents = () => {
     lastUpdated: null
   });
   const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-  
+
   // Check if cache is valid
   const isCacheValid = (lastUpdated) => {
     if (!lastUpdated) return false;
     return Date.now() - lastUpdated < CACHE_DURATION;
   };
-  
+
   // Load data with caching
   const loadData = async (forceRefresh = false) => {
     try {
       setLoading(true);
       setError('');
-      
+
       // Check if we can use cached data
       if (!forceRefresh && cache.users && cache.attempts && isCacheValid(cache.lastUpdated)) {
         console.log('Using cached data');
@@ -86,34 +86,34 @@ const ManageStudents = () => {
         setAttempts(cache.attempts);
         return;
       }
-      
+
       console.log('Loading fresh data from API');
-      
+
       const [allUsersResponse, allAttemptsResponse] = await Promise.all([
         apiService.getUsers(),
         apiService.getAttempts()
       ]);
-      
+
       // Handle both possible response formats
       const allUsers = allUsersResponse.results || allUsersResponse;
       const allAttempts = allAttemptsResponse.results || allAttemptsResponse;
-      
+
       console.log('Loaded users:', allUsers.length);
       console.log('Loaded attempts:', allAttempts.length);
-      
+
       const allStudents = allUsers.filter(user => user.role === 'student');
       const allTeachers = allUsers.filter(user => user.role === 'teacher');
-      
+
       console.log('Filtered students:', allStudents.length);
       console.log('Filtered teachers:', allTeachers.length);
-      
+
       // Update cache
       setCache({
         users: allUsers,
         attempts: allAttempts,
         lastUpdated: Date.now()
       });
-      
+
       setStudents(allStudents);
       setTeachers(allTeachers);
       setAttempts(allAttempts);
@@ -480,7 +480,7 @@ const ManageStudents = () => {
     const displayId = student.display_id || student.username || '';
 
     return name.toLowerCase().includes(searchLower) ||
-           displayId.toLowerCase().includes(searchLower);
+      displayId.toLowerCase().includes(searchLower);
   });
 
   const filteredClasses = sortedClasses.filter(classGroup => {
@@ -747,9 +747,9 @@ const ManageStudents = () => {
   });
 
   return (
-    <div  style={{ padding: '24px 0' }}>
+    <div style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div  style={{
+      <div style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -790,7 +790,7 @@ const ManageStudents = () => {
       )}
 
       {/* Controls */}
-      <div  style={{
+      <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -812,8 +812,8 @@ const ManageStudents = () => {
             type="default"
             icon={<FileTextOutlined />}
             onClick={() => setImportModalVisible(true)}
-            style={{ 
-              borderColor: '#7c3aed', 
+            style={{
+              borderColor: '#7c3aed',
               color: '#7c3aed',
             }}
           >
@@ -850,9 +850,9 @@ const ManageStudents = () => {
       )}
 
       {/* Tabs */}
-      <div  style={{ }}>
+      <div style={{}}>
         <Tabs activeKey={activeTab} onChange={setActiveTab} style={{ marginBottom: '24px' }}>
-        <TabPane tab="👥 O'quvchilar" key="students">
+          <TabPane tab="👥 O'quvchilar" key="students">
             <Table
               columns={studentColumns}
               dataSource={filteredStudents}
@@ -869,23 +869,17 @@ const ManageStudents = () => {
               locale={{
                 emptyText: 'O\'quvchilar mavjud emas'
               }}
-             onRow={(record, index) => ({
-              style: { 
-                animationDelay: `${index * 50}ms`,
-                transition: 'all 0.3s ease'
-              },
-             onMouseEnter: (e) => {
-              e.currentTarget.style.transform = 'scale(1.02)';
-              },
-             onMouseLeave: (e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-             }
-             })}
+              onRow={(record, index) => ({
+                style: {
+                  animationDelay: `${index * 50}ms`,
+                  transition: 'all 0.3s ease'
+                }
+              })}
             />
 
-        </TabPane>
-        
-        <TabPane tab="🏫 Sinflar" key="classes">
+          </TabPane>
+
+          <TabPane tab="🏫 Sinflar" key="classes">
             <Table
               columns={classColumns}
               dataSource={classesData}
@@ -942,30 +936,30 @@ const ManageStudents = () => {
                 ),
               }}
             />
-        </TabPane>
-      </Tabs>
+          </TabPane>
+        </Tabs>
       </div>
 
       {/* Empty State */}
-      {((activeTab === 'students' && filteredStudents.length === 0) || 
+      {((activeTab === 'students' && filteredStudents.length === 0) ||
         (activeTab === 'classes' && filteredClasses.length === 0)) && !loading && (
-        <div  style={{ textAlign: 'center', padding: '48px 0' }}>
-          <Text style={{ fontSize: '16px', color: '#64748b' }}>
-            {searchTerm ? 'Qidiruv bo\'yicha natijalar topilmadi' : 'Ma\'lumotlar mavjud emas'}
-          </Text>
-          <br />
-          {!searchTerm && (
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => navigate('/admin/add-student')}
-              style={{ marginTop: '16px' }}
-            >
-              Birinchi o'quvchini qo'shish
-            </Button>
-          )}
-        </div>
-      )}
+          <div style={{ textAlign: 'center', padding: '48px 0' }}>
+            <Text style={{ fontSize: '16px', color: '#64748b' }}>
+              {searchTerm ? 'Qidiruv bo\'yicha natijalar topilmadi' : 'Ma\'lumotlar mavjud emas'}
+            </Text>
+            <br />
+            {!searchTerm && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => navigate('/admin/add-student')}
+                style={{ marginTop: '16px' }}
+              >
+                Birinchi o'quvchini qo'shish
+              </Button>
+            )}
+          </div>
+        )}
 
 
       {/* Export Modal */}
@@ -1004,7 +998,7 @@ const ManageStudents = () => {
             loading={importing}
             disabled={importing}
             onClick={() => fileInputRef.current?.click()}
-            
+
           >
             {importing ? 'Import qilinmoqda...' : 'Fayl tanlash (.xlsx)'}
           </Button>

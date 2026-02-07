@@ -123,7 +123,7 @@ const TestDetails = () => {
 
   if (loading) {
     return (
-      <div  style={{
+      <div style={{
         padding: '24px',
         display: 'flex',
         justifyContent: 'center',
@@ -138,16 +138,16 @@ const TestDetails = () => {
             width: '60px',
             height: '60px'
           }}>
-            <div  style={{
+            <div style={{
               position: 'absolute',
               width: '60px',
               height: '60px',
               border: '4px solid rgba(226, 232, 240, 0.3)',
               borderTop: '4px solid #2563eb',
               borderRadius: '50%',
-              
+
             }}></div>
-            <div  style={{
+            <div style={{
               position: 'absolute',
               top: '10px',
               left: '10px',
@@ -156,20 +156,20 @@ const TestDetails = () => {
               border: '3px solid rgba(37, 99, 235, 0.2)',
               borderBottom: '3px solid #10b981',
               borderRadius: '50%',
-              
+
             }}></div>
           </div>
         </div>
-        <div  style={{
+        <div style={{
           textAlign: 'center'
         }}>
-          <div  style={{
+          <div style={{
             color: '#2563eb',
             fontSize: '18px',
             fontWeight: 600,
             marginBottom: '8px'
           }}>Yuklanmoqda</div>
-          <div  style={{
+          <div style={{
             color: '#64748b',
             fontSize: '14px'
           }}>Iltimos kuting...</div>
@@ -230,23 +230,23 @@ const TestDetails = () => {
 
   if (!test) {
     return (
-      <div  style={{ padding: '24px' }}>
-        <div  style={{ 
-          textAlign: 'center', 
+      <div style={{ padding: '24px' }}>
+        <div style={{
+          textAlign: 'center',
           padding: '48px 0',
           backgroundColor: '#f8fafc',
           borderRadius: '12px',
           border: '1px solid #e2e8f0'
         }}>
-          <FileTextOutlined style={{ 
-            fontSize: '64px', 
-            color: '#cbd5e1', 
+          <FileTextOutlined style={{
+            fontSize: '64px',
+            color: '#cbd5e1',
             marginBottom: '16px',
             display: 'block'
           }} />
-          <Text style={{ 
-            color: '#64748b', 
-            fontSize: '18px', 
+          <Text style={{
+            color: '#64748b',
+            fontSize: '18px',
             fontWeight: 500,
             display: 'block',
             marginBottom: '24px'
@@ -254,8 +254,8 @@ const TestDetails = () => {
           <Button
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate('/admin/test-stats')}
-            
-            style={{ 
+
+            style={{
               marginTop: '16px',
               borderColor: '#2563eb',
               color: '#2563eb'
@@ -269,9 +269,9 @@ const TestDetails = () => {
   }
 
   return (
-    <div  style={{ padding: '24px 0' }}>
+    <div style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div  style={{
+      <div style={{
         marginBottom: '24px',
         display: 'flex',
         alignItems: 'center',
@@ -280,7 +280,7 @@ const TestDetails = () => {
         <Button
           icon={<ArrowLeftOutlined />}
           onClick={() => navigate('/admin/test-stats')}
-          
+
           style={{
             borderColor: '#2563eb',
             color: '#2563eb',
@@ -289,10 +289,10 @@ const TestDetails = () => {
         >
           Orqaga
         </Button>
-        <Title level={2}  style={{ 
-          margin: 0, 
+        <Title level={2} style={{
+          margin: 0,
           color: '#1e293b',
-          
+
         }}>
           {test.title} - Batafsil natijalar
         </Title>
@@ -300,7 +300,7 @@ const TestDetails = () => {
 
       {/* Test Info Card */}
       <Card
-        
+
         style={{
           marginBottom: '24px',
           backgroundColor: '#f8fafc',
@@ -308,7 +308,7 @@ const TestDetails = () => {
           borderRadius: '12px',
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
           transition: 'all 0.3s ease',
-          
+
         }}
         bodyStyle={{ padding: '32px' }}
       >
@@ -348,7 +348,7 @@ const TestDetails = () => {
         </Space>
 
         <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
-          <div  style={{ }}>
+          <div style={{}}>
             <Title level={5} style={{ margin: 0, marginBottom: '8px', color: '#1e293b' }}>
               Urinishlar soni
             </Title>
@@ -356,7 +356,7 @@ const TestDetails = () => {
               {test.attempt_count || 0}
             </Text>
           </div>
-          <div  style={{ }}>
+          <div style={{}}>
             <Title level={5} style={{ margin: 0, marginBottom: '8px', color: '#1e293b' }}>
               O'rtacha ball
             </Title>
@@ -364,7 +364,7 @@ const TestDetails = () => {
               {(test.average_score || 0).toFixed(1)}%
             </Text>
           </div>
-          <div  style={{ }}>
+          <div style={{}}>
             <Title level={5} style={{ margin: 0, marginBottom: '8px', color: '#1e293b' }}>
               Status
             </Title>
@@ -380,10 +380,10 @@ const TestDetails = () => {
 
       {/* Students Table */}
       <Card
-        
+
         title={
-          <span  style={{
-            
+          <span style={{
+
           }}>
             {`Test topshirgan o'quvchilar (${studentDetails.length})`}
           </span>
@@ -394,25 +394,25 @@ const TestDetails = () => {
           borderRadius: '12px',
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
           transition: 'all 0.3s ease',
-          
+
         }}
       >
         {studentDetails.length === 0 ? (
-          <div  style={{
+          <div style={{
             textAlign: 'center',
             padding: '48px 24px',
             backgroundColor: '#f8fafc',
             borderRadius: '8px',
             border: '1px solid #e2e8f0'
           }}>
-            <FileTextOutlined 
-               
-              style={{ 
-                fontSize: '48px', 
-                color: '#cbd5e1', 
+            <FileTextOutlined
+
+              style={{
+                fontSize: '48px',
+                color: '#cbd5e1',
                 marginBottom: '16px',
                 display: 'block'
-              }} 
+              }}
             />
             <Text style={{ color: '#64748b', fontSize: '16px', fontWeight: 500 }}>
               Bu testni hali hech kim topshirmagan
@@ -421,7 +421,7 @@ const TestDetails = () => {
         ) : (
           <div >
             <Table
-              
+
               columns={columns}
               dataSource={studentDetails}
               rowKey="id"
@@ -435,21 +435,17 @@ const TestDetails = () => {
                 emptyText: 'O\'quvchilar mavjud emas'
               }}
               onRow={(record, index) => ({
-                
-                style: { 
+
+                style: {
                   animationDelay: `${index * 50}ms`,
                   transition: 'all 0.3s ease',
                   cursor: 'pointer'
                 },
                 onMouseEnter: (e) => {
                   e.currentTarget.style.backgroundColor = '#f0f9ff';
-                  e.currentTarget.style.transform = 'scale(1.01)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
                 },
                 onMouseLeave: (e) => {
                   e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = 'none';
                 }
               })}
             />
