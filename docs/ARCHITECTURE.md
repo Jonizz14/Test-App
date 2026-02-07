@@ -86,57 +86,46 @@ Complete technical documentation for Test-App's architecture, design system, and
 
 ```
 src/
+├── assets/               # Static assets
 ├── components/           # Reusable UI components
 │   ├── ActiveTestBanner.jsx
 │   ├── CustomLoader.jsx
 │   ├── EmojiPicker.jsx
-│   ├── Footer.jsx
-│   ├── GradientPicker.jsx
 │   ├── Header.jsx
-│   ├── LaTeXPreview.jsx
 │   ├── Layout.jsx
-│   ├── MacModalCard.jsx
-│   ├── MathSymbols.jsx
 │   ├── NotificationCenter.jsx
-│   ├── PremiumModal.jsx
-│   ├── RouteLoadingIndicator.jsx
-│   ├── SendLessonModal.jsx
-│   └── UnbanModal.jsx
+│   └── ...
 ├── context/              # Global state providers
 │   ├── AuthContext.jsx
-│   ├── LoadingContext.jsx
-│   ├── SavedItemsContext.jsx
-│   ├── SentMessagesContext.jsx
-│   ├── ServerTestContext.jsx
 │   ├── SettingsContext.jsx
-│   └── StatisticsContext.jsx
+│   └── ...
+├── data/                 # API services
+│   ├── apiService.js
+│   └── ...
+├── hooks/                # Custom React hooks
+│   └── ...
 ├── pages/                # Route components
-│   ├── admin/           # Admin dashboard pages
-│   ├── headadmin/       # Head Admin pages
-│   ├── seller/          # Seller dashboard
-│   ├── student/         # Student dashboard
-│   ├── teacher/         # Teacher dashboard
+│   ├── admin/            # Admin dashboard pages
+│   ├── headadmin/        # Head Admin pages
+│   ├── seller/           # Seller dashboard
+│   ├── student/          # Student dashboard
+│   │   ├── MyTests.jsx
+│   │   ├── StudentProfileView.jsx
+│   │   └── ...
+│   ├── teacher/          # Teacher dashboard
+│   │   ├── MyClass.jsx
+│   │   ├── MyTests.jsx
+│   │   ├── StudentProfileDetails.jsx
+│   │   ├── TeacherRating.jsx
+│   │   └── ...
 │   ├── Contact.jsx
 │   ├── Home.jsx
 │   ├── LoginPage.jsx
-│   ├── NotFoundPage.jsx
 │   ├── Onboarding.jsx
+│   ├── TeacherDashboard.jsx
 │   └── RegisterPage.jsx
 ├── styles/               # CSS modules
-│   ├── Admin.css
-│   ├── Contact.css
-│   ├── Header.css
-│   ├── Home.css
-│   ├── Login.css
-│   └── Onboarding.css
-├── data/                 # API services
-│   ├── apiService.js
-│   ├── enhancedApiService.js
-│   └── db.json
 ├── utils/                # Utility functions
-│   ├── cacheManager.js
-│   ├── notificationService.js
-│   └── serviceWorker.js
 ├── App.jsx               # Root component
 ├── main.jsx              # Entry point
 └── index.css             # Global styles

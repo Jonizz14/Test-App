@@ -95,7 +95,9 @@ Test-App embraces **Premium Brutalism**:
 
 ### For Teachers
 - Advanced test creation with LaTeX and image support
-- Real-time student analytics
+- **Enhanced Analytics**: Dedicated "Analysis & Ratings" dropdown and separate rating pages.
+- **Strict Class Filtering**: Focus solely on assigned students via API.
+- **Student Profile Details**: Comprehensive, brutalist-styled performance views.
 - Direct intervention tools (Lesson Invitations)
 
 ### For Students
@@ -137,13 +139,21 @@ Test-App/
 │   ├── testplatform/    # Project settings
 │   └── media/           # User uploads
 ├── src/                 # React frontend
+│   ├── assets/          # Static assets
 │   ├── components/      # Reusable UI components
 │   ├── context/         # Global state management
+│   ├── data/            # API services & data fetching
+│   ├── hooks/           # Custom React hooks
 │   ├── pages/           # Role-specific dashboards
-│   └── styles/          # Brutalist design system
+│   │   ├── admin/       # Administrator features
+│   │   ├── teacher/     # Teacher tools & analytics
+│   │   ├── student/     # Student learning environment
+│   │   └── seller/      # Sales dashboard
+│   ├── styles/          # Brutalist design system
+│   └── utils/           # Helper functions
 ├── docs/                # Documentation
-│   ├── ROLES.md        # Role feature guide
-│   ├── ARCHITECTURE.md # Technical architecture
+│   ├── ROLES.md        # Feature guide
+│   ├── ARCHITECTURE.md # Technical design
 │   └── API.md          # API reference
 └── README.md           # This file
 ```

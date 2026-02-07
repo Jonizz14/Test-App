@@ -541,6 +541,28 @@ Teachers create, manage, and analyze educational assessments.
 - Student attendance marking
 - Follow-up test performance
 
+### 3.4 Dashboard & Class Management
+
+**Menu Structure:**
+- **Analysis & Ratings**: Consolidated view for all statistical data
+  - *Teacher Statistics*: Personal performance metrics
+  - *Class Statistics*: Aggregate class performance
+  - *Classes Rating*: "Top 3" class ranking
+  - *Teacher Rating*: "Top 3" teacher ranking
+- **My Class**: Dedicated student roster with direct profile access.
+
+**Feature: Strict Class Filtering**
+- **Logic**: Students are filtered strictly based on the teacher's `assigned_class` or `curator_class` from the API.
+- **Privacy**: Teachers cannot see students from unassigned classes.
+
+**Feature: Student Profile Details**
+- **Location**: `/teacher/student-profile/:id`
+- **Design**: Enhanced interface matching the dashboard aesthetic, featuring metric cards and premium status indicators.
+- **Metrics**: 
+  - Total tests taken
+  - Average score
+  - Highest score
+
 ---
 
 ## 🎓 Student (The Engaged Learner)
