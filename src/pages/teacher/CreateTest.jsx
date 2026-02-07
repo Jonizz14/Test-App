@@ -17,6 +17,7 @@ import {
   Upload,
   Modal,
   message,
+  Table,
 } from 'antd';
 import {
   PlusOutlined as AddIcon,
@@ -28,6 +29,7 @@ import {
   UploadOutlined as ImportIcon,
   // FileExcelOutlined,
   DownloadOutlined,
+  FileSearchOutlined as PreviewIcon,
 } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import { useAuth } from '../../context/AuthContext';
@@ -35,6 +37,8 @@ import apiService from '../../data/apiService';
 import MathSymbols from '../../components/MathSymbols';
 import LaTeXPreview from '../../components/LaTeXPreview';
 import { SUBJECTS } from '../../data/subjects';
+
+const { Title, Text } = Typography;
 
 const CreateTest = () => {
   const { currentUser } = useAuth();
@@ -70,6 +74,8 @@ const CreateTest = () => {
   const [mathSymbolsOpen, setMathSymbolsOpen] = useState(false);
   const [currentField, setCurrentField] = useState({ questionIndex: null, field: null });
   const [importModalVisible, setImportModalVisible] = useState(false);
+  const [reviewModalVisible, setReviewModalVisible] = useState(false);
+  const [importedQuestions, setImportedQuestions] = useState([]);
   const [importing, setImporting] = useState(false);
 
   // Load test data if editing
@@ -281,50 +287,46 @@ const CreateTest = () => {
 
   // Import functionality
   const downloadSampleTemplate = () => {
-    console.log('Download template function called');
     try {
       const sampleData = [
         {
-          'Savol tartib raqami': 1,
+          '№': 1,
           'Savol matni': '2 + 2 nechaga teng?',
-          'Variant A': '3',
-          'Variant B': '4',
-          'Variant C': '5',
-          'Variant D': '6',
-          'To\'g\'ri javob': 'B',
+          'A': '3',
+          'B': '4',
+          'C': '5',
+          'D': '6',
+          'To\'g\'ri javob (A, B, C yoki D)': 'B',
           'Tushuntirish': '2 + 2 = 4',
-          'Savol turi': 'multiple_choice',
           'Formula': '',
           'Kod': ''
         },
         {
-          'Savol tartib raqami': 2,
-          'Savol matni': 'Matematik formula yozing: a kvadrat + b kvadrat',
-          'Variant A': '',
-          'Variant B': '',
-          'Variant C': '',
-          'Variant D': '',
-          'To\'g\'ri javob': 'a² + b²',
-          'Tushuntirish': 'Pifagor teoremasi',
-          'Savol turi': 'formula',
-          'Formula': 'a^2 + b^2',
+          '№': 2,
+          'Savol matni': 'Poytaxtimiz qaysi shahar?',
+          'A': 'Samarqand',
+          'B': 'Buxoro',
+          'C': 'Toshkent',
+          'D': 'Xiva',
+          'To\'g\'ri javob (A, B, C yoki D)': 'C',
+          'Tushuntirish': 'O\'zbekiston poytaxti Toshkent',
+          'Formula': '',
           'Kod': ''
         }
       ];
 
       const ws = XLSX.utils.json_to_sheet(sampleData);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Test namuna');
+      XLSX.utils.book_append_sheet(wb, ws, 'Savollar');
       XLSX.writeFile(wb, 'test_import_namuna.xlsx');
       message.success('Namuna fayl yuklab olindi!');
-      console.log('Template downloaded successfully');
     } catch (error) {
       console.error('Error downloading template:', error);
       message.error('Fayl yuklab olishda xatolik yuz berdi');
     }
   };
 
-  const handleImportFromExcel = async (event) => {
+  const handleImportFile = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -339,155 +341,70 @@ const CreateTest = () => {
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
       if (jsonData.length === 0) {
-        setError('Excel faylda ma\'lumotlar topilmadi');
+        message.error('Fayl bo\'sh yoki ma\'lumotlar topilmadi');
         return;
       }
 
-      const importedQuestions = [];
-      let successCount = 0;
-      let errorCount = 0;
-      const errors = [];
+      const newImportedQuestions = jsonData.map((row, index) => {
+        const optionA = row['Variant A'] || row['A'] || row['Option A'] || row['A)'];
+        const optionB = row['Variant B'] || row['B'] || row['Option B'] || row['B)'];
+        const optionC = row['Variant C'] || row['C'] || row['Option C'] || row['C)'];
+        const optionD = row['Variant D'] || row['D'] || row['Option D'] || row['D)'];
+        const correctKey = String(row['To\'g\'ri javob (A, B, C yoki D)'] || row['To\'g\'ri javob'] || row['Javob'] || '').trim().toUpperCase();
 
-      for (const row of jsonData) {
-        try {
-          const questionNumber = row['Savol tartib raqami'] || row['№'] || importedQuestions.length + 1;
-          const questionText = row['Savol matni'] || row['Question'];
-          const optionA = row['Variant A'] || row['Option A'] || row['A)'];
-          const optionB = row['Variant B'] || row['Option B'] || row['B)'];
-          const optionC = row['Variant C'] || row['Option C'] || row['C)'];
-          const optionD = row['Variant D'] || row['Option D'] || row['D)'];
-          const correctAnswer = row['To\'g\'ri javob'] || row['Correct Answer'];
-          const explanation = row['Tushuntirish'] || row['Explanation'] || '';
-          const questionType = row['Savol turi'] || row['Question Type'] || 'multiple_choice';
-          const formula = row['Formula'] || '';
-          const code = row['Kod'] || row['Code'] || '';
+        const options = [
+          { text: String(optionA || '').trim() },
+          { text: String(optionB || '').trim() },
+          { text: String(optionC || '').trim() },
+          { text: String(optionD || '').trim() }
+        ];
 
-          // Validate required fields
-          if (!questionText) {
-            errors.push(`Qator ${questionNumber}: Savol matni talab qilinadi`);
-            errorCount++;
-            continue;
-          }
+        let correctAnswer = '';
+        if (correctKey === 'A') correctAnswer = options[0].text;
+        else if (correctKey === 'B') correctAnswer = options[1].text;
+        else if (correctKey === 'C') correctAnswer = options[2].text;
+        else if (correctKey === 'D') correctAnswer = options[3].text;
+        else correctAnswer = correctKey;
 
-          let questionData = {
-            question_text: questionText,
-            question_type: questionType,
-            question_image: null,
-            correct_answer: '',
-            explanation: explanation,
-            formula: formula,
-            code: code
-          };
+        return {
+          key: index,
+          question_text: row['Savol matni'] || row['Savol'] || '',
+          question_type: 'multiple_choice',
+          options,
+          correct_answer: correctAnswer,
+          explanation: row['Tushuntirish'] || '',
+          formula: row['Formula'] || '',
+          code: row['Kod'] || ''
+        };
+      });
 
-          if (questionType === 'multiple_choice') {
-            if (!optionA || !optionB || !optionC || !optionD) {
-              errors.push(`Qator ${questionNumber}: Barcha variantlar (A, B, C, D) talab qilinadi`);
-              errorCount++;
-              continue;
-            }
-
-            if (!correctAnswer) {
-              errors.push(`Qator ${questionNumber}: To'g'ri javob belgilash kerak`);
-              errorCount++;
-              continue;
-            }
-
-            const options = [
-              { text: optionA, image: null },
-              { text: optionB, image: null },
-              { text: optionC, image: null },
-              { text: optionD, image: null }
-            ];
-
-            // Find correct answer and format it
-            let correctAnswerFormatted = '';
-            if (correctAnswer.toLowerCase() === 'a' || correctAnswer === 'A)') {
-              correctAnswerFormatted = 'A)';
-            } else if (correctAnswer.toLowerCase() === 'b' || correctAnswer === 'B)') {
-              correctAnswerFormatted = 'B)';
-            } else if (correctAnswer.toLowerCase() === 'c' || correctAnswer === 'C)') {
-              correctAnswerFormatted = 'C)';
-            } else if (correctAnswer.toLowerCase() === 'd' || correctAnswer === 'D)') {
-              correctAnswerFormatted = 'D)';
-            } else {
-              // If it's the actual answer text, find matching option
-              const matchingOption = options.find(opt =>
-                opt.text.toLowerCase().trim() === correctAnswer.toLowerCase().trim()
-              );
-              if (matchingOption) {
-                correctAnswerFormatted = options.indexOf(matchingOption) === 0 ? 'A)' :
-                  options.indexOf(matchingOption) === 1 ? 'B)' :
-                    options.indexOf(matchingOption) === 2 ? 'C)' : 'D)';
-              }
-            }
-
-            questionData.options = options;
-            questionData.correct_answer = correctAnswerFormatted;
-          } else if (questionType === 'short_answer') {
-            if (!correctAnswer) {
-              errors.push(`Qator ${questionNumber}: To'g'ri javob talab qilinadi`);
-              errorCount++;
-              continue;
-            }
-            questionData.correct_answer = correctAnswer;
-          } else if (questionType === 'formula') {
-            if (!formula) {
-              errors.push(`Qator ${questionNumber}: Formula talab qilinadi`);
-              errorCount++;
-              continue;
-            }
-            questionData.correct_answer = formula;
-          } else if (questionType === 'code') {
-            if (!code) {
-              errors.push(`Qator ${questionNumber}: Kod namunasi talab qilinadi`);
-              errorCount++;
-              continue;
-            }
-            questionData.correct_answer = code;
-          }
-
-          importedQuestions.push(questionData);
-          successCount++;
-
-        } catch (error) {
-          errors.push(`Qator ${jsonData.indexOf(row) + 2}: ${error.message || 'Xatolik'}`);
-          errorCount++;
-        }
-      }
-
-      if (importedQuestions.length > 0) {
-        // Set imported questions
-        setQuestions(importedQuestions);
-
-        // Auto-fill form data if not already filled
-        if (!formData.title) {
-          setFormData(prev => ({
-            ...prev,
-            title: `Import qilingan test - ${new Date().toLocaleDateString('uz-UZ')}`
-          }));
-        }
-
-        message.success(`Muvaffaqiyatli import qilindi! ${successCount} ta savol qo'shildi.`);
-        setImportModalVisible(false);
-      }
-
-      if (errors.length > 0) {
-        let errorMessage = `${errorCount} ta xatolik:\n${errors.slice(0, 3).join('\n')}`;
-        if (errors.length > 3) {
-          errorMessage += `\n...va yana ${errors.length - 3} ta xatolik`;
-        }
-        setError(errorMessage);
-      }
-
+      setImportedQuestions(newImportedQuestions);
+      setImportModalVisible(false);
+      setReviewModalVisible(true);
     } catch (error) {
       console.error('Import error:', error);
-      setError('Excel faylini o\'qishda xatolik yuz berdi: ' + error.message);
+      message.error('Faylni o\'qishda xatolik yuz berdi. Formatni tekshiring.');
     } finally {
       setImporting(false);
+      event.target.value = '';
+    }
+  };
+
+  const confirmImport = () => {
+    if (importedQuestions.length === 0) {
+      message.warning('Import qilish uchun savollar yo\'q');
+      return;
     }
 
-    // Clear file input
-    event.target.value = '';
+    const cleaned = importedQuestions.map(({ key, ...rest }) => rest);
+    setQuestions(cleaned);
+    setReviewModalVisible(false);
+    setImportedQuestions([]);
+    message.success(`${cleaned.length} ta savol editorga yuklandi`);
+  };
+
+  const removeFromImport = (key) => {
+    setImportedQuestions(importedQuestions.filter(q => q.key !== key));
   };
 
   // Manual test function for debugging
@@ -800,446 +717,522 @@ const CreateTest = () => {
         </Card>
       )}
 
-      <Card
-        style={{
-          width: '100%',
-          minHeight: '600px',
-          backgroundColor: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-        }}
-      >
-        {error && (
-          <Alert
-            message={error}
-            type="error"
-            style={{ marginBottom: '16px' }}
-          />
-        )}
-
-        {success && (
-          <Alert
-            message={success}
-            type="success"
-            style={{ marginBottom: '16px' }}
-          />
-        )}
-
-        <div style={{ padding: '32px' }}>
-          <Form onFinish={handleSubmit} layout="vertical">
-            <Row gutter={24}>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  label="Test nomi"
-                  name="title"
-                  rules={[{ required: true, message: 'Test nomi talab qilinadi' }]}
-                >
-                  <Input
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="Test nomini kiriting"
-                  />
-                </Form.Item>
-              </Col>
-
-              <Col xs={24} md={12}>
-                <Form.Item
-                  label="Fan"
-                  name="subject"
-                  rules={[{ required: true, message: 'Fan tanlash talab qilinadi' }]}
-                >
-                  <Select
-                    value={formData.subject}
-                    onChange={(value) => setFormData({ ...formData, subject: value })}
-                    showSearch
-                    placeholder="Fanni tanlang"
-                  >
-                    {SUBJECTS.map(subject => (
-                      <Select.Option key={subject} value={subject}>{subject}</Select.Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </Col>
-
-              <Col xs={24}>
-                <Form.Item label="Tavsif" name="description">
-                  <Input.TextArea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Test mazmuni haqida qisqa ma'lumot"
-                    rows={3}
-                  />
-                </Form.Item>
-              </Col>
-
-              <Col xs={24} md={12}>
-                <Form.Item
-                  label="Vaqt limiti (daqiqa)"
-                  name="time_limit"
-                  rules={[{ required: true, message: 'Vaqt limiti talab qilinadi' }]}
-                >
-                  <Input
-                    type="number"
-                    value={formData.time_limit}
-                    onChange={(e) => setFormData({ ...formData, time_limit: parseInt(e.target.value) || 30 })}
-                    min={5}
-                    max={180}
-                    placeholder="30"
-                  />
-                </Form.Item>
-              </Col>
-
-              <Col xs={24} md={12}>
-                <Form.Item label="Test qiyinligi" name="difficulty">
-                  <Select
-                    value={formData.difficulty}
-                    onChange={(value) => setFormData({ ...formData, difficulty: value })}
-                  >
-                    <Select.Option value="easy">Oson</Select.Option>
-                    <Select.Option value="medium">O'rtacha</Select.Option>
-                    <Select.Option value="hard">Qiyin</Select.Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-
-            </Row>
-
-            <div style={{ marginTop: '24px' }}>
-              <Typography.Text strong style={{ display: 'block', marginBottom: '16px' }}>
-                Maqsadlangan sinf guruhlari (barcha guruhlar uchun test yaratish uchun hech narsa tanlamang)
-              </Typography.Text>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-                {[5, 6, 7, 8, 9, 10, 11].flatMap((grade) =>
-                  [1, 2, 3, 4].map((num) => {
-                    const classGroup = `${grade}-${String(num).padStart(2, '0')}`;
-                    return (
-                      <Checkbox
-                        key={classGroup}
-                        checked={formData.target_grades.includes(classGroup)}
-                        onChange={() => handleGradeChange(classGroup)}
-                        style={{
-                          color: currentUser.curator_class === classGroup ? '#f59e0b' : undefined,
-                        }}
-                      >
-                        {classGroup}
-                      </Checkbox>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-
-            <Divider style={{ margin: '24px 0' }} />
-
-            <Typography.Title level={4} style={{ marginBottom: '16px' }}>
-              Savollar ({questions.length})
-            </Typography.Title>
-
-            {questions.map((question, index) => (
-              <Card key={index} style={{ marginBottom: '24px' }}>
-                <div style={{ padding: '24px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                    <Typography.Title level={5} style={{ margin: 0 }}>Savol {index + 1}</Typography.Title>
-                    <Button
-                      type="text"
-                      danger
-                      icon={<DeleteIcon />}
-                      onClick={() => removeQuestion(index)}
-                      disabled={questions.length === 1}
-                    />
-                  </div>
-
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                      <Typography.Text style={{ flex: 1 }}>
-                        Savol matni
-                      </Typography.Text>
-                      <Space>
-                        <Button
-                          size="small"
-                          onClick={() => handleOpenMathSymbols(index, 'question_text')}
-                          style={{
-                            minWidth: 'auto',
-                            padding: '4px 8px',
-                            fontSize: '12px'
-                          }}
-                        >
-                          🧮 Belgilar
-                        </Button>
-                        <Upload
-                          accept="image/*"
-                          showUploadList={false}
-                          beforeUpload={(file) => {
-                            handleQuestionImageUpload(index, file);
-                            return false; // Prevent automatic upload
-                          }}
-                        >
-                          <Button
-                            size="small"
-                            icon={<PhotoCameraIcon />}
-                            style={{ padding: '4px' }}
-                          />
-                        </Upload>
-                        {question.question_image && (
-                          <Button
-                            size="small"
-                            danger
-                            icon={<ClearIcon />}
-                            onClick={() => removeQuestionImage(index)}
-                            style={{ padding: '4px' }}
-                          />
-                        )}
-                      </Space>
-                    </div>
-
-                    {/* Question Image Preview */}
-                    {question.question_image && (
-                      <div style={{ marginBottom: '16px' }}>
-                        <img
-                          src={URL.createObjectURL(question.question_image)}
-                          alt={`Question ${index + 1}`}
-                          style={{
-                            maxWidth: '100%',
-                            maxHeight: '200px',
-                            borderRadius: '8px',
-                            border: '1px solid #e2e8f0',
-                            objectFit: 'contain'
-                          }}
-                        />
-                      </div>
-                    )}
-
-                    <Input.TextArea
-                      rows={2}
-                      value={question.question_text}
-                      onChange={(e) => updateQuestion(index, 'question_text', e.target.value)}
-                      placeholder="Savol matnini kiriting... (LaTeX uchun $...$ yoki $$...$$ dan foydalaning)"
-                    />
-                    {question.question_text && (
-                      <Card size="small" style={{
-                        marginTop: '8px',
-                        backgroundColor: '#f8fafc',
-                        border: '1px solid #e2e8f0'
-                      }}>
-                        <Typography.Text style={{ color: '#64748b', fontWeight: 500, marginBottom: '8px', display: 'block' }}>
-                          LaTeX ko'rinishi:
-                        </Typography.Text>
-                        <LaTeXPreview text={question.question_text} />
-                      </Card>
-                    )}
-                  </div>
-
-                  <div style={{ marginBottom: '16px' }}>
-                    <Select
-                      style={{ width: '100%' }}
-                      value={question.question_type}
-                      onChange={(value) => updateQuestion(index, 'question_type', value)}
-                      placeholder="Savol turini tanlang"
-                    >
-                      <Select.Option value="multiple_choice">Ko'p variantli</Select.Option>
-                    </Select>
-                  </div>
-
-                  {question.question_type === 'multiple_choice' && (
-                    <>
-                      <Typography.Text strong style={{ display: 'block', marginBottom: '16px' }}>
-                        Variantlar (A, B, C, D):
-                      </Typography.Text>
-
-                      {question.options.map((option, optionIndex) => (
-                        <div key={optionIndex} style={{ marginBottom: '16px', padding: '16px', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                            <Button
-                              type={question.correct_answer === option.text ? "primary" : "text"}
-                              size="small"
-                              icon={<CorrectIcon />}
-                              onClick={() => toggleCorrectAnswer(index, optionIndex)}
-                              style={{ marginRight: '8px' }}
-                            />
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
-                              <Input
-                                size="small"
-                                value={option.text}
-                                onChange={(e) => updateQuestionOption(index, optionIndex, e.target.value)}
-                                placeholder={`Variant ${String.fromCharCode(65 + optionIndex)} (LaTeX uchun $...$)`}
-                                style={{ flex: 1 }}
-                              />
-                              <Button
-                                size="small"
-                                onClick={() => handleOpenMathSymbols(index, `option_${optionIndex}`)}
-                                style={{ padding: '4px' }}
-                              >
-                                🧮
-                              </Button>
-                              <Button
-                                size="small"
-                                icon={<PhotoCameraIcon />}
-                                style={{ padding: '4px' }}
-                              >
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  style={{ display: 'none' }}
-                                  onChange={(e) => {
-                                    const file = e.target.files[0];
-                                    if (file) {
-                                      handleOptionImageUpload(index, optionIndex, file);
-                                    }
-                                  }}
-                                />
-                              </Button>
-                              {option.image && (
-                                <Button
-                                  size="small"
-                                  danger
-                                  icon={<ClearIcon />}
-                                  onClick={() => removeOptionImage(index, optionIndex)}
-                                  style={{ padding: '4px' }}
-                                />
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Image Preview */}
-                          {option.image && (
-                            <div style={{ marginBottom: '8px' }}>
-                              <img
-                                src={URL.createObjectURL(option.image)}
-                                alt={`Option ${String.fromCharCode(65 + optionIndex)}`}
-                                style={{
-                                  maxWidth: '100px',
-                                  maxHeight: '60px',
-                                  borderRadius: '4px',
-                                  border: '1px solid #e2e8f0',
-                                  objectFit: 'contain'
-                                }}
-                              />
-                            </div>
-                          )}
-
-                          {/* LaTeX Preview */}
-                          {option.text && option.text.trim() && (
-                            <Card size="small" style={{
-                              backgroundColor: '#f8fafc',
-                              border: '1px solid #e2e8f0'
-                            }}>
-                              <Typography.Text style={{ color: '#64748b', fontWeight: 500, marginBottom: '4px', display: 'block' }}>
-                                Ko'rinishi:
-                              </Typography.Text>
-                              <LaTeXPreview text={option.text} />
-                            </Card>
-                          )}
-                        </div>
-                      ))}
-
-                      <Typography.Text style={{ fontSize: '12px', color: '#64748b', marginTop: '8px', display: 'block' }}>
-                        To'g'ri javobni belgilash uchun checkbox belgisini bosing
-                      </Typography.Text>
-                    </>
-                  )}
-
-
-
-                  <Input.TextArea
-                    rows={2}
-                    value={question.explanation}
-                    onChange={(e) => updateQuestion(index, 'explanation', e.target.value)}
-                    placeholder="Tushuntirish (ixtiyoriy)"
-                    style={{ marginTop: '16px' }}
-                  />
-                </div>
-              </Card>
-            ))}
-
-            <Button
-              type="dashed"
-              icon={<AddIcon />}
-              onClick={addQuestion}
-              style={{ marginBottom: '24px', width: '100%' }}
-            >
-              Savol qo'shish
-            </Button>
-
-            <div style={{ display: 'flex', gap: '16px' }}>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={loading}
-                style={{ flex: 1 }}
-              >
-                {loading ? (isEditing ? 'Yangilanmoqda...' : 'Yaratilmoqda...') : (isEditing ? 'Testni yangilash' : 'Test yaratish')}
-              </Button>
-              <Button
-                onClick={() => navigate('/teacher/my-tests')}
-                style={{ flex: 1 }}
-              >
-                Bekor qilish
-              </Button>
-            </div>
-          </Form>
-        </div>
-      </Card>
-
-      {/* Import Modal */}
-      <Modal
-        title="Excel fayldan test import qilish"
-        open={importModalVisible}
-        onCancel={() => setImportModalVisible(false)}
-        footer={null}
-        width={600}
-      >
-        <div style={{ padding: '16px 0' }}>
-          <Alert
-            message="Import qoidalari"
-            description={
-              <ul style={{ marginBottom: 0, paddingLeft: '20px' }}>
-                <li>Excel fayl .xlsx yoki .xls formatida bo'lishi kerak</li>
-                <li>Birinchi qator ustun nomlari bo'lishi kerak</li>
-                <li>Majburiy ustunlar: Savol matni, Variant A, Variant B, Variant C, Variant D, To'g'ri javob</li>
-                <li>To'g'ri javob A, B, C, D harflaridan biri yoki javob matni bo'lishi mumkin</li>
-              </ul>
-            }
-            type="info"
-            style={{ marginBottom: '16px' }}
-          />
-
-          <div style={{ textAlign: 'center', padding: '20px 0' }}>
-            <input
-              type="file"
-              accept=".xlsx,.xls"
-              onChange={handleImportFromExcel}
-              style={{ display: 'none' }}
-              id="excel-file-input"
-            />
-            <Button
-              type="primary"
-              size="large"
-              icon={<ImportIcon />}
-              loading={importing}
-              onClick={() => document.getElementById('excel-file-input').click()}
-              style={{ marginBottom: '12px' }}
-            >
-              {importing ? 'Import qilinyapti...' : 'Excel faylni tanlang'}
-            </Button>
-            <br />
-            <Button
-              icon={<DownloadOutlined />}
-              onClick={downloadSampleTemplate}
-              size="small"
-            >
-              Namuna fayl yuklab olish
-            </Button>
-          </div>
-
+      <Row gutter={24}>
+        <Col xs={24} lg={16}>
           {error && (
             <Alert
               message={error}
               type="error"
-              style={{ marginTop: '16px' }}
+              style={{ marginBottom: '16px' }}
               closable
               onClose={() => setError('')}
             />
           )}
+
+          {success && (
+            <Alert
+              message={success}
+              type="success"
+              style={{ marginBottom: '16px' }}
+            />
+          )}
+
+          <Card
+            style={{
+              width: '100%',
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              marginBottom: '24px'
+            }}
+          >
+            <div style={{ padding: '24px' }}>
+              <Title level={4} style={{ marginBottom: '20px', fontWeight: 700 }}>Asosiy ma'lumotlar</Title>
+              <Form layout="vertical">
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item
+                      label="Test nomi"
+                      required
+                    >
+                      <Input
+                        value={formData.title}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        placeholder="Masalan: 9-sinf Fizika 1-bob"
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      label="Fan"
+                      required
+                    >
+                      <Select
+                        value={formData.subject}
+                        onChange={(value) => setFormData({ ...formData, subject: value })}
+                        showSearch
+                        placeholder="Fanni tanlang"
+                      >
+                        {SUBJECTS.map(subject => (
+                          <Select.Option key={subject} value={subject}>{subject}</Select.Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      label="Vaqt limiti (daqiqa)"
+                      required
+                    >
+                      <Input
+                        type="number"
+                        value={formData.time_limit}
+                        onChange={(e) => setFormData({ ...formData, time_limit: parseInt(e.target.value) || 30 })}
+                        min={5}
+                        max={180}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item label="Test qiyinligi">
+                      <Select
+                        value={formData.difficulty}
+                        onChange={(value) => setFormData({ ...formData, difficulty: value })}
+                      >
+                        <Select.Option value="easy">Oson</Select.Option>
+                        <Select.Option value="medium">O'rtacha</Select.Option>
+                        <Select.Option value="hard">Qiyin</Select.Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                  <Col span={24}>
+                    <Form.Item label="Tavsif">
+                      <Input.TextArea
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        placeholder="Test mazmuni haqida qisqa ma'lumot"
+                        rows={2}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={24}>
+                    <div style={{ marginBottom: '16px' }}>
+                      <Typography.Text strong style={{ display: 'block', marginBottom: '8px' }}>
+                        Mo'ljallangan sinflar:
+                      </Typography.Text>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {[5, 6, 7, 8, 9, 10, 11].map((grade) => (
+                          <Button
+                            key={grade}
+                            size="small"
+                            type={formData.target_grades.some(g => g.startsWith(`${grade}-`)) ? "primary" : "default"}
+                            onClick={() => {
+                              // Simple toggle for whole grade
+                              const classesInGrade = [1, 2, 3, 4].map(n => `${grade}-${String(n).padStart(2, '0')}`);
+                              const alreadySelected = classesInGrade.every(c => formData.target_grades.includes(c));
+                              if (alreadySelected) {
+                                setFormData(prev => ({ ...prev, target_grades: prev.target_grades.filter(g => !g.startsWith(`${grade}-`)) }));
+                              } else {
+                                setFormData(prev => ({ ...prev, target_grades: [...new Set([...prev.target_grades, ...classesInGrade])] }));
+                              }
+                            }}
+                          >
+                            {grade}-sinf
+                          </Button>
+                        ))}
+                      </div>
+                      <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {[5, 6, 7, 8, 9, 10, 11].flatMap((grade) =>
+                          [1, 2, 3, 4].map((num) => {
+                            const classGroup = `${grade}-${String(num).padStart(2, '0')}`;
+                            return (
+                              <Checkbox
+                                key={classGroup}
+                                checked={formData.target_grades.includes(classGroup)}
+                                onChange={() => handleGradeChange(classGroup)}
+                                style={{ fontSize: '12px' }}
+                              >
+                                {classGroup}
+                              </Checkbox>
+                            );
+                          })
+                        )}
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+              </Form>
+            </div>
+          </Card>
+
+          <Title level={4} style={{ marginBottom: '20px', fontWeight: 700 }}>
+            Savollar ({questions.length})
+          </Title>
+
+          {questions.map((question, index) => (
+            <Card
+              key={index}
+              style={{
+                marginBottom: '24px',
+                borderRadius: '12px',
+                border: '1px solid #e2e8f0',
+                position: 'relative'
+              }}
+              bodyStyle={{ padding: '20px' }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <Typography.Title level={5} style={{ margin: 0, color: '#334155' }}>Savol {index + 1}</Typography.Title>
+                <Button
+                  type="text"
+                  danger
+                  icon={<DeleteIcon />}
+                  onClick={() => removeQuestion(index)}
+                  disabled={questions.length === 1}
+                />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', gap: '8px' }}>
+                  <Input.TextArea
+                    rows={2}
+                    value={question.question_text}
+                    onChange={(e) => updateQuestion(index, 'question_text', e.target.value)}
+                    placeholder="Savol matnini kiriting..."
+                    style={{ flex: 1 }}
+                  />
+                  <Space direction="vertical" size={4}>
+                    <Button
+                      size="small"
+                      onClick={() => handleOpenMathSymbols(index, 'question_text')}
+                      icon={<span>🧮</span>}
+                    />
+                    <Upload
+                      accept="image/*"
+                      showUploadList={false}
+                      beforeUpload={(file) => {
+                        handleQuestionImageUpload(index, file);
+                        return false;
+                      }}
+                    >
+                      <Button size="small" icon={<PhotoCameraIcon />} />
+                    </Upload>
+                  </Space>
+                </div>
+
+                {question.question_image && (
+                  <div style={{ marginBottom: '16px', position: 'relative', width: 'fit-content' }}>
+                    <img
+                      src={URL.createObjectURL(question.question_image)}
+                      alt={`Question ${index + 1}`}
+                      style={{ maxWidth: '100%', maxHeight: '150px', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                    />
+                    <Button
+                      size="small"
+                      danger
+                      shape="circle"
+                      icon={<ClearIcon />}
+                      onClick={() => removeQuestionImage(index)}
+                      style={{ position: 'absolute', top: -10, right: -10 }}
+                    />
+                  </div>
+                )}
+
+                {question.question_text && (
+                  <div style={{ backgroundColor: '#f8fafc', padding: '8px', borderRadius: '4px', fontSize: '12px', border: '1px solid #e2e8f0', marginBottom: '12px' }}>
+                    <LaTeXPreview text={question.question_text} />
+                  </div>
+                )}
+              </div>
+
+              {question.question_type === 'multiple_choice' && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  {question.options.map((option, optionIndex) => (
+                    <div
+                      key={optionIndex}
+                      style={{
+                        padding: '12px',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                        backgroundColor: question.correct_answer === option.text ? '#eff6ff' : '#fff'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Button
+                          type={question.correct_answer === option.text ? "primary" : "default"}
+                          size="small"
+                          shape="circle"
+                          onClick={() => toggleCorrectAnswer(index, optionIndex)}
+                          style={{ minWidth: '24px', height: '24px' }}
+                        >
+                          {String.fromCharCode(65 + optionIndex)}
+                        </Button>
+                        <Input
+                          size="small"
+                          value={option.text}
+                          onChange={(e) => updateQuestionOption(index, optionIndex, e.target.value)}
+                          placeholder="Variant matni..."
+                          variant="borderless"
+                          style={{ padding: 0, fontWeight: 500 }}
+                        />
+                      </div>
+
+                      {option.text && (
+                        <div style={{ fontSize: '11px', color: '#64748b' }}>
+                          <LaTeXPreview text={option.text} />
+                        </div>
+                      )}
+
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '4px' }}>
+                        <Button
+                          size="small"
+                          type="text"
+                          onClick={() => handleOpenMathSymbols(index, `option_${optionIndex}`)}
+                          style={{ padding: 0, fontSize: '10px' }}
+                        >
+                          🧮
+                        </Button>
+                        <Upload
+                          showUploadList={false}
+                          beforeUpload={(file) => {
+                            handleOptionImageUpload(index, optionIndex, file);
+                            return false;
+                          }}
+                        >
+                          <Button size="small" type="text" icon={<PhotoCameraIcon style={{ fontSize: '12px' }} />} />
+                        </Upload>
+                        {option.image && (
+                          <Button size="small" type="text" danger icon={<ClearIcon style={{ fontSize: '12px' }} />} onClick={() => removeOptionImage(index, optionIndex)} />
+                        )}
+                      </div>
+
+                      {option.image && (
+                        <img src={URL.createObjectURL(option.image)} alt="Option" style={{ maxWidth: '60px', maxHeight: '40px', borderRadius: '4px' }} />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <Input.TextArea
+                rows={1}
+                value={question.explanation}
+                onChange={(e) => updateQuestion(index, 'explanation', e.target.value)}
+                placeholder="Tushuntirish (ixtiyoriy)"
+                style={{ marginTop: '12px', fontSize: '12px' }}
+              />
+            </Card>
+          ))}
+
+          <Button
+            type="dashed"
+            icon={<AddIcon />}
+            onClick={addQuestion}
+            style={{ marginBottom: '48px', width: '100%', height: '50px', borderRadius: '12px' }}
+          >
+            Yangi savol qo'shish
+          </Button>
+        </Col>
+
+        <Col xs={24} lg={8}>
+          <div style={{ position: 'sticky', top: '24px' }}>
+            <Card
+              style={{
+                borderRadius: '12px',
+                border: '1px solid #e2e8f0',
+                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+              }}
+              title={<span style={{ fontWeight: 700 }}>Amallar</span>}
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <Button
+                  type="primary"
+                  size="large"
+                  onClick={handleSubmit}
+                  loading={loading}
+                  icon={<CorrectIcon />}
+                  style={{ height: '50px', fontWeight: 600 }}
+                >
+                  {isEditing ? 'Testni yangilash' : 'Testni saqlash'}
+                </Button>
+
+                <Button
+                  size="large"
+                  onClick={() => navigate('/teacher/my-tests')}
+                  style={{ height: '50px', fontWeight: 600 }}
+                >
+                  Bekor qilish
+                </Button>
+
+                <Divider style={{ margin: '12px 0' }} />
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <Button
+                    icon={<ImportIcon />}
+                    onClick={() => setImportModalVisible(true)}
+                  >
+                    Import
+                  </Button>
+                  <Button
+                    icon={<DownloadOutlined />}
+                    onClick={downloadSampleTemplate}
+                  >
+                    Shablon
+                  </Button>
+                </div>
+
+                <Divider style={{ margin: '12px 0' }} />
+
+                <div style={{ padding: '12px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <Typography.Text type="secondary" style={{ fontSize: '12px' }}>Statistika:</Typography.Text>
+                  <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                    <Text strong>Savollar:</Text>
+                    <Text strong>{questions.length} ta</Text>
+                  </div>
+                  <div style={{ marginTop: '4px', display: 'flex', justifyContent: 'space-between' }}>
+                    <Text strong>Vaqt:</Text>
+                    <Text strong>{formData.time_limit} daqiqa</Text>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </Col>
+      </Row>
+
+      {/* Import Modal */}
+      <Modal
+        title={<span style={{ fontWeight: 700 }}>Test savollarini import qilish</span>}
+        open={importModalVisible}
+        onCancel={() => setImportModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setImportModalVisible(false)}>BEKOR QILISH</Button>,
+          <Button
+            key="download"
+            icon={<DownloadOutlined />}
+            onClick={downloadSampleTemplate}
+          >
+            NAMUNA YUKLASH
+          </Button>,
+          <Button
+            key="upload"
+            type="primary"
+            icon={<ImportIcon />}
+            loading={importing}
+            onClick={() => document.getElementById('teacher-excel-input').click()}
+            style={{ backgroundColor: '#2563eb' }}
+          >
+            FAYLNI TANLASH
+          </Button>
+        ]}
+        width={700}
+      >
+        <div style={{ padding: '16px 0' }}>
+          <Typography.Text strong style={{ display: 'block', marginBottom: '12px' }}>
+            CSV YOKI EXCEL FAYL QUYIDAGI FORMATDA BO'LISHI SHART:
+          </Typography.Text>
+          <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px', marginBottom: '16px' }}>
+            <Table
+              size="small"
+              pagination={false}
+              dataSource={[{ key: 1, text: '2+2=?', a: '3', b: '4', c: '5', d: '6', ans: 'B' }]}
+              columns={[
+                { title: 'Savol matni', dataIndex: 'text' },
+                { title: 'A', dataIndex: 'a' },
+                { title: 'B', dataIndex: 'b' },
+                { title: 'C', dataIndex: 'c' },
+                { title: 'D', dataIndex: 'd' },
+                { title: 'Javob', dataIndex: 'ans' },
+              ]}
+            />
+          </div>
+          <Alert
+            message="Eslatma"
+            description="Javob ustuniga faqat A, B, C yoki D harfini yozing. Keyingi bosqichda savollarni saralab olishingiz mumkin."
+            type="info"
+            showIcon
+          />
+          <input
+            type="file"
+            id="teacher-excel-input"
+            style={{ display: 'none' }}
+            accept=".xlsx, .xls, .csv"
+            onChange={handleImportFile}
+          />
+        </div>
+      </Modal>
+
+      {/* Review Modal */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <PreviewIcon style={{ fontSize: '20px', color: '#2563eb' }} />
+            <span style={{ fontWeight: 700 }}>Import qilingan savollarni saralash</span>
+          </div>
+        }
+        open={reviewModalVisible}
+        onCancel={() => setReviewModalVisible(false)}
+        width={900}
+        footer={[
+          <div key="stats" style={{ float: 'left', lineHeight: '32px' }}>
+            <Text strong>{importedQuestions.length} ta savol tayyor</Text>
+          </div>,
+          <Button key="back" onClick={() => setReviewModalVisible(false)}>BEKOR QILISH</Button>,
+          <Button
+            key="done"
+            type="primary"
+            onClick={confirmImport}
+            style={{ backgroundColor: '#2563eb', fontWeight: 600 }}
+          >
+            TAYYOR (EDITORGA O'TKAZISH)
+          </Button>
+        ]}
+      >
+        <div style={{ padding: '16px 0' }}>
+          <Table
+            dataSource={importedQuestions}
+            size="small"
+            pagination={{ pageSize: 6 }}
+            scroll={{ y: 400 }}
+            columns={[
+              {
+                title: '№',
+                width: 50,
+                render: (_, __, i) => i + 1
+              },
+              {
+                title: 'Savol matni',
+                dataIndex: 'question_text',
+                key: 'text',
+                render: (t) => <Text strong style={{ fontSize: '13px' }}>{t}</Text>
+              },
+              {
+                title: 'Variantlar',
+                key: 'options',
+                width: 250,
+                render: (_, r) => (
+                  <div style={{ fontSize: '11px' }}>
+                    {r.options.map((o, i) => (
+                      <div key={i} style={{ color: r.correct_answer === o.text ? '#16a34a' : '#000', fontWeight: r.correct_answer === o.text ? 700 : 400 }}>
+                        {String.fromCharCode(65 + i)}) {o.text}
+                      </div>
+                    ))}
+                  </div>
+                )
+              },
+              {
+                title: 'O\'chirish',
+                key: 'del',
+                width: 80,
+                align: 'center',
+                render: (_, r) => (
+                  <Button type="text" danger icon={<DeleteIcon />} onClick={() => removeFromImport(r.key)} />
+                )
+              }
+            ]}
+          />
         </div>
       </Modal>
 

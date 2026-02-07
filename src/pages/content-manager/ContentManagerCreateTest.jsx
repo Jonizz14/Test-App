@@ -15,6 +15,8 @@ import {
     InputNumber,
     Checkbox,
     Divider,
+    message,
+    Table,
 } from 'antd';
 import {
     PlusOutlined as AddIcon,
@@ -26,6 +28,7 @@ import {
     UploadOutlined as ImportIcon,
     DownloadOutlined,
     SaveOutlined,
+    FileSearchOutlined as PreviewIcon,
 } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import { useAuth } from '../../context/AuthContext';
@@ -64,6 +67,8 @@ const ContentManagerCreateTest = () => {
 
     const [mathSymbolsOpen, setMathSymbolsOpen] = useState(false);
     const [importModalOpen, setImportModalOpen] = useState(false);
+    const [reviewModalOpen, setReviewModalOpen] = useState(false);
+    const [importedQuestions, setImportedQuestions] = useState([]);
     const [currentField, setCurrentField] = useState({ questionIndex: null, field: null });
 
     useEffect(() => {
@@ -193,7 +198,7 @@ const ContentManagerCreateTest = () => {
         message.success("Test Excel formatida (A, B, C, D) yuklab olindi!");
     };
 
-    const handleImportExcel = (e) => {
+    const handleImportFile = (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
@@ -207,22 +212,16 @@ const ContentManagerCreateTest = () => {
                 const data = XLSX.utils.sheet_to_json(ws);
 
                 if (data.length === 0) {
-                    window.dispatchEvent(new CustomEvent('saveError', {
-                        detail: {
-                            title: "Fayl bo'sh",
-                            message: "Excel faylida ma'lumot topilmadi",
-                            icon: 'error'
-                        }
-                    }));
+                    message.error("Fayl bo'sh yoki ma'lumot topilmadi");
                     return;
                 }
 
-                const newQuestions = data.map(item => {
+                const newQuestions = data.map((item, index) => {
                     const options = [
-                        { text: String(item['A'] || item['Variant A'] || ''), image: null },
-                        { text: String(item['B'] || item['Variant B'] || ''), image: null },
-                        { text: String(item['C'] || item['Variant C'] || ''), image: null },
-                        { text: String(item['D'] || item['Variant D'] || ''), image: null }
+                        { text: String(item['A'] || item['Variant A'] || '').trim(), image: null },
+                        { text: String(item['B'] || item['Variant B'] || '').trim(), image: null },
+                        { text: String(item['C'] || item['Variant C'] || '').trim(), image: null },
+                        { text: String(item['D'] || item['Variant D'] || '').trim(), image: null }
                     ];
 
                     const correctKey = String(item['To\'g\'ri javob (A, B, C yoki D)'] || item['Javob'] || item['To\'g\'ri javob'] || '').trim().toUpperCase();
@@ -235,6 +234,7 @@ const ContentManagerCreateTest = () => {
                     else correctAnswer = correctKey;
 
                     return {
+                        key: index,
                         question_text: item['Savol matni'] || item['Savol'] || '',
                         question_type: 'multiple_choice',
                         options,
@@ -245,29 +245,43 @@ const ContentManagerCreateTest = () => {
                     };
                 });
 
-                setQuestions(newQuestions);
+                setImportedQuestions(newQuestions);
                 setImportModalOpen(false);
-
-                window.dispatchEvent(new CustomEvent('testAction', {
-                    detail: {
-                        title: "Fayl import qilindi",
-                        message: `${newQuestions.length} ta savol yuklandi`,
-                        icon: 'table_view'
-                    }
-                }));
+                setReviewModalOpen(true);
             } catch (error) {
                 console.error("Import xatosi:", error);
-                window.dispatchEvent(new CustomEvent('saveError', {
-                    detail: {
-                        title: "Import xatosi",
-                        message: "Faylni o'qishda muammo yuz berdi",
-                        icon: 'error'
-                    }
-                }));
+                message.error("Faylni o'qishda muammo yuz berdi. Iltimos formatni tekshiring.");
             }
         };
         reader.readAsArrayBuffer(file);
         e.target.value = '';
+    };
+
+    const confirmImport = () => {
+        if (importedQuestions.length === 0) {
+            message.warning("Import qilish uchun savollar yo'q");
+            return;
+        }
+
+        // Clean internal keys used for table
+        const cleanedQuestions = importedQuestions.map(({ key, ...rest }) => rest);
+
+        // Merge or replace? Let's replace they can always add more
+        setQuestions(cleanedQuestions);
+        setReviewModalOpen(false);
+        setImportedQuestions([]);
+
+        window.dispatchEvent(new CustomEvent('testAction', {
+            detail: {
+                title: "Test savollari yuklandi",
+                message: `${cleanedQuestions.length} ta savol asosiy tahrirchiga o'tkazildi`,
+                icon: 'auto_awesome'
+            }
+        }));
+    };
+
+    const removeFromImport = (key) => {
+        setImportedQuestions(importedQuestions.filter(q => q.key !== key));
     };
 
     const handleDownloadTemplate = () => {
@@ -633,19 +647,19 @@ const ContentManagerCreateTest = () => {
                                             onClick={() => setImportModalOpen(true)}
                                             style={{ height: '50px', border: '3px solid #000', fontWeight: 900, fontSize: '10px', backgroundColor: '#f0fdf4' }}
                                         >
-                                            IMPORT (EXCEL)
+                                            IMPORT (CSV/EXCEL)
                                         </Button>
                                     </div>
                                     <input
                                         type="file"
                                         id="excel-import-input"
                                         style={{ display: 'none' }}
-                                        accept=".xlsx, .xls"
-                                        onChange={handleImportExcel}
+                                        accept=".xlsx, .xls, .csv"
+                                        onChange={handleImportFile}
                                     />
 
                                     <Modal
-                                        title={<span style={{ fontWeight: 900, textTransform: 'uppercase' }}>Excel Import Namuna</span>}
+                                        title={<span style={{ fontWeight: 900, textTransform: 'uppercase' }}>Import Namuna (CSV/Excel)</span>}
                                         open={importModalOpen}
                                         onCancel={() => setImportModalOpen(false)}
                                         width={800}
@@ -671,7 +685,7 @@ const ContentManagerCreateTest = () => {
                                         ]}
                                     >
                                         <div style={{ padding: '20px 0' }}>
-                                            <Text strong style={{ display: 'block', marginBottom: '10px' }}>EXCEL FAYL QUYIDAGI FORMATDA BO'LISHI SHART:</Text>
+                                            <Text strong style={{ display: 'block', marginBottom: '10px' }}>CSV YOKI EXCEL FAYL QUYIDAGI FORMATDA BO'LISHI SHART:</Text>
                                             <div style={{ overflowX: 'auto', border: '2px solid #000', marginBottom: '20px' }}>
                                                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
                                                     <thead>
@@ -697,10 +711,96 @@ const ContentManagerCreateTest = () => {
                                                 </table>
                                             </div>
                                             <ul style={{ paddingLeft: '20px', fontWeight: 600 }}>
-                                                <li>Javob ustuniga faqit <Text code>A</Text>, <Text code>B</Text>, <Text code>C</Text> yoki <Text code>D</Text> harfini yozing.</li>
-                                                <li>Sarlavhalar (Header) aynan namunadagidek bo'lishi tavsiya etiladi.</li>
-                                                <li>Formula va Tushuntirish ustunlarini ham qo'shishingiz mumkin.</li>
+                                                <li>CSV fayl ishlatishingiz mumkin (Vergul bilan ajratilgan).</li>
+                                                <li>Javob ustuniga faqat <Text code>A</Text>, <Text code>B</Text>, <Text code>C</Text> yoki <Text code>D</Text> harfini yozing.</li>
+                                                <li>YUKLANGAN FAYLNI KEYINGI BOSQICHDA TAHRIRLASHINGIZ MUMKIN.</li>
                                             </ul>
+                                        </div>
+                                    </Modal>
+
+                                    {/* Review Modal */}
+                                    <Modal
+                                        title={
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <PreviewIcon style={{ fontSize: '24px' }} />
+                                                <span style={{ fontWeight: 900, textTransform: 'uppercase' }}>Savollarni Tekshirish va Saralash</span>
+                                            </div>
+                                        }
+                                        open={reviewModalOpen}
+                                        onCancel={() => setReviewModalOpen(false)}
+                                        width={1000}
+                                        style={{ top: 20 }}
+                                        footer={[
+                                            <div key="footer-info" style={{ float: 'left', lineHeight: '32px', fontWeight: 700 }}>
+                                                Jami: {importedQuestions.length} ta savol
+                                            </div>,
+                                            <Button key="cancel" onClick={() => setReviewModalOpen(false)} style={{ border: '2px solid #000', fontWeight: 700 }}>BEKOR QILISH</Button>,
+                                            <Button
+                                                key="submit"
+                                                type="primary"
+                                                onClick={confirmImport}
+                                                style={{ backgroundColor: '#000', border: '2px solid #000', fontWeight: 900, textTransform: 'uppercase' }}
+                                            >
+                                                TAYYOR (EDITORGA O'TKAZISH)
+                                            </Button>
+                                        ]}
+                                    >
+                                        <div style={{ padding: '10px 0' }}>
+                                            <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#fffbe6', border: '2px solid #ffe58f', borderRadius: '4px' }}>
+                                                <Text strong>Eslatma:</Text> Bu yerda keraksiz yoki noto'g'ri savollarni o'chirib yuboring. Tayyor tugmasini bossangiz barcha savollar asosiy tahrirlash oynasiga o'tadi.
+                                            </div>
+
+                                            <Table
+                                                dataSource={importedQuestions}
+                                                pagination={{ pageSize: 5 }}
+                                                scroll={{ y: 400 }}
+                                                bordered
+                                                style={{ border: '2px solid #000' }}
+                                                columns={[
+                                                    {
+                                                        title: '№',
+                                                        dataIndex: 'key',
+                                                        key: 'num',
+                                                        width: 60,
+                                                        render: (val, record, index) => index + 1
+                                                    },
+                                                    {
+                                                        title: 'Savol matni',
+                                                        dataIndex: 'question_text',
+                                                        key: 'text',
+                                                        render: (text) => <Text strong style={{ fontSize: '13px' }}>{text}</Text>
+                                                    },
+                                                    {
+                                                        title: 'Variantlar',
+                                                        key: 'options',
+                                                        width: 300,
+                                                        render: (_, record) => (
+                                                            <div style={{ fontSize: '11px' }}>
+                                                                {record.options.map((opt, i) => (
+                                                                    <div key={i} style={{ color: record.correct_answer === opt.text ? '#16a34a' : '#000', fontWeight: record.correct_answer === opt.text ? 800 : 400 }}>
+                                                                        {['A', 'B', 'C', 'D'][i]}) {opt.text}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )
+                                                    },
+                                                    {
+                                                        title: 'Amal',
+                                                        key: 'action',
+                                                        width: 100,
+                                                        align: 'center',
+                                                        render: (_, record) => (
+                                                            <Button
+                                                                danger
+                                                                type="text"
+                                                                icon={<DeleteIcon />}
+                                                                onClick={() => removeFromImport(record.key)}
+                                                                style={{ fontWeight: 800 }}
+                                                            />
+                                                        )
+                                                    }
+                                                ]}
+                                            />
                                         </div>
                                     </Modal>
 

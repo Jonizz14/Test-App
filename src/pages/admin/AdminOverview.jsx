@@ -46,7 +46,7 @@ const AdminOverview = () => {
     const fetchStatistics = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch all users, tests, and attempts in parallel
         const [usersData, testsData, attemptsData] = await Promise.all([
           apiService.getUsers(),
@@ -216,9 +216,9 @@ const AdminOverview = () => {
   }
 
   return (
-    <div  style={{ padding: '24px 0' }}>
+    <div style={{ padding: '24px 0' }}>
       {/* Header */}
-      <div  style={{
+      <div style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -234,7 +234,7 @@ const AdminOverview = () => {
       {/* All Statistics Cards with Entrance Animations */}
       <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={12} md={6}>
-          <div  style={{ }}>
+          <div style={{}}>
             <StatCard
               title="Jami foydalanuvchilar"
               value={stats.totalUsers}
@@ -244,7 +244,7 @@ const AdminOverview = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div  style={{ }}>
+          <div style={{}}>
             <StatCard
               title="O'qituvchilar"
               value={stats.totalTeachers}
@@ -254,7 +254,7 @@ const AdminOverview = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div  style={{ }}>
+          <div style={{}}>
             <StatCard
               title="O'quvchilar"
               value={stats.totalStudents}
@@ -264,7 +264,7 @@ const AdminOverview = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div  style={{ }}>
+          <div style={{}}>
             <StatCard
               title="Jami testlar"
               value={stats.totalTests}
@@ -274,7 +274,7 @@ const AdminOverview = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div  style={{ }}>
+          <div style={{}}>
             <StatCard
               title="Jami urinishlar"
               value={stats.totalAttempts}
@@ -284,7 +284,7 @@ const AdminOverview = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div  style={{ }}>
+          <div style={{}}>
             <StatCard
               title="Faol testlar"
               value={stats.activeTests}
@@ -294,7 +294,7 @@ const AdminOverview = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div  style={{ }}>
+          <div style={{}}>
             <StatCard
               title="O'rtacha ball"
               value={stats.averageScore}
@@ -305,7 +305,7 @@ const AdminOverview = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div  style={{ }}>
+          <div style={{}}>
             <StatCard
               title="Eng yuqori ball"
               value={stats.highestScore}
@@ -316,7 +316,7 @@ const AdminOverview = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div  style={{ }}>
+          <div style={{}}>
             <StatCard
               title="Premium o'quvchilar"
               value={stats.premiumStudents}
@@ -329,7 +329,7 @@ const AdminOverview = () => {
 
       {/* Banned Users Section with Entrance Animation */}
       {stats.bannedUsers.length > 0 && (
-        <div  style={{ }}>
+        <div style={{}}>
           <Card
             style={{
               backgroundColor: '#ffffff',
@@ -359,7 +359,7 @@ const AdminOverview = () => {
                     borderRadius: '8px',
                     transition: 'all 0.2s ease',
                   }}
-                  hoverable
+                    hoverable
                   >
                     <div style={{ padding: '16px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>

@@ -17,6 +17,8 @@ import {
   Divider,
   Spin,
   Input,
+  List,
+  Badge,
 } from 'antd';
 import {
   PlusOutlined as AddIcon,
@@ -25,10 +27,10 @@ import {
   BarChartOutlined as AssessmentIcon,
   ReloadOutlined as RefreshIcon,
   EyeOutlined as ViewIcon,
-  // TeamOutlined as PeopleIcon,
-  // BookOutlined as SchoolIcon,
-  // UserOutlined as PersonIcon,
-  // BookOutlined as BookmarkIcon,
+  TeamOutlined as PeopleIcon,
+  BookOutlined as SchoolIcon,
+  UserOutlined as PersonIcon,
+  CarryOutOutlined as CarryIcon,
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
@@ -49,7 +51,7 @@ const MyTests = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [lessonModalOpen, setLessonModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [_selectedAttempt, _setSelectedAttempt] = useState(null);
+  const [selectedAttempt, setSelectedAttempt] = useState(null);
   const [testDetailsModalOpen, setTestDetailsModalOpen] = useState(false);
   const [sortBy, setSortBy] = useState('created_at');
   const [filterSubject, setFilterSubject] = useState('');
@@ -58,31 +60,11 @@ const MyTests = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [todoTasks, setTodoTasks] = useState([]);
 
-  useEffect(() => {
-    loadData();
-    // Load saved todo tasks from localStorage
-    const savedTasks = localStorage.getItem('teacher-todo-tasks');
-    if (savedTasks) {
-      setTodoTasks(JSON.parse(savedTasks));
-    }
-  }, [loadData]);
-
-  const handleOpenTestDetails = (test) => {
-    setSelectedTest(test);
-    setTestDetailsModalOpen(true);
-  };
-
-  const handleCloseTestDetails = () => {
-    setTestDetailsModalOpen(false);
-    setSelectedTest(null);
-  };
-
   const loadData = React.useCallback(async (showRefreshLoader = false) => {
     try {
       if (showRefreshLoader) setRefreshing(true);
       else setLoading(true);
 
-      // Load tests from API
       const response = await apiService.getTests({ teacher: currentUser.id });
       const teacherTests = response.results || response;
       const teacherTestsFiltered = teacherTests.filter(test =>
@@ -98,54 +80,48 @@ const MyTests = () => {
               parsedGrades = [parsedGrades];
             }
           } catch {
-            // If not JSON, treat as comma separated
             parsedGrades = test.target_grades.split(',').map(g => g.trim()).filter(g => g);
           }
         }
-        return {
-          ...test,
-          target_grades: parsedGrades
-        };
+        return { ...test, target_grades: parsedGrades };
       });
       setTests(teacherTestsFiltered);
 
-      // Load all users to get student information
       const usersResponse = await apiService.getUsers();
       const allUsers = usersResponse.results || usersResponse;
-      const studentUsers = allUsers.filter(user => user.role === 'student');
-      setStudents(studentUsers);
+      setStudents(allUsers.filter(user => user.role === 'student'));
 
-      // Load all attempts to calculate statistics
       const attemptsResponse = await apiService.getAttempts();
       const allAttempts = attemptsResponse.results || attemptsResponse;
-
-      // Group attempts by test for quick lookup
       const attemptsByTest = {};
       allAttempts.forEach(attempt => {
-        if (!attemptsByTest[attempt.test]) {
-          attemptsByTest[attempt.test] = [];
-        }
+        if (!attemptsByTest[attempt.test]) attemptsByTest[attempt.test] = [];
         attemptsByTest[attempt.test].push(attempt);
       });
       setTestAttempts(attemptsByTest);
-
-      console.log('Loaded data:', {
-        tests: teacherTestsFiltered.length,
-        students: studentUsers.length,
-        attempts: allAttempts.length
-      });
     } catch (error) {
       console.error('Failed to load data:', error);
-      setSnackbar({
-        open: true,
-        message: 'Ma\'lumotlarni yuklashda xatolik yuz berdi',
-        severity: 'error'
-      });
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   }, [currentUser.id]);
+
+  useEffect(() => {
+    loadData();
+    const savedTasks = localStorage.getItem('teacher-todo-tasks');
+    if (savedTasks) setTodoTasks(JSON.parse(savedTasks));
+  }, [loadData]);
+
+  const handleOpenTestDetails = (test) => {
+    setSelectedTest(test);
+    setTestDetailsModalOpen(true);
+  };
+
+  const handleCloseTestDetails = () => {
+    setTestDetailsModalOpen(false);
+    setSelectedTest(null);
+  };
 
   const getTestStats = (testId) => {
     const attempts = testAttempts[testId] || [];
@@ -258,9 +234,9 @@ const MyTests = () => {
   const _getStudentDetails = (testId) => { ... }
   */
   // Prefixed unused method handlers
-  const _handleOpenLessonModal = (student, attempt, test) => {
+  const handleOpenLessonModal = (student, attempt, test) => {
     setSelectedStudent(student);
-    _setSelectedAttempt({
+    setSelectedAttempt({
       ...attempt,
       test: test
     });
@@ -268,10 +244,10 @@ const MyTests = () => {
     setLessonModalOpen(true);
   };
 
-  const _handleCloseLessonModal = () => {
+  const handleCloseLessonModal = () => {
     setLessonModalOpen(false);
     setSelectedStudent(null);
-    _setSelectedAttempt(null);
+    setSelectedAttempt(null);
   };
 
   const _getSubjectColor = (subject) => {
@@ -575,11 +551,6 @@ const MyTests = () => {
         </Card>
       ) : (
         <div>
-          <Alert
-            message={`Siz ${sortedTests.length} ta test yaratgansiz`}
-            type="info"
-            style={{ marginBottom: '24px' }}
-          />
           <Table
             dataSource={sortedTests}
             rowKey="id"

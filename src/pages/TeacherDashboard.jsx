@@ -11,6 +11,10 @@ import {
   LogoutOutlined,
   BookOutlined,
   UserOutlined,
+  TeamOutlined,
+  TrophyOutlined,
+  PieChartOutlined,
+  CrownOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../context/AuthContext';
 import NotificationCenter from '../components/NotificationCenter';
@@ -19,7 +23,11 @@ import NotificationCenter from '../components/NotificationCenter';
 import TeacherOverview from './teacher/TeacherOverview';
 import CreateTest from './teacher/CreateTest';
 import MyTests from './teacher/MyTests';
+import MyClass from './teacher/MyClass';
+import MyClassStatistics from './teacher/MyClassStatistics';
+import ClassesRating from './teacher/ClassesRating';
 import TeacherStatistics from './teacher/TeacherStatistics';
+import TeacherRating from './teacher/TeacherRating';
 import TestDetails from './teacher/TestDetails';
 import StudentResult from './teacher/StudentResult';
 import SentLessons from './teacher/SentLessons';
@@ -67,9 +75,43 @@ const TeacherDashboard = () => {
       label: 'Yuborilgan darslar',
     },
     {
-      key: '/teacher/statistics',
+      key: '/teacher/my-class',
+      icon: <TeamOutlined />,
+      label: 'Sinfim',
+    },
+    {
+      key: '/teacher/statistics-group',
       icon: <BarChartOutlined />,
       label: 'Statistika',
+      children: [
+        {
+          key: '/teacher/statistics',
+          icon: <BarChartOutlined />,
+          label: 'Mening statistikam',
+        },
+        {
+          key: '/teacher/my-class-statistics',
+          icon: <PieChartOutlined />,
+          label: 'Sinf statistikasi',
+        },
+      ],
+    },
+    {
+      key: '/teacher/rating-group',
+      icon: <TrophyOutlined />,
+      label: 'Reyting',
+      children: [
+        {
+          key: '/teacher/classes-rating',
+          icon: <TeamOutlined />,
+          label: 'Sinflar reytingi',
+        },
+        {
+          key: '/teacher/teacher-rating',
+          icon: <CrownOutlined />,
+          label: 'O\'qituvchilar reytingi',
+        },
+      ],
     },
   ];
 
@@ -203,7 +245,11 @@ const TeacherDashboard = () => {
                 <Route path="/student-result/:attemptId" element={<StudentResult />} />
                 <Route path="/student-profile/:id" element={<StudentProfileView />} />
                 <Route path="/sent-lessons" element={<SentLessons />} />
+                <Route path="/my-class" element={<MyClass />} />
+                <Route path="/my-class-statistics" element={<MyClassStatistics />} />
+                <Route path="/classes-rating" element={<ClassesRating />} />
                 <Route path="/statistics" element={<TeacherStatistics />} />
+                <Route path="/teacher-rating" element={<TeacherRating />} />
               </Routes>
             </div>
           </Content>

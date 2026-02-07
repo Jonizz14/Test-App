@@ -155,8 +155,8 @@ const StudentResult = () => {
 
   if (loading) {
     return (
-      <Box sx={{ 
-        pl: { xs: 0, md: 35 }, 
+      <Box sx={{
+        pl: { xs: 0, md: 35 },
         pr: 4,
         py: 4,
         backgroundColor: '#ffffff'
@@ -175,8 +175,8 @@ const StudentResult = () => {
 
   if (error || !attempt || !student || !test) {
     return (
-      <Box sx={{ 
-        pl: { xs: 0, md: 35 }, 
+      <Box sx={{
+        pl: { xs: 0, md: 35 },
         pr: 4,
         py: 4,
         backgroundColor: '#ffffff'

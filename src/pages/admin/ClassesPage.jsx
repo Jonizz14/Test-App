@@ -77,7 +77,7 @@ const ClassesPage = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Chart visibility states
   const [visibleCharts, setVisibleCharts] = useState({
     classSizeDistribution: true,
@@ -87,7 +87,7 @@ const ClassesPage = () => {
     studentEngagement: true,
     classRankings: true
   });
-  
+
   // Chart width control states
   const [chartWidths, setChartWidths] = useState({
     classSizeDistribution: 50,
@@ -97,7 +97,7 @@ const ClassesPage = () => {
     studentEngagement: 50,
     classRankings: 50
   });
-  
+
   // Toggle functions for charts
   const toggleChart = (chartKey) => {
     setVisibleCharts(prev => ({
@@ -111,7 +111,7 @@ const ClassesPage = () => {
     const fetchClassStatistics = async () => {
       try {
         setLoading(true);
-        
+
         const [usersData, attemptsData] = await Promise.all([
           apiService.getUsers(),
           apiService.getAttempts()
@@ -165,8 +165,8 @@ const ClassesPage = () => {
         classStatistics.sort((a, b) => b.totalStudents - a.totalStudents);
 
         // Find top performing class
-        const topPerformingClass = classStatistics.reduce((top, current) => 
-          current.averageScore > top.averageScore ? current : top, 
+        const topPerformingClass = classStatistics.reduce((top, current) =>
+          current.averageScore > top.averageScore ? current : top,
           { averageScore: 0 }
         );
 
@@ -276,8 +276,8 @@ const ClassesPage = () => {
             ) : (
               <ArrowDownOutlined style={{ color: '#dc2626', fontSize: '14px', marginRight: '6px' }} />
             )}
-            <Text style={{ 
-              fontSize: '13px', 
+            <Text style={{
+              fontSize: '13px',
               fontWeight: 600,
               color: trend.direction === 'up' ? '#16a34a' : '#dc2626'
             }}>
@@ -316,7 +316,7 @@ const ClassesPage = () => {
           'rgba(236, 72, 153, 0.8)'
         ],
         borderColor: [
-          '#2563eb', '#7c3aed', '#059669', '#f59e0b', 
+          '#2563eb', '#7c3aed', '#059669', '#f59e0b',
           '#dc2626', '#16a34a', '#8b5cf6', '#ec4899'
         ],
         borderWidth: 2,
@@ -513,12 +513,12 @@ const ClassesPage = () => {
   const ResizableChart = ({ chartKey, title, icon, children, width, animationDelay = 0 }) => {
     const chartWidth = chartWidths[chartKey] || width || 50;
     const isVisible = visibleCharts[chartKey];
-    
+
     if (!isVisible) return null;
-    
+
     return (
-      <div  style={{ 
-        width: `${chartWidth}%`, 
+      <div style={{
+        width: `${chartWidth}%`,
         padding: '0 8px',
         animationDelay: `${animationDelay}ms`,
         transition: 'all 0.3s ease'
@@ -675,12 +675,12 @@ const ClassesPage = () => {
   }
 
   return (
-    <div  style={{
+    <div style={{
       paddingTop: '16px',
       paddingBottom: '16px',
       backgroundColor: '#ffffff'
     }}>
-      <div  style={{
+      <div style={{
         marginBottom: '24px',
         paddingBottom: '16px',
         borderBottom: '1px solid #e2e8f0'
@@ -712,7 +712,7 @@ const ClassesPage = () => {
       {/* Main Statistics Cards */}
       <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
         <Col xs={24} sm={12} md={6}>
-          <div  style={{ }}>
+          <div style={{}}>
             <StatCard
               title="Jami sinflar"
               value={stats.totalClasses}
@@ -722,7 +722,7 @@ const ClassesPage = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div  style={{ }}>
+          <div style={{}}>
             <StatCard
               title="Jami o'quvchilar"
               value={stats.totalStudents}
@@ -733,7 +733,7 @@ const ClassesPage = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div  style={{ }}>
+          <div style={{}}>
             <StatCard
               title="O'rtacha o'quvchi/sinf"
               value={stats.averageStudentsPerClass}
@@ -743,7 +743,7 @@ const ClassesPage = () => {
           </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div  style={{ }}>
+          <div style={{}}>
             <StatCard
               title="Eng yaxshi sinf"
               value={stats.topPerformingClass?.classGroup || 'N/A'}
@@ -756,7 +756,7 @@ const ClassesPage = () => {
       </Row>
 
       <div style={{ marginTop: '16px' }}>
-        <div  style={{ marginBottom: '16px' }}>
+        <div style={{ marginBottom: '16px' }}>
           <Card style={{
             backgroundColor: '#eff6ff',
             borderRadius: '12px',
@@ -775,7 +775,7 @@ const ClassesPage = () => {
               <BarChartOutlined style={{ color: '#2563eb' }} />
               Statistik ma'lumotlar va tahlillar
             </Title>
-            
+
             {/* Chart Management Controls */}
             <div style={{
               backgroundColor: '#ffffff',
@@ -987,7 +987,7 @@ const ClassesPage = () => {
       </div>
 
       {/* Recent Activity */}
-      <div  style={{ }}>
+      <div style={{}}>
         <Card
           style={{
             backgroundColor: '#ffffff',
@@ -1037,7 +1037,7 @@ const ClassesPage = () => {
       </div>
 
       {/* Classes Table */}
-      <div  style={{ }}>
+      <div style={{}}>
         <Card
           style={{
             backgroundColor: '#ffffff',

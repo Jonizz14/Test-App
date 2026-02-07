@@ -147,61 +147,61 @@ const SentLessons = () => {
           }}
         >
           O'quvchilarga yuborilgan qo'shimcha darslar ro'yxati
-          </Typography.Text>
-        </div>
-  
-        {/* Search and Filters */}
-        <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <Input
-            placeholder="Dars mavzusi, o'quvchi yoki fanini qidirish..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ minWidth: '300px', flex: 1 }}
-            allowClear
-          />
-          <Select
-            value={sortBy}
-            onChange={(value) => setSortBy(value)}
-            placeholder="Saralash"
-            style={{ minWidth: '140px' }}
-          >
-            <Select.Option value="createdAt">Yangi avval</Select.Option>
-            <Select.Option value="lessonDate">Dars sanasi</Select.Option>
-            <Select.Option value="studentName">O'quvchi</Select.Option>
-            <Select.Option value="subject">Fan</Select.Option>
-          </Select>
-          <Select
-            value={filterStatus}
-            onChange={(value) => setFilterStatus(value)}
-            placeholder="Status"
-            style={{ minWidth: '120px' }}
-          >
-            <Select.Option value="all">Barcha</Select.Option>
-            <Select.Option value="read">Ko'rilgan</Select.Option>
-            <Select.Option value="unread">Ko'rilmagan</Select.Option>
-          </Select>
-        </div>
-  
-        {/* Search Results Info */}
-        {searchTerm && (
-          <Typography.Text style={{ marginBottom: '16px', color: '#64748b' }}>
-            {filteredAndSortedLessons.length} ta dars topildi
-          </Typography.Text>
-        )}
-  
-        {sentLessons.length === 0 ? (
-          <Card style={{ textAlign: 'center', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-            <div style={{ padding: '32px' }}>
-              <SchoolIcon style={{ fontSize: '64px', color: '#94a3b8', marginBottom: '16px' }} />
-              <Typography.Title level={4} style={{ marginBottom: '8px' }}>
-                Hozircha darsga chaqirish yuborilmagan
-              </Typography.Title>
-              <Typography.Text style={{ color: '#64748b' }}>
-                O'quvchilarga qo'shimcha dars yuborish uchun test natijalarini ko'ring
-              </Typography.Text>
-            </div>
-          </Card>
-        ) : (
+        </Typography.Text>
+      </div>
+
+      {/* Search and Filters */}
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <Input
+          placeholder="Dars mavzusi, o'quvchi yoki fanini qidirish..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ minWidth: '300px', flex: 1 }}
+          allowClear
+        />
+        <Select
+          value={sortBy}
+          onChange={(value) => setSortBy(value)}
+          placeholder="Saralash"
+          style={{ minWidth: '140px' }}
+        >
+          <Select.Option value="createdAt">Yangi avval</Select.Option>
+          <Select.Option value="lessonDate">Dars sanasi</Select.Option>
+          <Select.Option value="studentName">O'quvchi</Select.Option>
+          <Select.Option value="subject">Fan</Select.Option>
+        </Select>
+        <Select
+          value={filterStatus}
+          onChange={(value) => setFilterStatus(value)}
+          placeholder="Status"
+          style={{ minWidth: '120px' }}
+        >
+          <Select.Option value="all">Barcha</Select.Option>
+          <Select.Option value="read">Ko'rilgan</Select.Option>
+          <Select.Option value="unread">Ko'rilmagan</Select.Option>
+        </Select>
+      </div>
+
+      {/* Search Results Info */}
+      {searchTerm && (
+        <Typography.Text style={{ marginBottom: '16px', color: '#64748b' }}>
+          {filteredAndSortedLessons.length} ta dars topildi
+        </Typography.Text>
+      )}
+
+      {sentLessons.length === 0 ? (
+        <Card style={{ textAlign: 'center', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+          <div style={{ padding: '32px' }}>
+            <SchoolIcon style={{ fontSize: '64px', color: '#94a3b8', marginBottom: '16px' }} />
+            <Typography.Title level={4} style={{ marginBottom: '8px' }}>
+              Hozircha darsga chaqirish yuborilmagan
+            </Typography.Title>
+            <Typography.Text style={{ color: '#64748b' }}>
+              O'quvchilarga qo'shimcha dars yuborish uchun test natijalarini ko'ring
+            </Typography.Text>
+          </div>
+        </Card>
+      ) : (
         <div>
           <Alert
             message={`Siz ${sentLessons.length} ta darsga chaqirish yuborgansiz`}
