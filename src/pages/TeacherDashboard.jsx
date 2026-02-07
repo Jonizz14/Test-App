@@ -29,9 +29,9 @@ import ClassesRating from './teacher/ClassesRating';
 import TeacherStatistics from './teacher/TeacherStatistics';
 import TeacherRating from './teacher/TeacherRating';
 import TestDetails from './teacher/TestDetails';
+import StudentProfileDetails from './teacher/StudentProfileDetails';
 import StudentResult from './teacher/StudentResult';
 import SentLessons from './teacher/SentLessons';
-import StudentProfileView from './student/StudentProfileView';
 
 const { Header, Sider, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -243,7 +243,7 @@ const TeacherDashboard = () => {
                 <Route path="/my-tests" element={<MyTests />} />
                 <Route path="/test-details/:testId" element={<TestDetails />} />
                 <Route path="/student-result/:attemptId" element={<StudentResult />} />
-                <Route path="/student-profile/:id" element={<StudentProfileView />} />
+                <Route path="/student-profile/:id" element={<StudentProfileDetails />} />
                 <Route path="/sent-lessons" element={<SentLessons />} />
                 <Route path="/my-class" element={<MyClass />} />
                 <Route path="/my-class-statistics" element={<MyClassStatistics />} />

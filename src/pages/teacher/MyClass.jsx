@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
     Row,
@@ -26,7 +27,7 @@ import {
     TrophyOutlined,
     EyeOutlined,
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../data/apiService';
 
@@ -192,20 +193,22 @@ const MyClass = () => {
             dataIndex: 'name',
             key: 'name',
             render: (text, record) => (
-                <Space>
-                    <Avatar
-                        style={{
-                            backgroundColor: record.averageScore === null ? '#94a3b8' :
-                                record.averageScore >= 70 ? '#16a34a' :
-                                    record.averageScore >= 50 ? '#f59e0b' : '#dc2626'
-                        }}
-                        icon={<UserOutlined />}
-                    />
-                    <div>
-                        <Text strong style={{ color: '#1e293b', display: 'block' }}>{text}</Text>
-                        <Text style={{ color: '#64748b', fontSize: '12px' }}>{record.username}</Text>
-                    </div>
-                </Space>
+                <Link to={`/teacher/student-profile/${record.id}`} style={{ textDecoration: 'none' }}>
+                    <Space>
+                        <Avatar
+                            style={{
+                                backgroundColor: record.averageScore === null ? '#94a3b8' :
+                                    record.averageScore >= 70 ? '#16a34a' :
+                                        record.averageScore >= 50 ? '#f59e0b' : '#dc2626'
+                            }}
+                            icon={<UserOutlined />}
+                        />
+                        <div>
+                            <Text strong style={{ color: '#1e293b', display: 'block' }}>{text}</Text>
+                            <Text style={{ color: '#64748b', fontSize: '12px' }}>{record.username}</Text>
+                        </div>
+                    </Space>
+                </Link>
             ),
         },
         {
