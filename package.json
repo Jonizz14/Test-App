@@ -16,7 +16,6 @@
     "@hello-pangea/dnd": "^18.0.1",
     "@mui/icons-material": "^7.3.6",
     "@mui/material": "^7.3.6",
-    "@studio-freight/react-lenis": "^0.0.47",
     "@tailwindcss/postcss": "^4.1.18",
     "animate.css": "^4.1.1",
     "antd": "^6.1.1",
