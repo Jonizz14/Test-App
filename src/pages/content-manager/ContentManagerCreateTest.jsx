@@ -89,7 +89,9 @@ const ContentManagerCreateTest = () => {
                 description: test.description,
                 time_limit: test.time_limit,
                 difficulty: test.difficulty || 'medium',
-                target_grades: typeof test.target_grades === 'string' ? test.target_grades.split(',') : test.target_grades
+                target_grades: typeof test.target_grades === 'string' ? test.target_grades.split(',') : test.target_grades,
+                is_premium: test.is_premium || false,
+                star_price: test.star_price || 0
             });
 
             // Load questions
@@ -345,8 +347,11 @@ const ContentManagerCreateTest = () => {
 
         try {
             setLoading(true);
+            const { is_premium, star_price, ...otherValues } = values;
             const testData = {
-                ...values,
+                ...otherValues,
+                is_premium: !!is_premium,
+                star_price: star_price || 0,
                 target_grades: values.target_grades ? values.target_grades.join(',') : '',
                 total_questions: questions.length
             };
@@ -482,6 +487,29 @@ const ContentManagerCreateTest = () => {
                                                 <Option value="medium">O'RTA</Option>
                                                 <Option value="hard">QIYIN</Option>
                                             </Select>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+
+                                <Row gutter={16}>
+                                    <Col span={12}>
+                                        <Form.Item name="is_premium" valuePropName="checked">
+                                            <div style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '12px',
+                                                padding: '12px',
+                                                border: '3px solid #000',
+                                                backgroundColor: '#faf5ff'
+                                            }}>
+                                                <Checkbox />
+                                                <Text strong style={{ textTransform: 'uppercase' }}>Faqat Premium foydalanuvchilar uchun</Text>
+                                            </div>
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Form.Item name="star_price" label={<Text strong style={{ textTransform: 'uppercase' }}>Yulduzli narxi (0 bo'lsa tekin)</Text>}>
+                                            <InputNumber min={0} size="large" style={{ width: '100%', border: '3px solid #000', fontWeight: 800 }} placeholder="Masalan: 50" />
                                         </Form.Item>
                                     </Col>
                                 </Row>

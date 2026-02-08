@@ -8,7 +8,11 @@ import { useSentMessages } from '../context/SentMessagesContext';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../context/SettingsContext';
+import { useEconomy } from '../context/EconomyContext';
 import { useServerTest } from '../context/ServerTestContext';
+import StarBalance from './economy/StarBalance';
+import PremiumBadge from './economy/PremiumBadge';
+
 // showWarning imported but kept for future use
 // const { showWarning } = require('../utils/antdNotification');
 
@@ -736,13 +740,15 @@ const Header = ({ demoMode = false }) => {
                     )}
 
                     {currentUser?.role === 'student' && (
-                      <div
-                        className="storage-icon-container is-visible"
-                        onClick={() => navigate('/student/profile')}
-                        title={t('nav.profile')}
-                        style={{ marginLeft: '8px', cursor: 'pointer' }}
-                      >
-                        <span className="material-symbols-outlined">person</span>
+                      <div className="flex items-center gap-4 ml-4">
+                        <div
+                          className="storage-icon-container is-visible"
+                          onClick={() => navigate('/student/profile')}
+                          title={t('nav.profile')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <span className="material-symbols-outlined">person</span>
+                        </div>
                       </div>
                     )}
 

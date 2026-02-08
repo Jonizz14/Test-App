@@ -65,6 +65,7 @@ class User(AbstractUser):
     selected_emojis = models.JSONField(default=list, blank=True, help_text="List of selected premium emojis")
     hide_premium_from_others = models.BooleanField(default=False, help_text="Hide premium status from other users")
     hide_premium_from_self = models.BooleanField(default=False, help_text="Hide premium status from self")
+    owned_tests = models.JSONField(default=list, blank=True, help_text="List of test IDs owned by the student")
 
     def save(self, *args, **kwargs):
         # Auto-generate display_id if not set and user is student/teacher
@@ -80,6 +81,11 @@ class User(AbstractUser):
             self.username = self.display_id
 
         # Premium status is managed manually or through purchases
+        if self.premium_expiry_date:
+            if self.premium_expiry_date > timezone.now():
+                self.is_premium = True
+            else:
+                self.is_premium = False
 
         super().save(*args, **kwargs)
 
@@ -304,6 +310,8 @@ class Test(models.Model):
     target_grades = models.CharField(max_length=200, default='', blank=True, help_text="Comma-separated list of grades this test is for, empty for all grades")
     created_at = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
+    is_premium = models.BooleanField(default=False, help_text="Whether this test is only for premium users")
+    star_price = models.IntegerField(default=0, help_text="Number of stars required to unlock this test")
 
     def __str__(self):
         return self.title

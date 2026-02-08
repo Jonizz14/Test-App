@@ -11,7 +11,34 @@ import {
 } from '@ant-design/icons';
 import { useServerTest } from '../../context/ServerTestContext';
 import { useAuth } from '../../context/AuthContext';
+import { useEconomy } from '../../context/EconomyContext';
 import apiService from '../../data/apiService';
+
+const triggerStarAnimation = () => {
+  const rect = document.querySelector('.neon-gold-text')?.getBoundingClientRect();
+  const targetX = rect ? rect.left + rect.width / 2 : window.innerWidth - 100;
+  const targetY = rect ? rect.top + rect.height / 2 : 50;
+
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => {
+      const star = document.createElement('div');
+      star.className = 'star-particle';
+      star.innerHTML = '⭐';
+      star.style.left = `${window.innerWidth / 2}px`;
+      star.style.top = `${window.innerHeight / 2}px`;
+
+      const deltaX = targetX - (window.innerWidth / 2);
+      const deltaY = targetY - (window.innerHeight / 2);
+
+      star.style.setProperty('--target-x', `${deltaX}px`);
+      star.style.setProperty('--target-y', `${deltaY}px`);
+
+      document.body.appendChild(star);
+
+      setTimeout(() => star.remove(), 1000);
+    }, i * 150);
+  }
+};
 
 const { Title, Text } = Typography;
 
@@ -24,6 +51,7 @@ const SubmitTest = () => {
     clearSession,
     selectedTest,
   } = useServerTest();
+  const { addStars } = useEconomy();
 
   const [submissionResult, setSubmissionResult] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,6 +72,7 @@ const SubmitTest = () => {
       const result = await submitTest();
       if (result && result.success) {
         setSubmissionResult(result);
+        triggerStarAnimation();
       } else {
         setSubmissionResult({ success: false, error: result?.error || 'Test topshirishda muammo yuz berdi.' });
       }

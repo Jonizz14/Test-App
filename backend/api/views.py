@@ -101,6 +101,10 @@ class UserViewSet(viewsets.ModelViewSet):
                 # If student has no admin, only see themselves
                 queryset = queryset.filter(id=self.request.user.id)
 
+        role = self.request.query_params.get('role', None)
+        if role:
+            queryset = queryset.filter(role=role)
+
         return queryset
 
     def update(self, request, *args, **kwargs):
@@ -598,11 +602,51 @@ class TestViewSet(viewsets.ModelViewSet):
             'attempts_count': TestAttempt.objects.count()
         })
 
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def purchase(self, request, pk=None):
+        """Allow a student to purchase a test using stars"""
+        test = self.get_object()
+        user = request.user
+
+        if user.role != 'student':
+            return Response({'error': 'Faqat o\'quvchilar test sotib olishi mumkin'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if test.star_price <= 0:
+            return Response({'error': 'Ushbu test tekin'}, status=status.HTTP_400_BAD_REQUEST)
+
+        owned_tests = user.owned_tests or []
+        # Check if already owned (handles both int and str IDs)
+        if test.id in owned_tests or str(test.id) in [str(tid) for tid in owned_tests]:
+            return Response({'error': 'Siz ushbu testni allaqachon sotib olgansiz'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if user.stars < test.star_price:
+            return Response({'error': 'Yulduzlaringiz yetarli emas'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Process purchase
+        user.stars -= test.star_price
+        if not owned_tests:
+            owned_tests = []
+        owned_tests.append(test.id)
+        user.owned_tests = owned_tests
+        user.save()
+
+        return Response({
+            'message': 'Test muvaffaqiyatli sotib olindi',
+            'stars': user.stars,
+            'owned_tests': user.owned_tests
+        })
+
     def perform_create(self, serializer):
         serializer.save(teacher=self.request.user)
 
     def get_queryset(self):
-        queryset = Test.objects.all()
+        from django.db.models import Count, Avg
+        queryset = Test.objects.select_related('teacher').annotate(
+            question_count_ann=Count('questions', distinct=True),
+            attempt_count_ann=Count('attempts', distinct=True),
+            average_score_ann=Avg('attempts__score'),
+            average_time_ann=Avg('attempts__time_taken')
+        )
 
         # Apply admin isolation
         if self.request.user.is_authenticated and self.request.user.role in ['admin', 'head_admin']:
@@ -659,11 +703,10 @@ class TestViewSet(viewsets.ModelViewSet):
                 student_grade = class_group.split('-')[0] if '-' in class_group else class_group
 
                 # Only show tests where the student's grade matches OR is for content_manager
-                from django.db.models import Q
                 queryset = queryset.filter(
-                    Q(target_grades__icontains=student_grade) |  # Grade in target_grades string
-                    Q(target_grades='') |                        # Empty means all grades
-                    Q(teacher__role='content_manager')           # Global tests are always allowed
+                    models.Q(target_grades__icontains=student_grade) |  # Grade in target_grades string
+                    models.Q(target_grades='') |                        # Empty means all grades
+                    models.Q(teacher__role='content_manager')           # Global tests are always allowed
                 )
             else:
                 # If no class_group, ONLY show global tests
@@ -744,6 +787,17 @@ class TestAttemptViewSet(viewsets.ModelViewSet):
             if not can_access:
                 from rest_framework.exceptions import PermissionDenied
                 raise PermissionDenied("Siz ushbu testda qatnasha olmaysiz")
+
+            # Check premium and star access
+            if test.is_premium and not self.request.user.is_premium:
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied("Ushbu test faqat Premium foydalanuvchilar uchun")
+            
+            if test.star_price > 0:
+                owned_tests = self.request.user.owned_tests or []
+                if test.id not in owned_tests:
+                    from rest_framework.exceptions import PermissionDenied
+                    raise PermissionDenied("Ushbu testni qatnashish uchun uni yulduzlar bilan sotib olishingiz kerak")
 
         attempt = serializer.save(student=self.request.user)
         self.request.user.update_student_stats()
@@ -994,6 +1048,11 @@ class TestSessionViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'])
     def complete_session(self, request):
         """Complete a session and grade it"""
+        from django.db import transaction
+        with transaction.atomic():
+            return self._perform_complete(request)
+
+    def _perform_complete(self, request):
         session_id = request.data.get('session_id')
         
         if not session_id:
@@ -1058,12 +1117,24 @@ class TestSessionViewSet(viewsets.ModelViewSet):
                     'time_taken': time_taken
                 }
             )
+
+            # Update student stats and grant stars
+            student = request.user
+            attempts = TestAttempt.objects.filter(student=student)
+            total_attempts = attempts.count()
+            avg_score = sum(a.score for a in attempts) / total_attempts if total_attempts > 0 else 0
+            
+            student.total_tests_taken = total_attempts
+            student.average_score = avg_score
+            student.stars += 2  # Reward for completing a test
+            student.save()
             
             return Response({
                 'success': True,
-                'message': 'Test completed successfully',
+                'message': 'Test muvaffaqiyatli yakunlandi! +2 ⭐ berildi',
                 'attempt_id': attempt.id,
-                'score': score_percentage
+                'score': score_percentage,
+                'stars': student.stars
             })
             
         except TestSession.DoesNotExist:

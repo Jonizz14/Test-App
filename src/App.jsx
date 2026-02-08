@@ -8,6 +8,7 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { EconomyProvider } from './context/EconomyContext';
 import { StatisticsProvider } from './context/StatisticsContext';
 import { SettingsProvider } from './context/SettingsContext';
 import { ServerTestProvider } from './context/ServerTestContext';
@@ -425,41 +426,43 @@ function App() {
                 <CustomThemeProvider>
                   <LoadingProvider>
                     <AuthProvider>
-                      <SentMessagesProvider>
-                        <SavedItemsProvider>
-                          <NewsProvider>
-                            <StatisticsProvider>
-                              <SettingsProvider>
-                                <ServerTestProvider>
-                                  <ScrollToTop />
-                                  <TextSelectionHandler />
-                                  <HelpButton onClick={() => setShowHelpOverlay(true)} />
-                                  <GlobalHeader />
-                                  <NotesSidebar />
-                                  <OnboardingExitGhost />
-                                  {showHelpOverlay && (
-                                    <React.Suspense fallback={null}>
-                                      <Onboarding isOverlay={true} onClose={() => setShowHelpOverlay(false)} />
+                      <EconomyProvider>
+                        <SentMessagesProvider>
+                          <SavedItemsProvider>
+                            <NewsProvider>
+                              <StatisticsProvider>
+                                <SettingsProvider>
+                                  <ServerTestProvider>
+                                    <ScrollToTop />
+                                    <TextSelectionHandler />
+                                    <HelpButton onClick={() => setShowHelpOverlay(true)} />
+                                    <GlobalHeader />
+                                    <NotesSidebar />
+                                    <OnboardingExitGhost />
+                                    {showHelpOverlay && (
+                                      <React.Suspense fallback={null}>
+                                        <Onboarding isOverlay={true} onClose={() => setShowHelpOverlay(false)} />
+                                      </React.Suspense>
+                                    )}
+                                    {/* Global route loading indicator */}
+                                    <RouteLoadingIndicator
+                                      showFullScreen={false}
+                                      threshold={300}
+                                    />
+                                    <React.Suspense fallback={
+                                      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+                                        <CircularProgress size={40} />
+                                      </Box>
+                                    }>
+                                      <AnimatedRoutes />
                                     </React.Suspense>
-                                  )}
-                                  {/* Global route loading indicator */}
-                                  <RouteLoadingIndicator
-                                    showFullScreen={false}
-                                    threshold={300}
-                                  />
-                                  <React.Suspense fallback={
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
-                                      <CircularProgress size={40} />
-                                    </Box>
-                                  }>
-                                    <AnimatedRoutes />
-                                  </React.Suspense>
-                                </ServerTestProvider>
-                              </SettingsProvider>
-                            </StatisticsProvider>
-                          </NewsProvider>
-                        </SavedItemsProvider>
-                      </SentMessagesProvider>
+                                  </ServerTestProvider>
+                                </SettingsProvider>
+                              </StatisticsProvider>
+                            </NewsProvider>
+                          </SavedItemsProvider>
+                        </SentMessagesProvider>
+                      </EconomyProvider>
                     </AuthProvider>
                   </LoadingProvider>
                 </CustomThemeProvider>

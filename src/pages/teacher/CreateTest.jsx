@@ -52,6 +52,8 @@ const CreateTest = () => {
     time_limit: 30,
     target_grades: [], // Empty array means all grades
     difficulty: 'medium', // easy, medium, hard
+    is_premium: false,
+    star_price: 0
   });
   const [questions, setQuestions] = useState([{
     question_text: '',
@@ -124,6 +126,8 @@ const CreateTest = () => {
           time_limit: test.time_limit || 30,
           target_grades: parsedGrades,
           difficulty: test.difficulty || 'medium',
+          is_premium: test.is_premium || false,
+          star_price: test.star_price || 0,
         };
 
         console.log('Setting form data:', newFormData);
@@ -494,6 +498,8 @@ const CreateTest = () => {
           target_grades: Array.isArray(formData.target_grades) ? formData.target_grades.join(',') : formData.target_grades,
           total_questions: questions.length,
           difficulty: formData.difficulty,
+          is_premium: !!formData.is_premium,
+          star_price: formData.star_price || 0,
         });
 
         // Update questions (delete old ones and create new ones)
@@ -561,6 +567,8 @@ const CreateTest = () => {
           target_grades: Array.isArray(formData.target_grades) ? formData.target_grades.join(',') : formData.target_grades,
           total_questions: questions.length,
           difficulty: formData.difficulty,
+          is_premium: !!formData.is_premium,
+          star_price: formData.star_price || 0,
         });
 
         console.log('Test created successfully:', testData);
@@ -805,6 +813,32 @@ const CreateTest = () => {
                       </Select>
                     </Form.Item>
                   </Col>
+                </Row>
+
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item label="Premium Status">
+                      <Checkbox
+                        checked={formData.is_premium}
+                        onChange={(e) => setFormData({ ...formData, is_premium: e.target.checked })}
+                      >
+                        Faqat Premium foydalanuvchilar uchun
+                      </Checkbox>
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item label="Yulduzli Narxi (0 bo'lsa tekin)">
+                      <Input
+                        type="number"
+                        value={formData.star_price}
+                        onChange={(e) => setFormData({ ...formData, star_price: parseInt(e.target.value) || 0 })}
+                        min={0}
+                        placeholder="Masalan: 50"
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Row gutter={16}>
                   <Col span={24}>
                     <Form.Item label="Tavsif">
                       <Input.TextArea
@@ -1242,7 +1276,7 @@ const CreateTest = () => {
         onClose={() => setMathSymbolsOpen(false)}
         onSymbolSelect={handleSymbolSelect}
       />
-    </div>
+    </div >
   );
 };
 

@@ -20,6 +20,9 @@ import apiService from '../../data/apiService';
 import { useCountdown } from '../../hooks/useCountdown';
 import { shouldShowPremiumFeatures } from '../../utils/premiumVisibility';
 import GradientPicker from '../../components/GradientPicker';
+import { useEconomy } from '../../context/EconomyContext';
+import StarPiggyBank from '../../components/economy/StarPiggyBank';
+import StarExchange from '../../components/economy/StarExchange';
 
 
 const { Title, Text, Paragraph } = Typography;
@@ -27,6 +30,7 @@ const { Title, Text, Paragraph } = Typography;
 const StudentProfile = () => {
   const { currentUser, setCurrentUserData, logout: _logout } = useAuth();
   const navigate = useNavigate();
+  const { ownedTests } = useEconomy();
   const [testCount, setTestCount] = useState(0);
   const [averageScore, setAverageScore] = useState(0);
   const [highestScore, setHighestScore] = useState(0);
@@ -85,11 +89,20 @@ const StudentProfile = () => {
 
     try {
       setLoading(true);
-      const [attempts, _users] = await Promise.all([
+      // Use existing stats from currentUser if available, or fetch them
+      setTestCount(currentUser.total_tests_taken || 0);
+      setAverageScore(Math.round(currentUser.average_score || 0));
+
+      // Fetch attempts just to get highest score (if needed) and list of teachers for curator
+      const [attempts, teachers] = await Promise.all([
         apiService.getAttempts({ student: currentUser.id }),
-        apiService.getUsers()
+        apiService.getUsers({ role: 'teacher' }) // Optimized: only fetch teachers
       ]);
+
       const attemptsList = attempts.results || attempts;
+      const teachersList = teachers.results || teachers;
+
+      // Update test count from attempts list for accuracy
       setTestCount(attemptsList.length);
 
       // Calculate average and highest scores
@@ -104,14 +117,11 @@ const StudentProfile = () => {
       setAverageScore(avgScore);
       setHighestScore(highScore);
 
-      // Find curator teacher
-      const teachers = users.filter(user => user.role === 'teacher');
-      const curator = teachers.find(t => t.is_curator && t.curator_class === currentUser.class_group);
+      // Find curator teacher from optimized teacher list
+      const curator = teachersList.find(t => t.is_curator && t.curator_class === currentUser.class_group);
       setCuratorTeacher(curator);
     } catch (error) {
       console.error('Error loading student stats:', error);
-      setTestCount(0);
-      setCuratorTeacher(null);
     } finally {
       setLoading(false);
     }
@@ -556,6 +566,7 @@ const StudentProfile = () => {
         </Card>
       </div>
 
+
       {/* Statistics Cards */}
       <div className="animate__animated animate__fadeIn" style={{ animationDelay: '400ms' }}>
         <Row gutter={[24, 24]} style={{ marginBottom: '24px' }}>
@@ -597,6 +608,46 @@ const StudentProfile = () => {
       </div>
 
 
+      <div className="animate__animated animate__fadeIn" style={{ animationDelay: '500ms', marginTop: '40px' }}>
+        <Title level={3} style={{ fontWeight: 900, textTransform: 'uppercase', marginBottom: '24px', fontSize: '1.75rem' }}>
+          Mening Sotib Olingan Testlarim
+        </Title>
+        <div
+          style={{
+            backgroundColor: '#fff',
+            border: '4px solid #000',
+            boxShadow: '8px 8px 0px #000',
+            padding: '32px',
+            minHeight: '120px'
+          }}
+        >
+          {ownedTests.length > 0 ? (
+            <div className="flex flex-wrap gap-4">
+              {ownedTests.map(testId => (
+                <div
+                  key={testId}
+                  style={{
+                    backgroundColor: '#22c55e',
+                    color: '#fff',
+                    padding: '8px 16px',
+                    fontWeight: 900,
+                    border: '3px solid #000',
+                    boxShadow: '4px 4px 0px #000',
+                    fontSize: '12px',
+                    textTransform: 'uppercase'
+                  }}
+                >
+                  Test ID: {testId} (SOTIB OLINGAN)
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Text type="secondary" style={{ fontStyle: 'italic', fontWeight: 600, fontSize: '1.1rem' }}>
+              Hali hech qanday test sotib olmagansiz. Test yulduzlarini to'plang va yangi testlarni kashf qiling!
+            </Text>
+          )}
+        </div>
+      </div>
 
       {/* Edit Profile Dialog */}
       <Modal

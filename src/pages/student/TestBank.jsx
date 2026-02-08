@@ -8,19 +8,21 @@ import {
     Input,
     Select,
     ConfigProvider,
-    Row,
-    Col,
-    Table,
     Spin,
-    Alert
+    Alert,
+    Table,
+    Space,
+    Tooltip,
+    Row,
+    Col
 } from 'antd';
 import {
     PlayCircleOutlined,
-    SortAscendingOutlined,
-    GlobalOutlined
+    SortAscendingOutlined
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import { useServerTest } from '../../context/ServerTestContext';
+import { useEconomy } from '../../context/EconomyContext';
 import apiService from '../../data/apiService';
 import 'animate.css';
 
@@ -32,9 +34,9 @@ const TestBank = () => {
     const {
         checkActiveSession,
         startTestSession,
-        continueTestSession,
-        clearSession
+        continueTestSession
     } = useServerTest();
+    const { isTestOwned, stars, purchaseTest } = useEconomy();
 
     const navigate = useNavigate();
     const [allTests, setAllTests] = useState([]);
@@ -46,7 +48,6 @@ const TestBank = () => {
     // Filtering states
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('date');
-    const [pageSize, setPageSize] = useState(10);
 
     const difficultyLabels = {
         easy: 'Oson',
@@ -54,77 +55,65 @@ const TestBank = () => {
         hard: 'Qiyin'
     };
 
-    // Load Global Tests
+    // Load Global Tests and check active sessions
     useEffect(() => {
-        const loadGlobalTests = async () => {
+        const loadInitialData = async () => {
             if (!currentUser) return;
             setLoading(true);
             setError(null);
             try {
-                // Fetch all tests available to student (includes teacher's and global)
-                const tests = await apiService.getTests({});
+                // Fetch all tests and attempts in parallel
+                const [tests, attempts, activeSessions] = await Promise.all([
+                    apiService.getTests({}),
+                    apiService.getAttempts({ student: currentUser.id }),
+                    apiService.get(`/sessions/?student=${currentUser.id}&active_only=true`)
+                ]);
 
-                // Filter only for global tests (created by content_manager)
-                // Or show ALL tests? User said "Testlar Bazasi", usually implies a public bank.
-                // Let's filter for tests where teacher_role === 'content_manager'.
+                // Filter for global tests
                 const globalTests = tests.filter(test => test.teacher_role === 'content_manager' && test.is_active);
-
                 setAllTests(globalTests);
 
-                // Check active sessions
+                // Load attempts
+                const takenTestIds = new Set(attempts.map(attempt => attempt.test));
+                setTakenTests(takenTestIds);
+
+                // Map active sessions
                 const sessionsMap = {};
-                for (const test of globalTests) {
-                    try {
-                        const activeSession = await checkActiveSession(test.id);
-                        if (activeSession) {
-                            sessionsMap[test.id] = activeSession;
-                        }
-                    } catch (e) {
-                        // Ignore errors checking sessions
-                    }
+                if (Array.isArray(activeSessions)) {
+                    activeSessions.forEach(session => {
+                        sessionsMap[session.test] = session.session_id;
+                    });
                 }
                 setActiveTestSessions(sessionsMap);
 
-                // Load attempts to mark taken tests
-                try {
-                    const attempts = await apiService.getAttempts({ student: currentUser.id });
-                    const takenTestIds = new Set(attempts.map(attempt => attempt.test));
-                    setTakenTests(takenTestIds);
-                } catch (error) {
-                    console.error('Failed to load taken tests:', error);
-                }
-
             } catch (err) {
-                console.error("Failed to load global tests:", err);
-                setError("Testlar bazasini yuklashda xatolik yuz berdi.");
+                console.error("Failed to load test bank data:", err);
+                setError("Ma'lumotlarni yuklashda xatolik yuz berdi.");
             } finally {
                 setLoading(false);
             }
         };
 
-        loadGlobalTests();
-    }, [currentUser, checkActiveSession]);
+        loadInitialData();
+    }, [currentUser]);
 
     const hasStudentTakenTest = (testId) => {
         return takenTests.has(testId);
     };
 
-    const startTest = async (test) => {
-        if (!test || !test.id) return;
+    const startTest = async (testId) => {
         try {
-            const session = await startTestSession(test.id);
+            const session = await startTestSession(testId);
             if (session) {
-                navigate(`/student/take-test?testId=${test.id}`);
+                navigate(`/student/take-test?testId=${testId}`);
             }
         } catch (e) {
             console.error("Failed to start session", e);
-            Alert.error("Testni boshlashda xatolik");
         }
     };
 
-    const continueTest = async (test) => {
-        // Just navigate, TakeTest handles recovery from URL or checks session
-        navigate(`/student/take-test?testId=${test.id}`);
+    const continueTest = (testId) => {
+        navigate(`/student/take-test?testId=${testId}`);
     };
 
     // Filtering Logic
@@ -139,7 +128,7 @@ const TestBank = () => {
             const difficultyOrder = { easy: 1, medium: 2, hard: 3 };
             filteredTests.sort((a, b) => (difficultyOrder[a.difficulty] || 0) - (difficultyOrder[b.difficulty] || 0));
         } else if (sortBy === 'name') {
-            filteredTests.sort((a, b) => a.title.localeCompare(b.title));
+            filteredTests.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
         } else {
             filteredTests.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         }
@@ -148,186 +137,186 @@ const TestBank = () => {
         if (searchTerm) {
             const lower = searchTerm.toLowerCase();
             filteredTests = filteredTests.filter(t =>
-                t.title.toLowerCase().includes(lower) ||
-                t.subject.toLowerCase().includes(lower)
+                (t.title || '').toLowerCase().includes(lower) ||
+                (t.subject || '').toLowerCase().includes(lower)
             );
         }
 
         return filteredTests;
     };
 
-    const testColumns = [
-        {
-            title: 'Test',
-            dataIndex: 'title',
-            key: 'title',
-            render: (title, test) => (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ backgroundColor: '#000', color: '#fff', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>G</div>
-                    <div>
-                        <Text style={{ fontWeight: 700, fontSize: '0.9rem' }}>{title}</Text>
-                        {test.description && <div style={{ fontSize: '11px', color: '#666' }}>{test.description}</div>}
-                    </div>
-                </div>
-            ),
-        },
-        {
-            title: 'Fan',
-            dataIndex: 'subject',
-            key: 'subject',
-            render: (subject) => (
-                <Tag style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 700, backgroundColor: '#fff', color: '#000', textTransform: 'uppercase', fontSize: '10px' }}>{subject}</Tag>
-            ),
-        },
-        {
-            title: 'Qiyinchilik',
-            dataIndex: 'difficulty',
-            key: 'difficulty',
-            render: (difficulty) => (
-                <Tag color={difficulty === 'easy' ? 'green' : difficulty === 'medium' ? 'orange' : 'red'} style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 800, textTransform: 'uppercase', fontSize: '10px' }}>
-                    {difficultyLabels[difficulty] || difficulty}
-                </Tag>
-            ),
-        },
-        {
-            title: 'Info',
-            key: 'info',
-            render: (_, test) => (
-                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                    <div style={{ backgroundColor: '#000', color: '#fff', padding: '4px 8px', fontWeight: 900, fontSize: '11px', border: '2px solid #000' }}>{test.time_limit}M</div>
-                    <div style={{ backgroundColor: '#fff', color: '#000', padding: '4px 8px', fontWeight: 900, fontSize: '11px', border: '2px solid #000' }}>{test.total_questions}Q</div>
-                </div>
-            ),
-        },
-        {
-            title: 'Harakat',
-            key: 'actions',
-            width: 150,
-            render: (_, test) => {
-                const alreadyTaken = hasStudentTakenTest(test.id);
-                const hasActive = !!activeTestSessions[test.id];
-
-                if (alreadyTaken) {
-                    return (
-                        <Button
-                            onClick={() => navigate(`/student/results?highlight=${test.id}`)}
-                            style={{
-                                borderRadius: 0,
-                                border: '3px solid #000',
-                                backgroundColor: '#e0e7ff', // Light indigo/blue
-                                color: '#000',
-                                fontWeight: 900,
-                                textTransform: 'uppercase',
-                                fontSize: '11px',
-                                height: '36px',
-                                width: '100%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                            }}
-                        >
-                            TOPSHIRILGAN
-                        </Button>
-                    );
-                }
-
-                return (
-                    <Button
-                        type="primary"
-                        onClick={hasActive ? () => continueTest(test) : () => startTest(test)}
-                        style={{
-                            borderRadius: 0,
-                            border: '3px solid #000',
-                            boxShadow: '4px 4px 0px #000',
-                            backgroundColor: hasActive ? '#f59e0b' : '#4f46e5',
-                            color: '#fff',
-                            fontWeight: 900,
-                            textTransform: 'uppercase',
-                            fontSize: '11px',
-                            height: '36px',
-                            width: '100%'
-                        }}
-                        icon={hasActive ? <PlayCircleOutlined /> : <PlayCircleOutlined />}
-                    >
-                        {hasActive ? 'Davom etish' : 'Boshlash'}
-                    </Button>
-                );
-            },
-        },
-    ];
-
     if (!currentUser) return null;
 
     return (
         <ConfigProvider theme={{ token: { borderRadius: 0, colorPrimary: '#000' } }}>
-            <div style={{ padding: '40px 0' }}>
-                <div className="animate__animated animate__fadeIn" style={{ marginBottom: '60px' }}>
-                    <div style={{ backgroundColor: '#000', color: '#fff', padding: '8px 16px', fontWeight: 700, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px', display: 'inline-block' }}>
-                        TESTLAR BAZASI
+            <div style={{ padding: '20px 0' }}>
+                <div className="animate__animated animate__fadeIn" style={{ marginBottom: '40px' }}>
+                    <div style={{ backgroundColor: 'var(--star-gold)', color: '#000', padding: '6px 14px', fontWeight: 900, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px', display: 'inline-block', border: '2px solid #000' }}>
+                        STAR ECONOMY ENABLED
                     </div>
-                    <Title level={1} style={{ fontWeight: 900, fontSize: '2.5rem', lineHeight: 0.9, textTransform: 'uppercase', letterSpacing: '-0.05em', color: '#000' }}>
-                        GLOBAL TESTLAR BAZASI
+                    <Title level={1} style={{ fontWeight: 900, fontSize: '3rem', lineHeight: 0.9, textTransform: 'uppercase', letterSpacing: '-0.05em', color: '#000' }}>
+                        THE TEST BANK
                     </Title>
-                    <div style={{ width: '80px', height: '10px', backgroundColor: '#000', margin: '24px 0' }}></div>
-                    <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, color: '#333', maxWidth: '600px' }}>
-                        Platformadagi barcha ochiq testlar to'plami. Reytingingizni oshirish uchun testlarni yeching!
+                    <Paragraph style={{ fontSize: '1.1rem', fontWeight: 600, color: '#666', maxWidth: '600px', marginTop: '16px' }}>
+                        Earn stars by completing tests. Use stars to unlock premium content and status.
                     </Paragraph>
                 </div>
 
                 {error && <Alert message={error} type="error" showIcon style={{ marginBottom: 20 }} />}
 
+                <div className="animate__animated animate__fadeIn" style={{ marginBottom: '40px' }}>
+                    <Card style={{ borderRadius: 0, border: '3px solid #000', boxShadow: '8px 8px 0px #000' }}>
+                        <Row gutter={[24, 16]} align="middle">
+                            <Col xs={24} md={18}>
+                                <Search
+                                    placeholder="Search tests..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    style={{ borderRadius: 0, width: '100%' }}
+                                    size="large"
+                                />
+                            </Col>
+                            <Col xs={24} md={6}>
+                                <Select value={sortBy} onChange={setSortBy} style={{ width: '100%' }} size="large">
+                                    <Select.Option value="date">Latest</Select.Option>
+                                    <Select.Option value="name">Name</Select.Option>
+                                    <Select.Option value="difficulty">Difficulty</Select.Option>
+                                    <Select.Option value="easy">Easy</Select.Option>
+                                    <Select.Option value="medium">Medium</Select.Option>
+                                    <Select.Option value="hard">Hard</Select.Option>
+                                </Select>
+                            </Col>
+                        </Row>
+                    </Card>
+                </div>
+
                 {loading ? (
                     <div style={{ textAlign: 'center', padding: 50 }}><Spin size="large" /></div>
                 ) : (
-                    <>
-                        <div className="animate__animated animate__fadeIn" style={{ marginBottom: '40px' }}>
-                            <Card style={{ borderRadius: 0, border: '4px solid #000', boxShadow: '10px 10px 0px #000' }}>
-                                <Row gutter={[24, 16]} align="middle">
-                                    <Col xs={24} md={18}>
-                                        <Search
-                                            placeholder="Test nomi yoki fan bo'yicha qidirish..."
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                            style={{ borderRadius: 0, width: '100%' }}
-                                            size="large"
-                                        />
-                                    </Col>
-                                    <Col xs={24} md={6}>
-                                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
-                                            <SortAscendingOutlined style={{ fontSize: '20px' }} />
-                                            <Select value={sortBy} onChange={setSortBy} style={{ width: '100%' }} size="large">
-                                                <Select.Option value="date">Sana</Select.Option>
-                                                <Select.Option value="name">Nomi</Select.Option>
-                                                <Select.Option value="difficulty">Qiyinchilik</Select.Option>
-                                                <Select.Option value="easy">Osonlar</Select.Option>
-                                                <Select.Option value="medium">O'rtachalar</Select.Option>
-                                                <Select.Option value="hard">Qiyinlar</Select.Option>
-                                            </Select>
+                    <div className="animate__animated animate__fadeIn" style={{ animationDelay: '0.2s' }}>
+                        <Table
+                            dataSource={getSortedTests()}
+                            rowKey="id"
+                            style={{ border: '4px solid #000' }}
+                            pagination={{ pageSize: 10 }}
+                            columns={[
+                                {
+                                    title: 'FAN / SARLAVHA',
+                                    key: 'info',
+                                    render: (_, test) => (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                            <div style={{ padding: '8px 12px', border: '2px solid #000', backgroundColor: '#000', color: '#fff', fontWeight: 900, fontSize: '12px' }}>
+                                                {test.subject}
+                                            </div>
+                                            <div>
+                                                <Text style={{ fontWeight: 900, fontSize: '16px' }}>{test.title}</Text>
+                                                <div style={{ fontSize: '11px', color: '#666', fontWeight: 700 }}>{test.total_questions} SAVOL • {test.time_limit} DAQIQA</div>
+                                            </div>
                                         </div>
-                                    </Col>
-                                </Row>
-                            </Card>
-                        </div>
+                                    )
+                                },
+                                {
+                                    title: 'QIYINCHILIK',
+                                    dataIndex: 'difficulty',
+                                    render: (diff) => (
+                                        <Tag color={diff === 'hard' ? 'red' : diff === 'medium' ? 'orange' : 'green'} style={{ border: '2px solid #000', fontWeight: 800, borderRadius: 0 }}>
+                                            {difficultyLabels[diff]?.toUpperCase()}
+                                        </Tag>
+                                    )
+                                },
+                                {
+                                    title: 'HOLAT',
+                                    key: 'status',
+                                    render: (_, test) => {
+                                        const owned = isTestOwned(test.id);
+                                        const isPaid = test.star_price > 0;
+                                        const isPremiumOnly = test.is_premium;
+                                        const studentIsPremium = currentUser?.is_premium;
 
-                        <div className="animate__animated animate__fadeIn" style={{ animationDelay: '0.3s' }}>
-                            <Table
-                                columns={testColumns}
-                                dataSource={getSortedTests().map(t => ({ ...t, key: t.id }))}
-                                pagination={{
-                                    pageSize: pageSize,
-                                    showSizeChanger: true,
-                                    pageSizeOptions: ['10', '20', '50'],
-                                    onShowSizeChange: (_, size) => setPageSize(size),
-                                }}
-                                rowHoverable={false}
-                                style={{ border: '4px solid #000', boxShadow: '10px 10px 0px #000' }}
-                                scroll={{ x: 800 }}
-                                locale={{ emptyText: 'Global testlar mavjud emas' }}
-                            />
-                        </div>
-                    </>
+                                        if (isPremiumOnly && !studentIsPremium) {
+                                            return <Tag color="purple" style={{ border: '2px solid #000', fontWeight: 800, borderRadius: 0 }}>PREMIUM</Tag>;
+                                        }
+                                        if (isPaid && !owned) {
+                                            return <Tag color="gold" style={{ border: '2px solid #000', fontWeight: 800, borderRadius: 0 }}>{test.star_price} ⭐</Tag>;
+                                        }
+                                        return <Tag color="blue" style={{ border: '2px solid #000', fontWeight: 800, borderRadius: 0 }}>OCHIQ</Tag>;
+                                    }
+                                },
+                                {
+                                    title: 'AMAL',
+                                    key: 'action',
+                                    align: 'right',
+                                    render: (_, test) => {
+                                        const owned = isTestOwned(test.id) || test.star_price === 0;
+                                        const isPremiumOnly = test.is_premium;
+                                        const studentIsPremium = currentUser?.is_premium;
+                                        const premiumLocked = isPremiumOnly && !studentIsPremium;
+                                        const canAccess = owned && !premiumLocked;
+                                        const alreadyTaken = takenTests.has(test.id);
+
+                                        if (premiumLocked) {
+                                            return (
+                                                <Button
+                                                    style={{ border: '2px solid #000', boxShadow: '3px 3px 0px #000', fontWeight: 900, backgroundColor: '#a855f7', color: '#fff' }}
+                                                    onClick={() => navigate('/student/pricing')}
+                                                >
+                                                    PREMIUM OLISH
+                                                </Button>
+                                            );
+                                        }
+
+                                        if (test.star_price > 0 && !owned) {
+                                            return (
+                                                <Button
+                                                    style={{ border: '2px solid #000', boxShadow: '3px 3px 0px #000', fontWeight: 900, backgroundColor: 'var(--star-gold)', color: '#000' }}
+                                                    disabled={currentUser?.stars < test.star_price}
+                                                    onClick={async () => {
+                                                        try {
+                                                            await purchaseTest(test.id, test.star_price);
+                                                            window.location.reload();
+                                                        } catch (e) {
+                                                            console.error("Purchase failed", e);
+                                                        }
+                                                    }}
+                                                >
+                                                    {test.star_price} ⭐ BILAN OCHISH
+                                                </Button>
+                                            );
+                                        }
+
+                                        return (
+                                            <Button
+                                                type="primary"
+                                                icon={<PlayCircleOutlined />}
+                                                onClick={() => activeTestSessions[test.id] ? continueTest(test.id) : startTest(test.id)}
+                                                style={{ border: '2px solid #000', boxShadow: '3px 3px 0px #000', fontWeight: 900 }}
+                                            >
+                                                {alreadyTaken ? 'QAYTA KO\'RISH' : activeTestSessions[test.id] ? 'DAVOM ETTIRISH' : 'BOSHLASH'}
+                                            </Button>
+                                        );
+                                    }
+                                }
+                            ]}
+                        />
+                    </div>
                 )}
             </div>
+            <style>{`
+                .ant-table-thead > tr > th {
+                    background: #000 !important;
+                    color: #fff !important;
+                    border-radius: 0 !important;
+                    font-weight: 900 !important;
+                    text-transform: uppercase !important;
+                    border-bottom: 2px solid #000 !important;
+                }
+                .ant-table-tbody > tr > td {
+                    border-bottom: 2px solid #000 !important;
+                    font-weight: 600;
+                }
+                .ant-table {
+                }
+            `}</style>
         </ConfigProvider>
     );
 };

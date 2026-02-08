@@ -202,8 +202,9 @@ class ApiService {
   }
 
   // User methods
-  async getUsers() {
-    return this.get('/users/');
+  async getUsers(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    return this.get(`/users/${queryString ? `?${queryString}` : ''}`);
   }
 
   async getUser(id) {

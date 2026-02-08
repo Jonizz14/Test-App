@@ -197,6 +197,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const refreshProfile = async () => {
+    if (!currentUser) return;
+    try {
+      const updatedUser = await apiService.getUser(currentUser.id);
+      setCurrentUser(updatedUser);
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      return updatedUser;
+    } catch (error) {
+      console.error('Profile refresh failed:', error);
+    }
+  };
+
   const setCurrentUserData = (userData) => {
     setCurrentUser(userData);
     localStorage.setItem('currentUser', JSON.stringify(userData));
@@ -233,6 +245,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     register,
     updateProfile,
+    refreshProfile,
     setCurrentUserData,
     unbanWithCode,
     banCurrentUser,

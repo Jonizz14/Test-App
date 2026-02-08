@@ -4,14 +4,14 @@ from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pr
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'role', 'email', 'is_premium')
+    list_display = ('username', 'role', 'email', 'is_premium', 'stars')
     list_filter = ('role', 'is_premium')
     search_fields = ('username', 'email', 'display_id')
 
 @admin.register(Test)
 class TestAdmin(admin.ModelAdmin):
-    list_display = ('title', 'teacher', 'subject', 'difficulty', 'is_active')
-    list_filter = ('subject', 'difficulty', 'is_active')
+    list_display = ('title', 'teacher', 'subject', 'difficulty', 'is_active', 'is_premium', 'star_price')
+    list_filter = ('subject', 'difficulty', 'is_active', 'is_premium')
     search_fields = ('title', 'subject')
 
 @admin.register(SiteSettings)

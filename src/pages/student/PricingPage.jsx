@@ -10,6 +10,7 @@ import {
   Tag,
   Table,
   Alert,
+  Space,
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -18,6 +19,7 @@ import {
   SketchOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
+import { useEconomy } from '../../context/EconomyContext';
 import apiService from '../../data/apiService';
 
 const { Title, Text, Paragraph } = Typography;
@@ -25,6 +27,7 @@ const { Title, Text, Paragraph } = Typography;
 const PricingPage = () => {
   const navigate = useNavigate();
   const { currentUser, setCurrentUserData } = useAuth();
+  const { stars: userStars, exchangeStarsForPremium } = useEconomy();
   const [pricingPlans, setPricingPlans] = useState([]);
   const [starPackages, setStarPackages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -473,10 +476,35 @@ const PricingPage = () => {
           <Alert
             message={error}
             type="error"
-            style={{ marginBottom: '16px' }}
+            style={{ marginBottom: '16px', borderRadius: 0, border: '4px solid #000', fontWeight: 900 }}
           />
         </div>
       )}
+
+      {/* Star Balance Information Card */}
+      <div className="animate__animated animate__fadeIn" style={{ marginBottom: '40px' }}>
+        <Card style={{
+          border: '4px solid #000',
+          borderRadius: 0,
+          boxShadow: '10px 10px 0px #000',
+          backgroundColor: '#fff',
+          padding: '20px'
+        }}>
+          <Row align="middle" justify="space-between">
+            <Col>
+              <Text style={{ fontWeight: 900, fontSize: '14px', textTransform: 'uppercase', color: '#666', display: 'block' }}>SIZNING BALANSINGIZ</Text>
+              <Title level={2} style={{ margin: 0, fontWeight: 900, fontSize: '2.5rem' }}>
+                {userStars} <StarFilled style={{ color: 'var(--star-gold)' }} />
+              </Title>
+            </Col>
+            <Col>
+              <div style={{ padding: '10px 20px', backgroundColor: '#000', color: '#fff', fontWeight: 900, fontSize: '12px', textTransform: 'uppercase' }}>
+                STAR ECONOMY ACTIVE
+              </div>
+            </Col>
+          </Row>
+        </Card>
+      </div>
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '32px 0' }}>
@@ -484,50 +512,184 @@ const PricingPage = () => {
         </div>
       ) : (
         <>
-          {/* Premium Plans Section */}
-          <div className="animate__animated animate__fadeIn" style={{ animationDelay: '200ms', marginBottom: '32px' }}>
-            <Title level={3} style={{
-              fontWeight: 600,
-              color: '#374151',
-              marginBottom: '16px',
-              textAlign: 'left'
+          <div className="animate__animated animate__fadeIn" style={{ animationDelay: '200ms', marginBottom: '60px' }}>
+            <Title level={2} style={{
+              fontWeight: 900,
+              color: '#000',
+              marginBottom: '32px',
+              textAlign: 'left',
+              textTransform: 'uppercase'
             }}>
-              <SketchOutlined style={{ color: '#2563eb', marginRight: '8px' }} /> Premium Obunalar
+              <SketchOutlined style={{ marginRight: '12px' }} /> Premium Obunalar
             </Title>
 
-            <div className="animate__animated animate__fadeIn" style={{ animationDelay: '600ms' }}>
-              <Card style={{ border: '4px solid #2563eb', padding: 0, borderRadius: 0, boxShadow: '12px 12px 0px rgba(37, 99, 235, 0.1)', overflow: 'hidden' }}>
-                <Table
-                  columns={pricingColumns}
-                  dataSource={pricingPlans}
-                  pagination={false}
-                  rowClassName="brutalist-row"
-                />
-              </Card>
-            </div>
+            <Row gutter={[24, 24]}>
+              {pricingPlans.map((plan) => {
+                const priceMatch = plan.discountedPrice.match(/\d+/);
+                const priceValue = priceMatch ? parseInt(priceMatch[0]) : 0;
+                // Since prices are in stars in the UI but API might return USD, 
+                // we'll use a multiplier or just assume the number if it's large, 
+                // but usually the images show 300, 1200, 8000.
+                // Let's manually map them for this view if it matches typical plans
+                const starPrices = {
+                  'week': 300,
+                  'month': 1200,
+                  'year': 8000
+                };
+                const displayPrice = starPrices[plan.key] || (priceValue * 100);
+                const hasEnough = userStars >= displayPrice;
+
+                return (
+                  <Col xs={24} md={8} key={plan.key}>
+                    <Card style={{
+                      border: '4px solid #000',
+                      borderRadius: 0,
+                      boxShadow: '10px 10px 0px #000',
+                      height: '100%',
+                      textAlign: 'center',
+                      padding: '20px'
+                    }}>
+                      <div style={{ backgroundColor: plan.color, color: '#fff', padding: '4px 12px', fontWeight: 900, fontSize: '10px', display: 'inline-block', marginBottom: '15px' }}>
+                        OMMABOP
+                      </div>
+                      <div style={{ fontSize: '40px', marginBottom: '10px' }}>
+                        {plan.key === 'week' ? '📅' : plan.key === 'month' ? '☀️' : '👑'}
+                      </div>
+                      <Title level={3} style={{ fontWeight: 900, textTransform: 'uppercase', marginBottom: '15px' }}>
+                        {plan.key === 'week' ? '1 HAFTA' : plan.key === 'month' ? '1 OY' : '1 YIL'}
+                      </Title>
+
+                      <div style={{ marginBottom: '25px' }}>
+                        <Title level={2} style={{ margin: 0, fontWeight: 900 }}>
+                          <StarFilled style={{ color: 'var(--star-gold)' }} /> {displayPrice}
+                        </Title>
+                        <Text style={{ fontWeight: 800, color: '#64748b' }}>YOKI {plan.discountedPrice}</Text>
+                      </div>
+
+                      <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                        <Button
+                          type="primary"
+                          block
+                          disabled={!hasEnough}
+                          onClick={async () => {
+                            try {
+                              await exchangeStarsForPremium(plan.key);
+                              window.location.reload();
+                            } catch (e) {
+                              console.error('Exchange failed', e);
+                            }
+                          }}
+                          style={{
+                            height: '50px',
+                            backgroundColor: hasEnough ? 'var(--star-gold)' : '#f1f5f9',
+                            color: '#000',
+                            border: '3px solid #000',
+                            borderRadius: 0,
+                            fontWeight: 900,
+                            textTransform: 'uppercase'
+                          }}
+                        >
+                          {hasEnough ? 'YULDUZGA ALMASHISH' : 'YULDUZLAR YETARLI EMAS'}
+                        </Button>
+
+                        <Button
+                          block
+                          onClick={() => handlePurchase(plan.key)}
+                          style={{
+                            height: '50px',
+                            backgroundColor: '#fff',
+                            color: '#000',
+                            border: '3px solid #000',
+                            borderRadius: 0,
+                            fontWeight: 900,
+                            textTransform: 'uppercase'
+                          }}
+                        >
+                          SOTIB OLISH ({plan.discountedPrice})
+                        </Button>
+                      </Space>
+
+                      {!hasEnough && (
+                        <Text style={{ display: 'block', marginTop: '10px', color: 'red', fontWeight: 700 }}>
+                          Yulduz bilan olish uchun yana {displayPrice - userStars} yulduz kerak
+                        </Text>
+                      )}
+                    </Card>
+                  </Col>
+                );
+              })}
+            </Row>
           </div>
 
-          {/* Stars Section */}
           <div className="animate__animated animate__fadeIn" style={{ animationDelay: '400ms', marginBottom: '32px' }}>
-            <Title level={3} style={{
-              fontWeight: 600,
-              color: '#374151',
-              marginBottom: '16px',
-              textAlign: 'left'
+            <Title level={2} style={{
+              fontWeight: 900,
+              color: '#000',
+              marginBottom: '32px',
+              textAlign: 'left',
+              textTransform: 'uppercase'
             }}>
-              <StarFilled style={{ color: '#f59e0b', marginRight: '8px' }} /> Yulduzlar
+              <StarFilled style={{ color: '#f59e0b', marginRight: '12px' }} /> Yulduzlar To'plami
             </Title>
 
-            <div className="animate__animated animate__fadeIn" style={{ animationDelay: '800ms' }}>
-              <Card style={{ border: '4px solid #f59e0b', padding: 0, borderRadius: 0, boxShadow: '12px 12px 0px rgba(245, 158, 11, 0.1)', overflow: 'hidden' }}>
-                <Table
-                  columns={starColumns}
-                  dataSource={starPackages}
-                  pagination={false}
-                  rowClassName="brutalist-row"
-                />
-              </Card>
-            </div>
+            <Row gutter={[24, 24]}>
+              {starPackages.map((pkg) => (
+                <Col xs={24} md={8} key={pkg.key}>
+                  <Card style={{
+                    border: '4px solid #000',
+                    borderRadius: 0,
+                    boxShadow: '10px 10px 0px #000',
+                    height: '100%',
+                    textAlign: 'center',
+                    padding: '20px'
+                  }}>
+                    {pkg.popular && (
+                      <div style={{ backgroundColor: '#000', color: '#fff', padding: '4px 12px', fontWeight: 900, fontSize: '10px', display: 'inline-block', marginBottom: '15px' }}>
+                        MASHHUR
+                      </div>
+                    )}
+                    <div style={{ fontSize: '40px', marginBottom: '10px' }}>
+                      ⭐
+                    </div>
+                    <Title level={2} style={{ fontWeight: 900, marginBottom: '5px' }}>
+                      {pkg.stars}
+                    </Title>
+                    <Text style={{ fontWeight: 800, color: '#666', textTransform: 'uppercase', display: 'block', marginBottom: '15px' }}>YULDUZ</Text>
+
+                    <div style={{ marginBottom: '25px' }}>
+                      <Text style={{ color: '#64748b', textDecoration: 'line-through', marginRight: '10px', fontWeight: 700 }}>
+                        {pkg.originalPrice}
+                      </Text>
+                      <Title level={3} style={{ margin: 0, fontWeight: 900, display: 'inline-block', color: '#059669' }}>
+                        {pkg.price}
+                      </Title>
+                    </div>
+
+                    <Button
+                      type="primary"
+                      block
+                      onClick={() => handlePurchase(pkg.key)}
+                      style={{
+                        height: '50px',
+                        backgroundColor: '#000',
+                        color: '#fff',
+                        border: '3px solid #000',
+                        borderRadius: 0,
+                        fontWeight: 900,
+                        textTransform: 'uppercase'
+                      }}
+                    >
+                      SOTIB OLISH
+                    </Button>
+                    <div style={{ marginTop: '10px' }}>
+                      <Tag style={{ borderRadius: 0, border: '2px solid #059669', color: '#059669', fontWeight: 900, backgroundColor: '#ecfdf5' }}>
+                        {pkg.discount}
+                      </Tag>
+                    </div>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
           </div>
 
 

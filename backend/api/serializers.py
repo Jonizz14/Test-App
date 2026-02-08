@@ -14,16 +14,17 @@ class UserSerializer(serializers.ModelSerializer):
 
     profile_photo_url = serializers.SerializerMethodField()
     premium_info = serializers.SerializerMethodField()
+    premium_until = serializers.DateTimeField(source='premium_expiry_date', required=False, allow_null=True)
 
     class Meta:
         model = User
         fields = ['id', 'username', 'display_id', 'email', 'password', 'role', 'name', 'first_name', 'last_name',
                   'created_at', 'last_login', 'class_group', 'direction', 'registration_date',
                   'seller_earnings', 'subjects', 'bio', 'total_tests_created', 'average_student_score', 'is_curator', 'curator_class',
-                  'total_tests_taken', 'average_score', 'completed_subjects', 'stars',
+                  'total_tests_taken', 'average_score', 'completed_subjects', 'stars', 'owned_tests',
                   'is_premium', 'premium_granted_date', 'premium_expiry_date', 'premium_plan', 'premium_cost', 'premium_type', 'premium_balance',
                   'profile_photo', 'profile_photo_url', 'profile_status', 'premium_emoji_count',
-                  'background_gradient', 'selected_emojis', 'premium_info',
+                  'background_gradient', 'selected_emojis', 'premium_info', 'premium_until',
                   'hide_premium_from_others', 'hide_premium_from_self',
                   'admin_premium_plan', 'admin_premium_pending', 'admin_premium_approved', 'admin_premium_granted_date', 'admin_premium_expiry_date', 'admin_premium_cost',
                   'organization']
@@ -100,7 +101,7 @@ class TestSerializer(serializers.ModelSerializer):
         model = Test
         fields = ['id', 'teacher', 'teacher_name', 'teacher_role', 'subject', 'title', 'description',
                   'total_questions', 'question_count', 'time_limit', 'difficulty', 'target_grades', 'created_at', 'is_active',
-                  'attempt_count', 'average_score', 'average_time']
+                  'attempt_count', 'average_score', 'average_time', 'is_premium', 'star_price']
         read_only_fields = ['id', 'created_at', 'teacher']
 
     def to_internal_value(self, data):
@@ -124,18 +125,26 @@ class TestSerializer(serializers.ModelSerializer):
         return data
 
     def get_question_count(self, obj):
+        if hasattr(obj, 'question_count_ann'):
+            return obj.question_count_ann
         return obj.questions.count()
 
     def get_attempt_count(self, obj):
+        if hasattr(obj, 'attempt_count_ann'):
+            return obj.attempt_count_ann
         return obj.attempts.count()
 
     def get_average_score(self, obj):
+        if hasattr(obj, 'average_score_ann'):
+            return obj.average_score_ann or 0
         attempts = obj.attempts.all()
         if attempts.exists():
             return sum(attempt.score for attempt in attempts) / attempts.count()
         return 0
 
     def get_average_time(self, obj):
+        if hasattr(obj, 'average_time_ann'):
+            return obj.average_time_ann or 0
         attempts = obj.attempts.all()
         if attempts.exists():
             return sum(attempt.time_taken for attempt in attempts) / attempts.count()

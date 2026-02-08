@@ -13,7 +13,7 @@ export const useServerTest = () => {
 };
 
 export const ServerTestProvider = ({ children }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, refreshProfile } = useAuth();
   const [currentSession, setCurrentSession] = useState(null);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,6 +28,9 @@ export const ServerTestProvider = ({ children }) => {
 
     try {
       const result = await apiService.completeSession(currentSession.session_id);
+
+      // Refresh profile to update stars and experience
+      await refreshProfile();
 
       // Clear session state
       setCurrentSession(null);
@@ -159,7 +162,7 @@ export const ServerTestProvider = ({ children }) => {
 
     try {
       const sessions = await apiService.get(`/sessions/?student=${currentUser.id}&test=${testId}&active_only=true`);
-      
+
       if (sessions && sessions.length > 0) {
         const activeSession = sessions[0];
         setCurrentSession(activeSession);
@@ -167,7 +170,7 @@ export const ServerTestProvider = ({ children }) => {
         setSessionStarted(true);
         return activeSession;
       }
-      
+
       return null;
     } catch (err) {
       console.error('Failed to check active session:', err);
