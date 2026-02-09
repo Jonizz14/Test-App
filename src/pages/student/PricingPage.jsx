@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import 'animate.css';
+import { disableDevToolsShortcuts, disableContextMenu } from '../../utils/security';
 import { useNavigate } from 'react-router-dom';
 import {
   Typography,
@@ -21,6 +22,7 @@ import {
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import { useEconomy } from '../../context/EconomyContext';
+import { useSettings } from '../../context/SettingsContext';
 import apiService from '../../data/apiService';
 
 const { Title, Text, Paragraph } = Typography;
@@ -28,6 +30,7 @@ const { Title, Text, Paragraph } = Typography;
 const PricingPage = () => {
   const navigate = useNavigate();
   const { currentUser, setCurrentUserData } = useAuth();
+  const { settings } = useSettings();
   const { stars: userStars, exchangeStarsForPremium } = useEconomy();
   const [pricingPlans, setPricingPlans] = useState([]);
   const [starPackages, setStarPackages] = useState([]);
@@ -223,6 +226,22 @@ const PricingPage = () => {
     };
 
     loadPricingData();
+
+    // Security listeners
+    const handleKey = (e) => {
+      if (settings?.features?.antiCheat) disableDevToolsShortcuts(e);
+    };
+    const handleContext = (e) => {
+      if (settings?.features?.antiCheat) disableContextMenu(e);
+    };
+
+    document.addEventListener('keydown', handleKey);
+    document.addEventListener('contextmenu', handleContext);
+
+    return () => {
+      document.removeEventListener('keydown', handleKey);
+      document.removeEventListener('contextmenu', handleContext);
+    };
   }, [currentUser]);
 
   const handlePurchase = (planId) => {

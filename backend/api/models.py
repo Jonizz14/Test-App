@@ -570,6 +570,7 @@ class SiteSettings(models.Model):
     feature_text_selection = models.BooleanField(default=True)
     feature_home_save_button = models.BooleanField(default=True)
     feature_flyer_animation = models.BooleanField(default=True)
+    feature_anti_cheat = models.BooleanField(default=True)
     
     updated_at = models.DateTimeField(auto_now=True)
     

@@ -28,10 +28,16 @@ import {
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 import { useServerTest } from '../../context/ServerTestContext';
+import { useSettings } from '../../context/SettingsContext';
 import apiService from '../../data/apiService';
 import LaTeXPreview from '../../components/LaTeXPreview';
 import MathSymbols from '../../components/MathSymbols';
 import 'animate.css';
+import {
+  disableDevToolsShortcuts,
+  disableContextMenu,
+  disableCopyPaste
+} from '../../utils/security';
 
 const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
@@ -39,6 +45,7 @@ const { Option } = Select;
 
 const TakeTest = () => {
   const { currentUser } = useAuth();
+  const { settings } = useSettings();
   const {
     currentSession,
     timeRemaining,
@@ -76,6 +83,9 @@ const TakeTest = () => {
   const [exitDialogOpen, setExitDialogOpen] = useState(false);
   const [urgentSubmitDialogOpen, setUrgentSubmitDialogOpen] = useState(false);
   const [score, setScore] = useState(0);
+  const [warningsCount, setWarningsCount] = useState(0);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [lastWarningReason, setLastWarningReason] = useState('');
 
   const difficultyLabels = {
     easy: 'Oson',
@@ -307,8 +317,76 @@ const TakeTest = () => {
     setCurrentQuestionIndex(0);
     setAnswers({});
     setScore(0);
+    setWarningsCount(0);
+    setShowWarningModal(false);
     clearSession();
   };
+
+  const handleViolation = useCallback(async (reason) => {
+    if (!sessionStarted || !settings?.features?.antiCheat) return;
+
+    setLastWarningReason(reason);
+    setWarningsCount(prev => prev + 1);
+    setShowWarningModal(true);
+
+    try {
+      await apiService.logWarning({
+        test_id: selectedTest?.id,
+        reason: reason,
+        details: `Question index: ${currentQuestionIndex}`
+      });
+    } catch (error) {
+      console.error('Failed to log warning:', error);
+    }
+
+    // Auto-submit if more than 3 warnings
+    if (warningsCount >= 2) {
+      message.error("Ko'p marta qoidabuzarlik qilganingiz uchun test avtomatik yakunlandi!");
+      handleSubmitTest();
+    }
+  }, [sessionStarted, selectedTest, currentQuestionIndex, warningsCount, handleSubmitTest]);
+
+  useEffect(() => {
+    if (sessionStarted) {
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          handleViolation('Boshqa oynaga o\'tish (Tab switching)');
+        }
+      };
+
+      const handleKeyDown = (e) => {
+        if (disableDevToolsShortcuts(e) === false) {
+          handleViolation('DevTools ochishga urinish (Shortcut)');
+        }
+      };
+
+      const handleContext = (e) => {
+        disableContextMenu(e);
+        handleViolation('Sichqonchaning o\'ng tugmasini bosish');
+      };
+
+      const handleCP = (e) => {
+        disableCopyPaste(e);
+        handleViolation('Nusxa olish yoki qo\'yish (Copy/Paste)');
+      };
+
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      document.addEventListener('keydown', handleKeyDown);
+      document.addEventListener('contextmenu', handleContext);
+      document.addEventListener('copy', handleCP);
+      document.addEventListener('paste', handleCP);
+      document.addEventListener('cut', handleCP);
+
+      return () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        document.removeEventListener('keydown', handleKeyDown);
+        document.removeEventListener('contextmenu', handleContext);
+        document.removeEventListener('copy', handleCP);
+        document.removeEventListener('paste', handleCP);
+        document.removeEventListener('cut', handleCP);
+      };
+    }
+  }, [sessionStarted, handleViolation]);
 
   useEffect(() => {
     if (currentUser) {
@@ -618,6 +696,29 @@ const TakeTest = () => {
           </Modal>
 
           <MathSymbols open={mathSymbolsOpen} onClose={() => setMathSymbolsOpen(false)} onSymbolSelect={handleSymbolSelect} />
+
+          <Modal
+            title={<Title level={4} style={{ margin: 0, fontWeight: 900, textTransform: 'uppercase', color: '#ff4d4f' }}>DIQQAT! QOIDABUZARLIK</Title>}
+            open={showWarningModal}
+            onOk={() => setShowWarningModal(false)}
+            onCancel={() => setShowWarningModal(false)}
+            centered
+            footer={[
+              <Button key="ok" type="primary" onClick={() => setShowWarningModal(false)} style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 900, backgroundColor: '#000' }}>TUSHUNDIM</Button>
+            ]}
+          >
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <WarningOutlined style={{ fontSize: '64px', color: '#ff4d4f', marginBottom: '20px' }} />
+              <Paragraph style={{ fontWeight: 800, fontSize: '1.2rem' }}>
+                {lastWarningReason} aniqlandi!
+              </Paragraph>
+              <Paragraph style={{ fontWeight: 600 }}>
+                Test davomida boshqa oynalarga o'tish yoki DevTools dan foydalanish taqiqlanadi.
+                Sizda yana <Text type="danger" style={{ fontWeight: 900 }}>{3 - warningsCount}</Text> ta imkoniyat qoldi.
+                Shundan so'ng test bekor qilinadi!
+              </Paragraph>
+            </div>
+          </Modal>
 
           <style>{`
             .brutalist-radio .ant-radio { display: none; }

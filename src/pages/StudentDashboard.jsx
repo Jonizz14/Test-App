@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Layout, Breadcrumb } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';
@@ -24,6 +24,8 @@ import MyClassStatistics from './student/MyClassStatistics';
 import StudentsRating from './student/StudentsRating';
 import ClassesRating from './student/ClassesRating';
 import TestBank from './student/TestBank';
+import { setupConsoleProtection, setAntiCheatStatus } from '../utils/security';
+import { useSettings } from '../context/SettingsContext';
 
 const { Content } = Layout;
 
@@ -31,6 +33,20 @@ const StudentDashboard = () => {
   const { isBanned } = useAuth();
   const { sessionStarted } = useServerTest();
   const location = useLocation();
+
+  const { settings } = useSettings();
+
+  useEffect(() => {
+    // Initialize console protection and warning messages
+    setupConsoleProtection();
+  }, []);
+
+  useEffect(() => {
+    // Update anti-cheat status from settings
+    if (settings?.features) {
+      setAntiCheatStatus(settings.features.antiCheat);
+    }
+  }, [settings]);
 
   const breadcrumbNameMap = {
     '/student': 'Bosh sahifa',

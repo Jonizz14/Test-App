@@ -216,6 +216,18 @@ const AppSettings = () => {
                   />
                 </div>
               </List.Item>
+              <List.Item style={listItemStyle}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                  <div style={{ marginRight: 16 }}>
+                    <Text style={{ fontWeight: 900, display: 'block', textTransform: 'uppercase' }}>Xavfsizlik</Text>
+                    <Text type="secondary" style={{ fontWeight: 600 }}>Anti-Cheat va Konsol blokirovkasi</Text>
+                  </div>
+                  <Switch
+                    checked={settings?.features?.antiCheat}
+                    onChange={(val) => updateFeatureSetting('antiCheat', val)}
+                  />
+                </div>
+              </List.Item>
             </List>
           </Card>
 

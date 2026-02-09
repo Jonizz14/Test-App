@@ -27,7 +27,8 @@ export const SettingsProvider = ({ children }) => {
     features: {
       textSelection: true,
       homeSaveButton: true,
-      flyerAnimation: true
+      flyerAnimation: true,
+      antiCheat: true
     }
   });
   const [loading, setLoading] = useState(true);
@@ -51,7 +52,8 @@ export const SettingsProvider = ({ children }) => {
           features: {
             textSelection: data.feature_text_selection,
             homeSaveButton: data.feature_home_save_button,
-            flyerAnimation: data.feature_flyer_animation
+            flyerAnimation: data.feature_flyer_animation,
+            antiCheat: data.feature_anti_cheat
           }
         });
       } catch (e) {

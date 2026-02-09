@@ -212,7 +212,19 @@ class ApiService {
   }
 
   async updateUser(id, data) {
-    return this.put(`/users/${id}/`, data);
+    // Security: Prevent updating sensitive fields directly from frontend
+    const sensitiveFields = ['stars', 'is_premium', 'role', 'is_banned', 'premium_expiry_date'];
+    const filteredData = { ...data };
+
+    // Only allow specific updates
+    sensitiveFields.forEach(field => {
+      if (filteredData.hasOwnProperty(field)) {
+        console.warn(`Security: Attempt to modify sensitive field "${field}" blocked.`);
+        delete filteredData[field];
+      }
+    });
+
+    return this.put(`/users/${id}/`, filteredData);
   }
 
   async deleteUser(id) {
