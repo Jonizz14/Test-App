@@ -48,6 +48,11 @@ export const ServerTestProvider = ({ children }) => {
         setError('Test has already been completed');
         setCurrentSession(null);
         setSessionStarted(false);
+      } else if (err.response?.status === 400 && err.response?.data?.error?.includes('already completed')) {
+        // Handle "Session already completed" error gracefully
+        setError('Test allaqachon tugallangan');
+        setCurrentSession(null);
+        setSessionStarted(false);
       } else {
         setError(err.response?.data?.error || 'Failed to submit test');
       }

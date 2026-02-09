@@ -1047,10 +1047,31 @@ class TestSessionViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def complete_session(self, request):
-        """Complete a session and grade it"""
+        """Complete a session and grade it with retry logic for database locks"""
+        from django.db import close_old_connections, DatabaseError
         from django.db import transaction
-        with transaction.atomic():
-            return self._perform_complete(request)
+        import time
+        
+        # Close old connections before starting
+        close_old_connections()
+        
+        max_retries = 3
+        retry_delay = 0.5  # Start with 0.5 seconds
+        
+        for attempt in range(max_retries):
+            try:
+                with transaction.atomic():
+                    return self._perform_complete(request)
+            except DatabaseError as e:
+                if 'database is locked' in str(e) and attempt < max_retries - 1:
+                    close_old_connections()
+                    time.sleep(retry_delay)
+                    retry_delay *= 2  # Exponential backoff
+                    continue
+                raise
+            finally:
+                # Close connections after operation
+                close_old_connections()
 
     def _perform_complete(self, request):
         session_id = request.data.get('session_id')
@@ -1059,7 +1080,8 @@ class TestSessionViewSet(viewsets.ModelViewSet):
             return Response({'error': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
             
         try:
-            session = TestSession.objects.get(session_id=session_id)
+            # Use select_for_update to handle concurrent access properly
+            session = TestSession.objects.select_for_update().get(session_id=session_id)
             
             # Check permissions
             if session.student != request.user:
@@ -1068,10 +1090,13 @@ class TestSessionViewSet(viewsets.ModelViewSet):
             if session.is_completed:
                 return Response({'error': 'Session already completed'}, status=status.HTTP_400_BAD_REQUEST)
                 
-            # Mark session as completed
-            session.complete()
+            # Mark session as completed (outside atomic save)
+            session.is_completed = True
+            from django.utils import timezone
+            session.completed_at = timezone.now()
+            session.save(update_fields=['is_completed', 'completed_at'])
             
-            # Create TestAttempt
+            # Create TestAttempt outside the session lock
             test = session.test
             answers = session.answers
             
@@ -1080,8 +1105,8 @@ class TestSessionViewSet(viewsets.ModelViewSet):
             total_score = 0
             student_answers = {}
             
-            questions = test.questions.all()
-            total_questions = questions.count()
+            questions = list(test.questions.all())
+            total_questions = len(questions)
             
             for question in questions:
                 # Get student answer for this question

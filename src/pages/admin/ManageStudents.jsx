@@ -54,6 +54,10 @@ const ManageStudents = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedClasses, setExpandedClasses] = useState(new Set());
   const [importing, setImporting] = useState(false);
+  const [deleteAllModalVisible, setDeleteAllModalVisible] = useState(false);
+  const [deletingAll, setDeletingAll] = useState(false);
+  const [exportPreviewData, setExportPreviewData] = useState([]);
+  const [isExporting, setIsExporting] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [classesPageSize, setClassesPageSize] = useState(10);
   const fileInputRef = useRef(null);
@@ -173,6 +177,44 @@ const ManageStudents = () => {
     }
   };
 
+  const handleDeleteAllStudents = async () => {
+    try {
+      setDeletingAll(true);
+      setError('');
+      
+      // Get all student IDs
+      const studentIds = students.map(s => s.id);
+      
+      // Delete each student
+      for (const studentId of studentIds) {
+        await apiService.deleteUser(studentId);
+      }
+      
+      // Reload data
+      const [allUsers, allAttempts] = await Promise.all([
+        apiService.getUsers(),
+        apiService.getAttempts()
+      ]);
+      
+      const allStudents = allUsers.filter(user => user.role === 'student');
+      const allTeachers = allUsers.filter(user => user.role === 'teacher');
+      
+      setStudents(allStudents);
+      setTeachers(allTeachers);
+      setAttempts(allAttempts.results || allAttempts);
+      
+      setSuccess(`Barcha o'quvchilar muvaffaqiyatli o'chirildi! (${studentIds.length} ta)`);
+      setTimeout(() => setSuccess(''), 5000);
+      setDeleteAllModalVisible(false);
+    } catch (error) {
+      console.error('Failed to delete all students:', error);
+      setError('Barcha o\'quvchilarni o\'chirishda xatolik yuz berdi: ' + (error.message || 'Noma\'lum xatolik'));
+      setTimeout(() => setError(''), 5000);
+    } finally {
+      setDeletingAll(false);
+    }
+  };
+
 
   const handleEditClick = (student) => {
     navigate(`/admin/edit-student/${student.id}`);
@@ -263,6 +305,23 @@ const ManageStudents = () => {
     setExportModalVisible(false);
   };
 
+  const showExportPreview = () => {
+    // Generate preview data (first 10 rows)
+    const previewData = students.slice(0, 10).map((student, index) => ({
+      key: index,
+      '№': index + 1,
+      'Ism': student.name || '',
+      'Familiya': student.name ? student.name.split(' ').slice(1).join(' ') : '',
+      'Sinf': student.class_group || '',
+      'Yo\'nalish': getDirectionLabel(student.direction),
+      'Testlar': getStudentAttemptCount(student.id),
+      'Ball': getStudentAverageScore(student.id),
+      'Status': student.is_banned ? 'Bloklangan' : 'Faol',
+    }));
+    setExportPreviewData(previewData);
+    setExportModalVisible(true);
+  };
+
   const handleImportFromExcel = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -271,85 +330,137 @@ const ManageStudents = () => {
       setImporting(true);
       setError('');
 
+      // Read file with progress tracking
       const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data);
+      
+      // Use streaming-like approach with large file handling
+      const workbook = XLSX.read(data, {
+        cellStyles: true,
+        cellFormulae: false,
+        cellDates: false,
+        cellNF: false,
+        cellText: true,
+      });
+      
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-      if (jsonData.length === 0) {
+      
+      // Get total rows for progress tracking
+      const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
+      const totalRows = range.e.r - range.s.r; // Total rows (excluding header)
+      
+      if (totalRows <= 0) {
         setError('Excel faylda ma\'lumotlar topilmadi');
+        setImporting(false);
+        return;
+      }
+
+      // Process data with chunking for large files
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+        header: 1, // Get as array of arrays for faster processing
+        defval: ''
+      });
+      
+      // Skip header row
+      const dataRows = jsonData.slice(1).filter(row => row && row.some(cell => cell));
+      
+      if (dataRows.length === 0) {
+        setError('Excel faylda ma\'lumotlar topilmadi');
+        setImporting(false);
         return;
       }
 
       let successCount = 0;
       let errorCount = 0;
       const errors = [];
+      
+      // Process in batches to avoid browser memory issues
+      const BATCH_SIZE = 50;
+      for (let i = 0; i < dataRows.length; i += BATCH_SIZE) {
+        const batch = dataRows.slice(i, i + BATCH_SIZE);
+        
+        for (let j = 0; j < batch.length; j++) {
+          const row = batch[j];
+          const rowIndex = i + j + 2; // +2 because: +1 for header skip, +1 for 1-based indexing
+          
+          try {
+            // Get values by position: Index 1 = Ism, Index 2 = Familiya, Index 3 = Sinf
+            const firstName = String(row[1] || '').trim();
+            const lastName = String(row[2] || '').trim();
+            const classGroup = String(row[3] || '').trim();
 
-      for (const row of jsonData) {
-        try {
-          // Handle simple 4-column format: №, Ism, Familiya, Sinf
-          const rowIndex = jsonData.indexOf(row) + 2; // +2 because Excel rows start at 1 and we skip header
-
-          // Get values - could be by column name or by position
-          let firstName, lastName, classGroup;
-
-          if (row.Ism && row.Familiya && row.Sinf) {
-            // Named columns
-            firstName = row.Ism;
-            lastName = row.Familiya;
-            classGroup = row.Sinf;
-          } else {
-            // Try positional access (assuming order: №, Ism, Familiya, Sinf)
-            const values = Object.values(row);
-            if (values.length >= 4) {
-              firstName = values[1]; // Index 1 = Ism
-              lastName = values[2];  // Index 2 = Familiya
-              classGroup = values[3]; // Index 3 = Sinf
+            if (!firstName || !lastName || !classGroup) {
+              errors.push(`Qator ${rowIndex}: Ism, Familiya va Sinf maydonlari majburiy`);
+              errorCount++;
+              continue;
             }
-          }
 
-          // Validate required fields
-          if (!firstName || !lastName || !classGroup) {
-            errors.push(`Qator ${rowIndex}: Ism, Familiya va Sinf maydonlari majburiy`);
+            // Normalize names: convert Cyrillic letters that look like Latin to proper Latin
+            const normalizeName = (name) => {
+              if (!name) return name;
+              return name.replace(/О/g, 'O').replace(/о/g, 'o')
+                         .replace(/А/g, 'A').replace(/а/g, 'a')
+                         .replace(/Е/g, 'E').replace(/е/g, 'e')
+                         .replace(/К/g, 'K').replace(/к/g, 'k')
+                         .replace(/М/g, 'M').replace(/м/g, 'm')
+                         .replace(/Т/g, 'T').replace(/т/g, 't')
+                         .replace(/Н/g, 'N').replace(/н/g, 'n')
+                         .replace(/Х/g, 'H').replace(/х/g, 'h')
+                         .replace(/В/g, 'V').replace(/в/g, 'v')
+                         .replace(/С/g, 'S').replace(/с/g, 's')
+                         .replace(/Р/g, 'R').replace(/р/g, 'r')
+                         .replace(/У/g, 'Y').replace(/у/g, 'y')
+                         .replace(/З/g, 'Z').replace(/з/g, 'z')
+                         .replace(/Л/g, 'L').replace(/л/g, 'l')
+                         .replace(/Д/g, 'D').replace(/д/g, 'd')
+                         .replace(/Г/g, 'G').replace(/г/g, 'g')
+                         .replace(/Б/g, 'B').replace(/б/g, 'b')
+                         .replace(/П/g, 'P').replace(/п/g, 'p');
+            };
+            
+            const normalizedFirstName = normalizeName(firstName);
+            const normalizedLastName = normalizeName(lastName);
+            const fullName = `${normalizedFirstName} ${normalizedLastName}`;
+            const direction = classGroup.endsWith('-A') ? 'exact' : classGroup.endsWith('-T') ? 'natural' : 'natural';
+
+            // Generate credentials
+            const randomDigits = Math.floor(Math.random() * 900) + 100;
+            const displayId = generateStudentId(normalizedFirstName, normalizedLastName, classGroup, direction, randomDigits);
+            const username = generateStudentUsername(normalizedFirstName, normalizedLastName, classGroup, direction);
+            const email = generateStudentEmail(normalizedFirstName, normalizedLastName, classGroup, direction);
+
+            // Check if student already exists
+            const existingStudent = students.find(s => s.username === username && s.class_group === classGroup);
+            if (existingStudent) {
+              errors.push(`Qator ${rowIndex}: ${fullName} (${classGroup}) - bu o'quvchi allaqachon mavjud`);
+              errorCount++;
+              continue;
+            }
+
+            // Create student
+            const studentData = {
+              username: username,
+              email: email,
+              password: 'temp_password',
+              name: fullName,
+              role: 'student',
+              class_group: classGroup,
+              direction: direction,
+              registration_date: new Date().toISOString().split('T')[0],
+            };
+
+            await apiService.post('/users/', studentData);
+            successCount++;
+
+          } catch (error) {
+            errors.push(`Qator ${rowIndex}: ${error.message || 'Xatolik'}`);
             errorCount++;
-            continue;
           }
-
-          const fullName = `${firstName} ${lastName}`;
-          const direction = classGroup.endsWith('-A') ? 'exact' : classGroup.endsWith('-T') ? 'natural' : 'natural';
-
-          // Generate credentials
-          const randomDigits = Math.floor(Math.random() * 900) + 100;
-          const displayId = generateStudentId(firstName, lastName, classGroup, direction, randomDigits);
-          const username = generateStudentUsername(firstName, lastName, classGroup, direction);
-          const email = generateStudentEmail(firstName, lastName, classGroup, direction);
-
-          // Check if student already exists
-          const existingStudent = students.find(s => s.username === username);
-          if (existingStudent) {
-            errors.push(`Qator ${rowIndex}: ${fullName} - bu o'quvchi allaqachon mavjud`);
-            errorCount++;
-            continue;
-          }
-
-          // Create student
-          const studentData = {
-            email: email,
-            password: 'temp_password',
-            name: fullName,
-            role: 'student',
-            class_group: classGroup,
-            direction: direction,
-            registration_date: row['Ro\'yxatdan o\'tgan sana'] ? new Date(row['Ro\'yxatdan o\'tgan sana']).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-          };
-
-          await apiService.post('/users/', studentData);
-          successCount++;
-
-        } catch (error) {
-          errors.push(`Qator ${jsonData.indexOf(row) + 2}: ${error.message || 'Xatolik'}`);
-          errorCount++;
+        }
+        
+        // Small delay between batches to prevent browser freeze
+        if (i + BATCH_SIZE < dataRows.length) {
+          await new Promise(resolve => setTimeout(resolve, 10));
         }
       }
 
@@ -358,10 +469,12 @@ const ManageStudents = () => {
         apiService.getUsers(),
         apiService.getAttempts()
       ]);
+      
       const allUsers = allUsersResponse.results || allUsersResponse;
       const allAttempts = allAttemptsResponse.results || allAttemptsResponse;
       const allStudents = allUsers.filter(user => user.role === 'student');
       const allTeachers = allUsers.filter(user => user.role === 'teacher');
+      
       setStudents(allStudents);
       setTeachers(allTeachers);
       setAttempts(allAttempts);
@@ -822,7 +935,7 @@ const ManageStudents = () => {
           <Button
             type="default"
             icon={<DownloadOutlined />}
-            onClick={() => setExportModalVisible(true)}
+            onClick={showExportPreview}
             style={{ borderColor: '#059669', color: '#059669' }}
           >
             Excel faylga export
@@ -839,6 +952,31 @@ const ManageStudents = () => {
           >
             O'quvchi qo'shish
           </Button>
+          <Popconfirm
+            title="Barcha o'quvchilarni o'chirish"
+            description={
+              <div>
+                <div style={{ color: '#dc2626', fontWeight: 'bold', marginBottom: '8px' }}>⚠️ DIQQAT!</div>
+                <div>Siz haqiqatan ham barcha o'quvchilarni o'chirishni xohlaysizmi?</div>
+                <div style={{ marginTop: '8px', fontWeight: 'bold' }}>{students.length} ta o'quvchi o'chiriladi</div>
+                <div style={{ fontSize: '12px', color: '#666' }}>Bu amallarni bekor qilib bo'lmaydi!</div>
+              </div>
+            }
+            onConfirm={handleDeleteAllStudents}
+            okText="Ha, barchasini o'chirish"
+            cancelText="Yo'q"
+            okButtonProps={{ danger: true, loading: deletingAll }}
+            placement="topRight"
+          >
+            <Button
+              type="text"
+              danger
+              icon={<DeleteOutlined />}
+              style={{ fontWeight: 600 }}
+            >
+              Barchasini o'chirish
+            </Button>
+          </Popconfirm>
         </Space>
       </div>
 
@@ -968,17 +1106,46 @@ const ManageStudents = () => {
         open={exportModalVisible}
         onOk={handleExportToExcel}
         onCancel={() => setExportModalVisible(false)}
-        okText="Export qilish"
+        okText="Yuklab olish"
         cancelText="Bekor qilish"
+        width={900}
       >
         <div>
-          <Text>Quyidagi ma'lumotlar Excel faylga export qilinadi. Jami {students.length} ta o'quvchi.</Text>
           <Alert
-            message="Eslatma"
-            description="Export qilish uchun Export qilish tugmasini bosing. Fayl avtomatik tarzda yuklab olinadi."
+            message={`Jami ${students.length} ta o'quvchi export qilinadi`}
+            description="Quyida ma'lumotlarning preview (namuna) ko'rinishi keltirilgan. Faylni yuklab olish uchun 'Yuklab olish' tugmasini bosing."
             type="info"
             showIcon
-            style={{ marginTop: '16px' }}
+            style={{ marginBottom: '16px' }}
+          />
+          
+          {/* Preview Table */}
+          <div style={{ marginTop: '16px', marginBottom: '16px' }}>
+            <Text strong style={{ display: 'block', marginBottom: '8px' }}>Preview (birinchi 10 ta o'quvchi):</Text>
+            <Table
+              dataSource={exportPreviewData}
+              columns={[
+                { title: '№', dataIndex: '№', key: '№', width: 50 },
+                { title: 'Ism', dataIndex: 'Ism', key: 'Ism', width: 120 },
+                { title: 'Familiya', dataIndex: 'Familiya', key: 'Familiya', width: 120 },
+                { title: 'Sinf', dataIndex: 'Sinf', key: 'Sinf', width: 80 },
+                { title: 'Yo\'nalish', dataIndex: 'Yo\'nalish', key: 'direction', width: 100 },
+                { title: 'Testlar', dataIndex: 'Testlar', key: 'Testlar', width: 70 },
+                { title: 'Ball', dataIndex: 'Ball', key: 'Ball', width: 70 },
+                { title: 'Status', dataIndex: 'Status', key: 'Status', width: 100 },
+              ]}
+              pagination={false}
+              size="small"
+              scroll={{ x: 700 }}
+              rowKey="key"
+            />
+          </div>
+          
+          <Alert
+            message="Eslatma"
+            description="Fayl .xlsx formatida yuklab olinadi va Excel, Google Sheets yoki boshqa dasturlarda ochilishi mumkin."
+            type="success"
+            showIcon
           />
         </div>
       </Modal>

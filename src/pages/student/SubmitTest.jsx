@@ -78,11 +78,23 @@ const SubmitTest = () => {
       }
     } catch (error) {
       console.error('Failed to submit test:', error);
-      if (error.message && (error.message.includes('Test already completed') || error.message.includes('DUPLICATE_ATTEMPT'))) {
+      
+      // Simple check for "already completed" errors
+      const errorText = error.message || '';
+      const errorStatus = error.response?.status || 0;
+      
+      // Check for various "already completed" error formats
+      const isAlreadyCompleted = 
+        errorText.includes('already completed') || 
+        errorText.includes('Session already completed') ||
+        (errorStatus === 400 || errorStatus === 409);
+      
+      if (isAlreadyCompleted) {
+        // Try to fetch existing attempt results
         try {
           const attempts = await apiService.getAttempts({
             student: currentUser.id,
-            test: currentSession.test
+            test: currentSession?.test
           });
           if (attempts && attempts.length > 0) {
             const latestAttempt = attempts[attempts.length - 1];
@@ -91,13 +103,14 @@ const SubmitTest = () => {
               score: latestAttempt.score
             });
           } else {
-            setSubmissionResult({ success: false, error: 'Test allaqachon tugagan, lekin natija topilmadi.' });
+            setSubmissionResult({ success: false, error: 'Test allaqachon tugallangan.' });
           }
         } catch (fetchError) {
-          setSubmissionResult({ success: false, error: 'Test allaqachon tugagan.' });
+          console.error('Failed to fetch attempts:', fetchError);
+          setSubmissionResult({ success: false, error: 'Test allaqachon tugallangan.' });
         }
       } else {
-        setSubmissionResult({ success: false, error: error.message || 'Test topshirishda xatolik yuz berdi.' });
+        setSubmissionResult({ success: false, error: errorText.replace('HTTP 400: ', '') || 'Test topshirishda xatolik yuz berdi.' });
       }
     } finally {
       setIsSubmitting(false);

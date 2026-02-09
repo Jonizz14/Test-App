@@ -265,7 +265,7 @@ const AddTeacher = () => {
                 placeholder="Sinf tanlang"
               >
                 {[5, 6, 7, 8, 9, 10, 11].flatMap(grade =>
-                  [1, 2, 3, 4].map(num => {
+                  [1, 2, 3, 4, 5, 6].map(num => {
                     const classGroup = `${grade}-${String(num).padStart(2, '0')}`;
                     return (
                       <Select.Option key={classGroup} value={classGroup}>

@@ -79,7 +79,7 @@ const StudentsRating = () => {
               stars: student.stars || 0
             };
           })
-          .filter(student => student.testCount > 0 && !student.isBanned)
+          .filter(student => !student.isBanned)
           .sort((a, b) => {
             if (b.averageScore !== a.averageScore) {
               return b.averageScore - a.averageScore;
