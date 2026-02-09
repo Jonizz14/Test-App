@@ -66,6 +66,10 @@ class User(AbstractUser):
     hide_premium_from_others = models.BooleanField(default=False, help_text="Hide premium status from other users")
     hide_premium_from_self = models.BooleanField(default=False, help_text="Hide premium status from self")
     owned_tests = models.JSONField(default=list, blank=True, help_text="List of test IDs owned by the student")
+    
+    # Daily test limit system
+    daily_tests_taken = models.IntegerField(default=0, help_text="Number of tests taken today")
+    daily_limit_reset_date = models.DateField(null=True, blank=True, help_text="Date when daily limit was last reset")
 
     def save(self, *args, **kwargs):
         # Auto-generate display_id if not set and user is student/teacher
@@ -204,6 +208,35 @@ class User(AbstractUser):
             self.average_score = 0
             
         self.save(update_fields=['total_tests_taken', 'average_score'])
+
+    def get_daily_limit(self):
+        """Get the daily test limit based on premium status"""
+        return 30 if self.is_premium else 5
+
+    def get_daily_tests_remaining(self):
+        """Get the number of tests remaining for today"""
+        self._reset_daily_limit_if_needed()
+        return max(0, self.get_daily_limit() - self.daily_tests_taken)
+
+    def can_take_test(self):
+        """Check if the user can take another test today"""
+        self._reset_daily_limit_if_needed()
+        return self.daily_tests_taken < self.get_daily_limit()
+
+    def increment_daily_tests(self):
+        """Increment the daily tests taken counter"""
+        self._reset_daily_limit_if_needed()
+        self.daily_tests_taken += 1
+        self.save(update_fields=['daily_tests_taken', 'daily_limit_reset_date'])
+
+    def _reset_daily_limit_if_needed(self):
+        """Reset the daily limit if it's a new day"""
+        from datetime import date
+        today = date.today()
+        if self.daily_limit_reset_date != today:
+            self.daily_tests_taken = 0
+            self.daily_limit_reset_date = today
+            self.save(update_fields=['daily_tests_taken', 'daily_limit_reset_date'])
 
     def generate_display_id(self):
         """Generate a display ID for student/teacher based on name and role with admin isolation"""

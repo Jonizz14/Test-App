@@ -47,6 +47,9 @@ const StudentOverview = () => {
     stars: 0,
     isPremium: false,
     premiumExpiry: null,
+    dailyTestsTaken: 0,
+    dailyLimit: 5,
+    dailyTestsRemaining: 5,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -91,7 +94,10 @@ const StudentOverview = () => {
           totalPoints,
           stars: user.stars || 0,
           isPremium: user.premium_info?.is_premium || false,
-          premiumExpiry: user.premium_expiry_date
+          premiumExpiry: user.premium_expiry_date,
+          dailyTestsTaken: user.daily_tests_taken || 0,
+          dailyLimit: user.daily_limit || 5,
+          dailyTestsRemaining: user.daily_tests_remaining || 5,
         });
 
       } catch (error) {
@@ -299,6 +305,62 @@ const StudentOverview = () => {
               icon={<StarOutlined />}
               delay="0.8s"
             />
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <div className="animate__animated animate__fadeIn" style={{ animationDelay: '0.9s' }}>
+              <Card
+                style={{
+                  borderRadius: 0,
+                  border: '4px solid #000',
+                  boxShadow: '10px 10px 0px #000',
+                  backgroundColor: stats.dailyTestsRemaining === 0 ? '#fee2e2' : '#dcfce7',
+                }}
+                styles={{ body: { padding: '24px' } }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px' }}>
+                  <div>
+                    <Text style={{
+                      fontSize: '11px',
+                      fontWeight: 900,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.1em',
+                      color: '#000',
+                      display: 'block',
+                      marginBottom: '4px'
+                    }}>
+                      Kunlik Limit
+                    </Text>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                      <Text style={{
+                        fontSize: '32px',
+                        fontWeight: 900,
+                        color: '#000',
+                        letterSpacing: '-1px',
+                        lineHeight: 1
+                      }}>
+                        {stats.dailyTestsTaken}/{stats.dailyLimit}
+                      </Text>
+                    </div>
+                    <Text style={{ fontSize: '12px', fontWeight: 700, color: '#666' }}>
+                      {stats.isPremium ? 'Premium' : 'Oddiy'} limit
+                    </Text>
+                  </div>
+                  <div style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '44px',
+                    height: '44px',
+                    backgroundColor: stats.dailyTestsRemaining === 0 ? '#ef4444' : '#22c55e',
+                    color: '#fff',
+                    border: '2px solid #000',
+                    flexShrink: 0
+                  }}>
+                    <ClockCircleOutlined style={{ fontSize: '20px' }} />
+                  </div>
+                </div>
+              </Card>
+            </div>
           </Col>
         </Row>
 

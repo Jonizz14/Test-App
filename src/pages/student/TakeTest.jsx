@@ -86,6 +86,8 @@ const TakeTest = () => {
   const [warningsCount, setWarningsCount] = useState(0);
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [lastWarningReason, setLastWarningReason] = useState('');
+  const [showDailyLimitModal, setShowDailyLimitModal] = useState(false);
+  const [dailyLimitInfo, setDailyLimitInfo] = useState({ dailyLimit: 5, dailyTestsTaken: 0, isPremium: false });
 
   const difficultyLabels = {
     easy: 'Oson',
@@ -218,11 +220,24 @@ const TakeTest = () => {
       setAnswers({});
     } catch (error) {
       console.error('Failed to start test:', error);
+
+      // Check for daily limit error
+      if (error.response?.data?.error === 'daily_limit_reached') {
+        const limitData = error.response.data;
+        setDailyLimitInfo({
+          dailyLimit: limitData.daily_limit || 5,
+          dailyTestsTaken: limitData.daily_tests_taken || 0,
+          isPremium: limitData.is_premium || false
+        });
+        setShowDailyLimitModal(true);
+        return;
+      }
+
       if (error.message && (error.message.includes('Test already completed') || error.message.includes('400'))) {
         setTakenTests(prev => new Set([...prev, test.id]));
         navigate('/student/results');
       } else {
-        alert('Testni boshlashda muammo yuz berdi. Keyinroq qayta urinib ko‘ring.');
+        alert('Testni boshlashda muammo yuz berdi. Keyinroq qayta urinib ko\'ring.');
       }
     }
   }, [navigate, startTestSession]);
@@ -899,6 +914,133 @@ const TakeTest = () => {
           />
         </div>
       </div>
+
+      {/* Daily Limit Modal */}
+      <Modal
+        open={showDailyLimitModal}
+        onCancel={() => setShowDailyLimitModal(false)}
+        footer={null}
+        centered
+        closable={false}
+        width={480}
+        styles={{
+          content: {
+            borderRadius: 0,
+            border: '6px solid #000',
+            boxShadow: '16px 16px 0px #000',
+            padding: 0,
+          },
+          body: { padding: 0 },
+        }}
+      >
+        <div style={{ padding: '32px' }}>
+          <div style={{
+            display: 'inline-block',
+            backgroundColor: '#ef4444',
+            color: '#fff',
+            padding: '6px 12px',
+            fontWeight: 900,
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            marginBottom: '16px'
+          }}>
+            Kunlik Limit
+          </div>
+
+          <Typography.Title level={2} style={{
+            margin: 0,
+            fontWeight: 900,
+            fontSize: '1.8rem',
+            lineHeight: 1.1,
+            textTransform: 'uppercase',
+            letterSpacing: '-0.02em',
+            color: '#000',
+            marginBottom: '16px'
+          }}>
+            Bugungi testlar tugadi!
+          </Typography.Title>
+
+          <Typography.Paragraph style={{
+            fontSize: '1rem',
+            fontWeight: 600,
+            color: '#333',
+            marginBottom: '24px'
+          }}>
+            Sizning kunlik test ishlash limitingiz tugadi.
+            {!dailyLimitInfo.isPremium && (
+              <> Premium obuna bilan kuniga <strong>30 ta</strong> test ishlang!</>
+            )}
+          </Typography.Paragraph>
+
+          <div style={{
+            backgroundColor: '#f3f4f6',
+            border: '3px solid #000',
+            padding: '20px',
+            marginBottom: '24px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <Typography.Text style={{ fontWeight: 900, fontSize: '14px', textTransform: 'uppercase' }}>
+                  Bugungi testlar
+                </Typography.Text>
+              </div>
+              <div>
+                <Typography.Text style={{ fontWeight: 900, fontSize: '24px' }}>
+                  {dailyLimitInfo.dailyTestsTaken}/{dailyLimitInfo.dailyLimit}
+                </Typography.Text>
+              </div>
+            </div>
+            <Progress
+              percent={100}
+              strokeColor="#ef4444"
+              trailColor="#e5e7eb"
+              showInfo={false}
+              style={{ marginTop: '12px' }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px' }}>
+            {!dailyLimitInfo.isPremium && (
+              <Button
+                type="primary"
+                size="large"
+                onClick={() => {
+                  setShowDailyLimitModal(false);
+                  navigate('/student/pricing');
+                }}
+                style={{
+                  flex: 1,
+                  borderRadius: 0,
+                  border: '3px solid #000',
+                  boxShadow: '4px 4px 0px #000',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  height: '48px',
+                  backgroundColor: '#22c55e',
+                }}
+              >
+                Premium Olish
+              </Button>
+            )}
+            <Button
+              size="large"
+              onClick={() => setShowDailyLimitModal(false)}
+              style={{
+                flex: dailyLimitInfo.isPremium ? 1 : undefined,
+                borderRadius: 0,
+                border: '3px solid #000',
+                boxShadow: '4px 4px 0px #000',
+                fontWeight: 800,
+                textTransform: 'uppercase',
+                height: '48px',
+              }}
+            >
+              Yopish
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </ConfigProvider>
   );
 };

@@ -1050,6 +1050,18 @@ class TestSessionViewSet(viewsets.ModelViewSet):
         if existing_attempt:
             return Response({'error': 'Test already completed'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Check daily test limit
+        if request.user.role == 'student':
+            if not request.user.can_take_test():
+                daily_limit = request.user.get_daily_limit()
+                return Response({
+                    'error': 'daily_limit_reached',
+                    'message': f'Kunlik test limiti tugadi. Sizning kunlik limitingiz: {daily_limit} ta test.',
+                    'daily_limit': daily_limit,
+                    'daily_tests_taken': request.user.daily_tests_taken,
+                    'is_premium': request.user.is_premium
+                }, status=status.HTTP_403_FORBIDDEN)
+
         # Check for existing active session
         existing_session = TestSession.objects.filter(
             student=request.user,
@@ -1081,6 +1093,10 @@ class TestSessionViewSet(viewsets.ModelViewSet):
             is_completed=False,
             is_expired=False
         )
+        
+        # Increment daily tests counter for students
+        if request.user.role == 'student':
+            request.user.increment_daily_tests()
         
         serializer = self.get_serializer(session)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

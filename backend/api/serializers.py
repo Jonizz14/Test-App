@@ -14,6 +14,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     profile_photo_url = serializers.SerializerMethodField()
     premium_info = serializers.SerializerMethodField()
+    daily_limit = serializers.SerializerMethodField()
+    daily_tests_remaining = serializers.SerializerMethodField()
     premium_until = serializers.DateTimeField(source='premium_expiry_date', required=False, allow_null=True)
 
     class Meta:
@@ -27,8 +29,8 @@ class UserSerializer(serializers.ModelSerializer):
                   'background_gradient', 'selected_emojis', 'premium_info', 'premium_until',
                   'hide_premium_from_others', 'hide_premium_from_self',
                   'admin_premium_plan', 'admin_premium_pending', 'admin_premium_approved', 'admin_premium_granted_date', 'admin_premium_expiry_date', 'admin_premium_cost',
-                  'organization']
-        read_only_fields = ['id', 'created_at', 'last_login', 'display_id']
+                  'organization', 'daily_tests_taken', 'daily_limit', 'daily_tests_remaining']
+        read_only_fields = ['id', 'created_at', 'last_login', 'display_id', 'daily_limit', 'daily_tests_remaining']
 
     def get_profile_photo_url(self, obj):
         if obj.profile_photo:
@@ -41,6 +43,12 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_premium_info(self, obj):
         return obj.get_premium_info()
+
+    def get_daily_limit(self, obj):
+        return obj.get_daily_limit()
+
+    def get_daily_tests_remaining(self, obj):
+        return obj.get_daily_tests_remaining()
 
     def create(self, validated_data):
         # Check if username already exists
