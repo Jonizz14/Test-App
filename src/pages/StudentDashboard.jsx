@@ -46,7 +46,7 @@ const StudentDashboard = () => {
     '/student/my-class-statistics': 'Sinf statistikasi',
     '/student/students-rating': 'O\'quvchilar reytingi',
     '/student/classes-rating': 'Sinflar reytingi',
-    '/student/test-bank': 'Testlar bazasi',
+    '/student/test-bank': 'Markaziy testlar',
   };
 
   const getBreadcrumbItems = () => {
@@ -179,7 +179,7 @@ const StudentDashboard = () => {
             flexDirection: 'column',
             gap: '16px'
           }}>
-            <div style={{
+            <div id="dashboard-breadcrumb" style={{
               backgroundColor: '#fff',
               padding: '6px 16px',
               border: '2px solid #000',

@@ -151,14 +151,20 @@ const TestBank = () => {
         <ConfigProvider theme={{ token: { borderRadius: 0, colorPrimary: '#000' } }}>
             <div style={{ padding: '20px 0' }}>
                 <div className="animate__animated animate__fadeIn" style={{ marginBottom: '40px' }}>
-                    <div style={{ backgroundColor: 'var(--star-gold)', color: '#000', padding: '6px 14px', fontWeight: 900, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px', display: 'inline-block', border: '2px solid #000' }}>
-                        STAR ECONOMY ENABLED
+                    <div style={{ backgroundColor: 'var(--star-gold)', color: '#000', padding: '8px 16px', fontWeight: 900, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px', display: 'inline-block', border: '2px solid #000' }}>
+                        YULDUZLAR IQTISODIYOTI YOQILGAN
                     </div>
-                    <Title level={1} style={{ fontWeight: 900, fontSize: '3rem', lineHeight: 0.9, textTransform: 'uppercase', letterSpacing: '-0.05em', color: '#000' }}>
-                        THE TEST BANK
+                    <Title id="test-bank-title" level={1} style={{ margin: 0, fontWeight: 900, fontSize: '3rem', lineHeight: 0.9, textTransform: 'uppercase', letterSpacing: '-0.05em', color: '#000' }}>
+                        MARKAZIY TESTLAR BAZASI
                     </Title>
-                    <Paragraph style={{ fontSize: '1.1rem', fontWeight: 600, color: '#666', maxWidth: '600px', marginTop: '16px' }}>
-                        Earn stars by completing tests. Use stars to unlock premium content and status.
+                    <div style={{
+                        width: '80px',
+                        height: '10px',
+                        backgroundColor: '#000',
+                        margin: '24px 0'
+                    }}></div>
+                    <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, color: '#333', maxWidth: '600px' }}>
+                        Testlarni topshirib yulduzchalar to'plang. Ulardan premium kontentlar va maxsus imtiyozlarni ochish uchun foydalaning.
                     </Paragraph>
                 </div>
 
@@ -169,7 +175,7 @@ const TestBank = () => {
                         <Row gutter={[24, 16]} align="middle">
                             <Col xs={24} md={18}>
                                 <Search
-                                    placeholder="Search tests..."
+                                    placeholder="Testlarni qidirish..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     style={{ borderRadius: 0, width: '100%' }}
@@ -178,12 +184,12 @@ const TestBank = () => {
                             </Col>
                             <Col xs={24} md={6}>
                                 <Select value={sortBy} onChange={setSortBy} style={{ width: '100%' }} size="large">
-                                    <Select.Option value="date">Latest</Select.Option>
-                                    <Select.Option value="name">Name</Select.Option>
-                                    <Select.Option value="difficulty">Difficulty</Select.Option>
-                                    <Select.Option value="easy">Easy</Select.Option>
-                                    <Select.Option value="medium">Medium</Select.Option>
-                                    <Select.Option value="hard">Hard</Select.Option>
+                                    <Select.Option value="date">Eng so'nggi</Select.Option>
+                                    <Select.Option value="name">Nomi bo'yicha</Select.Option>
+                                    <Select.Option value="difficulty">Qiyinchilik bo'yicha</Select.Option>
+                                    <Select.Option value="easy">Oson</Select.Option>
+                                    <Select.Option value="medium">O'rtacha</Select.Option>
+                                    <Select.Option value="hard">Qiyin</Select.Option>
                                 </Select>
                             </Col>
                         </Row>

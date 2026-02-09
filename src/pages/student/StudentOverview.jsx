@@ -181,7 +181,7 @@ const StudentOverview = () => {
     >
       <div style={{ padding: '20px 0' }}>
         {/* Brutalist Header */}
-        <div className="animate__animated animate__fadeIn" style={{ marginBottom: '20px' }}>
+        <div id="student-welcome" className="animate__animated animate__fadeIn" style={{ marginBottom: '20px' }}>
           <div style={{
             display: 'inline-block',
             backgroundColor: '#000',
@@ -233,7 +233,7 @@ const StudentOverview = () => {
         )}
 
         {/* Statistics Grid */}
-        <Row gutter={[32, 32]}>
+        <Row id="student-stats" gutter={[32, 32]}>
           <Col xs={24} sm={12} lg={6}>
             <StatBox
               title="Jami testlar"
@@ -328,7 +328,7 @@ const StudentOverview = () => {
 
         <Divider style={{ margin: '48px 0', borderTop: '4px solid #000' }} />
 
-        <div className="animate__animated animate__fadeIn" style={{ animationDelay: '0.9s' }}>
+        <div id="student-quick-links" className="animate__animated animate__fadeIn" style={{ animationDelay: '0.9s' }}>
           <Title level={2} style={{ fontWeight: 900, textTransform: 'uppercase', marginBottom: '32px' }}>
             Tezkor Havolalar
           </Title>
