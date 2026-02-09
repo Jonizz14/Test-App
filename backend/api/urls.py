@@ -15,6 +15,7 @@ router.register(r'star-packages', views.StarPackageViewSet)
 router.register(r'contact-messages', views.ContactMessageViewSet)
 router.register(r'updates', views.SiteUpdateViewSet)
 router.register(r'site-settings', views.SiteSettingsViewSet, basename='site-settings')
+router.register(r'premium-purchases', views.PremiumPurchaseViewSet)
 
 
 urlpatterns = [

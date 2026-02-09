@@ -11,6 +11,7 @@ import {
   Table,
   Alert,
   Space,
+  message,
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -32,6 +33,7 @@ const PricingPage = () => {
   const [starPackages, setStarPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [purchasingPlan, setPurchasingPlan] = useState(null);
 
   useEffect(() => {
     const loadPricingData = async () => {
@@ -570,13 +572,25 @@ const PricingPage = () => {
                         <Button
                           type="primary"
                           block
-                          disabled={!hasEnough}
+                          disabled={!hasEnough || purchasingPlan !== null}
+                          loading={purchasingPlan === plan.key}
                           onClick={async () => {
+                            // Double-check stars before making API call
+                            if (userStars < displayPrice) {
+                              message.error({ content: 'Yulduzlar yetarli emas!', key: 'premium' });
+                              return;
+                            }
                             try {
+                              setPurchasingPlan(plan.key);
+                              message.loading({ content: 'Premium sotib olinmoqda...', key: 'premium' });
                               await exchangeStarsForPremium(plan.key);
+                              message.success({ content: 'Premium muvaffaqiyatli sotib olindi!', key: 'premium' });
                               window.location.reload();
                             } catch (e) {
                               console.error('Exchange failed', e);
+                              message.error({ content: e.message || 'Xatolik yuz berdi', key: 'premium' });
+                            } finally {
+                              setPurchasingPlan(null);
                             }
                           }}
                           style={{

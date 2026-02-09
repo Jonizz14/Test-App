@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, ContactMessage, SiteUpdate, SiteSettings
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, ContactMessage, SiteUpdate, SiteSettings, PremiumPurchase
 
 class SiteSettingsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -234,6 +234,18 @@ class StarPackageSerializer(serializers.ModelSerializer):
         if obj.discount_percentage > 0:
             return f"{obj.discount_percentage}% Chegirma"
         return ""
+
+
+class PremiumPurchaseSerializer(serializers.ModelSerializer):
+    student_name = serializers.CharField(source='student.name', read_only=True)
+    student_username = serializers.CharField(source='student.username', read_only=True)
+    purchase_type_name = serializers.CharField(source='get_purchase_type_display', read_only=True)
+    plan_type_name = serializers.CharField(source='get_plan_type_display', read_only=True)
+    
+    class Meta:
+        model = PremiumPurchase
+        fields = ['id', 'student', 'student_name', 'student_username', 'purchase_type', 'purchase_type_name', 
+                  'plan_type', 'plan_type_name', 'stars_used', 'money_spent', 'granted_date', 'expiry_date']
 
 class ContactMessageSerializer(serializers.ModelSerializer):
     subject_name = serializers.CharField(source='get_subject_display', read_only=True)

@@ -7,8 +7,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.db import models
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, ContactMessage, SiteUpdate, SiteSettings
-from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, PricingSerializer, StarPackageSerializer, ContactMessageSerializer, SiteUpdateSerializer, SiteSettingsSerializer
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, ContactMessage, SiteUpdate, SiteSettings, PremiumPurchase
+from .serializers import UserSerializer, TestSerializer, QuestionSerializer, TestAttemptSerializer, FeedbackSerializer, TestSessionSerializer, PricingSerializer, StarPackageSerializer, ContactMessageSerializer, SiteUpdateSerializer, SiteSettingsSerializer, PremiumPurchaseSerializer
 
 class SiteSettingsViewSet(viewsets.ViewSet):
     def initialize_request(self, request, *args, **kwargs):
@@ -524,6 +524,99 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response({
             'user': serializer.data,
             'message': 'Premium status revoked successfully'
+        })
+
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
+    def purchase_premium_with_stars(self, request):
+        """Student purchases premium using their stars"""
+        user = request.user
+        
+        if user.role != 'student':
+            return Response({'error': 'Faqat o\'quvchilar premium sotib olishi mumkin'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        plan_type = request.data.get('plan_type')
+        if plan_type not in ['week', 'month', 'year']:
+            return Response({'error': 'Noto\'g\'ri tarif rejasi'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Define star prices for each plan
+        star_prices = {
+            'week': 300,
+            'month': 1200,
+            'year': 8000
+        }
+        
+        stars_needed = star_prices.get(plan_type, 0)
+        if user.stars < stars_needed:
+            return Response({
+                'error': 'Yulduzlaringiz yetarli emas',
+                'stars_needed': stars_needed,
+                'stars_current': user.stars
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Calculate expiry date
+        now = timezone.now()
+        if plan_type == 'week':
+            expiry_date = now + timezone.timedelta(weeks=1)
+        elif plan_type == 'month':
+            expiry_date = now + timezone.timedelta(days=30)
+        elif plan_type == 'year':
+            expiry_date = now + timezone.timedelta(days=365)
+        
+        # Calculate the money equivalent for tracking (using pricing table)
+        try:
+            pricing = Pricing.objects.get(plan_type=plan_type, is_active=True)
+            money_value = float(pricing.discounted_price)
+        except Pricing.DoesNotExist:
+            money_value = 0
+        
+        # Deduct stars and grant premium
+        user.stars -= stars_needed
+        
+        # Extend premium if already premium
+        if user.is_premium and user.premium_type == 'time_based' and user.premium_expiry_date and user.premium_expiry_date > now:
+            # Extend existing premium
+            from datetime import timedelta
+            base_date = user.premium_expiry_date
+            if plan_type == 'week':
+                user.premium_expiry_date = base_date + timedelta(weeks=1)
+            elif plan_type == 'month':
+                user.premium_expiry_date = base_date + timedelta(days=30)
+            elif plan_type == 'year':
+                user.premium_expiry_date = base_date + timedelta(days=365)
+        else:
+            # Grant new premium
+            user.is_premium = True
+            user.premium_type = 'time_based'
+            user.premium_granted_date = now
+            user.premium_expiry_date = expiry_date
+            user.premium_plan = plan_type
+            user.premium_cost = money_value
+            user.premium_emoji_count = 50
+        
+        user.save()
+        
+        # Create purchase record
+        purchase = PremiumPurchase.objects.create(
+            student=user,
+            purchase_type='stars',
+            plan_type=plan_type,
+            stars_used=stars_needed,
+            money_spent=money_value,
+            granted_date=now,
+            expiry_date=user.premium_expiry_date
+        )
+        
+        serializer = UserSerializer(user)
+        return Response({
+            'user': serializer.data,
+            'message': 'Premium muvaffaqiyatli sotib olindi',
+            'purchase': {
+                'id': purchase.id,
+                'plan_type': plan_type,
+                'stars_used': stars_needed,
+                'granted_date': now,
+                'expiry_date': user.premium_expiry_date
+            }
         })
 
     @action(detail=True, methods=['patch'], permission_classes=[IsAuthenticated])
@@ -1791,4 +1884,62 @@ Professional ta'lim platformasi
         
         return Response({'message': 'Xabar muvaffaqiyatli o\'chirildi'})
 
+
+class PremiumPurchaseViewSet(viewsets.ModelViewSet):
+    """ViewSet for managing premium purchases (for seller/admin to track)"""
+    queryset = PremiumPurchase.objects.all()
+    serializer_class = PremiumPurchaseSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        queryset = PremiumPurchase.objects.select_related('student').all()
+        
+        # Filter by purchase type
+        purchase_type = self.request.query_params.get('purchase_type')
+        if purchase_type:
+            queryset = queryset.filter(purchase_type=purchase_type)
+        
+        # Filter by student
+        student_id = self.request.query_params.get('student_id')
+        if student_id:
+            queryset = queryset.filter(student_id=student_id)
+        
+        return queryset
+    
+    @action(detail=False, methods=['get'])
+    def my_purchases(self, request):
+        """Get the current student's own premium purchases"""
+        if not request.user.is_authenticated or request.user.role != 'student':
+            return Response({'error': 'Only students can view their purchases'}, status=status.HTTP_403_FORBIDDEN)
+        
+        purchases = PremiumPurchase.objects.filter(student=request.user).order_by('-granted_date')
+        serializer = self.get_serializer(purchases, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def seller_stats(self, request):
+        """Get premium purchase statistics for sellers"""
+        if not request.user.is_authenticated or request.user.role not in ['seller', 'admin', 'head_admin']:
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Get all premium purchases
+        purchases = PremiumPurchase.objects.all()
+        
+        # Calculate stats
+        stars_purchases = purchases.filter(purchase_type='stars')
+        money_purchases = purchases.filter(purchase_type='money')
+        
+        stats = {
+            'total_purchases': purchases.count(),
+            'stars_purchases_count': stars_purchases.count(),
+            'money_purchases_count': money_purchases.count(),
+            'total_stars_used': stars_purchases.aggregate(models.Sum('stars_used'))['stars_used__sum'] or 0,
+            'total_money_spent': float(money_purchases.aggregate(models.Sum('money_spent'))['money_spent__sum'] or 0),
+            'recent_purchases': PremiumPurchaseSerializer(
+                purchases.order_by('-granted_date')[:10], 
+                many=True
+            ).data
+        }
+        
+        return Response(stats)
 

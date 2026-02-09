@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import apiService from '../data/apiService';
 
 const EconomyContext = createContext();
 
@@ -17,14 +18,14 @@ export const EconomyProvider = ({ children }) => {
     // Initialize state from currentUser or local storage for persistency
     const [stars, setStars] = useState(currentUser?.stars || 0);
     const [ownedTests, setOwnedTests] = useState(currentUser?.owned_tests || []);
-    const [premiumUntil, setPremiumUntil] = useState(currentUser?.premium_until || null);
+    const [premiumUntil, setPremiumUntil] = useState(currentUser?.premium_expiry_date || null);
 
     // Sync with currentUser when it changes
     useEffect(() => {
         if (currentUser) {
             setStars(currentUser.stars || 0);
             setOwnedTests(currentUser.owned_tests || []);
-            setPremiumUntil(currentUser.premium_until || null);
+            setPremiumUntil(currentUser.premium_expiry_date || null);
         }
     }, [currentUser]);
 
@@ -69,53 +70,41 @@ export const EconomyProvider = ({ children }) => {
     }, [stars, ownedTests, currentUser, updateProfile]);
 
     const exchangeStarsForPremium = React.useCallback(async (plan) => {
-        let price = 0;
-        let durationDays = 0;
-
-        switch (plan) {
-            case 'week':
-                price = 300;
-                durationDays = 7;
-                break;
-            case 'month':
-                price = 1200;
-                durationDays = 30;
-                break;
-            case 'year':
-                price = 8000;
-                durationDays = 365;
-                break;
-            default:
-                throw new Error('Invalid plan');
+        // Ensure we have the latest token from localStorage
+        const accessToken = window.localStorage.getItem('accessToken');
+        if (accessToken) {
+            apiService.setToken(accessToken);
+        }
+        
+        // Call the backend API to purchase premium with stars
+        if (!currentUser) {
+            throw new Error('User not authenticated');
         }
 
-        if (stars < price) {
-            throw new Error('Not enough stars!');
-        }
+        try {
+            const response = await apiService.post('/users/purchase_premium_with_stars/', {
+                plan_type: plan
+            });
 
-        const now = new Date();
-        const currentExpiry = premiumUntil ? new Date(premiumUntil) : now;
-        const baseDate = currentExpiry > now ? currentExpiry : now;
-
-        const newExpiry = new Date(baseDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
-        const newBalance = stars - price;
-
-        setStars(newBalance);
-        setPremiumUntil(newExpiry.toISOString());
-
-        if (currentUser) {
-            try {
+            if (response && response.user) {
+                // Update local state with server response
+                setStars(response.user.stars || 0);
+                setPremiumUntil(response.user.premium_expiry_date || null);
+                
+                // Also update the current user in AuthContext
                 await updateProfile({
-                    stars: newBalance,
-                    premium_until: newExpiry.toISOString()
+                    stars: response.user.stars,
+                    premium_expiry_date: response.user.premium_expiry_date,
+                    is_premium: response.user.is_premium
                 });
-            } catch (error) {
-                console.error('Failed to update premium status:', error);
             }
-        }
 
-        return true;
-    }, [stars, premiumUntil, currentUser, updateProfile]);
+            return response;
+        } catch (error) {
+            console.error('Failed to purchase premium with stars:', error);
+            throw error;
+        }
+    }, [currentUser, updateProfile]);
 
     const isPremium = React.useCallback(() => {
         if (!premiumUntil) return false;

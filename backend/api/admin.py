@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, ContactMessage, SiteUpdate, SiteSettings
+from .models import User, Test, Question, TestAttempt, Feedback, TestSession, Pricing, StarPackage, ContactMessage, SiteUpdate, SiteSettings, PremiumPurchase
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
@@ -30,3 +30,4 @@ admin.site.register(Pricing)
 admin.site.register(StarPackage)
 admin.site.register(ContactMessage)
 admin.site.register(SiteUpdate)
+admin.site.register(PremiumPurchase)

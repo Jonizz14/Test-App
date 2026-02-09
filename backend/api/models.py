@@ -458,6 +458,35 @@ class StarPackage(models.Model):
     class Meta:
         ordering = ['stars']
 
+
+class PremiumPurchase(models.Model):
+    """Model to track premium purchases made with stars"""
+    PURCHASE_TYPE_CHOICES = [
+        ('stars', 'Stars Exchange'),
+        ('money', 'Money Purchase'),
+    ]
+    PLAN_CHOICES = [
+        ('week', '1 Hafta'),
+        ('month', '1 Oy'),
+        ('year', '1 Yil'),
+    ]
+    
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='premium_purchases', help_text="Student who purchased premium")
+    purchase_type = models.CharField(max_length=10, choices=PURCHASE_TYPE_CHOICES, default='stars', help_text="How premium was purchased")
+    plan_type = models.CharField(max_length=10, choices=PLAN_CHOICES, help_text="Premium plan type")
+    stars_used = models.IntegerField(default=0, help_text="Number of stars used for purchase")
+    money_spent = models.DecimalField(max_digits=6, decimal_places=2, default=0, help_text="Money spent in USD")
+    granted_date = models.DateTimeField(default=timezone.now, help_text="When premium was granted")
+    expiry_date = models.DateTimeField(help_text="When premium expires")
+    
+    class Meta:
+        ordering = ['-granted_date']
+        verbose_name = 'Premium Purchase'
+        verbose_name_plural = 'Premium Purchases'
+
+    def __str__(self):
+        return f"{self.student.name} - {self.get_plan_type_display()} ({self.purchase_type})"
+
 class ContactMessage(models.Model):
     """Model to store contact form messages"""
     SUBJECT_CHOICES = [

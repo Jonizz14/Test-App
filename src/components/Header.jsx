@@ -435,7 +435,8 @@ const Header = ({ demoMode = false }) => {
       return [
         { label: 'Umumiy', path: '/seller' },
         { label: "O'quvchilar", path: '/seller/students' },
-        { label: 'Narxlar', path: '/seller/prices' }
+        { label: 'Narxlar', path: '/seller/prices' },
+        { label: 'Monitoring', path: '/seller/premium-purchases' }
       ];
     }
     if (location.pathname.startsWith('/content-manager')) {

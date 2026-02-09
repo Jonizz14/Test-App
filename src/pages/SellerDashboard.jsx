@@ -8,6 +8,7 @@ import 'antd/dist/reset.css';
 import SellerOverview from './seller/SellerOverview';
 import ManageStudents from './seller/ManageStudents';
 import ManagePrices from './seller/ManagePrices';
+import PremiumPurchases from './seller/PremiumPurchases';
 
 
 const { Content } = Layout;
@@ -51,6 +52,7 @@ const SellerDashboard = () => {
             <Route path="/" element={<SellerOverview />} />
             <Route path="/students" element={<ManageStudents />} />
             <Route path="/prices" element={<ManagePrices />} />
+            <Route path="/premium-purchases" element={<PremiumPurchases />} />
           </Routes>
         </div>
       </Content>
