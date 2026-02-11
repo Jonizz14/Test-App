@@ -44,7 +44,7 @@ const { Search } = Input;
 const { Option } = Select;
 
 const TakeTest = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, refreshProfile } = useAuth();
   const { settings } = useSettings();
   const {
     currentSession,
@@ -88,6 +88,9 @@ const TakeTest = () => {
   const [lastWarningReason, setLastWarningReason] = useState('');
   const [showDailyLimitModal, setShowDailyLimitModal] = useState(false);
   const [dailyLimitInfo, setDailyLimitInfo] = useState({ dailyLimit: 5, dailyTestsTaken: 0, isPremium: false });
+  const [starConfirmModalOpen, setStarConfirmModalOpen] = useState(false);
+  const [testToPurchase, setTestToPurchase] = useState(null);
+  const [starPurchaseLoading, setStarPurchaseLoading] = useState(false);
 
   const difficultyLabels = {
     easy: 'Oson',
@@ -155,61 +158,68 @@ const TakeTest = () => {
     }
   }, [clearSession]);
 
-  const loadTeachers = useCallback(async () => {
+  const loadTests = useCallback(async () => {
     try {
-      // Load teachers from API
-      const allUsers = await apiService.getUsers();
-      const allTeachers = allUsers.filter(user => user.role === 'teacher');
-      setTeachers(allTeachers);
+      // Fetch all tests and student attempts
+      const [testsData, attempts] = await Promise.all([
+        apiService.getTests({}),
+        apiService.getAttempts({ student: currentUser.id })
+      ]);
 
-      // Load tests for each teacher
-      const testsMap = {};
-      const allTestsArray = [];
+      const tests = Array.isArray(testsData) ? testsData : (testsData.results || []);
 
-      for (const teacher of allTeachers) {
-        try {
-          const tests = await apiService.getTests({ teacher: teacher.id });
-          const activeTests = tests.filter(test => test.is_active);
-          testsMap[teacher.id] = activeTests;
+      const activeTests = tests.filter(test => test.is_active && test.teacher_role !== 'content_manager').map(test => ({
+        ...test,
+        teacherName: test.teacher_name || 'System',
+        teacherId: test.teacher
+      }));
 
-          // Add tests to allTests array with teacher info
-          activeTests.forEach(test => {
-            allTestsArray.push({
-              ...test,
-              teacherName: teacher.name || teacher.username,
-              teacherId: teacher.id
-            });
-          });
-        } catch (error) {
-          console.error(`Failed to load tests for teacher ${teacher.id}:`, error);
-          testsMap[teacher.id] = [];
+      setAllTests(activeTests);
+
+      // We also update teachers list just in case it's used elsewhere, deriving from tests
+      // distinct teachers
+      const uniqueTeachers = [];
+      const teacherIds = new Set();
+      activeTests.forEach(t => {
+        if (t.teacherId && !teacherIds.has(t.teacherId)) {
+          teacherIds.add(t.teacherId);
+          uniqueTeachers.push({ id: t.teacherId, name: t.teacherName });
         }
-      }
-      _setTeacherTests(testsMap);
-      setAllTests(allTestsArray);
+      });
+      setTeachers(uniqueTeachers);
 
-      // Load student's taken tests
-      try {
-        const attempts = await apiService.getAttempts({ student: currentUser.id });
-        const takenTestIds = new Set(attempts.map(attempt => attempt.test));
-        setTakenTests(takenTestIds);
-      } catch (error) {
-        console.error('Failed to load taken tests:', error);
-      }
+      const takenTestIds = new Set(attempts.map(attempt => attempt.test));
+      setTakenTests(takenTestIds);
     } catch (error) {
-      console.error('Failed to load teachers:', error);
+      console.error('Failed to load tests:', error);
+      setError('Testlarni yuklashda xatolik yuz berdi.');
     }
   }, [currentUser]);
 
-  const hasStudentTakenTest = (testId) => {
+  const hasStudentTakenTest = useCallback((testId) => {
     return takenTests.has(testId);
-  };
+  }, [takenTests]);
 
   const startTest = useCallback(async (test) => {
     if (!test || !test.id) {
       alert("Test ma'lumotlari to'liq emas yoki noto'g'ri. Iltimos, boshqa test tanlang yoki administratorga murojaat qiling.");
       return;
     }
+
+    // Check for Star Price and Ownership
+    if (test.star_price > 0) {
+      const ownedTests = currentUser?.owned_tests || [];
+      const testIdStr = String(test.id);
+      const isOwned = ownedTests.some(id => String(id) === testIdStr);
+      const hasTaken = hasStudentTakenTest(test.id);
+
+      if (!isOwned && !hasTaken) {
+        setTestToPurchase(test);
+        setStarConfirmModalOpen(true);
+        return;
+      }
+    }
+
     try {
       const session = await startTestSession(test.id);
       if (!session) throw new Error('Test session yaratilmagan.');
@@ -233,6 +243,13 @@ const TakeTest = () => {
         return;
       }
 
+      // Check for star purchase requirement error (from backend validation)
+      if (error.response?.data?.error === 'star_purchase_required') {
+        setTestToPurchase(test);
+        setStarConfirmModalOpen(true);
+        return;
+      }
+
       if (error.message && (error.message.includes('Test already completed') || error.message.includes('400'))) {
         setTakenTests(prev => new Set([...prev, test.id]));
         navigate('/student/results');
@@ -240,7 +257,7 @@ const TakeTest = () => {
         alert('Testni boshlashda muammo yuz berdi. Keyinroq qayta urinib ko\'ring.');
       }
     }
-  }, [navigate, startTestSession]);
+  }, [navigate, startTestSession, currentUser, hasStudentTakenTest]);
 
   const continueTest = async (test) => {
     if (!test || !test.id) {
@@ -320,6 +337,36 @@ const TakeTest = () => {
       handleAnswerChange(selectedTest.questions[currentQuestionIndex].id, newAnswer);
     }
     setMathSymbolsOpen(false);
+  };
+
+  const handleStarPurchase = async () => {
+    if (!testToPurchase) return;
+
+    setStarPurchaseLoading(true);
+    try {
+      await apiService.purchaseTest(testToPurchase.id);
+      await refreshProfile(); // Refresh user data to update stars and owned_tests
+      setStarConfirmModalOpen(false);
+      // Automatically start the test after successful purchase
+      // We pass the test object directly, assuming startTest handles the logic now that it's owned
+      // Wait a moment for state updates to propagate if needed, or just call logic directly
+
+      // Since currentUser in closure might be stale, we can rely on startTest triggering or just call api directly
+      const session = await startTestSession(testToPurchase.id);
+      const questionsData = await apiService.getQuestions({ test: testToPurchase.id });
+      const questionsList = questionsData.results || questionsData;
+      setSelectedTest({ ...testToPurchase, questions: questionsList });
+      setCurrentQuestionIndex(0);
+      setAnswers({});
+      setTestToPurchase(null);
+
+    } catch (error) {
+      console.error("Star purchase failed:", error);
+      alert(error.response?.data?.error || "Sotib olishda xatolik yuz berdi. Yulduzlaringiz yetarli ekanligini tekshiring.");
+      setStarConfirmModalOpen(false); // Close on error so user can retry or check balance
+    } finally {
+      setStarPurchaseLoading(false);
+    }
   };
 
   const handleSubmitTest = useCallback(() => {
@@ -405,9 +452,9 @@ const TakeTest = () => {
 
   useEffect(() => {
     if (currentUser) {
-      loadTeachers();
+      loadTests();
     }
-  }, [currentUser, loadTeachers]);
+  }, [currentUser, loadTests]);
 
   useEffect(() => {
     const checkAllActiveSessions = async () => {
@@ -435,7 +482,7 @@ const TakeTest = () => {
   useEffect(() => {
     const testIdFromParams = searchParams.get('testId');
 
-    if (testIdFromParams && teachers.length > 0 && currentUser) {
+    if (testIdFromParams && currentUser) {
       const checkAndHandleTest = async () => {
         try {
           setSessionRecovering(true);
@@ -472,7 +519,7 @@ const TakeTest = () => {
 
       checkAndHandleTest();
     }
-  }, [searchParams, teachers, navigate, checkActiveSession, currentUser, continueTestFromSession, startTest, clearSession]);
+  }, [searchParams, allTests, navigate, checkActiveSession, currentUser, continueTestFromSession, startTest, clearSession]);
 
   useEffect(() => {
     if (currentSession && hasTimeRemaining === false && sessionStarted) {
@@ -795,12 +842,42 @@ const TakeTest = () => {
       ),
     },
     {
+      title: 'Holat',
+      key: 'status',
+      render: (_, test) => {
+        const ownedTests = currentUser?.owned_tests || [];
+        const testIdStr = String(test.id);
+        const isOwned = ownedTests.some(id => String(id) === testIdStr);
+        const isPaid = test.star_price > 0;
+        const isPremiumOnly = test.is_premium;
+        const studentIsPremium = currentUser?.is_premium;
+
+        if (isPremiumOnly) {
+          return <Tag color="purple" style={{ border: '2px solid #000', fontWeight: 800, borderRadius: 0 }}>PREMIUM</Tag>;
+        }
+        if (isPaid && !isOwned) {
+          return <Tag color="gold" style={{ border: '2px solid #000', fontWeight: 800, borderRadius: 0 }}>{test.star_price} ⭐</Tag>;
+        }
+        if (isOwned && isPaid) {
+          return <Tag color="green" style={{ border: '2px solid #000', fontWeight: 800, borderRadius: 0 }}>SOTIB OLINGAN</Tag>;
+        }
+        return <Tag color="blue" style={{ border: '2px solid #000', fontWeight: 800, borderRadius: 0 }}>OCHIQ</Tag>;
+      }
+    },
+    {
       title: 'Harakat',
       key: 'actions',
       width: 150,
       render: (_, test) => {
         const alreadyTaken = hasStudentTakenTest(test.id);
         const hasActive = !!activeTestSessions[test.id];
+
+        const ownedTests = currentUser?.owned_tests || [];
+        const testIdStr = String(test.id);
+        const isOwned = ownedTests.some(id => String(id) === testIdStr);
+        const isPremiumOnly = test.is_premium;
+        const studentIsPremium = currentUser?.is_premium;
+        const premiumLocked = isPremiumOnly && !studentIsPremium;
 
         if (alreadyTaken) {
           return (
@@ -822,6 +899,44 @@ const TakeTest = () => {
               }}
             >
               TOPShIRILGAN
+            </Button>
+          );
+        }
+
+        if (premiumLocked) {
+          return (
+            <Button
+              size="small"
+              style={{
+                borderRadius: 0,
+                border: '2px solid #000',
+                fontWeight: 900,
+                backgroundColor: '#a855f7',
+                color: '#fff',
+                width: '100%'
+              }}
+              onClick={() => navigate('/student/pricing')}
+            >
+              PREMIUM
+            </Button>
+          );
+        }
+
+        if (test.star_price > 0 && !isOwned) {
+          return (
+            <Button
+              size="small"
+              style={{
+                borderRadius: 0,
+                border: '2px solid #000',
+                fontWeight: 900,
+                backgroundColor: '#f59e0b',
+                color: '#fff',
+                width: '100%'
+              }}
+              onClick={() => startTest(test)} // startTest handles the purchase modal
+            >
+              {test.star_price} ⭐ SOTIB OLISH
             </Button>
           );
         }
@@ -1039,6 +1154,52 @@ const TakeTest = () => {
               Yopish
             </Button>
           </div>
+        </div>
+      </Modal>
+
+      {/* Star Purchase Confirmation Modal */}
+      <Modal
+        title={<Title level={4} style={{ margin: 0, fontWeight: 900, textTransform: 'uppercase', color: '#d97706' }}>STARLI TEST</Title>}
+        open={starConfirmModalOpen}
+        onCancel={() => !starPurchaseLoading && setStarConfirmModalOpen(false)}
+        centered
+        styles={{ mask: { backdropFilter: 'blur(4px)' } }}
+        footer={[
+          <Button
+            key="cancel"
+            onClick={() => setStarConfirmModalOpen(false)}
+            disabled={starPurchaseLoading}
+            style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 900 }}
+          >
+            BEKOR QILISH
+          </Button>,
+          <Button
+            key="buy"
+            loading={starPurchaseLoading}
+            onClick={handleStarPurchase}
+            style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 900, backgroundColor: '#d97706', color: '#fff' }}
+          >
+            ROZIMAN ({testToPurchase?.star_price} STAR)
+          </Button>
+        ]}
+      >
+        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⭐</div>
+          <Typography.Title level={3} style={{ fontWeight: 900, marginBottom: '16px' }}>
+            Ushbu test narxi: {testToPurchase?.star_price} Star
+          </Typography.Title>
+          <div style={{ backgroundColor: '#fff7ed', border: '2px dashed #f59e0b', padding: '16px', borderRadius: '8px', textAlign: 'left' }}>
+            <Typography.Paragraph style={{ fontWeight: 700, marginBottom: '8px', color: '#b45309' }}>
+              <InfoCircleOutlined style={{ marginRight: '8px' }} /> QOIDALAR:
+            </Typography.Paragraph>
+            <ul style={{ margin: 0, paddingLeft: '20px', fontWeight: 600, color: '#4b5563' }}>
+              <li style={{ marginBottom: '8px' }}>Agar <strong>80% yoki undan yuqori</strong> natija olsangiz, starlaringiz <strong>qaytarib beriladi</strong>.</li>
+              <li>Agar natijangiz 80% dan past bo'lsa, starlar <strong>kuyadi</strong>.</li>
+            </ul>
+          </div>
+          <Typography.Paragraph style={{ marginTop: '24px', fontWeight: 600, fontStyle: 'italic' }}>
+            Sizda hozir: <strong>{currentUser?.stars || 0}</strong> star mavjud.
+          </Typography.Paragraph>
         </div>
       </Modal>
     </ConfigProvider>

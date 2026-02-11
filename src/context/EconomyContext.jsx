@@ -13,7 +13,7 @@ export const useEconomy = () => {
 };
 
 export const EconomyProvider = ({ children }) => {
-    const { currentUser, updateProfile } = useAuth();
+    const { currentUser, updateProfile, refreshProfile } = useAuth();
 
     // Initialize state from currentUser or local storage for persistency
     const [stars, setStars] = useState(currentUser?.stars || 0);
@@ -44,30 +44,21 @@ export const EconomyProvider = ({ children }) => {
         return newBalance;
     }, [stars, currentUser, updateProfile]);
 
-    const purchaseTest = React.useCallback(async (testId, price) => {
-        if (stars < price) {
-            throw new Error('Not enough stars!');
-        }
+    const purchaseTest = React.useCallback(async (testId) => {
+        try {
+            await apiService.purchaseTest(testId);
 
-        const newBalance = stars - price;
-        const newOwnedTests = [...ownedTests, testId];
-
-        setStars(newBalance);
-        setOwnedTests(newOwnedTests);
-
-        if (currentUser) {
-            try {
-                await updateProfile({
-                    stars: newBalance,
-                    owned_tests: newOwnedTests
-                });
-            } catch (error) {
-                console.error('Failed to purchase test:', error);
+            // Refresh user data to get updated stars and owned_tests
+            if (refreshProfile) {
+                await refreshProfile();
             }
-        }
 
-        return true;
-    }, [stars, ownedTests, currentUser, updateProfile]);
+            return true;
+        } catch (error) {
+            console.error('Failed to purchase test:', error);
+            throw error;
+        }
+    }, [refreshProfile]);
 
     const exchangeStarsForPremium = React.useCallback(async (plan) => {
         // Ensure we have the latest token from localStorage
@@ -75,7 +66,7 @@ export const EconomyProvider = ({ children }) => {
         if (accessToken) {
             apiService.setToken(accessToken);
         }
-        
+
         // Call the backend API to purchase premium with stars
         if (!currentUser) {
             throw new Error('User not authenticated');
@@ -90,7 +81,7 @@ export const EconomyProvider = ({ children }) => {
                 // Update local state with server response
                 setStars(response.user.stars || 0);
                 setPremiumUntil(response.user.premium_expiry_date || null);
-                
+
                 // Also update the current user in AuthContext
                 await updateProfile({
                     stars: response.user.stars,

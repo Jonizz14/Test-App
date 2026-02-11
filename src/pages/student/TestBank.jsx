@@ -47,6 +47,11 @@ const TestBank = () => {
     const [error, setError] = useState(null);
     const [takenTests, setTakenTests] = useState(new Set());
 
+    // Star Purchase States
+    const [starConfirmModalOpen, setStarConfirmModalOpen] = useState(false);
+    const [testToPurchase, setTestToPurchase] = useState(null);
+    const [starPurchaseLoading, setStarPurchaseLoading] = useState(false);
+
     // Filtering states
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('date');
@@ -129,6 +134,27 @@ const TestBank = () => {
 
     const continueTest = (testId) => {
         navigate(`/student/take-test?testId=${testId}`);
+    };
+
+    const handleStarPurchase = async () => {
+        if (!testToPurchase) return;
+
+        setStarPurchaseLoading(true);
+        try {
+            await purchaseTest(testToPurchase.id);
+            setStarConfirmModalOpen(false);
+            setTestToPurchase(null);
+            // Refresh logic handled by EconomyContext calling refreshProfile
+            // But we might want to reload list or force update takenTests/ownedStatus
+            // Since useEconomy updates global state, isTestOwned will update automatically
+            // List reload isn't strictly necessary unless test status changes visually
+            window.location.reload(); // Simple reload to ensure everything is fresh as per original code
+        } catch (e) {
+            console.error("Purchase failed", e);
+            // Error already logged/handled partly, maybe show alert
+        } finally {
+            setStarPurchaseLoading(false);
+        }
     };
 
     // Filtering Logic
@@ -291,13 +317,9 @@ const TestBank = () => {
                                                 <Button
                                                     style={{ border: '2px solid #000', boxShadow: '3px 3px 0px #000', fontWeight: 900, backgroundColor: 'var(--star-gold)', color: '#000' }}
                                                     disabled={currentUser?.stars < test.star_price}
-                                                    onClick={async () => {
-                                                        try {
-                                                            await purchaseTest(test.id, test.star_price);
-                                                            window.location.reload();
-                                                        } catch (e) {
-                                                            console.error("Purchase failed", e);
-                                                        }
+                                                    onClick={() => {
+                                                        setTestToPurchase(test);
+                                                        setStarConfirmModalOpen(true);
                                                     }}
                                                 >
                                                     {test.star_price} ⭐ BILAN OCHISH
@@ -481,6 +503,52 @@ const TestBank = () => {
                             Yopish
                         </Button>
                     </div>
+                </div>
+            </Modal>
+
+            {/* Star Purchase Confirmation Modal */}
+            <Modal
+                title={<Title level={4} style={{ margin: 0, fontWeight: 900, textTransform: 'uppercase', color: '#d97706' }}>STARLI TEST</Title>}
+                open={starConfirmModalOpen}
+                onCancel={() => !starPurchaseLoading && setStarConfirmModalOpen(false)}
+                centered
+                styles={{ mask: { backdropFilter: 'blur(4px)' } }}
+                footer={[
+                    <Button
+                        key="cancel"
+                        onClick={() => setStarConfirmModalOpen(false)}
+                        disabled={starPurchaseLoading}
+                        style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 900 }}
+                    >
+                        BEKOR QILISH
+                    </Button>,
+                    <Button
+                        key="buy"
+                        loading={starPurchaseLoading}
+                        onClick={handleStarPurchase}
+                        style={{ borderRadius: 0, border: '2px solid #000', fontWeight: 900, backgroundColor: '#d97706', color: '#fff' }}
+                    >
+                        ROZIMAN ({testToPurchase?.star_price} STAR)
+                    </Button>
+                ]}
+            >
+                <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>⭐</div>
+                    <Title level={3} style={{ fontWeight: 900, marginBottom: '16px' }}>
+                        Ushbu test narxi: {testToPurchase?.star_price} Star
+                    </Title>
+                    <div style={{ backgroundColor: '#fff7ed', border: '2px dashed #f59e0b', padding: '16px', borderRadius: '8px', textAlign: 'left' }}>
+                        <Paragraph style={{ fontWeight: 700, marginBottom: '8px', color: '#b45309' }}>
+                            QOIDALAR:
+                        </Paragraph>
+                        <ul style={{ margin: 0, paddingLeft: '20px', fontWeight: 600, color: '#4b5563' }}>
+                            <li style={{ marginBottom: '8px' }}>Agar <strong>80% yoki undan yuqori</strong> natija olsangiz, starlaringiz <strong>qaytarib beriladi</strong>.</li>
+                            <li>Agar natijangiz 80% dan past bo'lsa, starlar <strong>kuyadi</strong>.</li>
+                        </ul>
+                    </div>
+                    <Paragraph style={{ marginTop: '24px', fontWeight: 600, fontStyle: 'italic' }}>
+                        Sizda hozir: <strong>{currentUser?.stars || 0}</strong> star mavjud.
+                    </Paragraph>
                 </div>
             </Modal>
         </ConfigProvider>

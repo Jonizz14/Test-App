@@ -56,9 +56,14 @@ const SubmitTest = () => {
   const [submissionResult, setSubmissionResult] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const hasSubmitted = React.useRef(false);
+
   useEffect(() => {
-    // Auto-submit when component mounts
-    handleSubmit();
+    // Auto-submit when component mounts, but only once
+    if (!hasSubmitted.current) {
+      hasSubmitted.current = true;
+      handleSubmit();
+    }
   }, []);
 
   const handleSubmit = async () => {
@@ -78,17 +83,17 @@ const SubmitTest = () => {
       }
     } catch (error) {
       console.error('Failed to submit test:', error);
-      
+
       // Simple check for "already completed" errors
       const errorText = error.message || '';
       const errorStatus = error.response?.status || 0;
-      
+
       // Check for various "already completed" error formats
-      const isAlreadyCompleted = 
-        errorText.includes('already completed') || 
+      const isAlreadyCompleted =
+        errorText.includes('already completed') ||
         errorText.includes('Session already completed') ||
         (errorStatus === 400 || errorStatus === 409);
-      
+
       if (isAlreadyCompleted) {
         // Try to fetch existing attempt results
         try {

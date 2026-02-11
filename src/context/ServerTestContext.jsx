@@ -88,7 +88,8 @@ export const ServerTestProvider = ({ children }) => {
 
         // Auto-expire session when time runs out
         if (newTimeRemaining === 0) {
-          handleSessionExpired();
+          // handleSessionExpired(); // Don't auto-submit here to avoid race condition with SubmitTest page
+          setSessionStarted(false); // Just stop the timer
         }
       }, 1000);
     }

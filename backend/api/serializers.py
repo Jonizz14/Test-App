@@ -121,6 +121,23 @@ class TestSerializer(serializers.ModelSerializer):
             elif isinstance(data['target_grades'], str):
                 # If it's already a string, keep it as is
                 pass
+        
+        # Ensure is_premium and star_price are captured correctly
+        if 'is_premium' in data:
+            if not isinstance(data, dict): # if it's a QueryDict
+                data = data.copy()
+            val = data.get('is_premium')
+            if isinstance(val, str):
+                data['is_premium'] = val.lower() == 'true'
+        
+        if 'star_price' in data:
+            if not isinstance(data, dict):
+                data = data.copy()
+            try:
+                data['star_price'] = int(data.get('star_price'))
+            except (ValueError, TypeError):
+                data['star_price'] = 0
+
         return super().to_internal_value(data)
 
     def to_representation(self, instance):

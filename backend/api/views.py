@@ -732,6 +732,9 @@ class TestViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(teacher=self.request.user)
 
+    def perform_update(self, serializer):
+        serializer.save()
+
     def get_queryset(self):
         from django.db.models import Count, Avg
         queryset = Test.objects.select_related('teacher').annotate(
@@ -881,16 +884,17 @@ class TestAttemptViewSet(viewsets.ModelViewSet):
                 from rest_framework.exceptions import PermissionDenied
                 raise PermissionDenied("Siz ushbu testda qatnasha olmaysiz")
 
-            # Check premium and star access
-            if test.is_premium and not self.request.user.is_premium:
-                from rest_framework.exceptions import PermissionDenied
-                raise PermissionDenied("Ushbu test faqat Premium foydalanuvchilar uchun")
-            
-            if test.star_price > 0:
-                owned_tests = self.request.user.owned_tests or []
-                if test.id not in owned_tests:
-                    from rest_framework.exceptions import PermissionDenied
-                    raise PermissionDenied("Ushbu testni qatnashish uchun uni yulduzlar bilan sotib olishingiz kerak")
+        # Check premium and star access
+        if test.is_premium and not self.request.user.is_premium:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Ushbu test faqat Premium foydalanuvchilar uchun")
+        
+        if test.star_price > 0:
+            owned_tests = self.request.user.owned_tests or []
+            # Check if test.id is in owned_tests (handle both int and str types)
+            if test.id not in owned_tests and str(test.id) not in [str(tid) for tid in owned_tests]:
+                 from rest_framework.exceptions import PermissionDenied
+                 raise PermissionDenied("Ushbu testni qatnashish uchun uni yulduzlar bilan sotib olishingiz kerak")
 
         attempt = serializer.save(student=self.request.user)
         self.request.user.update_student_stats()
@@ -1044,6 +1048,20 @@ class TestSessionViewSet(viewsets.ModelViewSet):
                 
             if not can_access:
                 return Response({'error': 'Siz ushbu testda qatnasha olmaysiz'}, status=status.HTTP_403_FORBIDDEN)
+
+            # Check premium and star access
+            if test.is_premium and not request.user.is_premium:
+                return Response({'error': 'Ushbu test faqat Premium foydalanuvchilar uchun'}, status=status.HTTP_403_FORBIDDEN)
+            
+            if test.star_price > 0:
+                owned_tests = request.user.owned_tests or []
+                # Check if test.id is in owned_tests (handle both int and str types)
+                if test.id not in owned_tests and str(test.id) not in [str(tid) for tid in owned_tests]:
+                    return Response({
+                        'error': 'star_purchase_required',
+                        'message': 'Ushbu testni qatnashish uchun uni yulduzlar bilan sotib olishingiz kerak',
+                        'star_price': test.star_price
+                    }, status=status.HTTP_403_FORBIDDEN)
 
         # Check if student already has an attempt for this test
         existing_attempt = TestAttempt.objects.filter(student=request.user, test=test).first()
@@ -1261,14 +1279,26 @@ class TestSessionViewSet(viewsets.ModelViewSet):
             student.total_tests_taken = total_attempts
             student.average_score = avg_score
             student.stars += 2  # Reward for completing a test
+
+            # Star Refund Logic: If score >= 80% on a star-purchased test, refund stars
+            refunded_stars = 0
+            if test.star_price > 0 and score_percentage >= 80:
+                student.stars += test.star_price
+                refunded_stars = test.star_price
+
             student.save()
             
+            message = 'Test muvaffaqiyatli yakunlandi! +2 ⭐ berildi'
+            if refunded_stars > 0:
+                message += f'. {refunded_stars} star qaytarib berildi!'
+
             return Response({
                 'success': True,
-                'message': 'Test muvaffaqiyatli yakunlandi! +2 ⭐ berildi',
+                'message': message,
                 'attempt_id': attempt.id,
                 'score': score_percentage,
-                'stars': student.stars
+                'stars': student.stars,
+                'refunded_stars': refunded_stars
             })
             
         except TestSession.DoesNotExist:

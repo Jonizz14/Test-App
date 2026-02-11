@@ -274,6 +274,10 @@ class ApiService {
     return this.delete(`/tests/${id}/`);
   }
 
+  async purchaseTest(testId) {
+    return this.post(`/tests/${testId}/purchase/`);
+  }
+
   // Question methods
   async getQuestions(params = {}) {
     const queryString = new URLSearchParams(params).toString();
