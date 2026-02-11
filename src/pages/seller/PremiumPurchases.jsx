@@ -74,37 +74,34 @@ const PremiumPurchases = () => {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      width: 60,
+      width: 55,
       align: 'center',
     },
     {
       title: "O'quvchi",
       key: 'student',
+      width: 130,
       render: (_, record) => (
         <div>
-          <Text strong style={{ fontSize: '14px' }}>
+          <Text strong style={{ fontSize: '13px' }}>
             {record.student_name || record.student_username || "Noma'lum"}
-          </Text>
-          <br />
-          <Text type="secondary" style={{ fontSize: '12px' }}>
-            @{record.student_username || record.student || 'N/A'}
           </Text>
         </div>
       ),
     },
     {
-      title: 'Sotib olish turi',
+      title: 'Turi',
       dataIndex: 'purchase_type',
       key: 'purchase_type',
-      width: 120,
+      width: 80,
       align: 'center',
       render: (type) => (
         <span style={{
           backgroundColor: type === 'stars' ? '#fef3c7' : '#dcfce7',
           color: type === 'stars' ? '#d97706' : '#16a34a',
-          padding: '4px 12px',
+          padding: '3px 8px',
           fontWeight: 700,
-          fontSize: '12px',
+          fontSize: '11px',
           border: `2px solid ${type === 'stars' ? '#d97706' : '#16a34a'}`,
           borderRadius: 0,
         }}>
@@ -113,10 +110,10 @@ const PremiumPurchases = () => {
       ),
     },
     {
-      title: ' Tanlangan Tariff',
+      title: 'Tariff',
       dataIndex: 'plan_type_name',
       key: 'plan_type_name',
-      width: 100,
+      width: 90,
       align: 'center',
       render: (type, record) => {
         const planLabels = {
@@ -129,9 +126,9 @@ const PremiumPurchases = () => {
           <span style={{
             backgroundColor: '#f3e8ff',
             color: '#7c3aed',
-            padding: '4px 12px',
+            padding: '3px 8px',
             fontWeight: 700,
-            fontSize: '12px',
+            fontSize: '10px',
             border: '2px solid #7c3aed',
             borderRadius: 0,
           }}>
@@ -144,10 +141,10 @@ const PremiumPurchases = () => {
       title: 'Yulduzlar',
       dataIndex: 'stars_used',
       key: 'stars_used',
-      width: 100,
+      width: 70,
       align: 'center',
       render: (stars) => (
-        <Text strong style={{ fontSize: '16px', color: '#d97706' }}>
+        <Text strong style={{ fontSize: '14px', color: '#d97706' }}>
           ⭐ {stars || 0}
         </Text>
       ),
@@ -156,38 +153,26 @@ const PremiumPurchases = () => {
       title: 'Pul (USD)',
       dataIndex: 'money_spent',
       key: 'money_spent',
-      width: 100,
+      width: 80,
       align: 'center',
       render: (money) => (
-        <Text strong style={{ fontSize: '16px', color: '#16a34a' }}>
+        <Text strong style={{ fontSize: '14px', color: '#16a34a' }}>
           ${parseFloat(money || 0).toFixed(2)}
         </Text>
       ),
     },
     {
-      title: 'Berilgan vaqt',
+      title: 'Berilgan',
       dataIndex: 'granted_date',
       key: 'granted_date',
-      width: 150,
+      width: 100,
       align: 'center',
       render: (date) => (
-        <Text style={{ fontSize: '12px', fontWeight: 600 }}>
+        <Text style={{ fontSize: '11px', fontWeight: 600 }}>
           {dayjs(date).format('DD.MM.YYYY HH:mm')}
         </Text>
       ),
       sorter: (a, b) => new Date(a.granted_date) - new Date(b.granted_date),
-    },
-    {
-      title: 'Amal qilish muddati',
-      dataIndex: 'expiry_date',
-      key: 'expiry_date',
-      width: 150,
-      align: 'center',
-      render: (date) => (
-        <Text style={{ fontSize: '12px', fontWeight: 600 }}>
-          {dayjs(date).format('DD.MM.YYYY HH:mm')}
-        </Text>
-      ),
     },
   ];
 
@@ -201,46 +186,46 @@ const PremiumPurchases = () => {
   }
 
   return (
-    <div style={{ padding: '40px 0' }}>
+    <div style={{ padding: '32px 0' }}>
       {/* Brutalist Header */}
-      <div className="animate__animated animate__fadeIn" style={{ marginBottom: '60px' }}>
-        <div style={{ 
-          display: 'inline-block', 
-          backgroundColor: '#000', 
-          color: '#fff', 
-          padding: '8px 16px', 
-          fontWeight: 900, 
-          fontSize: '14px',
+      <div className="animate__animated animate__fadeIn" style={{ marginBottom: '48px' }}>
+        <div style={{
+          display: 'inline-block',
+          backgroundColor: '#000',
+          color: '#fff',
+          padding: '7px 14px',
+          fontWeight: 900,
+          fontSize: '12px',
           textTransform: 'uppercase',
-          letterSpacing: '0.2em',
-          marginBottom: '16px'
+          letterSpacing: '0.18em',
+          marginBottom: '14px'
         }}>
           Monitoring
         </div>
-        <Title level={1} style={{ 
-          margin: 0, 
-          fontWeight: 900, 
-          fontSize: '2.5rem', 
-          lineHeight: 0.9, 
+        <Title level={1} style={{
+          margin: 0,
+          fontWeight: 900,
+          fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+          lineHeight: 1,
           textTransform: 'uppercase',
-          letterSpacing: '-0.05em',
+          letterSpacing: '-0.04em',
           color: '#000'
         }}>
           Premium Sotuvlar
         </Title>
-        <div style={{ 
-          width: '80px', 
-          height: '10px', 
-          backgroundColor: '#000', 
-          margin: '24px 0' 
+        <div style={{
+          width: '70px',
+          height: '9px',
+          backgroundColor: '#000',
+          margin: '20px 0'
         }}></div>
-        <Paragraph style={{ fontSize: '1.2rem', fontWeight: 600, color: '#333', maxWidth: '600px' }}>
+        <Paragraph style={{ fontSize: '1.1rem', fontWeight: 600, color: '#333', maxWidth: '600px' }}>
           Premium obuna sotuvlari, yulduzlar bilan almashuv va daromadlar monitoring paneli.
         </Paragraph>
       </div>
 
       {/* Refresh Button */}
-      <div className="animate__animated animate__fadeIn" style={{ marginBottom: '32px' }}>
+      <div className="animate__animated animate__fadeIn" style={{ marginBottom: '28px' }}>
         <div
           onClick={loadPurchases}
           style={{
@@ -256,7 +241,7 @@ const PremiumPurchases = () => {
             boxShadow: '6px 6px 0px #000',
             cursor: 'pointer',
             textTransform: 'uppercase',
-            fontSize: '14px',
+            fontSize: '13px',
             transition: 'all 0.2s'
           }}
         >
@@ -264,202 +249,207 @@ const PremiumPurchases = () => {
         </div>
       </div>
 
-      {/* Statistics Cards */}
-      <Row gutter={[32, 32]} className="animate__animated animate__fadeIn" style={{ marginBottom: '48px' }}>
-        <Col xs={12} sm={8} lg={4}>
-          <div className="animate__animated animate__fadeIn">
-            <Card
-              style={{
-                borderRadius: 0,
-                border: '4px solid #000',
-                boxShadow: '10px 10px 0px #000',
-                backgroundColor: '#fff',
-                height: '100%'
-              }}
-              styles={{ body: { padding: '24px' } }}
-            >
-              <Text style={{ 
-                fontSize: '14px', 
-                fontWeight: 900, 
-                textTransform: 'uppercase', 
-                letterSpacing: '0.1em',
-                color: '#000',
-                display: 'block',
-                marginBottom: '4px'
-              }}>
-                Jami sotuvlar
-              </Text>
-              <Statistic
-                value={stats.totalPurchases}
-                valueStyle={{ 
-                  fontSize: '48px', 
-                  fontWeight: 900, 
+      {/* Statistics Cards - Single Row */}
+      <div className="animate__animated animate__fadeIn" style={{ marginBottom: '40px' }}>
+        <Row gutter={[12, 12]} style={{ width: '100%', margin: 0 }}>
+          <Col xs={24} style={{ padding: 0 }}>
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              overflowX: 'auto',
+              paddingBottom: '8px'
+            }}>
+              {/* Card 1 - Jami sotuvlar */}
+              <Card
+                style={{
+                  borderRadius: 0,
+                  border: '2px solid #000',
+                  boxShadow: '6px 6px 0px #000',
+                  backgroundColor: '#fff',
+                  minWidth: '180px',
+                  flex: 1
+                }}
+                styles={{ body: { padding: '16px' } }}
+              >
+                <Text style={{
+                  fontSize: '11px',
+                  fontWeight: 900,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
                   color: '#000',
-                  letterSpacing: '-2px',
-                  lineHeight: 1
+                  display: 'block',
+                  marginBottom: '6px'
+                }}>
+                  Jami sotuvlar
+                </Text>
+                <Statistic
+                  value={stats.totalPurchases}
+                  valueStyle={{
+                    fontSize: '28px',
+                    fontWeight: 900,
+                    color: '#000',
+                    letterSpacing: '-1px',
+                    lineHeight: 1
+                  }}
+                  prefix={<CrownOutlined style={{ marginRight: '6px', fontSize: '16px', color: '#7c3aed' }} />}
+                />
+              </Card>
+
+              {/* Card 2 - Yulduz bilan */}
+              <Card
+                style={{
+                  borderRadius: 0,
+                  border: '2px solid #000',
+                  boxShadow: '6px 6px 0px #000',
+                  backgroundColor: '#fef3c7',
+                  minWidth: '180px',
+                  flex: 1
                 }}
-                prefix={<CrownOutlined style={{ marginRight: '12px', color: '#7c3aed' }} />}
-              />
-            </Card>
-          </div>
-        </Col>
-        <Col xs={12} sm={8} lg={5}>
-          <div className="animate__animated animate__fadeIn" style={{ animationDelay: '100ms' }}>
-            <Card
-              style={{
-                borderRadius: 0,
-                border: '4px solid #000',
-                boxShadow: '10px 10px 0px #000',
-                backgroundColor: '#fef3c7',
-                height: '100%'
-              }}
-              styles={{ body: { padding: '24px' } }}
-            >
-              <Text style={{ 
-                fontSize: '14px', 
-                fontWeight: 900, 
-                textTransform: 'uppercase', 
-                letterSpacing: '0.1em',
-                color: '#92400e',
-                display: 'block',
-                marginBottom: '4px'
-              }}>
-                Yulduz bilan
-              </Text>
-              <Statistic
-                value={stats.starsPurchasesCount}
-                valueStyle={{ 
-                  fontSize: '48px', 
-                  fontWeight: 900, 
+                styles={{ body: { padding: '16px' } }}
+              >
+                <Text style={{
+                  fontSize: '11px',
+                  fontWeight: 900,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
                   color: '#92400e',
-                  letterSpacing: '-2px',
-                  lineHeight: 1
+                  display: 'block',
+                  marginBottom: '6px'
+                }}>
+                  Yulduz bilan
+                </Text>
+                <Statistic
+                  value={stats.starsPurchasesCount}
+                  valueStyle={{
+                    fontSize: '28px',
+                    fontWeight: 900,
+                    color: '#92400e',
+                    letterSpacing: '-1px',
+                    lineHeight: 1
+                  }}
+                  prefix={<StarOutlined style={{ marginRight: '6px', fontSize: '16px', color: '#d97706' }} />}
+                />
+              </Card>
+
+              {/* Card 3 - Pul bilan */}
+              <Card
+                style={{
+                  borderRadius: 0,
+                  border: '2px solid #000',
+                  boxShadow: '6px 6px 0px #000',
+                  backgroundColor: '#dcfce7',
+                  minWidth: '180px',
+                  flex: 1
                 }}
-                prefix={<StarOutlined style={{ marginRight: '12px', color: '#d97706' }} />}
-              />
-            </Card>
-          </div>
-        </Col>
-        <Col xs={12} sm={8} lg={5}>
-          <div className="animate__animated animate__fadeIn" style={{ animationDelay: '200ms' }}>
-            <Card
-              style={{
-                borderRadius: 0,
-                border: '4px solid #000',
-                boxShadow: '10px 10px 0px #000',
-                backgroundColor: '#dcfce7',
-                height: '100%'
-              }}
-              styles={{ body: { padding: '24px' } }}
-            >
-              <Text style={{ 
-                fontSize: '14px', 
-                fontWeight: 900, 
-                textTransform: 'uppercase', 
-                letterSpacing: '0.1em',
-                color: '#166534',
-                display: 'block',
-                marginBottom: '4px'
-              }}>
-                Pul bilan
-              </Text>
-              <Statistic
-                value={stats.moneyPurchasesCount}
-                valueStyle={{ 
-                  fontSize: '48px', 
-                  fontWeight: 900, 
+                styles={{ body: { padding: '16px' } }}
+              >
+                <Text style={{
+                  fontSize: '11px',
+                  fontWeight: 900,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
                   color: '#166534',
-                  letterSpacing: '-2px',
-                  lineHeight: 1
+                  display: 'block',
+                  marginBottom: '6px'
+                }}>
+                  Pul bilan
+                </Text>
+                <Statistic
+                  value={stats.moneyPurchasesCount}
+                  valueStyle={{
+                    fontSize: '28px',
+                    fontWeight: 900,
+                    color: '#166534',
+                    letterSpacing: '-1px',
+                    lineHeight: 1
+                  }}
+                  prefix={<DollarOutlined style={{ marginRight: '6px', fontSize: '16px', color: '#16a34a' }} />}
+                />
+              </Card>
+
+              {/* Card 4 - Jami yulduzlar */}
+              <Card
+                style={{
+                  borderRadius: 0,
+                  border: '2px solid #000',
+                  boxShadow: '6px 6px 0px #000',
+                  backgroundColor: '#fef3c7',
+                  minWidth: '180px',
+                  flex: 1
                 }}
-                prefix={<DollarOutlined style={{ marginRight: '12px', color: '#16a34a' }} />}
-              />
-            </Card>
-          </div>
-        </Col>
-        <Col xs={12} sm={8} lg={5}>
-          <div className="animate__animated animate__fadeIn" style={{ animationDelay: '300ms' }}>
-            <Card
-              style={{
-                borderRadius: 0,
-                border: '4px solid #000',
-                boxShadow: '10px 10px 0px #000',
-                backgroundColor: '#fef3c7',
-                height: '100%'
-              }}
-              styles={{ body: { padding: '24px' } }}
-            >
-              <Text style={{ 
-                fontSize: '14px', 
-                fontWeight: 900, 
-                textTransform: 'uppercase', 
-                letterSpacing: '0.1em',
-                color: '#92400e',
-                display: 'block',
-                marginBottom: '4px'
-              }}>
-                Jami yulduzlar
-              </Text>
-              <Statistic
-                value={stats.totalStarsUsed}
-                valueStyle={{ 
-                  fontSize: '48px', 
-                  fontWeight: 900, 
+                styles={{ body: { padding: '16px' } }}
+              >
+                <Text style={{
+                  fontSize: '11px',
+                  fontWeight: 900,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
                   color: '#92400e',
-                  letterSpacing: '-2px',
-                  lineHeight: 1
+                  display: 'block',
+                  marginBottom: '6px'
+                }}>
+                  Jami yulduzlar
+                </Text>
+                <Statistic
+                  value={stats.totalStarsUsed}
+                  valueStyle={{
+                    fontSize: '28px',
+                    fontWeight: 900,
+                    color: '#92400e',
+                    letterSpacing: '-1px',
+                    lineHeight: 1
+                  }}
+                  prefix={<StarOutlined style={{ marginRight: '6px', fontSize: '16px', color: '#d97706' }} />}
+                />
+              </Card>
+
+              {/* Card 5 - Jami daromad */}
+              <Card
+                style={{
+                  borderRadius: 0,
+                  border: '2px solid #000',
+                  boxShadow: '6px 6px 0px #000',
+                  backgroundColor: '#dcfce7',
+                  minWidth: '180px',
+                  flex: 1
                 }}
-                prefix={<StarOutlined style={{ marginRight: '12px', color: '#d97706' }} />}
-              />
-            </Card>
-          </div>
-        </Col>
-        <Col xs={12} sm={8} lg={5}>
-          <div className="animate__animated animate__fadeIn" style={{ animationDelay: '400ms' }}>
-            <Card
-              style={{
-                borderRadius: 0,
-                border: '4px solid #000',
-                boxShadow: '10px 10px 0px #000',
-                backgroundColor: '#dcfce7',
-                height: '100%'
-              }}
-              styles={{ body: { padding: '24px' } }}
-            >
-              <Text style={{ 
-                fontSize: '14px', 
-                fontWeight: 900, 
-                textTransform: 'uppercase', 
-                letterSpacing: '0.1em',
-                color: '#166534',
-                display: 'block',
-                marginBottom: '4px'
-              }}>
-                Jami daromad
-              </Text>
-              <Statistic
-                value={stats.totalMoneySpent}
-                precision={2}
-                valueStyle={{ 
-                  fontSize: '48px', 
-                  fontWeight: 900, 
+                styles={{ body: { padding: '16px' } }}
+              >
+                <Text style={{
+                  fontSize: '11px',
+                  fontWeight: 900,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
                   color: '#166534',
-                  letterSpacing: '-2px',
-                  lineHeight: 1
-                }}
-                prefix={<DollarOutlined style={{ marginRight: '12px', color: '#16a34a' }} />}
-              />
-            </Card>
-          </div>
-        </Col>
-      </Row>
+                  display: 'block',
+                  marginBottom: '6px'
+                }}>
+                  Jami daromad
+                </Text>
+                <Statistic
+                  value={stats.totalMoneySpent}
+                  precision={2}
+                  valueStyle={{
+                    fontSize: '28px',
+                    fontWeight: 900,
+                    color: '#166534',
+                    letterSpacing: '-1px',
+                    lineHeight: 1
+                  }}
+                  prefix={<DollarOutlined style={{ marginRight: '6px', fontSize: '16px', color: '#16a34a' }} />}
+                />
+              </Card>
+            </div>
+          </Col>
+        </Row>
+      </div>
 
       {/* Table */}
-      <div className="animate__animated animate__fadeIn" style={{ animationDelay: '500ms' }}>
+      <div className="animate__animated animate__fadeIn">
         <Card
           style={{
             borderRadius: 0,
-            border: '4px solid #000',
+            border: '3px solid #000',
             boxShadow: '10px 10px 0px #000',
             backgroundColor: '#fff',
           }}
@@ -477,7 +467,7 @@ const PremiumPurchases = () => {
               pageSizeOptions: ['10', '20', '50'],
               style: { padding: '16px' }
             }}
-            scroll={{ x: 900 }}
+            scroll={{ x: 800 }}
             rowClassName={() => 'table-row'}
           />
         </Card>
@@ -491,21 +481,14 @@ const PremiumPurchases = () => {
           background-color: #f1f5f9 !important;
           font-weight: 900 !important;
           text-transform: uppercase;
-          font-size: 12px !important;
+          font-size: 11px !important;
           letter-spacing: 0.05em !important;
           border-bottom: 2px solid #000 !important;
           border-right: 2px solid #e2e8f0 !important;
         }
         .ant-table-tbody > tr > td {
           border-bottom: 1px solid #e2e8f0 !important;
-          border-right: 1px solid #e2e8f0 !important;
-        }
-        .ant-pagination-item-active {
-          border-color: #000 !important;
-          background-color: #000 !important;
-        }
-        .ant-pagination-item-active a {
-          color: #fff !important;
+          border-right: 2px solid #e2e8f0 !important;
         }
       `}</style>
     </div>
