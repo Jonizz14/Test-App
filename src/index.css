@@ -11,49 +11,20 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Futuristics Learning Economy Tokens */
-  --star-gold: #FFD700;
-  --star-gold-rgb: 255, 215, 0;
-  --star-glow: 0 0 15px rgba(255, 215, 0, 0.4);
-  --premium-purple: #A020F0;
-  --premium-purple-rgb: 160, 32, 240;
-  --premium-glow: 0 0 20px rgba(160, 32, 240, 0.5);
-  --dark-bg: #0a0a0b;
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --brutalist-border: 2px solid #000;
-  --card-shadow: 8px 8px 0px rgba(0, 0, 0, 1);
-  --neon-cyan: #00f3ff;
-  --neon-magenta: #ff00ff;
-
-  /* Blue color palette - but used only for accents now */
-  --blue-50: #ffffff;
-  /* Changed to white to avoid flashes */
-  --blue-100: #f8fafc;
-  --blue-200: #e2e8f0;
-  --blue-300: #93c5fd;
-  --blue-400: #60a5fa;
-  --blue-500: #3b82f6;
-  --blue-600: #2563eb;
-  --blue-700: #1d4ed8;
-  --blue-800: #1e40af;
-  --blue-900: #1e3a8a;
+  /* Global Theme Tokens */
+  --bg-color: #ffffff;
+  --text-color: #213547;
 }
 
 .dark {
-  --blue-50: #0f172a;
-  --blue-100: #1e293b;
-  --blue-200: #334155;
-  --blue-300: #475569;
-  --blue-400: #60a5fa;
-  --blue-500: #3b82f6;
-  --blue-600: #2563eb;
-  --blue-700: #1d4ed8;
-  --blue-800: #1e40af;
-  --blue-900: #1e3a8a;
+  --bg-color: #0a0a0b;
+  --text-color: #f8fafc;
+  --dark-bg: #0a0a0b;
+  --glass-bg: rgba(0, 0, 0, 0.3);
+  --glass-border: rgba(255, 255, 255, 0.1);
 
-  background-color: var(--dark-bg);
-  color: #f8fafc;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 * {
@@ -64,13 +35,14 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #ffffff;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 .dark body {
-  background: var(--dark-bg);
-  color: #f8fafc;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 .dark #root {

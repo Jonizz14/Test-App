@@ -291,5 +291,42 @@
         "noNews": "No updates yet",
         "readMore": "Read More",
         "close": "Close"
+    },
+    "docs": {
+        "title": "DOCUMENTATION",
+        "subtitle": "Everything you need to know about using EXAMIFY. From getting started to advanced testing features.",
+        "gettingStarted": "Getting Started",
+        "gettingStartedDesc": "Learn the basics of EXAMIFY, how to create your first test, and how to invite students.",
+        "advanced": "Advanced Features",
+        "advancedDesc": "Explore AI-powered test generation, premium analytics, and automated grading systems.",
+        "api": "API Reference",
+        "apiDesc": "Integrate EXAMIFY into your existing workflow using our powerful REST API.",
+        "integrations": "Integrations",
+        "integrationsDesc": "Connect EXAMIFY with Google Classroom, Canvas, and other popular LMS platforms."
+    },
+    "faq": {
+        "title": "FAQ",
+        "q1": "What is EXAMIFY?",
+        "a1": "EXAMIFY is a next-generation testing and assessment platform designed for modern educators and students.",
+        "q2": "How do I create a test?",
+        "a2": "Go to your dashboard, click 'Create Test', and follow the intuitive step-by-step builder.",
+        "q3": "Is EXAMIFY free?",
+        "a3": "We offer a robust free tier for individual educators, as well as premium plans for schools and teams.",
+        "q4": "Can I use AI to generate questions?",
+        "a4": "Yes! EXAMIFY includes built-in AI tools to help you generate high-quality questions in seconds."
+    },
+    "architect": {
+        "title": "THE ARCHITECT",
+        "name": "Jonizz14",
+        "desc": "The visionary behind EXAMIFY. Engineering the future of education with precision and brutalist aesthetics.",
+        "philosophy": "Philosophy",
+        "quote": "\"There is only one way to avoid criticism: do nothing, say nothing, and be nothing.\"",
+        "github": "GitHub",
+        "contact": "Contact"
+    },
+    "footer": {
+        "info": "Information",
+        "social": "Links",
+        "rights": "All rights reserved."
     }
 }

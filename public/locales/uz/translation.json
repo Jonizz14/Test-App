@@ -201,7 +201,7 @@
             "messages": {
                 "title": "ALOQA MARKAZI",
                 "subtitle": "DOIMO XABARDOR BO'LING",
-                "desc": "Yuborilgan xabarlar va tizim bildirishnomalarini markazlashgan menyu orqali kuzatib boring. Muhim yangiliklar endi e'tibordan chetda qolmaydi.",
+                "desc": "Yuborilgan xabarlar va tizim xabarlarini markazlashgan menyu orqali kuzatib boring. Muhim yangiliklar endi e'tibordan chetda qolmaydi.",
                 "label": "ALOQA"
             },
             "search": {
@@ -225,7 +225,7 @@
             "profile": {
                 "title": "SHAXSIY KABINET",
                 "subtitle": "MUVAFFARIYATLARINGIZNI KUZATING",
-                "desc": "Profilingiz orqali shaxsiy statistika, reytingdagi o'rningiz va hisob sozlamalarini boshqarishingiz mumkin.",
+                "desc": "Profilingiz orqali shaxsiy statistikika, reytingdagi o'rningiz va hisob sozlamalarini boshqarishingiz mumkin.",
                 "label": "PROFIL"
             },
             "ready": {
@@ -291,5 +291,42 @@
         "noNews": "Hozircha yangiliklar yo'q",
         "readMore": "Batafsil",
         "close": "Yopish"
+    },
+    "docs": {
+        "title": "DOKUMENTATSIYA",
+        "subtitle": "EXAMIFY dan foydalanish haqida hamma narsa. Ishni boshlashdan tortib murakkab test xususiyatlarigacha.",
+        "gettingStarted": "Ishni boshlash",
+        "gettingStartedDesc": "EXAMIFY asoslarini, birinchi testingizni qanday yaratishni va o'quvchilarni qanday taklif qilishni o'rganing.",
+        "advanced": "Kengaytirilgan xususiyatlar",
+        "advancedDesc": "AIga asoslangan test yaratish, premium analitika va avtomatlashtirilgan baholash tizimlarini o'rganing.",
+        "api": "API bo'yicha qo'llanma",
+        "apiDesc": "Bizning kuchli REST API-miz yordamida EXAMIFY-ni mavjud ish jarayoningizga integratsiya qiling.",
+        "integrations": "Integratsiyalar",
+        "integrationsDesc": "EXAMIFY-ni Google Classroom, Canvas va boshqa mashhur LMS platformalari bilan bog'lang."
+    },
+    "faq": {
+        "title": "FAQ",
+        "q1": "EXAMIFY nima?",
+        "a1": "EXAMIFY — zamonaviy o'qituvchilar va o'quvchilar uchun mo'ljallangan yangi avlod test va baholash platformasi.",
+        "q2": "Testni qanday yarataman?",
+        "a2": "Doshbordga o'ting, 'Test yaratish' tugmasini bosing va bosqichma-bosqich ko'rsatmalarga amal qiling.",
+        "q3": "EXAMIFY bepulmi?",
+        "a3": "Biz o'qituvchilar uchun mustahkam bepul tarif hamda maktablar va jamoalar uchun premium rejalarni taklif qilamiz.",
+        "q4": "Savollarni yaratishda SIning kuchidan foydalanish mumkinmi?",
+        "a4": "Ha! EXAMIFY bir necha soniya ichida yuqori sifatli savollarni yaratishga yordam beradigan o'rnatilgan SI vositalarini o'з ичига олади."
+    },
+    "architect": {
+        "title": "LOYIHA MUALLIFI",
+        "name": "Jonizz14",
+        "desc": "EXAMIFY ortidagi viziioner. Kelajak ta'limini aniqlik va brutalist estetika bilan loyihalashtirmoqda.",
+        "philosophy": "Falsafa",
+        "quote": "\"Tanqiddan qochishning yagona yo'li bor: hech narsa qilmaslik, hech narsa demaslik va hech kim bo'lmaslik.\"",
+        "github": "GitHub",
+        "contact": "Aloqa"
+    },
+    "footer": {
+        "info": "Ma'lumotlar",
+        "social": "Tashqi havolalar",
+        "rights": "Barcha huquqlar himoyalangan."
     }
 }

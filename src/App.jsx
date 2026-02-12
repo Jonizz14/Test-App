@@ -39,6 +39,10 @@ const TeacherDashboard = React.lazy(() => import('./pages/TeacherDashboard'));
 const StudentDashboard = React.lazy(() => import('./pages/StudentDashboard'));
 const SellerDashboard = React.lazy(() => import('./pages/SellerDashboard'));
 const ContentManagerDashboard = React.lazy(() => import('./pages/ContentManagerDashboard'));
+const Docs = React.lazy(() => import('./pages/Docs'));
+const FAQ = React.lazy(() => import('./pages/FAQ'));
+const TheArchitect = React.lazy(() => import('./pages/TheArchitect'));
+
 
 // Theme definition
 const theme = createTheme({
@@ -266,6 +270,8 @@ const TestPage = () => {
 
 import HelpButton from './components/HelpButton';
 import TextSelectionHandler from './components/TextSelectionHandler';
+import Footer from './components/Footer';
+
 
 
 // Animated wrapper for routes to provide smooth page transitions
@@ -359,6 +365,12 @@ const AnimatedRoutes = () => {
         {/* Onboarding / Welcome page */}
         <Route path="/welcome" element={<Onboarding />} />
 
+        {/* Documentation, FAQ and Architect pages */}
+        <Route path="/docs" element={<Docs />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/creator" element={<TheArchitect />} />
+
+
         {/* Dashboard redirect based on user role */}
         <Route
           path="/dashboard"
@@ -380,7 +392,7 @@ const AnimatedRoutes = () => {
 const GlobalHeader = () => {
   const location = useLocation();
   // Include only public routes and headadmin/seller dashboards
-  const themedRoutes = ['/', '/login', '/contact', '/updates', '/headadmin', '/seller', '/student', '/content-manager'];
+  const themedRoutes = ['/', '/login', '/contact', '/updates', '/headadmin', '/seller', '/student', '/content-manager', '/docs', '/faq', '/creator'];
 
   const isThemedRoute = themedRoutes.some(route =>
     route === '/' ? location.pathname === '/' : location.pathname.startsWith(route)
@@ -390,6 +402,22 @@ const GlobalHeader = () => {
 
   return <Header />;
 };
+
+// Global footer that only shows on chosen public routes
+const GlobalFooter = () => {
+  const location = useLocation();
+  // Include only public routes and headadmin/seller dashboards
+  const themedRoutes = ['/', '/login', '/contact', '/updates', '/docs', '/faq', '/creator'];
+
+  const isThemedRoute = themedRoutes.some(route =>
+    route === '/' ? location.pathname === '/' : location.pathname.startsWith(route)
+  );
+
+  if (!isThemedRoute) return null;
+
+  return <Footer />;
+};
+
 
 import OnboardingExitGhost from './components/OnboardingExitGhost';
 
@@ -455,7 +483,9 @@ function App() {
                                       </Box>
                                     }>
                                       <AnimatedRoutes />
+                                      <GlobalFooter />
                                     </React.Suspense>
+
                                   </ServerTestProvider>
                                 </SettingsProvider>
                               </StatisticsProvider>

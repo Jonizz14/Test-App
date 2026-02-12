@@ -1,0 +1,148 @@
+.footer {
+    background: #000;
+    color: #888;
+    padding: 100px 40px 40px;
+    font-family: 'Inter', sans-serif;
+    position: relative;
+    overflow: hidden;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        radial-gradient(1px 1px at 20px 30px, #fff, rgba(255, 255, 255, 0)),
+        radial-gradient(1px 1px at 50px 160px, #fff, rgba(255, 255, 255, 0)),
+        radial-gradient(1px 1px at 110px 10px, #fff, rgba(255, 255, 255, 0));
+    background-repeat: repeat;
+    background-size: 300px 300px;
+    opacity: 0.05;
+    pointer-events: none;
+}
+
+.footer-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.footer-logo-container {
+    text-align: center;
+    margin-bottom: 80px;
+    perspective: 1000px;
+}
+
+.footer-gamma-logo {
+    font-size: clamp(80px, 15vw, 240px);
+    font-weight: 900;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.473) 0%,rgba(255, 255, 255, 0.164) 50%, rgba(255, 255, 255, 0) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-transform: uppercase;
+    letter-spacing: -0.06em;
+    line-height: 0.8;
+    margin: 0;
+    user-select: none;
+    transition: all 0.5s ease;
+    white-space: nowrap;
+}
+
+.footer-divider {
+    border: none;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 0 0 60px 0;
+}
+
+.footer-sections {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 40px;
+    margin-bottom: 80px;
+    width: 100%;
+}
+
+.footer-column h3 {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-column ul li {
+    margin-bottom: 15px;
+}
+
+.footer-column ul li a {
+    color: #666;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.footer-column ul li a:hover {
+    color: #fff;
+}
+
+.footer-bottom {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 40px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.footer-copyright {
+    font-size: 12px;
+    color: #444;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 1024px) {
+    .footer-sections {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .footer {
+        padding: 80px 20px 40px;
+    }
+
+    .footer-gamma-logo {
+        font-size: 25vw;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-sections {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-column {
+        text-align: center;
+    }
+
+    .footer-column ul li a:hover {
+        transform: scale(1.1);
+    }
+
+    .footer-bottom {
+        justify-content: center;
+    }
+}
