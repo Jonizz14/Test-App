@@ -87,16 +87,18 @@ const Home = () => {
     }
 
     const observerOptions = {
-      threshold: 0.4,
-      rootMargin: '0px 0px -150px 0px'
+      threshold: 0.15, // more sensitive for sticky layout
     };
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
+        // In periodic intersection checks, sometimes entry.isIntersecting is false 
+        // even if it was true before. We only care about the FIRST time it is true.
         if (entry.isIntersecting) {
           entry.target.classList.add('in-view');
-        } else {
-          entry.target.classList.remove('in-view');
+          // Important: We stop observing once it has animated in once.
+          // This fulfills "bir marta bolsin" (only play once) per page visit.
+          observer.unobserve(entry.target);
         }
       });
     }, observerOptions);
@@ -142,11 +144,11 @@ const Home = () => {
     const snapTo = (index) => {
       const targets = getSnapTargets();
       if (index < 0 || index >= targets.length) return;
-      
+
       isScrolling = true;
       currentIndex = index;
       targets[index].scrollIntoView({ behavior: 'smooth' });
-      
+
       setTimeout(() => {
         isScrolling = false;
         accumulatedDelta = 0;
@@ -168,7 +170,7 @@ const Home = () => {
       if (Math.abs(accumulatedDelta) > SCROLL_THRESHOLD) {
         const targets = getSnapTargets();
         const maxIndex = targets.length - 1;
-        
+
         // Use current tracked index, but valid it lightly against scroll pos if idle
         // (logic: if user used scrollbar, we need to re-sync)
         if (!isScrolling) updateCurrentIndex();
@@ -206,16 +208,16 @@ const Home = () => {
     // Touch logic (simplified for swipe)
     let touchStartY = 0;
     const handleTouchStart = (e) => touchStartY = e.touches[0].clientY;
-    
+
     const handleTouchEnd = (e) => {
       if (isScrolling) return;
       const touchEndY = e.changedTouches[0].clientY;
       const diff = touchStartY - touchEndY;
-      
+
       if (Math.abs(diff) > 50) {
         updateCurrentIndex(); // Re-sync
         const targets = getSnapTargets();
-        
+
         if (diff > 0) { // Swipe UP (Scroll Down)
           if (currentIndex < targets.length - 1) {
             snapTo(currentIndex + 1);

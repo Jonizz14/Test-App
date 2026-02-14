@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useNews } from '../context/NewsContext';
 import { useTranslation } from 'react-i18next';
 import Layout from '../components/Layout';
@@ -8,15 +9,14 @@ import AuroraHero from '../components/Aurora/AuroraHero';
 const NewsPage = () => {
   const { news } = useNews();
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
 
   // Local state for pagination and lightbox
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [selectedNews, setSelectedNews] = useState(null);
-  const [isClosing, setIsClosing] = useState(false);
-  const itemsPerPage = 3;
+  const itemsPerPage = 6;
 
-  // Combine news from context (mock data removed)
+  // Combine news from context
   const allNews = [...news];
 
   // Pagination logic
@@ -31,37 +31,26 @@ const NewsPage = () => {
     return date.toLocaleDateString('uz-UZ', options);
   };
 
-  const handleCloseModal = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      setSelectedNews(null);
-      setIsClosing(false);
-    }, 300);
-  };
-
-  // Animation Logic
+  // Animation Logic - Trigger on scroll
   useEffect(() => {
     const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px'
+      threshold: 0.15,
     };
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('in-view');
-        } else {
-          entry.target.classList.remove('in-view');
+          observer.unobserve(entry.target);
         }
       });
     }, observerOptions);
 
-    const elementsToAnimate = document.querySelectorAll('.news-hero-section, .todo-item');
-    elementsToAnimate.forEach(el => observer.observe(el));
+    const elementsToObserve = document.querySelectorAll('section, .todo-item, .news-hero-section');
+    elementsToObserve.forEach(el => observer.observe(el));
 
-    // Force check for items already in view
     setTimeout(() => {
-      elementsToAnimate.forEach(el => {
+      elementsToObserve.forEach(el => {
         const rect = el.getBoundingClientRect();
         if (rect.top < window.innerHeight && rect.bottom >= 0) {
           el.classList.add('in-view');
@@ -72,10 +61,84 @@ const NewsPage = () => {
     return () => observer.disconnect();
   }, [currentNews]);
 
+  // Fullpage scroll snap logic
+  useEffect(() => {
+    const getSnapTargets = () => {
+      const hero = document.querySelector('.news-hero-section');
+      const containers = document.querySelectorAll('.sticky-section-container');
+      const targets = [];
+      if (hero) targets.push(hero);
+      containers.forEach(c => targets.push(c));
+      return targets;
+    };
+
+    let currentIndex = 0;
+    let isScrolling = false;
+    let accumulatedDelta = 0;
+    let deltaTimeout;
+    const SCROLL_THRESHOLD = 30;
+    const COOLDOWN = 1000;
+
+    const updateCurrentIndex = () => {
+      const targets = getSnapTargets();
+      const scrollY = window.scrollY;
+      for (let i = targets.length - 1; i >= 0; i--) {
+        if (scrollY >= targets[i].offsetTop - window.innerHeight / 2) {
+          currentIndex = i;
+          break;
+        }
+      }
+    };
+    setTimeout(updateCurrentIndex, 100);
+
+    const snapTo = (index) => {
+      const targets = getSnapTargets();
+      if (index < 0 || index >= targets.length) return;
+      isScrolling = true;
+      currentIndex = index;
+      targets[index].scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => {
+        isScrolling = false;
+        accumulatedDelta = 0;
+      }, COOLDOWN);
+    };
+
+    const handleWheel = (e) => {
+      if (isScrolling) {
+        e.preventDefault();
+        return;
+      }
+      accumulatedDelta += e.deltaY;
+      clearTimeout(deltaTimeout);
+      deltaTimeout = setTimeout(() => { accumulatedDelta = 0; }, 150);
+
+      if (Math.abs(accumulatedDelta) > SCROLL_THRESHOLD) {
+        const targets = getSnapTargets();
+        const maxIndex = targets.length - 1;
+        if (!isScrolling) updateCurrentIndex();
+
+        if (accumulatedDelta > 0) {
+          if (currentIndex < maxIndex) {
+            e.preventDefault();
+            snapTo(currentIndex + 1);
+          }
+        } else {
+          if (currentIndex > 0) {
+            e.preventDefault();
+            snapTo(currentIndex - 1);
+          }
+        }
+        accumulatedDelta = 0;
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, []);
+
   return (
     <Layout>
       <div className="news-page-container">
-        {/* Hero Section - Using Aurora for a premium feel */}
         <AuroraHero className="news-hero-section">
           <div className="news-hero-content">
             <h1>{t('news.updates')}</h1>
@@ -83,137 +146,75 @@ const NewsPage = () => {
           </div>
         </AuroraHero>
 
-        {/* News List Section */}
-        <section className="news-list-section">
-          <div className="news-section-container">
-            <div className="news-todo-list">
-              {allNews.length === 0 ? (
-                <div className="news-empty-state">
-                  <span className="material-symbols-outlined icon">newspaper</span>
-                  <h3>{t('news.noNews')}</h3>
-                </div>
-              ) : (
-                currentNews.map((item, index) => (
-                  <article key={item.id} className="news-card todo-item">
-                    <div className="news-card-left">
-                      <div className="todo-check">
-                        <span className="material-symbols-outlined">check_circle</span>
-                      </div>
-                      <div className="news-content-body">
-                        <div className="news-date">
-                          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>calendar_today</span>
-                          {formatDate(item.created_at)}
-                        </div>
-                        <h3 className="news-title">
-                          {(i18n.language === 'uz' ? item.title_uz :
-                            i18n.language === 'ru' ? item.title_ru :
-                              item.title_en) || item.title}
-                        </h3>
-                        <p className="news-description">
-                          {(i18n.language === 'uz' ? item.description_uz :
-                            i18n.language === 'ru' ? item.description_ru :
-                              item.description_en) || item.description}
-                        </p>
-                        <button className="read-more-btn" onClick={() => setSelectedNews(item)}>
-                          {t('news.readMore')}
-                          <span className="material-symbols-outlined">arrow_forward</span>
-                        </button>
-                      </div>
+        <div className="home-sticky-wrapper">
+          <div className="sticky-section-container">
+            <section className="news-list-section dark-section">
+              <div className="news-section-container">
+                <div className="news-grid-layout">
+                  {allNews.length === 0 ? (
+                    <div className="news-empty-state">
+                      <span className="material-symbols-outlined icon">newspaper</span>
+                      <h3>{t('news.noNews')}</h3>
                     </div>
-
-                    {/* Media on the Right */}
-                    {item.media_file && (
-                      <div className="news-media-container" onClick={() => setSelectedImage(item.media_file)}>
-                        {item.media_type === 'video' ? (
-                          <div className="video-placeholder">
-                            <span className="material-symbols-outlined">play_circle</span>
-                            <video src={item.media_file} />
+                  ) : (
+                    currentNews.map((item, index) => (
+                      <article key={item.id} className="news-card todo-item mini-card">
+                        <div className="news-card-left">
+                          <div className="todo-check">
+                            <span className="material-symbols-outlined">check_circle</span>
                           </div>
-                        ) : (
-                          <img src={item.media_file} alt={item.title} />
-                        )}
-                        <div className="zoom-overlay">
-                          <span className="material-symbols-outlined">zoom_in</span>
+                          <div className="news-content-body">
+                            <div className="news-date">
+                              {formatDate(item.created_at)}
+                            </div>
+                            <h3 className="news-title">
+                              {(i18n.language === 'uz' ? item.title_uz :
+                                i18n.language === 'ru' ? item.title_ru :
+                                  item.title_en) || item.title}
+                            </h3>
+                            <button className="read-more-btn" onClick={() => navigate(`/updates/${item.id}`)}>
+                              {t('news.readMore')}
+                              <span className="material-symbols-outlined">arrow_forward</span>
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </article>
-                ))
-              )}
-            </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="news-pagination">
-                <button
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage(p => p - 1)}
-                  className="pagination-btn"
-                >
-                  <span className="material-symbols-outlined">chevron_left</span>
-                </button>
+                        {item.media_file && (
+                          <div className="news-media-container mini-thumb">
+                            {item.media_type === 'video' ? (
+                              <div className="video-placeholder">
+                                <span className="material-symbols-outlined">play_circle</span>
+                              </div>
+                            ) : (
+                              <img src={item.media_file} alt={item.title} />
+                            )}
+                          </div>
+                        )}
+                      </article>
+                    ))
+                  )}
+                </div>
 
-                {[...Array(totalPages)].map((_, i) => (
-                  <button
-                    key={i + 1}
-                    className={`pagination-btn ${currentPage === i + 1 ? 'active' : ''}`}
-                    onClick={() => setCurrentPage(i + 1)}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-
-                <button
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage(p => p + 1)}
-                  className="pagination-btn"
-                >
-                  <span className="material-symbols-outlined">chevron_right</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* News Detail Modal */}
-        {selectedNews && (
-          <div className={`news-modal-overlay ${isClosing ? 'closing' : ''}`} onClick={handleCloseModal}>
-            <div className="news-modal-content" onClick={e => e.stopPropagation()}>
-              <button className="news-modal-close" onClick={handleCloseModal}>
-                <span className="material-symbols-outlined">close</span>
-              </button>
-              <div className="news-modal-body">
-                {selectedNews.media_file && (
-                  <div className="news-modal-media">
-                    {selectedNews.media_type === 'video' ? (
-                      <video src={selectedNews.media_file} controls autoPlay />
-                    ) : (
-                      <img src={selectedNews.media_file} alt={selectedNews.title} />
-                    )}
+                {totalPages > 1 && (
+                  <div className="news-pagination">
+                    <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className="pagination-btn">
+                      <span className="material-symbols-outlined">chevron_left</span>
+                    </button>
+                    {[...Array(totalPages)].map((_, i) => (
+                      <button key={i + 1} className={`pagination-btn ${currentPage === i + 1 ? 'active' : ''}`} onClick={() => setCurrentPage(i + 1)}>
+                        {i + 1}
+                      </button>
+                    ))}
+                    <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} className="pagination-btn">
+                      <span className="material-symbols-outlined">chevron_right</span>
+                    </button>
                   </div>
                 )}
-                <div className="news-modal-info">
-                  <div className="news-modal-date">
-                    <span className="material-symbols-outlined">calendar_today</span>
-                    {formatDate(selectedNews.created_at)}
-                  </div>
-                  <h2 className="news-modal-title">
-                    {(i18n.language === 'uz' ? selectedNews.title_uz :
-                      i18n.language === 'ru' ? selectedNews.title_ru :
-                        selectedNews.title_en) || selectedNews.title}
-                  </h2>
-                  <div className="news-modal-description">
-                    {(i18n.language === 'uz' ? selectedNews.description_uz :
-                      i18n.language === 'ru' ? selectedNews.description_ru :
-                        selectedNews.description_en) || selectedNews.description}
-                  </div>
-                </div>
               </div>
-            </div>
+            </section>
           </div>
-        )}
+        </div>
 
-        {/* Image Modal (Lightbox) */}
         {selectedImage && (
           <div className="image-lightbox" onClick={() => setSelectedImage(null)}>
             <div className="lightbox-content" onClick={e => e.stopPropagation()}>

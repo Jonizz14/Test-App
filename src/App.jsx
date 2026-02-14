@@ -27,6 +27,7 @@ import MobileRestrictor from './components/MobileRestrictor';
 
 // Lazy Load Pages for Performance Optimization
 const NewsPage = React.lazy(() => import('./pages/NewsPage'));
+const NewsDetailPage = React.lazy(() => import('./pages/NewsDetailPage'));
 const Home = React.lazy(() => import('./pages/Home'));
 const Contact = React.lazy(() => import('./pages/Contact'));
 const Onboarding = React.lazy(() => import('./pages/Onboarding'));
@@ -297,6 +298,7 @@ const AnimatedRoutes = () => {
         {/* Public routes - Accessible without authentication */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/updates" element={<NewsPage />} />
+        <Route path="/updates/:id" element={<NewsDetailPage />} />
 
         <Route path="/user/password/questions" element={<Questions />} />
 

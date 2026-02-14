@@ -80,7 +80,7 @@ const Contact = () => {
 
         // Trigger header notification
         window.dispatchEvent(new CustomEvent('itemSaved', {
-          detail: { title: t('contact.successSent'), icon: 'send', isFullMessage: true }
+          detail: { title: String(t('contact.successSent')), icon: 'send', isFullMessage: true }
         }));
       }, 1300);
 
@@ -97,7 +97,7 @@ const Contact = () => {
   // Animation Logic - Trigger on scroll
   useEffect(() => {
     const observerOptions = {
-      threshold: 0.3,
+      threshold: 0.15, // more sensitive for sticky layout
       rootMargin: '0px 0px -100px 0px'
     };
 
@@ -105,8 +105,7 @@ const Contact = () => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('in-view');
-        } else {
-          entry.target.classList.remove('in-view');
+          observer.unobserve(entry.target);
         }
       });
     }, observerOptions);
@@ -117,10 +116,110 @@ const Contact = () => {
     return () => observer.disconnect();
   }, []);
 
+  // Fullpage scroll snap logic — identical to Home.jsx
+  useEffect(() => {
+    const getSnapTargets = () => {
+      const hero = document.querySelector('.contact-modern-hero');
+      const containers = document.querySelectorAll('.sticky-section-container');
+      const targets = [];
+      if (hero) targets.push(hero);
+      containers.forEach(c => targets.push(c));
+      return targets;
+    };
+
+    let currentIndex = 0;
+    let isScrolling = false;
+    let accumulatedDelta = 0;
+    let deltaTimeout;
+    const SCROLL_THRESHOLD = 30;
+    const COOLDOWN = 1000;
+
+    const updateCurrentIndex = () => {
+      const targets = getSnapTargets();
+      const scrollY = window.scrollY;
+      for (let i = targets.length - 1; i >= 0; i--) {
+        if (scrollY >= targets[i].offsetTop - window.innerHeight / 2) {
+          currentIndex = i;
+          break;
+        }
+      }
+    };
+    setTimeout(updateCurrentIndex, 100);
+
+    const snapTo = (index) => {
+      const targets = getSnapTargets();
+      if (index < 0 || index >= targets.length) return;
+      isScrolling = true;
+      currentIndex = index;
+      targets[index].scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => {
+        isScrolling = false;
+        accumulatedDelta = 0;
+      }, COOLDOWN);
+    };
+
+    const handleWheel = (e) => {
+      if (isScrolling) {
+        e.preventDefault();
+        return;
+      }
+      accumulatedDelta += e.deltaY;
+      clearTimeout(deltaTimeout);
+      deltaTimeout = setTimeout(() => { accumulatedDelta = 0; }, 150);
+
+      if (Math.abs(accumulatedDelta) > SCROLL_THRESHOLD) {
+        const targets = getSnapTargets();
+        const maxIndex = targets.length - 1;
+        if (!isScrolling) updateCurrentIndex();
+
+        if (accumulatedDelta > 0) {
+          if (currentIndex < maxIndex) {
+            e.preventDefault();
+            snapTo(currentIndex + 1);
+          }
+        } else {
+          if (currentIndex > 0) {
+            e.preventDefault();
+            snapTo(currentIndex - 1);
+          }
+        }
+        accumulatedDelta = 0;
+      }
+    };
+
+    let touchStartY = 0;
+    const handleTouchStart = (e) => touchStartY = e.touches[0].clientY;
+    const handleTouchEnd = (e) => {
+      if (isScrolling) return;
+      const touchEndY = e.changedTouches[0].clientY;
+      const diff = touchStartY - touchEndY;
+      if (Math.abs(diff) > 50) {
+        updateCurrentIndex();
+        const targets = getSnapTargets();
+        if (diff > 0) {
+          if (currentIndex < targets.length - 1) snapTo(currentIndex + 1);
+        } else {
+          if (currentIndex > 0) snapTo(currentIndex - 1);
+        }
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+      clearTimeout(deltaTimeout);
+    };
+  }, []);
+
   return (
     <Layout>
       <div className="modern-contact-page">
-        {/* Contact Hero - Using Aurora for a premium feel */}
+        {/* Hero Section */}
         <AuroraHero className="contact-modern-hero">
           <div className="section-container">
             <h1>{t('contact.heroTitle')}</h1>
@@ -128,95 +227,101 @@ const Contact = () => {
           </div>
         </AuroraHero>
 
-        {/* Contact Form Section - Light Section */}
-        <section className="contact-modern-form-section">
-          <div className="section-container">
-            <div className="split-layout">
-              <div className="split-content">
-                <h2>{t('contact.formTitle')}</h2>
-                <form className="minimal-form" onSubmit={handleSubmit}>
-                  <div className="input-row">
-                    <input type="text" name="name" placeholder={t('contact.namePlaceholder')} required />
-                    <input type="email" name="email" placeholder={t('contact.emailPlaceholder')} required />
+        <div className="home-sticky-wrapper">
+          {/* Section 2: Form Section - Now DARK as requested */}
+          <div className="sticky-section-container">
+            <section className="contact-modern-form-section dark-section">
+              <div className="section-container">
+                <div className="split-layout">
+                  <div className="split-content">
+                    <h2>{t('contact.formTitle')}</h2>
+                    <form className="minimal-form" onSubmit={handleSubmit}>
+                      <div className="input-row">
+                        <input type="text" name="name" placeholder={t('contact.namePlaceholder')} required />
+                        <input type="email" name="email" placeholder={t('contact.emailPlaceholder')} required />
+                      </div>
+                      <input type="tel" name="phone" placeholder={t('contact.phonePlaceholder')} />
+                      <div className={`custom-select-wrapper dark ${dropdownOpen ? 'open' : ''}`}>
+                        <div className="custom-select-trigger" onClick={() => setDropdownOpen(!dropdownOpen)}>
+                          <span>{subject ? t(`contact.subjects.${subject}`) : t('contact.selectSubject')}</span>
+                          <span className="material-symbols-outlined custom-arrow">expand_more</span>
+                        </div>
+                        <ul className="custom-options">
+                          {['technical', 'billing', 'feature', 'other'].map(opt => (
+                            <li
+                              key={opt}
+                              className={`custom-option ${subject === opt ? 'selected' : ''}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSubject(opt);
+                                setDropdownOpen(false);
+                              }}
+                            >
+                              {t(`contact.subjects.${opt}`)}
+                            </li>
+                          ))}
+                        </ul>
+                        <input
+                          type="text"
+                          name="subject"
+                          value={subject}
+                          required
+                          style={{ opacity: 0, width: 1, height: 1, position: 'absolute', bottom: 0, left: 0, zIndex: -1 }}
+                          onChange={() => { }}
+                        />
+                      </div>
+                      <textarea name="message" placeholder={t('contact.messagePlaceholder')} rows="4" required></textarea>
+                      <button type="submit" className="btn-modern-submit" disabled={isSubmitting}>
+                        {isSubmitting ? t('contact.sending') : t('contact.send')}
+                      </button>
+                    </form>
                   </div>
-                  <input type="tel" name="phone" placeholder={t('contact.phonePlaceholder')} />
-                  <div className={`custom-select-wrapper ${dropdownOpen ? 'open' : ''}`}>
-                    <div className="custom-select-trigger" onClick={() => setDropdownOpen(!dropdownOpen)}>
-                      <span>{subject ? t(`contact.subjects.${subject}`) : t('contact.selectSubject')}</span>
-                      <span className="material-symbols-outlined custom-arrow">expand_more</span>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* Section 3: Info Grid Section */}
+          <div className="sticky-section-container">
+            <section className="stats-section dark-section">
+              <div className="section-container">
+                <div className="stats-header">
+                  <h2>{t('contact.ourAddress')}</h2>
+                </div>
+                <div className="contact-map-split">
+                  <div className="stats-grid-large">
+                    <div className="stat-box" onClick={() => window.open('tel:+998901234567')} style={{ cursor: 'pointer' }}>
+                      <span className="stat-label">{t('contact.phone')}</span>
+                      <span className="stat-number">+998 90 123 45 67</span>
                     </div>
-                    <ul className="custom-options">
-                      {['technical', 'billing', 'feature', 'other'].map(opt => (
-                        <li
-                          key={opt}
-                          className={`custom-option ${subject === opt ? 'selected' : ''}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSubject(opt);
-                            setDropdownOpen(false);
-                          }}
-                        >
-                          {t(`contact.subjects.${opt}`)}
-                        </li>
-                      ))}
-                    </ul>
-                    <input
-                      type="text"
-                      name="subject"
-                      value={subject}
-                      required
-                      style={{ opacity: 0, width: 1, height: 1, position: 'absolute', bottom: 0, left: 0, zIndex: -1 }}
-                      onChange={() => { }}
-                    />
+                    <div className="stat-box" onClick={() => window.open('mailto:info@examify.uz')} style={{ cursor: 'pointer' }}>
+                      <span className="stat-label">{t('contact.email')}</span>
+                      <span className="stat-number">info@examify.uz</span>
+                    </div>
+                    <div className="stat-box">
+                      <span className="stat-label">{t('contact.address')}</span>
+                      <span className="stat-number">{t('contact.addressText')}</span>
+                    </div>
                   </div>
-                  <textarea name="message" placeholder={t('contact.messagePlaceholder')} rows="4" required></textarea>
-                  <button type="submit" className="btn-modern-submit" disabled={isSubmitting}>
-                    {isSubmitting ? t('contact.sending') : t('contact.send')}
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        {/* Contact info grid - Dark Section */}
-        <section className="stats-section">
-          <div className="section-container">
-            <div className="stats-header">
-              <h2>{t('contact.ourAddress')}</h2>
-            </div>
-            <div className="contact-map-split">
-              <div className="stats-grid-large">
-                <div className="stat-box" onClick={() => window.open('tel:+998901234567')} style={{ cursor: 'pointer' }}>
-                  <span className="stat-label">{t('contact.phone')}</span>
-                  <span className="stat-number">+998 90 123 45 67</span>
-                </div>
-                <div className="stat-box" onClick={() => window.open('mailto:info@examify.uz')} style={{ cursor: 'pointer' }}>
-                  <span className="stat-label">{t('contact.email')}</span>
-                  <span className="stat-number">info@examify.uz</span>
-                </div>
-                <div className="stat-box">
-                  <span className="stat-label">{t('contact.address')}</span>
-                  <span className="stat-number">{t('contact.addressText')}</span>
+                  <div className="map-container custom-map-style">
+                    <MapContainer center={[41.210458, 69.221518]} zoom={17} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+                      <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                      <CircleMarker center={[41.210458, 69.221518]} radius={10} pathOptions={{ color: 'white', fillColor: '#ef4444', fillOpacity: 1 }}>
+                        <Popup>
+                          Sergeli ixtisoslashtirilgan maktab <br /> Nilufar ko'chasi 63.
+                        </Popup>
+                      </CircleMarker>
+                    </MapContainer>
+                  </div>
                 </div>
               </div>
-
-              <div className="map-container custom-map-style">
-                <MapContainer center={[41.210458, 69.221518]} zoom={17} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
-                  <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  <CircleMarker center={[41.210458, 69.221518]} radius={10} pathOptions={{ color: 'white', fillColor: '#ef4444', fillOpacity: 1 }}>
-                    <Popup>
-                      Sergeli ixtisoslashtirilgan maktab <br /> Nilufar ko'chasi 63.
-                    </Popup>
-                  </CircleMarker>
-                </MapContainer>
-              </div>
-            </div>
+            </section>
           </div>
-        </section>
+        </div>
       </div>
     </Layout>
   );

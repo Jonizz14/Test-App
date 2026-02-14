@@ -854,9 +854,64 @@ section.in-view .feature-card:nth-child(3) {
 /* All sticky sections have black background */
 .sticky-section-container .users-section,
 .sticky-section-container .features-section,
-.sticky-section-container .stats-section {
+.sticky-section-container .stats-section,
+.sticky-section-container .contact-modern-form-section.dark-section {
   background: #000;
   color: #fff;
+}
+
+/* Custom section background for dark mode on contact */
+.dark-section {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+.dark-section h2,
+.dark-section h3,
+.dark-section p,
+.dark-section label {
+  color: #fff !important;
+}
+
+.dark-section .minimal-form input,
+.dark-section .minimal-form textarea,
+.dark-section .custom-select-trigger {
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.dark-section .minimal-form input:focus,
+.dark-section .minimal-form textarea:focus,
+.dark-section .custom-select-wrapper.open .custom-select-trigger {
+  border-bottom-color: #fff;
+}
+
+.dark-section .btn-modern-submit {
+  background: #fff;
+  color: #000;
+}
+
+.dark-section .btn-modern-submit:hover {
+  background: #e5e5e5;
+}
+
+.dark-section .custom-options {
+  background: #111;
+  border-color: #333;
+  color: #fff;
+}
+
+.dark-section .custom-option {
+  color: #fff;
+}
+
+.dark-section .custom-option:hover {
+  background: #222;
+}
+
+.dark-section .custom-option.selected {
+  background: #fff;
+  color: #111;
 }
 
 /* Mobile: disable sticky scroll, too complex for small screens */
