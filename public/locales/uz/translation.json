@@ -328,5 +328,11 @@
         "info": "Ma'lumotlar",
         "social": "Tashqi havolalar",
         "rights": "Barcha huquqlar himoyalangan."
+    },
+    "notFound": {
+        "title": "SAHIFA TOPILMADI",
+        "desc": "Siz qidirayotgan sahifa koinotda adashib qoldi yoki hech qachon mavjud bo'lmagan. Ehtimol, u administrativ ravishda o'chirilgan bo'lishi ham mumkin.",
+        "back": "ORQAGA",
+        "home": "BOSH SAHIFA"
     }
 }

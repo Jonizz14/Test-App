@@ -70,15 +70,27 @@ body {
   outline: none;
 }
 
-/* Text selection styles for better visibility */
+/* Text selection styles for high-end look */
 ::selection {
-  background-color: var(--blue-300);
-  color: #1e293b;
+  background-color: #000000;
+  color: #ffffff;
+  text-shadow: none;
 }
 
 ::-moz-selection {
-  background-color: var(--blue-300);
-  color: #1e293b;
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* Dark mode selection: White background, Black text (Inverted) */
+.dark ::selection {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.dark ::-moz-selection {
+  background-color: #ffffff;
+  color: #000000;
 }
 
 /* Ensure text is selectable in tables and text elements */

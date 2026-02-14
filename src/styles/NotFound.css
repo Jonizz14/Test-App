@@ -1,15 +1,19 @@
 /* Font is now loaded in index.html for better performance */
 
+.not-found-wrapper {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
 .not-found-container {
   width: 100%;
-  min-height: 100vh;
-  background-color: #000;
+  height: 100%;
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  overflow: hidden;
   font-family: 'Inter', sans-serif;
   padding: 2rem;
 }
@@ -26,20 +30,22 @@
 
 .not-found-content {
   position: relative;
-  z-index: 10;
+  z-index: 100 !important;
+  /* Extremely high to stay above Aurora */
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 2rem;
   max-width: 800px;
-  width: 100%;
-  padding: 3rem;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  width: 90%;
+  padding: 4rem 2rem;
+  background: rgba(0, 0, 0, 0.6);
+  /* Slightly darker for better text contrast */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 30px;
 }
 
 .not-found-eye {
@@ -51,7 +57,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: -6rem; /* Position it overlapping the top border */
+  margin-top: -6rem;
+  /* Position it overlapping the top border */
   margin-bottom: 0;
   box-shadow: 0 0 40px rgba(255, 255, 255, 0.2);
 }
@@ -68,12 +75,9 @@
   margin: 0;
   letter-spacing: -0.05em;
   text-transform: uppercase;
-  color: #fff;
-  opacity: 0;
-  transform: scale(0.8) translateY(40px);
-  filter: blur(10px);
-  transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  color: #fff !important;
+  opacity: 1 !important;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
 }
 
 .in-view .not-found-code {
@@ -83,17 +87,14 @@
 }
 
 .not-found-text {
+  position: relative;
+  z-index: 190 !important;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
-}
-
-.in-view .not-found-text {
-  opacity: 1;
-  transform: translateY(0);
+  gap: 1.5rem;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
 }
 
 .not-found-title {
@@ -102,28 +103,30 @@
   margin: 0;
   letter-spacing: -0.03em;
   text-transform: uppercase;
+  color: #fff !important;
+  /* Force white color */
 }
 
 .not-found-description {
   font-size: 1.2rem;
   line-height: 1.6;
-  opacity: 0.7;
+  opacity: 0.9 !important;
+  /* Increased opacity */
   max-width: 600px;
   margin: 0 auto;
+  color: #fff !important;
+  /* Force white color */
 }
 
 .not-found-actions {
+  position: relative;
+  z-index: 110 !important;
   display: flex;
   gap: 1.5rem;
-  margin-top: 1rem;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.6s;
-}
-
-.in-view .not-found-actions {
-  opacity: 1;
-  transform: translateY(0);
+  margin-top: 2rem;
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
 }
 
 /* Brutalist Buttons */
@@ -224,4 +227,3 @@
     font-size: 2.5rem;
   }
 }
-

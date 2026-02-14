@@ -328,5 +328,11 @@
         "info": "Information",
         "social": "Links",
         "rights": "All rights reserved."
+    },
+    "notFound": {
+        "title": "PAGE NOT FOUND",
+        "desc": "The page you are looking for has been lost in the universe or never existed. It may have been administratively deleted.",
+        "back": "BACK",
+        "home": "HOME PAGE"
     }
 }
