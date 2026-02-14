@@ -6,7 +6,7 @@ import "../styles/Home.css";
 import { useSavedItems } from "../context/SavedItemsContext";
 import { useTranslation } from "react-i18next";
 import { useSettings } from "../context/SettingsContext";
-const ReactECharts = React.lazy(() => import('echarts-for-react'));
+import AuroraHero from "../components/Aurora/AuroraHero";
 
 const Home = () => {
   const { settings } = useSettings();
@@ -15,6 +15,7 @@ const Home = () => {
   const { t } = useTranslation();
 
   const videoRef = React.useRef(null);
+
   // Check if coming from onboarding to skip animation
   const [skipAnimation] = useState(() => {
     const shouldSkip = sessionStorage.getItem('skipHomeAnimation') === 'true';
@@ -77,9 +78,8 @@ const Home = () => {
     script.text = JSON.stringify(structuredData);
   }, []);
 
-  // Animation Logic - Trigger on scroll, but only once per section
+  // Animation Logic - Trigger on scroll for all sections
   useEffect(() => {
-    // Skip all animations if coming from onboarding
     if (skipAnimation) {
       const sections = document.querySelectorAll('section');
       sections.forEach(section => section.classList.add('in-view'));
@@ -87,8 +87,8 @@ const Home = () => {
     }
 
     const observerOptions = {
-      threshold: 0.3,
-      rootMargin: '0px 0px -100px 0px'
+      threshold: 0.4,
+      rootMargin: '0px 0px -150px 0px'
     };
 
     const observer = new IntersectionObserver((entries) => {
@@ -106,8 +106,140 @@ const Home = () => {
 
     return () => observer.disconnect();
   }, [skipAnimation]);
+  // Fullpage scroll snap — one scroll = one section
+  useEffect(() => {
+    const getSnapTargets = () => {
+      const hero = document.querySelector('.hero-section');
+      const containers = document.querySelectorAll('.sticky-section-container');
+      const targets = [];
+      if (hero) targets.push(hero);
+      containers.forEach(c => targets.push(c));
+      return targets;
+    };
 
-  const [chartsVisible, setChartsVisible] = useState(true);
+    let currentIndex = 0;
+    let isScrolling = false;
+    let accumulatedDelta = 0;
+    let deltaTimeout;
+    const SCROLL_THRESHOLD = 30; // lower threshold for responsiveness
+    const COOLDOWN = 1000; // stricter cooldown
+
+    // Initial sync
+    const updateCurrentIndex = () => {
+      const targets = getSnapTargets();
+      const scrollY = window.scrollY;
+      // Find the section that covers the middle of the screen
+      for (let i = targets.length - 1; i >= 0; i--) {
+        if (scrollY >= targets[i].offsetTop - window.innerHeight / 2) {
+          currentIndex = i;
+          break;
+        }
+      }
+    };
+    // Run once on mount
+    setTimeout(updateCurrentIndex, 100);
+
+    const snapTo = (index) => {
+      const targets = getSnapTargets();
+      if (index < 0 || index >= targets.length) return;
+      
+      isScrolling = true;
+      currentIndex = index;
+      targets[index].scrollIntoView({ behavior: 'smooth' });
+      
+      setTimeout(() => {
+        isScrolling = false;
+        accumulatedDelta = 0;
+      }, COOLDOWN);
+    };
+
+    const handleWheel = (e) => {
+      // If currently animating a snap, block all wheel input to prevent skipping
+      if (isScrolling) {
+        e.preventDefault();
+        return;
+      }
+
+      accumulatedDelta += e.deltaY;
+      clearTimeout(deltaTimeout);
+      deltaTimeout = setTimeout(() => { accumulatedDelta = 0; }, 150);
+
+      // We only intervene if threshold is met
+      if (Math.abs(accumulatedDelta) > SCROLL_THRESHOLD) {
+        const targets = getSnapTargets();
+        const maxIndex = targets.length - 1;
+        
+        // Use current tracked index, but valid it lightly against scroll pos if idle
+        // (logic: if user used scrollbar, we need to re-sync)
+        if (!isScrolling) updateCurrentIndex();
+
+        if (accumulatedDelta > 0) {
+          // Scrolling DOWN
+          if (currentIndex < maxIndex) {
+            e.preventDefault(); // Lock scroll
+            snapTo(currentIndex + 1);
+          } else {
+            // At last section (Stats)
+            // Allow natural scroll to footer (don't preventDefault)
+            // But if we are visibly continuously scrolling, user might want to go to footer.
+            // No strict snap here.
+          }
+        } else {
+          // Scrolling UP
+          if (currentIndex > 0) {
+            e.preventDefault(); // Lock scroll
+            snapTo(currentIndex - 1);
+          } else {
+            // At top (Hero) - limit bounce
+            // e.preventDefault(); 
+          }
+        }
+        accumulatedDelta = 0;
+      } else {
+        // Small movements - if we are in "snap mode", usually we lock everything
+        // unless we are at the very bottom.
+        // For now, let small non-triggering scrolls be preventDefaulted if typically problematic?
+        // No, let them be, native scroll handles small jitters or touchpad intent better.
+      }
+    };
+
+    // Touch logic (simplified for swipe)
+    let touchStartY = 0;
+    const handleTouchStart = (e) => touchStartY = e.touches[0].clientY;
+    
+    const handleTouchEnd = (e) => {
+      if (isScrolling) return;
+      const touchEndY = e.changedTouches[0].clientY;
+      const diff = touchStartY - touchEndY;
+      
+      if (Math.abs(diff) > 50) {
+        updateCurrentIndex(); // Re-sync
+        const targets = getSnapTargets();
+        
+        if (diff > 0) { // Swipe UP (Scroll Down)
+          if (currentIndex < targets.length - 1) {
+            snapTo(currentIndex + 1);
+          }
+        } else { // Swipe DOWN (Scroll Up)
+          if (currentIndex > 0) {
+            snapTo(currentIndex - 1);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+      clearTimeout(deltaTimeout);
+    };
+  }, []);
+
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -224,28 +356,8 @@ const Home = () => {
 
   return (
     <Layout>
-      {/* Hero Section - Full Screen Video */}
-      <section className="hero-section">
-        <div className="video-background">
-          {isDesktop && (
-            <video
-              ref={videoRef}
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="metadata"
-              poster="/banner/inf1.png"
-              aria-hidden="true"
-            >
-              <source src="/Export-Typeface-Animator (2).mp4" type="video/mp4" />
-            </video>
-          )}
-          {/* Static background for mobile or while video loads */}
-          {!isDesktop && <div className="mobile-hero-bg"></div>}
-          <div className="overlay"></div>
-        </div>
-
+      {/* Hero Section - Using Aurora for a premium feel */}
+      <AuroraHero className="hero-section">
         <div className="hero-content">
           <h1>{t('home.heroTitle')}</h1>
           <p>{t('home.heroSubtitle')}</p>
@@ -258,282 +370,165 @@ const Home = () => {
             </button>
           </div>
         </div>
-      </section>
+      </AuroraHero>
 
-      {/* Users Section - Full Screen */}
-      <section className="users-section">
-        <div className="section-container">
-          <div className="section-header">
-            <h2>{t('home.forWhom')}</h2>
-            <p>{t('home.forWhomDesc')}</p>
-          </div>
+      {/* Sticky Scroll Sections - each slides over the previous */}
+      <div className="home-sticky-wrapper">
+        {/* Users Section */}
+        <div className="sticky-section-container">
+          <section className="users-section">
+            <div className="section-container">
+              <div className="section-header">
+                <h2>{t('home.forWhom')}</h2>
+                <p>{t('home.forWhomDesc')}</p>
+              </div>
 
-          <div className="roles-showcase">
-            {rolesData.map(role => (
-              <div key={role.id} className="role-item">
-                <div className="role-content">
-                  <div className="role-icon">
-                    <span className="material-symbols-outlined">{role.icon}</span>
+              <div className="roles-showcase">
+                {rolesData.map(role => (
+                  <div key={role.id} className="role-item">
+                    <div className="role-content">
+                      <div className="role-icon">
+                        <span className="material-symbols-outlined">{role.icon}</span>
+                      </div>
+                      <h3>{role.title}</h3>
+                      <p>{role.description}</p>
+                      <div className="role-details">
+                        <ul>
+                          {role.details.map((detail, idx) => (
+                            <li key={idx}>{detail}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                    {settings?.features?.homeSaveButton && (
+                      <button className="save-info-btn" onClick={(e) => handleSaveInfo(e, role)} title={t('home.save')}>
+                        <span className="material-symbols-outlined">content_copy</span>
+                      </button>
+                    )}
                   </div>
-                  <h3>{role.title}</h3>
-                  <p>{role.description}</p>
-                  <div className="role-details">
-                    <ul>
-                      {role.details.map((detail, idx) => (
-                        <li key={idx}>{detail}</li>
-                      ))}
-                    </ul>
+                ))}
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* Features Section */}
+        <div className="sticky-section-container">
+          <section className="features-section">
+            <div className="section-container">
+              <div className="section-header">
+                <h2>{t('home.tech')}</h2>
+                <p>{t('home.techDesc')}</p>
+              </div>
+
+              <div className="features-grid">
+                <div className="feature-card">
+                  <div className="feature-content">
+                    <div className="feature-icon">
+                      <span className="material-symbols-outlined">analytics</span>
+                    </div>
+                    <h3>{t('home.features.analytics.title')}</h3>
+                    <p>{t('home.features.analytics.desc')}</p>
+                    <div className="feature-visual">
+                      <picture>
+                        <source srcSet="/banner/inf1.webp" type="image/webp" />
+                        <img
+                          src="/banner/inf1.png"
+                          alt="Analysis"
+                          className="feature-img"
+                          width="750"
+                          height="500"
+                          loading="lazy"
+                        />
+                      </picture>
+                    </div>
                   </div>
                 </div>
-                {settings?.features?.homeSaveButton && (
-                  <button className="save-info-btn" onClick={(e) => handleSaveInfo(e, role)} title={t('home.save')}>
-                    <span className="material-symbols-outlined">content_copy</span>
-                  </button>
-                )}
+
+                <div className="feature-card">
+                  <div className="feature-content">
+                    <div className="feature-icon">
+                      <span className="material-symbols-outlined">security</span>
+                    </div>
+                    <h3>{t('home.features.security.title')}</h3>
+                    <p>{t('home.features.security.desc')}</p>
+                    <div className="feature-visual">
+                      <picture>
+                        <source srcSet="/banner/inf2.webp" type="image/webp" />
+                        <img
+                          src="/banner/inf2.png"
+                          alt="Security"
+                          className="feature-img"
+                          width="750"
+                          height="500"
+                          loading="lazy"
+                        />
+                      </picture>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="feature-card">
+                  <div className="feature-content">
+                    <div className="feature-icon">
+                      <span className="material-symbols-outlined">devices</span>
+                    </div>
+                    <h3>{t('home.features.flexibility.title')}</h3>
+                    <p>{t('home.features.flexibility.desc')}</p>
+                    <div className="feature-visual">
+                      <picture>
+                        <source srcSet="/banner/inf3.webp" type="image/webp" />
+                        <img
+                          src="/banner/inf3.png"
+                          alt="Flexibility"
+                          className="feature-img"
+                          width="750"
+                          height="500"
+                          loading="lazy"
+                        />
+                      </picture>
+                    </div>
+                  </div>
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
+          </section>
         </div>
-      </section>
 
-      {/* Features Section - Modern Cards */}
-      <section className="features-section">
-        <div className="section-container">
-          <div className="section-header">
-            <h2>{t('home.tech')}</h2>
-            <p>{t('home.techDesc')}</p>
-          </div>
+        {/* Statistics Section */}
+        <div className="sticky-section-container">
+          <section className="stats-section">
+            <div className="section-container">
+              <div className="stats-header">
+                <h2>{t('home.stats')}</h2>
+              </div>
 
-          <div className="features-grid">
-            <div className="feature-card">
-              <div className="feature-content">
-                <div className="feature-icon">
-                  <span className="material-symbols-outlined">analytics</span>
+              <div className="stats-grid-large">
+                <div className="stat-box">
+                  <span className="stat-number">{stats?.tests_count || 1500}+</span>
+                  <span className="stat-label">{t('home.statsLabels.tests')}</span>
                 </div>
-                <h3>{t('home.features.analytics.title')}</h3>
-                <p>{t('home.features.analytics.desc')}</p>
-                <div className="feature-visual">
-                  <picture>
-                    <source srcSet="/banner/inf1.webp" type="image/webp" />
-                    <img
-                      src="/banner/inf1.png"
-                      alt="Analysis"
-                      className="feature-img"
-                      width="750"
-                      height="500"
-                      loading="lazy"
-                    />
-                  </picture>
+                <div className="stat-box">
+                  <span className="stat-number">{stats?.students_count || 800}+</span>
+                  <span className="stat-label">{t('home.statsLabels.students')}</span>
+                </div>
+                <div className="stat-box">
+                  <span className="stat-number">{stats?.teachers_count || 50}+</span>
+                  <span className="stat-label">{t('home.statsLabels.teachers')}</span>
+                </div>
+                <div className="stat-box">
+                  <span className="stat-number">{stats?.attempts_count || 12000}+</span>
+                  <span className="stat-label">{t('home.statsLabels.attempts')}</span>
                 </div>
               </div>
             </div>
-
-            <div className="feature-card">
-              <div className="feature-content">
-                <div className="feature-icon">
-                  <span className="material-symbols-outlined">security</span>
-                </div>
-                <h3>{t('home.features.security.title')}</h3>
-                <p>{t('home.features.security.desc')}</p>
-                <div className="feature-visual">
-                  <picture>
-                    <source srcSet="/banner/inf2.webp" type="image/webp" />
-                    <img
-                      src="/banner/inf2.png"
-                      alt="Security"
-                      className="feature-img"
-                      width="750"
-                      height="500"
-                      loading="lazy"
-                    />
-                  </picture>
-                </div>
-              </div>
-            </div>
-
-            <div className="feature-card">
-              <div className="feature-content">
-                <div className="feature-icon">
-                  <span className="material-symbols-outlined">devices</span>
-                </div>
-                <h3>{t('home.features.flexibility.title')}</h3>
-                <p>{t('home.features.flexibility.desc')}</p>
-                <div className="feature-visual">
-                  <picture>
-                    <source srcSet="/banner/inf3.webp" type="image/webp" />
-                    <img
-                      src="/banner/inf3.png"
-                      alt="Flexibility"
-                      className="feature-img"
-                      width="750"
-                      height="500"
-                      loading="lazy"
-                    />
-                  </picture>
-                </div>
-              </div>
-            </div>
-          </div>
+          </section>
         </div>
-      </section>
-
-      {/* Statistics Section - Full Screen */}
-      <section className="stats-section">
-        <div className="section-container">
-          <div className="stats-header">
-            <h2>{t('home.stats')}</h2>
-          </div>
-
-          <div className="stats-grid-large">
-            <div className="stat-box">
-              <span className="stat-number">{stats?.tests_count || 1500}+</span>
-              <span className="stat-label">{t('home.statsLabels.tests')}</span>
-            </div>
-            <div className="stat-box">
-              <span className="stat-number">{stats?.students_count || 800}+</span>
-              <span className="stat-label">{t('home.statsLabels.students')}</span>
-            </div>
-            <div className="stat-box">
-              <span className="stat-number">{stats?.teachers_count || 50}+</span>
-              <span className="stat-label">{t('home.statsLabels.teachers')}</span>
-            </div>
-            <div className="stat-box">
-              <span className="stat-number">{stats?.attempts_count || 12000}+</span>
-              <span className="stat-label">{t('home.statsLabels.attempts')}</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="analytics-section">
-        <div className="section-container">
-          <div className="section-header">
-            <h2>{t('home.analytics.title', 'Platforma Tahlili')}</h2>
-            <p>{t('home.analytics.desc', 'Saytning qisqacha statistikasi')}</p>
-          </div>
-
-          {chartsVisible ? (
-            <div className="charts-grid">
-              <div className="chart-item">
-                <h3>{t('home.analytics.users', 'Foydalanuvchilar')}</h3>
-                <React.Suspense fallback={<div className="chart-skeleton" style={{ height: '220px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }} />}>
-                  <ReactECharts
-                    option={{
-                      animationDuration: 2500,
-                      animationEasing: 'cubicOut',
-                      tooltip: { trigger: 'item' },
-                      legend: { bottom: '5%', left: 'center' },
-                      series: [
-                        {
-                          name: t('home.analytics.users', 'Foydalanuvchilar'),
-                          type: 'pie',
-                          radius: ['35%', '65%'],
-                          center: ['50%', '45%'],
-                          avoidLabelOverlap: false,
-                          itemStyle: {
-                            borderRadius: 0,
-                            borderColor: '#fff',
-                            borderWidth: 2
-                          },
-                          label: { show: false, position: 'center' },
-                          emphasis: {
-                            label: { show: true, fontSize: 20, fontWeight: 'bold' }
-                          },
-                          labelLine: { show: false },
-                          data: [
-                            { value: stats?.students_count || 0, name: t('nav.students', "O'quvchilar"), itemStyle: { color: '#3b82f6' } },
-                            { value: stats?.teachers_count || 0, name: t('nav.teachers', "O'qituvchilar"), itemStyle: { color: '#10b981' } }
-                          ]
-                        }
-                      ]
-                    }}
-                    style={{ height: '220px' }}
-                  />
-                </React.Suspense>
-              </div>
-
-              <div className="chart-item">
-                <h3>{t('home.analytics.activity', 'Platforma Faolligi')}</h3>
-                <React.Suspense fallback={<div className="chart-skeleton" style={{ height: '220px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }} />}>
-                  <ReactECharts
-                    option={{
-                      animationDuration: 2500,
-                      animationEasing: 'cubicOut',
-                      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-                      grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-                      xAxis: [
-                        {
-                          type: 'category',
-                          data: [t('nav.tests', 'Testlar'), t('home.statsLabels.attempts', 'Urinishlar'), t('questions', 'Savollar')],
-                          axisTick: { alignWithLabel: true }
-                        }
-                      ],
-                      yAxis: [{ type: 'value' }],
-                      series: [
-                        {
-                          name: t('count', 'Soni'),
-                          type: 'bar',
-                          barWidth: '60%',
-                          data: [
-                            { value: stats?.tests_count || 0, itemStyle: { color: '#f59e0b' } },
-                            { value: stats?.attempts_count || 0, itemStyle: { color: '#8b5cf6' } },
-                            { value: (stats?.tests_count || 0) * 15, itemStyle: { color: '#ec4899' } }
-                          ]
-                        }
-                      ]
-                    }}
-                    style={{ height: '220px' }}
-                  />
-                </React.Suspense>
-              </div>
-
-              {/* Third chart for diversity */}
-              <div className="chart-item wide-chart">
-                <h3>{t('home.analytics.growth', 'Oylik Yaratilgan Testlar')}</h3>
-                <React.Suspense fallback={<div className="chart-skeleton" style={{ height: '220px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }} />}>
-                  <ReactECharts
-                    option={{
-                      animationDuration: 2500,
-                      animationEasing: 'cubicOut',
-                      xAxis: {
-                        type: 'category',
-                        data: ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun', 'Iyul'],
-                        boundaryGap: false
-                      },
-                      yAxis: {
-                        type: 'value'
-                      },
-                      series: [
-                        {
-                          name: t('home.statsLabels.tests', 'Yaratilgan Testlar'),
-                          data: [120, 132, 191, 234, 190, 330, 310],
-                          type: 'line',
-                          areaStyle: { color: 'rgba(245, 158, 11, 0.2)' },
-                          lineStyle: { color: '#f59e0b', width: 3 },
-                          itemStyle: { color: '#f59e0b' },
-                          smooth: true
-                        }
-                      ],
-                      grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-                      tooltip: { trigger: 'axis' }
-                    }}
-                    style={{ height: '220px' }}
-                  />
-                </React.Suspense>
-              </div>
-            </div>
-          ) : (
-            <div style={{ height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {/* Placeholder to reserve space and avoid CLS when charts load */}
-              <div className="chart-skeleton-placeholder" style={{ opacity: 0.1 }}>Tahlillar yuklanmoqda...</div>
-            </div>
-          )}
-        </div>
-      </section>
-
+      </div>
 
     </Layout>
   );
 };
 
 export default Home;
+

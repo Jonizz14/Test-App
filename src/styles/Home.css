@@ -105,9 +105,10 @@ section.in-view .feature-card:nth-child(3) {
 /* Hero Section */
 .hero-section {
   padding: 0;
-  background: #000;
+  background: transparent;
   color: #fff;
   perspective: 1000px;
+  overflow: visible;
 }
 
 .video-background {
@@ -239,29 +240,13 @@ section.in-view .feature-card:nth-child(3) {
 
 /* Users Section */
 .users-section {
-  background: var(--bg-color);
+  background: transparent;
   color: var(--text-color);
   position: relative;
 }
 
-/* Grid Background for Kimlar uchun */
-.users-section::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(to right, rgba(0, 0, 0, 0.15) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.15) 1px, transparent 1px);
-  background-size: 40px 40px;
-  mask-image: radial-gradient(circle at center, black 10%, transparent 95%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.dark .users-section::before {
-  background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+.dark .users-section {
+  color: var(--text-color);
 }
 
 .section-header {
@@ -461,52 +446,32 @@ section.in-view .feature-card:nth-child(3) {
 }
 
 /* Features Section - Modern Cards */
+.news-hero-section {
+  background: transparent;
+  color: #fff;
+  text-align: center;
+  padding: 0;
+  align-items: center;
+}
+
 .features-section {
-  background: #fff;
+  background: transparent;
   color: #000;
   position: relative;
   overflow: hidden;
 }
 
-/* Modern Gradient/Mesh background for Features */
 .features-section::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80%;
-  height: 80%;
-  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.25) 0%, transparent 70%);
-  filter: blur(150px);
-  z-index: 0;
+  content: none;
 }
 
 .features-section::after {
   content: none;
 }
 
-@keyframes meshFloat {
-  0% {
-    transform: translate(0, 0) scale(1);
-  }
-
-  100% {
-    transform: translate(50px, 30px) scale(1.1);
-  }
-}
-
 .dark .features-section {
-  background: #000;
+  background: transparent;
   color: #fff;
-}
-
-.dark .features-section::before {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
-}
-
-.dark .features-section::after {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
 }
 
 .features-grid {
@@ -842,108 +807,72 @@ section.in-view .feature-card:nth-child(3) {
   }
 }
 
-/* Analytics Section */
-.analytics-section {
-  background: #fff;
-  color: #000;
-  padding: 4rem 2rem;
+/* Contact Modern Hero */
+.contact-modern-hero {
+  background: transparent;
+  text-align: center;
+  padding: 0;
+}
+
+/* ===== Sticky Scroll System ===== */
+.home-sticky-wrapper {
   position: relative;
-  overflow: hidden;
 }
 
-/* Grid Pattern for Analytics */
-.analytics-section::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(to right, rgba(0, 0, 0, 0.15) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.15) 1px, transparent 1px);
-  background-size: 40px 40px;
-  mask-image: radial-gradient(circle at center, black 10%, transparent 95%);
-  pointer-events: none;
-  z-index: 0;
+.sticky-section-container {
+  height: 100vh;
+  position: sticky;
+  top: 0;
 }
 
-/* Entrance Animations - Matching Users Section */
-.analytics-section .section-header {
-  opacity: 0;
-  transform: translateY(40px);
-  transition: 1s cubic-bezier(0.16, 1, 0.3, 1);
+/* Each section fills its sticky container */
+.sticky-section-container section {
+  height: 100vh;
+  min-height: 100vh;
 }
 
-.analytics-section.in-view .section-header {
-  opacity: 1;
-  transform: translateY(0);
+/* Layering: later sections appear ON TOP of earlier ones */
+.sticky-section-container:nth-child(1) {
+  z-index: 1;
 }
 
-/* Charts Grid container - No animation, just layout */
-.charts-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-  margin-top: 3rem;
-  position: relative;
+.sticky-section-container:nth-child(2) {
   z-index: 2;
 }
 
-/* Individual Chart Item Animation */
-.chart-item {
-  background: #fff;
-  border: 4px solid #000;
-  box-shadow: 6px 6px 0px #000;
-  padding: 1.5rem;
-
-  /* Initial State (Hidden) */
-  opacity: 0;
-  transform: translateY(120px) scale(0.9);
-  filter: blur(20px);
-  will-change: transform, opacity, filter;
-  transition:
-    opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 1.5s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+.sticky-section-container:nth-child(3) {
+  z-index: 3;
 }
 
-/* Active State */
-.analytics-section.in-view .chart-item {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
+/* Shadow + border on top edge for "sliding over" depth effect */
+.sticky-section-container:nth-child(2) section,
+.sticky-section-container:nth-child(3) section {
+  box-shadow: 0 -30px 60px rgba(0, 0, 0, 0.3);
+  border-top: 1px solid #333;
 }
 
-/* Stagger Delays */
-.analytics-section.in-view .chart-item:nth-child(1) {
-  transition-delay: 0.2s;
+/* All sticky sections have black background */
+.sticky-section-container .users-section,
+.sticky-section-container .features-section,
+.sticky-section-container .stats-section {
+  background: #000;
+  color: #fff;
 }
 
-.analytics-section.in-view .chart-item:nth-child(2) {
-  transition-delay: 0.35s;
-}
-
-.analytics-section.in-view .chart-item:nth-child(3) {
-  transition-delay: 0.5s;
-}
-
-.chart-item h3 {
-  font-size: 1.25rem;
-  font-weight: 900;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  text-transform: uppercase;
-  color: #000;
-}
-
-.wide-chart {
-  grid-column: span 2;
-}
-
-@media (max-width: 900px) {
-  .charts-grid {
-    grid-template-columns: 1fr;
+/* Mobile: disable sticky scroll, too complex for small screens */
+@media (max-width: 768px) {
+  .sticky-section-container {
+    height: auto;
+    position: relative;
   }
 
-  .wide-chart {
-    grid-column: span 1;
+  .sticky-section-container section {
+    height: auto;
+    min-height: auto;
+  }
+
+  .sticky-section-container:nth-child(2) section,
+  .sticky-section-container:nth-child(3) section {
+    box-shadow: none;
   }
 }

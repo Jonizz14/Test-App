@@ -8,6 +8,7 @@ import { useSentMessages } from "../context/SentMessagesContext";
 import "../styles/Contact.css";
 import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import AuroraHero from "../components/Aurora/AuroraHero";
 import 'leaflet/dist/leaflet.css';
 
 const Contact = () => {
@@ -119,13 +120,13 @@ const Contact = () => {
   return (
     <Layout>
       <div className="modern-contact-page">
-        {/* Contact Hero - Dark Section */}
-        <section className="contact-modern-hero">
+        {/* Contact Hero - Using Aurora for a premium feel */}
+        <AuroraHero className="contact-modern-hero">
           <div className="section-container">
             <h1>{t('contact.heroTitle')}</h1>
             <p className="description">{t('contact.heroDesc')}</p>
           </div>
-        </section>
+        </AuroraHero>
 
         {/* Contact Form Section - Light Section */}
         <section className="contact-modern-form-section">

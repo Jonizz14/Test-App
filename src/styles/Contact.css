@@ -4,9 +4,9 @@
 }
 
 .contact-modern-hero {
-  background: #000;
+  background: transparent;
   text-align: center;
-  padding: 15vh 0;
+  padding: 0;
 }
 
 .contact-modern-hero h1 {

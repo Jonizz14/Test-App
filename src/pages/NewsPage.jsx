@@ -3,6 +3,7 @@ import { useNews } from '../context/NewsContext';
 import { useTranslation } from 'react-i18next';
 import Layout from '../components/Layout';
 import '../styles/NewsPage.css';
+import AuroraHero from '../components/Aurora/AuroraHero';
 
 const NewsPage = () => {
   const { news } = useNews();
@@ -74,13 +75,13 @@ const NewsPage = () => {
   return (
     <Layout>
       <div className="news-page-container">
-        {/* Hero Section */}
-        <section className="news-hero-section">
+        {/* Hero Section - Using Aurora for a premium feel */}
+        <AuroraHero className="news-hero-section">
           <div className="news-hero-content">
             <h1>{t('news.updates')}</h1>
             <p className="description">{t('news.heroSubtitle')}</p>
           </div>
-        </section>
+        </AuroraHero>
 
         {/* News List Section */}
         <section className="news-list-section">
