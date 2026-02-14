@@ -3,9 +3,9 @@
 /* Font is now loaded in index.html for better performance */
 
 :root {
-  --bg-color: #ffffff;
-  --text-color: #000000;
-  --accent-color: #000000;
+  --bg-color: #000000;
+  --text-color: #ffffff;
+  --accent-color: #ffffff;
 }
 
 .dark {
@@ -17,8 +17,8 @@
 /* Removed scroll-snap and scroll-behavior for Lenis compatibility */
 
 body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
+  background-color: #000000 !important;
+  color: #ffffff !important;
   font-family: 'Inter', sans-serif;
 }
 
@@ -126,8 +126,7 @@ section.in-view .feature-card:nth-child(3) {
 .mobile-hero-bg {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
-  background-size: cover;
+  background: #000;
 }
 
 @keyframes heroZoomOut {
@@ -152,7 +151,7 @@ section.in-view .feature-card:nth-child(3) {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .hero-content {
@@ -240,13 +239,9 @@ section.in-view .feature-card:nth-child(3) {
 
 /* Users Section */
 .users-section {
-  background: transparent;
-  color: var(--text-color);
+  background: #000 !important;
+  color: #fff !important;
   position: relative;
-}
-
-.dark .users-section {
-  color: var(--text-color);
 }
 
 .section-header {
@@ -455,8 +450,8 @@ section.in-view .feature-card:nth-child(3) {
 }
 
 .features-section {
-  background: transparent;
-  color: #000;
+  background: #000 !important;
+  color: #fff !important;
   position: relative;
   overflow: hidden;
 }
